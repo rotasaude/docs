@@ -1,0 +1,92 @@
+f_id,title,module,apps,adrs,type
+F-01.1,Webhook ingestão com HMAC,mod-01,api,0007,feature
+F-01.2,Dedup por wamid,mod-01,api,0007,feature
+F-01.3,Cifragem + TTL de raw,mod-01,api,0013,feature
+F-01.4,Roteamento por phone_number_id,mod-01,api,0007,feature
+F-01.5,Parking de número desconhecido,mod-01,api|admin,0007,feature
+F-01.6,Outbound (texto livre),mod-01,api,0005,feature
+F-01.7,Outbound (template aprovado janela maior que 24h),mod-01,api,0005,feature
+F-01.8,Cadastro de canal por cidade,mod-01,admin,"0007,0013",feature
+F-01.9,Custódia/rotação do access_token,mod-01,admin,0013,feature
+F-01.10,Painel de saúde da ingestão,mod-01,dashboard,brief,feature
+F-02.1,Estados awaiting_consent / in_progress,mod-02,api,0008,feature
+F-02.2,Estados terminais (completed/declined/cancelled/abandoned),mod-02,api,0008,feature
+F-02.3,Índice único parcial em (municipality_id phone) ativos,mod-02,api,"0008,0007",feature
+F-02.4,Captura de consentimento (botões interativos),mod-02,api,0008,feature
+F-02.5,Revogação (consent.revoked),mod-02,api,0008,feature
+F-02.6,Re-pergunta em ambiguidade (default-deny),mod-02,api,0008,feature
+F-02.7,Varredura de timeout / abandoned,mod-02,api,0008,feature
+F-02.8,Enqueue de resposta dentro da transação do lock,mod-02,api,0005,feature
+F-02.9,Visão de conversas no dashboard da cidade,mod-02,dashboard,brief,feature
+F-03.1,Interpretador puro (step),mod-03,api,0009,feature
+F-03.2,Linguagem de condição (eq/in/gt/lt/all/any/not),mod-03,api,0009,feature
+F-03.3,Mapeamento tipo de pergunta para elemento WhatsApp,mod-03,api,0009,feature
+F-03.4,evaluate modo weighted,mod-03,api,0009,feature
+F-03.5,evaluate modo decision_table,mod-03,api,0009,feature
+F-03.6,priority_when (independente do modo),mod-03,api,0009,feature
+F-03.7,Trail estruturado,mod-03,api,0009,feature
+F-03.8,Storage protocols + workflow draft/in_review/published/retired,mod-03,api,0009,feature
+F-03.9,Gate server-side (schema + linter de grafo + scoring),mod-03,api,0009,feature
+F-03.10,RBAC protocol_author / protocol_publisher,mod-03,api|dashboard,"0009,0012",feature
+F-03.11,Step-up MFA na publicação,mod-03,api|dashboard,"0009,0011",feature
+F-03.12,Editor JSON + preview ao vivo na cidade,mod-03,dashboard,0009,feature
+F-03.13,Publicação + auditoria (protocol.published),mod-03,api|dashboard,"0009,0014",feature
+F-03.14,Aposentadoria (retired não deleta),mod-03,api|dashboard,0009,feature
+F-03.15,Triagens completam com protocol_version congelado,mod-03,api,"0010,0009",feature
+F-03.16,Inspeção de trail (referências sem clínica crua),mod-03,dashboard,"0009,brief",feature
+F-03.17,Resultado da triagem renderizado no wpda,mod-03,wpda,0009,feature
+F-03.18,Ativação de versão por cidade (ActivateProtocolVersion),mod-03,api|dashboard,0009,feature
+F-03.19,Aposentadoria com guarda R4 (RetireProtocolVersion),mod-03,api|dashboard,0009,feature
+F-04.1,GenerateReportJob consumindo triage.completed,mod-04,api,"0004,0005,0010",feature
+F-04.2,Snapshot report_snapshots com payload + protocol_version,mod-04,api,0010,feature
+F-04.3,Token assinado para acesso público (sem login),mod-04,api,—,feature
+F-04.4,Rota /r/token lê do snapshot nunca recalcula,mod-04,api,0010,feature
+F-04.5,Renderização do relatório no wpda,mod-04,wpda,0010,feature
+F-04.6,Lista de relatórios no dashboard da cidade,mod-04,dashboard,brief,feature
+F-04.7,Notificação ao cidadão (link via WhatsApp),mod-04,api,0004,feature
+F-05.1,Esqueleto do app + roteamento + i18n PT-BR,mod-05,dashboard,brief,feature
+F-05.2,Auth boundary (consome módulo 06),mod-05,api|dashboard,"0011,0012",feature
+F-05.3,Carimbo dados de timestamp universal,mod-05,dashboard,brief,feature
+F-05.4,Painel Overview,mod-05,api|dashboard,brief,feature
+F-05.5,Painel Ingestão,mod-05,api|dashboard,brief,feature
+F-05.6,Painel Conversas,mod-05,api|dashboard,brief,feature
+F-05.7,Painel Consentimento,mod-05,api|dashboard,brief,feature
+F-05.8,Painel Triagens,mod-05,api|dashboard,brief,feature
+F-05.9,Painel Classificação,mod-05,api|dashboard,brief,feature
+F-05.10,Painel Protocolos,mod-05,api|dashboard,brief,feature
+F-05.11,Painel Filas (Solid Queue),mod-05,api|dashboard,brief,feature
+F-05.12,Painel Eventos de domínio,mod-05,api|dashboard,brief,feature
+F-05.13,Atualização de projeções (UpdateDashboardJob),mod-05,api,"0004,0005,0010",feature
+F-05.14,Job de reconciliação (rebuild de projeção),mod-05,api,0010,feature
+F-06.1,has_secure_password + Session (Rails 8 generator),mod-06,api,0011,feature
+F-06.2,Reset de senha por e-mail,mod-06,api,0011,feature
+F-06.3,MFA TOTP + recovery codes,mod-06,api,0011,feature
+F-06.4,MFA obrigatória no login do platform_operator,mod-06,api|admin,0011,feature
+F-06.5,Step-up MFA no ato de publicar protocolo,mod-06,api|dashboard,"0011,0009",feature
+F-06.6,Modelo memberships (append-only end-dating),mod-06,api,0012,feature
+F-06.7,Roles (platform_operator/municipal_admin/protocol_author/protocol_publisher/viewer),mod-06,api,0012,feature
+F-06.8,Policies (defesa em profundidade: policy + RLS),mod-06,api,0012,feature
+F-06.9,Convites (invitations),mod-06,api|admin|dashboard,0012,feature
+F-06.10,Desativação de usuário (append-only),mod-06,api|dashboard,0012,feature
+F-06.11,ProvisionMunicipality (control + data plane num command),mod-06,api|admin,0013,feature
+F-06.12,Custódia de chave AR Encryption no env por ambiente,mod-06,api,0013,feature
+F-06.13,Termos de consentimento por cidade (consent_terms),mod-06,api|dashboard,0013,feature
+F-06.14,Destinatário de alerta por cidade (alert_recipients),mod-06,api|admin,0013,feature
+F-06.15,Backstop de publisher pelo platform_operator,mod-06,api|admin,0012,feature
+F-06.16,Token assinado de acesso do paciente,mod-06,api|wpda,—,feature
+F-06.17,Eventos platform-scope (Platform.audit),mod-06,api,0014,feature
+F-07.1,Tabela domain_events append-only,mod-07,api,0014,feature
+F-07.2,Insert na mesma transação do publish,mod-07,api,"0014,0004",feature
+F-07.3,Purge de domain_events (12 meses) recurring,mod-07,api,0014,feature
+F-07.4,Cifragem do raw (AR Encryption),mod-07,api,0013,feature
+F-07.5,Purge do raw pós-processamento (recurring),mod-07,api,0014,feature
+F-07.6,RLS habilitado + FORCE em todas as tabelas de tenant,mod-07,api,0003,feature
+F-07.7,Dois papéis Postgres (rota_app / rota_admin),mod-07,api,0003,feature
+F-07.8,around_action within_tenant na web,mod-07,api,0003,feature
+F-07.9,TenantScopedJob concern para jobs,mod-07,api,0003,feature
+F-07.10,Carimbo municipality_id no publish,mod-07,api,0004,feature
+F-07.11,domain_events.municipality_id nullable (platform-scope),mod-07,api,0014,feature
+F-07.12,Platform.audit para eventos de identidade,mod-07,api,0014,feature
+F-07.13,Painel de eventos no dashboard da cidade,mod-07,dashboard,brief,feature
+F-07.14,Painel cross-tenant no admin,mod-07,api|admin,"0014,0003,0012",feature
+F-07.15,Tratamento de revogação de consentimento (assinante de consent.revoked),mod-07,api,0008,feature
