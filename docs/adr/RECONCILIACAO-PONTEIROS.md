@@ -142,3 +142,25 @@ aberto do corpus: o alerta à secretaria não tem ADR próprio no v2.
 | `app/queries/admin/protocols_query.rb:78` | ADR-0020 | ADR-0004 | v1→v2 | **split**: "IDs viajam no payload" é o publish carimbado |
 | `app/queries/admin/triage_trail_query.rb:3` | ADR 0015 | ADR 0009 | v1→v2 | v1 0015 = `Outcome`/trail, que é o que a query lê |
 | `app/queries/admin/triage_trail_query.rb:22` | ADR-0020 | ADR-0004 | v1→v2 | **split**: payload do evento |
+
+## app/controllers
+
+| Ocorrência | Antes | Depois | Decisão | Justificativa |
+|---|---|---|---|---|
+| `app/controllers/admin/api/base_controller.rb:3` | ADR-0022 | ADR-0011 | v1→v2 | cookie de sessão |
+| `app/controllers/admin/api/base_controller.rb:15` | ADR-0019 | ADR-0003 | v1→v2 | `TenantScopedRequest` = RLS |
+| `app/controllers/admin/api/triages_controller.rb:7` | ADR 0015 | ADR 0009 | v1→v2 | trail é o `Outcome` do motor |
+| `app/controllers/application_controller.rb:8` | ADR-0019 | ADR-0003 | v1→v2 | `around_action :within_tenant` |
+| `app/controllers/authoring/protocols_controller.rb:2` | ADR-0022, ADR-0019 | ADR-0011, ADR-0003 | v1→v2 | sessão + RLS. Arquivo escrito DEPOIS da refundação e ainda em numeração v1 |
+| `app/controllers/concerns/authentication.rb:8` | ADR-0022 | ADR-0011 | v1→v2 | autenticação |
+| `app/controllers/concerns/mfa_step_up.rb:2` | ADR-0022, ADR-0016 | ADR-0011, ADR-0009 | v1→v2 | MFA → 0011; ato de publicação protocolo → 0009 |
+| `app/controllers/concerns/tenant_scoped_request.rb:3` | ADR-0019 | ADR-0003 | v1→v2 | tenant antes de qualquer SQL |
+| `app/controllers/passwords_controller.rb:1` | ADR-0022 | ADR-0011 | v1→v2 | reset de senha |
+| `app/controllers/protocols_controller.rb:1` | ADR-0016 e ADR-0017 | ADR-0009 | v1→v2 | os dois colapsam no motor — deduplicado |
+| `app/controllers/publications_controller.rb:1` | ADR-0022 + ADR-0016 | ADR-0011 + ADR-0009 | v1→v2 | step-up MFA + publicação |
+| `app/controllers/reports_controller.rb:1` | ADR-0007 | ADR-0010 | v1→v2 | endpoint público do snapshot congelado |
+| `app/controllers/sessions_controller.rb:1` | ADR-0022 | ADR-0011 | v1→v2 | sessões |
+| `app/controllers/sessions_controller.rb:29` | ADR-0022 | ADR-0011 | v1→v2 | TOTP no login |
+| `app/controllers/sessions_controller.rb:50` | ADR-0022 | ADR-0011 | v1→v2 | seam gov.br |
+| `app/controllers/setup_controller.rb:2` | ADR-0023, ADR-0024 | ADR-0012, ADR-0013 | v1→v2 | o comentário nomeia os temas: memberships/authz e provisionamento |
+| `app/controllers/webhooks/whatsapp_controller.rb:1` | ADR-0010 | ADR-0007 | v1→v2 | webhook do WhatsApp Cloud API |
