@@ -111,3 +111,34 @@ aberto do corpus: o alerta à secretaria não tem ADR próprio no v2.
 | `app/jobs/send_whatsapp_job.rb:1` | ADR-0014/0021 | ADR-0005/0007 | v1→v2 | fora-de-banda + canal WhatsApp |
 | `app/jobs/sweep_abandoned_conversations_job.rb:1` | ADR-0019 | ADR-0003 | v1→v2 | varredura cross-tenant sob RLS |
 | `app/jobs/update_dashboard_job.rb:1` | ADR-0007 + 0020 | ADR-0010 + 0003 | v1→v2 | projeção do dashboard + **split** na face mecanismo |
+
+## app/models, app/queries
+
+| Ocorrência | Antes | Depois | Decisão | Justificativa |
+|---|---|---|---|---|
+| `app/models/alert_recipient.rb:1` | ADR-0024 | ADR-0013 | v1→v2 | destinatário por município é config por cidade |
+| `app/models/consent.rb:1` | ADR-0012 | ADR-0008 | v1→v2 | consentimento versionado |
+| `app/models/consent.rb:6` | ADR-0011 | ADR-0013 | v1→v2 | **split de v1 0011**: `encrypts :evidence` é criptografia → 0013 |
+| `app/models/consent_term.rb:1` | ADR-0024 | ADR-0013 | v1→v2 | termo por município é config por cidade |
+| `app/models/conversation.rb:1` | ADR-0012 + emenda ADR-0021 | ADR-0008 e ADR-0007 | v1→v2 | consent + roteamento de canal; a palavra "emenda" sai (o v2 não tem cadeia) |
+| `app/models/conversation.rb:30` | ADR-0021 | ADR-0007 | v1→v2 | `Conversation.for(phone, municipality_id:)` é roteamento de canal |
+| `app/models/current.rb:1` | ADR-0019, ADR-0020 | ADR-0003 | v1→v2 | RLS + **split** na face mecanismo — os dois colapsam, deduplicado |
+| `app/models/dashboard_metric.rb:1` | ADR-0007 | ADR-0010 | v1→v2 | projeção reconstrutível |
+| `app/models/domain_event.rb:1` | ADR-0009, ADR-0020 | ADR-0014, ADR-0004 | v1→v2 | auditoria imutável → 0014; **split** na face publish → 0004 |
+| `app/models/domain_event.rb:2` | ADR-0023 | ADR-0012 | v1→v2 | eventos platform-scope |
+| `app/models/identity.rb:1` | ADR-0022 | ADR-0011 | v1→v2 | seam de provedores de auth |
+| `app/models/inbound_message.rb:2` | ADR-0010, ADR-0011 | ADR-0007, ADR-0013 | v1→v2 | webhook → 0007; **split**: o comentário diz "(encryption)" → 0013 |
+| `app/models/membership.rb:2` | ADR-0023 | ADR-0012 | v1→v2 | memberships/RBAC |
+| `app/models/municipality_channel.rb:1` | ADR-0021, ADR-0011/0024 | ADR-0007, ADR-0013 | v1→v2 | canal → 0007; AR Encryption e config por cidade colapsam em 0013, deduplicado |
+| `app/models/outbound_message.rb:1` | ADR-0014 | ADR-0005 | v1→v2 | envio fora do lock |
+| `app/models/processed_event.rb:2` | ADR-0005 | ADR-0005 | v1→v2 | `processed_events`; número coincide |
+| `app/models/protocol_definition.rb:1` | ADR-0009 | ADR-0009 | já v2 | o comentário já diz "(Protocol engine)", título do v2 |
+| `app/models/report_snapshot.rb:1` | ADR-0007 | ADR-0010 | v1→v2 | snapshot congelado |
+| `app/models/triage.rb:2` | ADR-0006, ADR-0013 | ADR-0004, ADR-0009 | v1→v2 | o próprio comentário nomeia os temas: "commands" e "motor de protocolos" |
+| `app/models/user.rb:1` | ADR-0022 | ADR-0011 | v1→v2 | identidade global |
+| `app/models/user.rb:2` | ADR-0023 | ADR-0012 | v1→v2 | desativação por end-dating é RBAC append-only |
+| `app/queries/admin/classification_query.rb:3` | ADR 0007 | ADR 0010 | v1→v2 | lê do snapshot congelado |
+| `app/queries/admin/events_query.rb:3` | ADR 0003/0009 | ADR 0004/0014 | v1→v2 | domain events → 0004; auditoria/replay → 0014 |
+| `app/queries/admin/protocols_query.rb:78` | ADR-0020 | ADR-0004 | v1→v2 | **split**: "IDs viajam no payload" é o publish carimbado |
+| `app/queries/admin/triage_trail_query.rb:3` | ADR 0015 | ADR 0009 | v1→v2 | v1 0015 = `Outcome`/trail, que é o que a query lê |
+| `app/queries/admin/triage_trail_query.rb:22` | ADR-0020 | ADR-0004 | v1→v2 | **split**: payload do evento |
