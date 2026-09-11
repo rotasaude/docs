@@ -218,3 +218,40 @@ de CHANGELOG e tag — entrega própria, não um efeito colateral desta.
 Por isso o inventário e a spec de guarda não varrem `.json`: varrer tornaria a
 guarda permanentemente vermelha por causa de um arquivo que este repo não pode
 consertar sozinho.
+
+## db (migrations e seeds)
+
+Só comentários foram tocados — nenhuma DDL mudou, e o `db:migrate:status` segue
+com todas as migrations `up`.
+
+| Ocorrência | Antes | Depois | Decisão | Justificativa |
+|---|---|---|---|---|
+| `20260618100003_create_conversations.rb:1` | ADR-0012 | ADR-0008 | v1→v2 | conversa/consentimento |
+| `20260618100004_create_consents.rb:1` | ADR-0012 | ADR-0008 | v1→v2 | idem |
+| `20260618100005_create_protocol_definitions.rb:1` | ADR-0016 | ADR-0009 | v1→v2 | storage de definições |
+| `20260618100006_create_triagens.rb:1` | ADR-0006 e ADR-0013 | ADR-0004 e ADR-0009 | v1→v2 | commands + motor |
+| `20260618100007_create_inbound_messages.rb:1` | ADR-0010 e ADR-0011 | ADR-0007 e ADR-0013 | v1→v2 | webhook + **split**: cripto do payload bruto |
+| `20260618100008_create_outbound_messages.rb:1` | ADR-0014 | ADR-0005 | v1→v2 | envio fora do lock |
+| `20260618100009_create_domain_events.rb:1` | ADR-0003 e ADR-0009 | ADR-0004 e ADR-0014 | v1→v2 | eventos + auditoria |
+| `20260618100010_create_processed_events.rb:1` | ADR-0005 | ADR-0005 | v1→v2 | número coincide |
+| `20260618100011_create_report_snapshots.rb:1` | ADR-0007 | ADR-0010 | v1→v2 | snapshot congelado |
+| `20260618100012_create_dashboard_metrics.rb:1` | ADR-0007 | ADR-0010 | v1→v2 | projeção reconstrutível |
+| `20260619210000_create_users_and_sessions.rb:2` | ADR-0022 | ADR-0011 | v1→v2 | sessão assinada |
+| `20260620000001_create_database_roles.rb:1` | ADR-0019 | ADR-0003 | v1→v2 | `rota_app`/`rota_admin` |
+| `20260620000010_add_municipality_id_to_data_plane.rb:3` | ADR-0019 | ADR-0003 | v1→v2 | coluna de tenant |
+| `20260620000020_enable_rls_on_data_plane.rb:1` | ADR-0019 | ADR-0003 | v1→v2 | política `tenant_isolation` |
+| `20260620000020_enable_rls_on_data_plane.rb:2` | ADR-0016 | ADR-0009 | v1→v2 | escopo de `protocol_definitions` |
+| `20260620000030_processed_events_tenant…:2` | ADR-0020 | ADR-0003 | v1→v2 | **split**: `municipality_id` + RLS = mecanismo |
+| `20260620000030_processed_events_tenant…:4` | ADR-0020 | ADR-0004 | v1→v2 | **split**: forma do payload publicado |
+| `20260620000040_identity_for_multitenant.rb:1` | ADR-0022 | ADR-0011 | v1→v2 | identidade global |
+| `20260620000040_identity_for_multitenant.rb:2` | ADR-0023 | ADR-0012 | v1→v2 | memberships |
+| `20260620000060_domain_events_municipality_nullable.rb:1` | Emenda ADR-0023 ao ADR-0009 | ADR-0012 e ADR-0014 | v1→v2 | platform-scope + auditoria; a palavra "emenda" sai |
+| `20260620000070_create_memberships.rb:2` | ADR-0023 | ADR-0012 | v1→v2 | memberships RLS-exempt |
+| `20260620000090_create_municipality_channels.rb:1` | ADR-0021 | ADR-0007 | v1→v2 | roteamento de canal |
+| `20260620000100_create_unknown_channels.rb:1` | ADR-0021 | ADR-0007 | v1→v2 | parking de canal desconhecido |
+| `20260620000110_conversation_partial_index_by_tenant.rb:2` | ADR-0021 emenda 0012 | ADR-0008 | v1→v2 | índice sobre estados da conversa |
+| `20260620000120_municipality_status_and_consent_terms.rb:1` | ADR-0024 | ADR-0013 | v1→v2 | provisionamento/config por cidade |
+| `20260623000010_protocol_lifecycle_states.rb:6` | ADR-0019 | ADR-0003 | v1→v2 | dono da tabela sob RLS |
+| `20260623000020_rename_triagens_to_triages.rb:12` | ADR-0019 | ADR-0003 | v1→v2 | `FORCE ROW LEVEL SECURITY` |
+| `db/seeds.rb:15` | ADR-0022 | ADR-0011 | v1→v2 | TOTP a cada login |
+| `db/seeds/dashboard_demo.rb:197` | ADR-0007 | ADR-0010 | v1→v2 | **ponteiro escrito por engano em numeração v1 em 2026-09-11**, no plano do gate de urgência; "prova imutável" é o v2 0010 |
