@@ -164,3 +164,57 @@ aberto do corpus: o alerta à secretaria não tem ADR próprio no v2.
 | `app/controllers/sessions_controller.rb:50` | ADR-0022 | ADR-0011 | v1→v2 | seam gov.br |
 | `app/controllers/setup_controller.rb:2` | ADR-0023, ADR-0024 | ADR-0012, ADR-0013 | v1→v2 | o comentário nomeia os temas: memberships/authz e provisionamento |
 | `app/controllers/webhooks/whatsapp_controller.rb:1` | ADR-0010 | ADR-0007 | v1→v2 | webhook do WhatsApp Cloud API |
+
+## config, lib, deploy
+
+| Ocorrência | Antes | Depois | Decisão | Justificativa |
+|---|---|---|---|---|
+| `config/application.rb:9` | ADR-0013 | ADR-0009 | v1→v2 | namespace do motor (`Protocols::Validator`) |
+| `config/application.rb:27` | ADR-0022 | ADR-0011 | v1→v2 | auth via cookie |
+| `config/application.rb:36` | ADR-0004 | ADR-0004 | v1→v2 | `enqueue_after_transaction_commit`; número coincide |
+| `config/application.rb:40` | ADR-0001 | ADR-0001 | v1→v2 | Solid Queue como adapter; número coincide |
+| `config/database.yml:10` | ADR-0019 | ADR-0003 | v1→v2 | roles `rota_app`/`rota_admin` são do RLS |
+| `config/initializers/active_record_encryption.rb:1` | ADR-0011 | ADR-0013 | v1→v2 | **split**: chaves do AR Encryption = custódia |
+| `config/initializers/cors.rb:8` | ADR-0022 | ADR-0011 | v1→v2 | cookie de sessão |
+| `config/initializers/domain_events.rb:1` | ADR-0003 + ADR-0020 | ADR-0004 | v1→v2 | colapsam — deduplicado |
+| `config/initializers/filter_parameter_logging.rb:1` | ADR-0010, ADR-0011 | ADR-0007, ADR-0013 | v1→v2 | **split de v1 0011**: a lista é dominada por credenciais (`secret`, `token`, `_key`, `crypt`, `salt`, `otp`, `authorization`) → custódia (0013), não retenção (0014) |
+| `config/initializers/protocols_facade.rb:1` | ADR-0013, ADR-0016 | ADR-0009 | v1→v2 | motor e storage colapsam — deduplicado |
+| `config/initializers/protocols_facade.rb:25` | ADR-0007 / ADR-0016 | ADR-0010 / ADR-0009 | v1→v2 | relatórios históricos + versão exata do protocolo |
+| `config/locales/conversation_advance.pt-BR.yml:1` | ADR-0012/0021 | ADR-0008/0007 | v1→v2 | consent + canal |
+| `config/puma.rb:1` | ADR-0002 | ADR-0001 | v1→v2 | papéis web/worker da imagem única |
+| `config/queue.yml:1` | ADR-0008 | ADR-0006 | v1→v2 | pools por fila/SLA |
+| `config/recurring.yml:1` | ADR-0007, 0011, 0009 | ADR-0010 e ADR-0014 | v1→v2 | projeções + retenção/replay; 0011 e 0009 colapsam em 0014 — deduplicado |
+| `config/routes.rb:8` | ADR-0022 | ADR-0011 | v1→v2 | sessão |
+| `config/routes.rb:12` | ADR-0022 | ADR-0011 | v1→v2 | reset de senha |
+| `config/routes.rb:15` | ADR-0022 | ADR-0011 | v1→v2 | MFA |
+| `config/routes.rb:20` | ADR-0022 | ADR-0011 | v1→v2 | gov.br OIDC |
+| `config/routes.rb:24` | ADR-0023/0024 | ADR-0012/0013 | v1→v2 | memberships + provisionamento |
+| `config/routes.rb:35` | ADR-0002 | ADR-0001 | v1→v2 | healthcheck do Kamal |
+| `config/routes.rb:38` | ADR-0010 | **ADR-0007** | v1→v2 | webhook WhatsApp. **Troca com a linha 44** |
+| `config/routes.rb:44` | ADR-0007 | **ADR-0010** | v1→v2 | relatório público congelado. **Troca com a linha 38** |
+| `config/routes.rb:47` | ADR-0016 | ADR-0009 | v1→v2 | autoria/preview de protocolo |
+| `config/routes.rb:63` | ADR-0022 + ADR-0016 | ADR-0011 + ADR-0009 | v1→v2 | step-up MFA + publicação |
+| `config/routes.rb:66` | ADR-0018 | ADR-0002 | v1→v2 | v1 0018 = topologia dos 4 apps |
+| `deploy/SECRETS.md:1` | ADR-0024 | ADR-0013 | v1→v2 | custódia de secrets |
+| `deploy/development/deploy.yml:2` | ADR-0002 | ADR-0001 | v1→v2 | imagem única, papéis web/worker |
+| `deploy/development/deploy.yml:3` | ADR-0011 | ADR-0013 | v1→v2 | **split**: secrets |
+| `deploy/production/deploy.yml:2` | ADR-0002 | ADR-0001 | v1→v2 | idem |
+| `deploy/production/deploy.yml:3` | ADR-0011 | ADR-0013 | v1→v2 | **split**: secrets |
+| `lib/migration_helpers/rls.rb:2` | ADR-0019 | ADR-0003 | v1→v2 | `FORCE ROW LEVEL SECURITY` |
+| `lib/tasks/bootstrap.rake:1` | ADR-0019 | ADR-0003 | v1→v2 | bootstrap sob RLS |
+| `lib/tasks/bootstrap.rake:55` | ADR-0019 | ADR-0003 | v1→v2 | least-privilege do `rota_app` |
+
+### Fora do escopo — o ponteiro dentro do contrato
+
+`schema.json:5` diz `"Contrato compartilhado por motor Ruby (ADR-0013) e preview
+TS (ADR-0016)"` — numeração v1, que em v2 seria **0009** nos dois casos.
+
+Não foi corrigido aqui de propósito. O arquivo existe em **três cópias
+byte-idênticas** (`contracts/protocols/`, `packages/protocols/`,
+`apps/api/config/protocols/`), e mexer só na do `api` quebraria a identidade que
+o ADR 0015 exige. Corrigir direito é uma mudança no repo `contracts` com entrada
+de CHANGELOG e tag — entrega própria, não um efeito colateral desta.
+
+Por isso o inventário e a spec de guarda não varrem `.json`: varrer tornaria a
+guarda permanentemente vermelha por causa de um arquivo que este repo não pode
+consertar sozinho.
