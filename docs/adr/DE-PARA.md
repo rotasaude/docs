@@ -2,7 +2,7 @@
 
 A ponte entre o corpus antigo (26 ADRs com emendas + uma nota de custódia) e o corpus
 consolidado (15 ADRs lineares). Sem ela, toda referência externa a um número v1 fica
-órfã. O corpus v1 é preservado read-only no histórico local do projeto (fora deste repositório).
+órfã. O corpus v1 é preservado read-only em [`_v1/adr/`](../../_v1/README.md).
 
 ## v1 → v2 (onde foi parar cada ADR antigo)
 

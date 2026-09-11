@@ -89,5 +89,5 @@ vira ADR próprio quando entrar no ciclo.
 
 Este corpus sucede o anterior (26 ADRs com cadeia de emendas + uma nota de custódia). O
 mapeamento completo está em [DE-PARA.md](DE-PARA.md). O corpus antigo é preservado como
-arquivo histórico, read-only, no histórico local do projeto (fora deste repositório). Como o corpus
+arquivo histórico, read-only, em [`_v1/adr/`](../../_v1/README.md). Como o corpus
 v2 foi construído está em [`../../_refundacao/`](../../_refundacao/PROVENIENCIA.md).
