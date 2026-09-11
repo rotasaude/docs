@@ -274,3 +274,36 @@ com todas as migrations `up`.
 | `spec/integration/event_dispatch_with_tenant_spec.rb:3` | ADR-0020 | ADR-0004 e ADR-0003 | v1→v2 | **split que não colapsa**: a spec exercita as duas faces — o publish carimbado (0004) e o consumer rodando sob o tenant (0003). Citar só uma seria mentira |
 | `spec/rls/tenant_isolation_spec.rb:4` | ADR-0019 | ADR-0003 | v1→v2 | as quatro invariantes de RLS |
 | `spec/support/admin_rls.rb:1` | ADR-0019 | ADR-0003 | v1→v2 | helper cross-tenant |
+
+## Fecho
+
+**Cobertura.** 228 ocorrências inventariadas em 140 arquivos de `rotasaude/api`,
+distribuídas em **196 linhas distintas**. A tabela tem **196 linhas — uma por
+linha de código, não por ocorrência**, porque a linha é a unidade de edição:
+um comentário que cita dois ADRs é uma decisão só. Conferido: 196 = 196, sem
+buraco. Zero casos marcados `DÚVIDA`.
+
+**Resultado.** Inventário final: 235 ocorrências, **todas dentro de 0001..0015**.
+O número subiu em relação às 228 iniciais porque o matcher passou a enxergar as
+formas compactas (ver abaixo), não porque ponteiros foram acrescentados.
+
+**Verificação.** Cada uma das 196 linhas foi conferida programaticamente contra
+o arquivo real: o ponteiro que está no código é o que a coluna `Depois` manda.
+
+### Duas correções ao próprio método, achadas durante a execução
+
+1. **Forma compacta.** `ADR-0012/0013` carrega dois ponteiros, mas o regex
+   original (`ADR[-\s]?(\d{4})`) só lia o primeiro — o segundo passava sem
+   conferência, na guarda e no inventário. Nove ocorrências usam essa forma.
+   Nenhuma escondia número fora da faixa, mas o furo era real: um
+   `ADR-0007/0024` teria passado batido. Regex corrigido nos dois lugares.
+2. **Forma sem prefixo.** `update_dashboard_job.rb` ficou, por um deslize desta
+   própria reconciliação, com `(ADR-0010 + 0003)` — o `0003` sem `ADR-` não é
+   reconhecível por ninguém: nem pela guarda, nem por quem faz grep. Reescrito
+   como `(ADR-0010 e ADR-0003)`. **Ponteiro só conta se for procurável.**
+
+### Fora do escopo
+
+- `schema.json` (três cópias byte-idênticas) — ver seção própria acima.
+- `rota-saude/scripts/*.rb` — não estão em repositório nenhum.
+- A cópia local não-versionada de `rota-saude/docs/`.
