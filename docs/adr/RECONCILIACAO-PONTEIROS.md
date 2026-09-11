@@ -55,3 +55,29 @@ corretos mas **magros**: quem seguir cai num ADR de projeções.
 Não inventamos mapeamento para consertar isso — seria decidir arquitetura numa
 tabela de reconciliação. Fica registrado como candidato à lista de itens em
 aberto do corpus: o alerta à secretaria não tem ADR próprio no v2.
+
+## app/commands, app/services
+
+| Ocorrência | Antes | Depois | Decisão | Justificativa |
+|---|---|---|---|---|
+| `app/commands/complete_triage.rb:1` | ADR-0006 e ADR-0017 | ADR-0004 e ADR-0009 | v1→v2 | v1 0006 = commands com `Result`; v1 0017 = scoring |
+| `app/commands/conversation_advance.rb:2` | ADR-0012, 0013, 0010 | ADR-0008, 0009, 0007 | v1→v2 | consent → 0008; motor → 0009; ingestão WhatsApp → 0007 |
+| `app/commands/conversation_advance.rb:9` | ADR-0021 emenda 0012 | ADR-0008 | v1→v2 | estados da conversa = v2 0008; o v2 não tem cadeia de emendas, então a referência à emenda sai |
+| `app/commands/conversation_advance.rb:13` | ADR-0013 | ADR-0009 | v1→v2 | prompt vem do step do motor |
+| `app/commands/give_consent.rb:1` | ADR-0006 e ADR-0012 | ADR-0004 e ADR-0008 | v1→v2 | command + consentimento |
+| `app/commands/municipality_channels/rotate_token.rb:4` | ADR-0011/0023 | ADR-0012/0013 | v1→v2 | **split de v1 0011**: "SEM o valor do token" é custódia de secret → 0013 (não 0014/retenção). v1 0023 = RBAC → 0012 |
+| `app/commands/protocols/activate.rb:2` | ADR-0009 | ADR-0009 | já v2 | "lifecycle de dois eixos" é o motor (v2 0009); v1 0009 era replay de eventos |
+| `app/commands/protocols/publish.rb:2` | ADR-0009 | ADR-0009 | já v2 | idem |
+| `app/commands/protocols/publish.rb:5` | ADR-0003 | ADR-0003 | já v2 | "within_tenant do request" é RLS (v2 0003); v1 0003 era pub/sub de eventos |
+| `app/commands/protocols/publish.rb:6` | ADR-0011 | ADR-0011 | já v2 | step-up MFA = v2 0011; v1 0011 era cripto do payload bruto |
+| `app/commands/protocols/retire.rb:2` | ADR-0009 | ADR-0009 | já v2 | idem activate |
+| `app/commands/provision_municipality.rb:2` | ADR-0024 | ADR-0013 | v1→v2 | v1 0024 = provisionamento de município |
+| `app/commands/provision_municipality.rb:26` | ADR-0020 | ADR-0003 | v1→v2 | **split de v1 0020**: `Current.municipality_id` + `SET LOCAL` é o mecanismo → 0003 |
+| `app/commands/result.rb:1` | ADR-0006 | ADR-0004 | v1→v2 | o `Result` é da camada de commands |
+| `app/commands/revoke_consent.rb:1` | ADR-0006 e ADR-0012 | ADR-0004 e ADR-0008 | v1→v2 | command + consentimento |
+| `app/commands/seed_protocol.rb:2` | ADR-0024 | ADR-0013 | v1→v2 | seed de protocolo faz parte do provisionamento |
+| `app/services/consents.rb:2` | ADR-0012 | ADR-0008 | v1→v2 | consentimento versionado |
+| `app/services/whatsapp/ingest.rb:1` | ADR-0021 | ADR-0007 | v1→v2 | v1 0021 = roteamento de canal e ingestão multi-tenant |
+| `app/services/whatsapp/ingest.rb:3` | ADR-0010 | ADR-0007 | v1→v2 | v1 0010 = webhook WhatsApp, HMAC na borda |
+| `app/services/whatsapp/ingest/parser.rb:1` | ADR-0010 | ADR-0007 | v1→v2 | idem |
+| `app/services/whatsapp/outbound.rb:1` | ADR-0021/0024 | ADR-0007/0013 | v1→v2 | canal → 0007; config por cidade → 0013 |
