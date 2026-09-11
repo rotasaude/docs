@@ -255,3 +255,22 @@ com todas as migrations `up`.
 | `20260623000020_rename_triagens_to_triages.rb:12` | ADR-0019 | ADR-0003 | v1→v2 | `FORCE ROW LEVEL SECURITY` |
 | `db/seeds.rb:15` | ADR-0022 | ADR-0011 | v1→v2 | TOTP a cada login |
 | `db/seeds/dashboard_demo.rb:197` | ADR-0007 | ADR-0010 | v1→v2 | **ponteiro escrito por engano em numeração v1 em 2026-09-11**, no plano do gate de urgência; "prova imutável" é o v2 0010 |
+
+## spec e `.md` da raiz do api
+
+| Ocorrência | Antes | Depois | Decisão | Justificativa |
+|---|---|---|---|---|
+| `README.md:5` | ADR-0019 | ADR-0003 | v1→v2 | RLS/ownership não cabem no `schema.rb` |
+| `RECONCILE_admin_console.md:13` | ADR-0022 | ADR-0011 | v1→v2 | cookie de sessão |
+| `RECONCILE_admin_console.md:30` | ADR 0007 | ADR 0010 | v1→v2 | projeção `ingestion_metrics` |
+| `RECONCILE_admin_console.md:31` | ADR 0011 | ADR 0014 | v1→v2 | **split**: backlog de purga é retenção/LGPD |
+| `RECONCILE_admin_console.md:37` | ADR 0016 | ADR 0009 | v1→v2 | colunas de `protocol_definitions` |
+| `RECONCILE_admin_console.md:41` | ADR-0022 | ADR-0011 | v1→v2 | RBAC/sessão real |
+| `RECONCILE_admin_console.md:43` | ADR-0020 | ADR-0003 | v1→v2 | **split**: flag cross-tenant é o mecanismo de tenant |
+| `RECONCILE_admin_console.md:99` | ADR-0022 + link `0022.md` | ADR-0011 + link `0011.md` | v1→v2 | **o link do arquivo também mudou**, não só o número |
+| `RECONCILE_admin_console.md:107` | ADR 0007 | ADR 0010 | v1→v2 | ADR de read-side |
+| `spec/commands/protocols_lifecycle_spec.rb:3` | ADR-0009 | ADR-0009 | já v2 | lifecycle de protocolo = v2 0009 |
+| `spec/controllers/sessions_controller_govbr_spec.rb:3` | ADR-0022 | ADR-0011 | v1→v2 | seam gov.br (dentro da string do `describe`) |
+| `spec/integration/event_dispatch_with_tenant_spec.rb:3` | ADR-0020 | ADR-0004 e ADR-0003 | v1→v2 | **split que não colapsa**: a spec exercita as duas faces — o publish carimbado (0004) e o consumer rodando sob o tenant (0003). Citar só uma seria mentira |
+| `spec/rls/tenant_isolation_spec.rb:4` | ADR-0019 | ADR-0003 | v1→v2 | as quatro invariantes de RLS |
+| `spec/support/admin_rls.rb:1` | ADR-0019 | ADR-0003 | v1→v2 | helper cross-tenant |
