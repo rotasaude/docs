@@ -81,3 +81,33 @@ aberto do corpus: o alerta à secretaria não tem ADR próprio no v2.
 | `app/services/whatsapp/ingest.rb:3` | ADR-0010 | ADR-0007 | v1→v2 | v1 0010 = webhook WhatsApp, HMAC na borda |
 | `app/services/whatsapp/ingest/parser.rb:1` | ADR-0010 | ADR-0007 | v1→v2 | idem |
 | `app/services/whatsapp/outbound.rb:1` | ADR-0021/0024 | ADR-0007/0013 | v1→v2 | canal → 0007; config por cidade → 0013 |
+
+## app/jobs
+
+| Ocorrência | Antes | Depois | Decisão | Justificativa |
+|---|---|---|---|---|
+| `app/jobs/alert_municipality_job.rb:1` | ADR-0007 e ADR-0008 | ADR-0010 e ADR-0006 | v1→v2 | v1 0007 §3 (alerta à secretaria) e v1 0008 (filas/SLA). Ver nota de lossiness |
+| `app/jobs/alert_municipality_job.rb:10` | ADR-0014 | ADR-0005 | v1→v2 | v1 0014 = HTTP fora do lock |
+| `app/jobs/anonymize_revoked_triage_job.rb:2` | ADR-0005/0020 | ADR-0005/0003 | v1→v2 | consumidor idempotente + **split de v1 0020** na face mecanismo de tenant |
+| `app/jobs/concerns/admin_role_job.rb:1` | ADR-0019 | ADR-0003 | v1→v2 | v1 0019 = RLS |
+| `app/jobs/concerns/admin_role_job.rb:3` | ADR-0020 | ADR-0003 | v1→v2 | **split**: `TenantScopedJob` é o mecanismo |
+| `app/jobs/concerns/idempotent_consumer.rb:1` | ADR-0005 + emenda ADR-0020 | ADR-0005 | v1→v2 | **split**: v1 0020 §1.2 é idempotência → colapsa no mesmo 0005, deduplicado |
+| `app/jobs/concerns/idempotent_consumer.rb:3` | ADR-0014 | ADR-0005 | v1→v2 | efeito colateral fora do lock é parte do v2 0005 |
+| `app/jobs/concerns/tenant_scoped_job.rb:2` | ADR-0020 | ADR-0003 | v1→v2 | **split**: mecanismo de tenant |
+| `app/jobs/dispatch_municipality_alert_job.rb:1` | ADR-0014 | ADR-0005 | v1→v2 | HTTP/SMTP fora do lock |
+| `app/jobs/generate_report_job.rb:1` | ADR-0007 | ADR-0010 | v1→v2 | cria o `ReportSnapshot` — casa exatamente com o v2 0010 |
+| `app/jobs/notify_citizen_job.rb:1` | ADR-0007 e ADR-0014 | ADR-0010 e ADR-0005 | v1→v2 | link do snapshot + envio fora do lock |
+| `app/jobs/process_inbound_message_job.rb:1` | ADR-0010/0014/0020/0021 | ADR-0007/0005/0003 | v1→v2 | 0010 e 0021 colapsam ambos em 0007 — deduplicado |
+| `app/jobs/purge_domain_events_job.rb:2` | ADR-0005/0014 | ADR-0005/0014 | já v2 | escrito depois da refundação; v2 0014 = retenção/LGPD descreve o job, o v1 0014 (HTTP fora do lock) não |
+| `app/jobs/purge_expired_reports_job.rb:1` | ADR-0007 | ADR-0010 | v1→v2 | apaga `ReportSnapshot` |
+| `app/jobs/purge_inbound_raw_job.rb:2` | ADR-0011 | ADR-0014 | v1→v2 | **split de v1 0011**: o comentário diz "(retenção)" explicitamente → 0014, não 0013 |
+| `app/jobs/purge_processed_events_job.rb:1` | ADR-0005 | ADR-0005 | v1→v2 | `processed_events` é do v1 0005; número coincide |
+| `app/jobs/purge_processed_events_job.rb:2` | ADR-0009 | ADR-0014 | v1→v2 | v1 0009 = replay de `domain_events`, consolidado no v2 0014 |
+| `app/jobs/rebuild_dashboard_metrics_job.rb:1` | ADR-0007 | ADR-0010 | v1→v2 | `DashboardMetric` reconstrutível |
+| `app/jobs/reconcile_consents_job.rb:3` | ADR-0012 | ADR-0008 | v1→v2 | consentimento |
+| `app/jobs/reencryption_job.rb:2` | ADR-0024 | ADR-0013 | v1→v2 | rotação de chave = custódia de secrets |
+| `app/jobs/reencryption_job.rb:8` | ADR-0019 | ADR-0003 | v1→v2 | BYPASSRLS |
+| `app/jobs/resend_pending_alerts_job.rb:3` | ADR-0005 | ADR-0005 | v1→v2 | idempotência por consumidor; número coincide |
+| `app/jobs/send_whatsapp_job.rb:1` | ADR-0014/0021 | ADR-0005/0007 | v1→v2 | fora-de-banda + canal WhatsApp |
+| `app/jobs/sweep_abandoned_conversations_job.rb:1` | ADR-0019 | ADR-0003 | v1→v2 | varredura cross-tenant sob RLS |
+| `app/jobs/update_dashboard_job.rb:1` | ADR-0007 + 0020 | ADR-0010 + 0003 | v1→v2 | projeção do dashboard + **split** na face mecanismo |
