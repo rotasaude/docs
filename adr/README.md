@@ -84,6 +84,10 @@ vira ADR próprio quando entrar no ciclo.
 - **Assinante real de `consent.revoked`** e base legal de retenção pós-revogação
   (ADR 0014).
 - **Reconciliação de identidade do cidadão com CNS/SUS** (ADR 0014).
+- **Mascaramento de dados pessoais na API de manutenção** — adiado; até existir, a
+  API não expõe dado de cidadão
+  ([registro](../superpowers/specs/2026-09-17-mascaramento-dados-sensiveis-decisao.md))
+  (ADR 0014).
 
 ## Proveniência
 
