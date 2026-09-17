@@ -4,7 +4,7 @@ Registro de decisão, uma linha por ocorrência. A reescrita dos comentários em
 `rotasaude/api` foi **derivada desta tabela** — se um ponteiro do código não
 bate com a linha aqui, a tabela é a fonte de verdade e o código está errado.
 
-Método e mapa v1→v2: [`DE-PARA.md`](DE-PARA.md). Texto v1: [`_v1/adr/`](../../_v1/README.md).
+Método e mapa v1→v2: [`DE-PARA.md`](DE-PARA.md). Texto v1: [`_v1/adr/`](../_v1/README.md).
 
 Legenda de `Decisão`: `v1→v2` (era v1, reescrito) · `já v2` (não mexido) ·
 `DÚVIDA` (não mexido, pendente de revisão humana).
