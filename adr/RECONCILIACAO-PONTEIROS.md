@@ -305,5 +305,11 @@ o arquivo real: o ponteiro que está no código é o que a coluna `Depois` manda
 ### Fora do escopo
 
 - `schema.json` (três cópias byte-idênticas) — ver seção própria acima.
-- `rota-saude/scripts/*.rb` — não estão em repositório nenhum.
-- A cópia local não-versionada de `rota-saude/docs/`.
+- `rota-saude/scripts/*.rb` — estavam fora de repositório quando esta
+  reconciliação rodou (2026-09-11) e por isso ficaram de fora dela. **Deixaram de
+  estar em 2026-09-16:** viraram `apps/api/script/`, no repositório do api, ao
+  lado do `adr_pointer_inventory.rb` que já vivia lá. Se algum deles citar ADR,
+  passou a ser alcançável pela guarda e por esta tabela.
+- A cópia local de `rota-saude/docs/`, que na época não era versionada. **Virou
+  clone de verdade em 2026-09-16** — editar aqui agora exige commit e push como
+  qualquer repositório.

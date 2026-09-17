@@ -76,10 +76,16 @@ sucessores no corpus v2.
 | `docs/modulos/README.md` | ADRs v1 por número | **Etapa 5** (reconciliação de módulos) |
 | `docs/ciclo-desenvolvimento.md` | ADRs v1 por número | **Etapa 5** (reconciliação do ciclo) |
 | `docs/operacao/` + `nota-revisao-operacional.md` | ADRs v1 por número | **Etapa 5** (reconciliação de runbooks) |
-| `docs/adr/prompts/prompt-relatorio-semanal.md` | ADRs v1 | **Etapa 5** (checar/migrar) |
 | `docs/superpowers/plans/2026-06-20-setup-multitenant.md` | ADR 0019–0024 | **Movimento 2** (alinhamento de código / Phase 2) |
 | `docs/superpowers/2026-06-20-handoff-backend-to-frontend.md` | ADR 0019–0024 | **Movimento 2** (handoff; histórico-vivo) |
 
 Não migram (snapshots datados, valor histórico):
 `docs/relatorios/2026-06-*.md`, `docs/dashboard/alinhamento-2026-06-22.md` e os PRs
 antigos — permanecem com os números v1 como registro da época.
+
+Também não migra `adr/prompts/prompt-relatorio-semanal.md`, que esta tabela listava
+como "Etapa 5 (checar/migrar)". Não há o que migrar: o diretório `prompts/` ficou
+**deliberadamente** fora do arquivo v1 por ser material de processo, não decisão de
+arquitetura, e o original segue fora de repositório — ver
+[`_v1/README.md`](../_v1/README.md), seção "O que NÃO veio junto, e por quê". A
+linha prometia um trabalho que ninguém ia fazer, porque não havia trabalho.
