@@ -274,8 +274,10 @@ type City {
 - **Retorno:** o `Result` do command vira `{ ok: Boolean!, errors: [UserError!]! }`.
   Violação de regra de domínio é `UserError`, não erro de sistema.
 - **O superusuário não contorna regras de domínio (D6).** Um command que recusaria um
-  usuário com o papel certo também recusa o mantenedor. Exemplo: quatro-olhos na
-  publicação de protocolo.
+  usuário com o papel certo também recusa o mantenedor. Exemplo: o mantenedor nunca
+  assina protocolo — publicar e ativar exigem, cada um, duas assinaturas de
+  `protocol_reviewer`s distintos da cidade que não editaram a versão (ADR 0016); o
+  mantenedor executa o ato de publicar ou ativar quando essas assinaturas já existem.
 
 **Dados operacionais e suas invariantes**
 
@@ -406,8 +408,10 @@ do escopo).
 - Cidade inalcançável gera erro parcial com mensagem redigida, e as demais respondem.
 - Mais de 5 cidades por operação, profundidade, complexidade e tamanho acima do limite →
   recusados.
-- Um mantenedor publicando protocolo que ele mesmo escreveu é recusado pelo quatro-olhos
-  (a regra de domínio vale para o superusuário).
+- O mantenedor nunca assina protocolo — publicar e ativar exigem, cada um, duas
+  assinaturas de `protocol_reviewer`s da cidade que não editaram a versão (ADR 0016); o
+  mantenedor executa o ato de publicar ou ativar quando essas assinaturas já existem (a
+  regra de domínio vale para o superusuário).
 - Resposta sem nenhum campo de segredo ou de cidadão.
 
 **Auditoria**

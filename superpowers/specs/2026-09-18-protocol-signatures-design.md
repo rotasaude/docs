@@ -1,7 +1,7 @@
 # Assinaturas de protocolo — design
 
 **Data:** 2026-09-18
-**Status:** aprovado em conversa, aguardando revisão do documento
+**Status:** aprovado (ADR 0016, 2026-09-18)
 **Substitui:** o parágrafo "Quatro-olhos" do ADR 0012 (colapso author+publisher permitido; operador de plataforma como reserva do publisher)
 **Afeta:** ADR 0009 (ciclo de vida do protocolo), ADR 0012 (RBAC), spec da API de manutenção (`2026-09-17-maintenance-graphql-api-design.md`, §8 e §10) e o Plano 5 da API de manutenção, que será reescrito sobre este design
 
