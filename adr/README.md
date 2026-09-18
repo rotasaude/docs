@@ -19,7 +19,7 @@ de emendas. Numeração linear. O histórico pré-consolidação vive na pasta d
 | 0009 | [Protocol engine](0009.md) | Motor puro; `Outcome`; storage + façade; scoring weighted/decision_table |
 | 0010 | [CQRS: projections & snapshots](0010.md) | `ReportSnapshot` imutável (prova); `DashboardMetric` reconstrutível |
 | 0011 | [Identity, session & MFA](0011.md) | Auth nativa Rails 8; identidade global RLS-exempt; MFA operador/publisher |
-| 0012 | [Authorization: RBAC & memberships](0012.md) | `memberships (user, city, role)`; operador = cidade nula; append-only; quatro-olhos |
+| 0012 | [Authorization: RBAC & memberships](0012.md) | `memberships (user, city, role)`; operador = cidade nula; append-only; quatro-olhos de protocolo (ADR 0016) |
 | 0013 | [Provisioning, secrets & key custody](0013.md) | Secrets via Kamal; AR Encryption; uma chave no env do `api`; `ProvisionMunicipality` |
 | 0014 | [Audit log, retention & LGPD](0014.md) | `domain_events` como evidência imutável; replay; purga por retenção |
 | 0015 | [Contracts & versioning](0015.md) | SemVer por domínio; expand/contract para MAJOR; tolerância do consumidor |
