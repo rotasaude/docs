@@ -159,8 +159,17 @@ credenciais.
   servidor. É o único caminho fora da API.
 - **Convite:** link de uso único válido por 24h. A pessoa define a senha, cadastra o
   TOTP (QR code) e confirma com um código. Sem TOTP confirmado, a conta não loga.
-- **Recuperação:** outro mantenedor **reenvia o convite**, o que zera senha, TOTP e
-  sessões. Não há recovery codes.
+- **Recuperação:** **pela rake, no servidor** (`maintainer:invite`), que zera senha,
+  TOTP e sessões e **imprime o link**. Não há recovery codes.
+  - **Emenda (2026-09-17, Plano 3).** A regra original era "outro mantenedor reenvia o
+    convite pela API". Ela foi retirada porque, enquanto não houver mailer, esse
+    reenvio destrói senha e TOTP de uma conta ativa **sem ter como entregar o link
+    novo** — quem tivesse uma sessão de mantenedor podia, com uma chamada por conta,
+    trancar todos os outros para fora, e a saída seria a rake de qualquer jeito. A
+    mutation `inviteMaintainer` continua existindo para **convidar quem ainda não é
+    mantenedor** (ou quem nunca terminou o cadastro) e exige TOTP na hora; reconvidar
+    uma conta já matriculada e ativa é recusado, apontando para a rake. Quando houver
+    mailer que entregue o link, a regra pode voltar.
 - **Desativação:** encerra na hora todas as sessões e **todos os tokens** da conta.
 - **Travas:** ninguém desativa a si mesmo, e o último mantenedor ativo não pode ser
   desativado.
