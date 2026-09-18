@@ -23,6 +23,7 @@ de emendas. Numeração linear. O histórico pré-consolidação vive na pasta d
 | 0013 | [Provisioning, secrets & key custody](0013.md) | Secrets via Kamal; AR Encryption; uma chave no env do `api`; `ProvisionMunicipality` |
 | 0014 | [Audit log, retention & LGPD](0014.md) | `domain_events` como evidência imutável; replay; purga por retenção |
 | 0015 | [Contracts & versioning](0015.md) | SemVer por domínio; expand/contract para MAJOR; tolerância do consumidor |
+| 0016 | [Protocol signatures: two city reviewers per publication and per activation](0016.md) | `protocol_reviewer`; duas assinaturas para publicar e para ativar; substitui o quatro-olhos do ADR 0012 |
 
 ## Itens em aberto
 
