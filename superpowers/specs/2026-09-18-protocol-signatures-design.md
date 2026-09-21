@@ -50,7 +50,7 @@ draft ──enviar p/ revisão──▶ in_review ──publicar (2 assinaturas 
 | Publicar (`in_review → published`) | `protocol_publisher`, mantenedor | Step-up. Duas assinaturas de publicação válidas (§5). Portão. **Não aceita mais sair de `draft`** |
 | Ativar (`published → active`) | `protocol_publisher`, `municipal_admin`, mantenedor | Step-up. Duas assinaturas de ativação válidas (§5). R1 continua valendo |
 | Reverter (emergência) | `protocol_publisher`, `municipal_admin`, mantenedor | Step-up e motivo (§6) |
-| Aposentar | `protocol_publisher`, mantenedor | Sem mudança. R4 continua: a versão `active` não se aposenta |
+| Aposentar | `protocol_publisher`, mantenedor | Step-up (ADR 0016). R4 continua: a versão `active` não se aposenta |
 
 **Protocolos existentes.** O que já está `published` ou `active` continua como está, sem assinatura retroativa. As regras valem para todo ato novo, inclusive reativar uma versão antiga (fora a reversão de emergência).
 
@@ -114,7 +114,7 @@ Isso restringe a futura fatia de "membros" da API de manutenção: o mantenedor 
 | Publicar | publisher, com step-up | sim, com step-up |
 | Ativar | publisher ou admin, com step-up | sim, com step-up |
 | Reverter | publisher ou admin, com step-up e motivo | sim, com step-up e motivo |
-| Aposentar | publisher | sim, com step-up |
+| Aposentar | publisher, com step-up | sim, com step-up |
 | Conceder ou revogar `protocol_reviewer` | `municipal_admin` | **nunca** |
 
 - **API da cidade:** além de salvar rascunho (`Authoring::ProtocolsController`), tem os endpoints do ciclo com assinatura em `ProtocolLifecycleController` — enviar para revisão (`POST /protocols/:version/submit`), assinar (`POST /protocols/:version/signatures`), ativar (`POST /protocols/:version/activate`), aposentar (`POST /protocols/:version/retire`) e reverter (`POST /protocols/revert`) —, publicar em `PublicationsController` (`POST /protocols/:version/publish`, rota já existente) e conceder papel (`POST /setup/memberships`). O step-up da cidade usa o `MfaStepUp` existente, exigido em assinar, publicar, ativar, aposentar e reverter; não em enviar para revisão nem em conceder papel.
