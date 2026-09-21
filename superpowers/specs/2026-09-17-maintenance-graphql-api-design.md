@@ -281,10 +281,14 @@ type City {
   assina protocolo — publicar e ativar exigem, cada um, duas assinaturas de
   `protocol_reviewer`s distintos da cidade que não editaram a versão (ADR 0016); o
   mantenedor executa o ato de publicar ou ativar quando essas assinaturas já existem.
-- **O mantenedor nunca assina, nunca concede nem convida papel privilegiado.** Nenhuma
-  mutation desta API chama `Protocols::Sign`, `GrantRole` ou `InviteMember` com
-  `protocol_reviewer`/`municipal_admin` — uma guarda de arquitetura recusa a chamada e
-  qualquer campo de `Mutation` cujo nome contenha "sign"/"signature".
+- **Hoje, nenhuma mutation desta API chama `Protocols::Sign`, `GrantRole` ou
+  `InviteMember` — a guarda de arquitetura recusa a chamada, para qualquer papel, e
+  qualquer campo de `Mutation` cujo nome contenha "sign"/"signature".** É uma proibição
+  incondicional desta fatia (5a, só protocolos), não uma regra sensível a papel: a fatia
+  de membros não privilegiados (§11) vai precisar convidar/conceder papel que NÃO seja
+  `protocol_reviewer`/`municipal_admin`, e vai ter de trocar esta guarda por uma que
+  distinga o papel (recusa privilegiado, permite o resto) — a proibição de hoje é mais
+  simples porque esta fatia não convida ninguém.
 
 **Escrita de protocolos (fatia 5a)**
 
