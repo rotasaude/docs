@@ -356,9 +356,23 @@ de plataforma, então não há transação única. Cada mutation segue:
 3. **Depois**, grava o evento com `outcome` = `ok` | `rejected` | `error` e o mesmo
    `correlation_id`.
 
-Se o processo morrer entre 2 e 3, fica uma tentativa sem resultado, que aparece como
-**resultado desconhecido**. O `correlation_id` permite conferir no `domain_events` da
-cidade se a alteração foi aplicada.
+Uma tentativa sem resultado aparece como **resultado desconhecido**. O `correlation_id`
+permite conferir no `domain_events` da cidade se a alteração foi aplicada. **Uma escrita
+que pode ter comitado nunca é auditada como `error` nem respondida como falha.** Os casos
+em que o resultado não chega inteiro:
+
+- **A cidade não abre** (a conexão falha antes de o command começar): nada rodou. O
+  resultado é `error`, e o cliente recebe `CITY_UNREACHABLE`.
+- **A conexão cai depois de o command começar** (no meio dele ou no `COMMIT`): o command
+  pode ter comitado. Nenhum resultado é gravado. O cliente recebe `CITY_UNREACHABLE` com
+  uma mensagem que diz que o resultado é desconhecido e traz o `correlation_id` para
+  conferir na cidade antes de repetir.
+- **O command terminou e a gravação do resultado falhou** (ou o processo morreu entre 2
+  e 3): a tentativa fica sem resultado. O cliente recebe o resultado real do command
+  (`ok` ou os erros de usuário), e só a classe da falha vai para o log.
+
+Uma exceção levantada pelo próprio command (inclusive espera de trava estourada) desfaz a
+escrita: o resultado é `error`, e o cliente recebe `CITY_WRITE_FAILED`, só com a classe.
 
 **Payload**
 
