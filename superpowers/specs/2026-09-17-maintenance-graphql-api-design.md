@@ -264,6 +264,9 @@ type City {
   mensagem passando por `CitySchema.redact`. O resto da resposta sai normalmente.
 - **Cidade arquivada** retorna só os campos de plataforma. Os campos de dentro do banco
   retornam `CITY_ARCHIVED`.
+- **Qualquer outra falha de leitura** (não é conexão, não é arquivamento) retorna
+  `CITY_READ_FAILED`, com só a classe da exceção — a mensagem pode carregar dado de
+  cidadão (um bug de interpolação, por exemplo) e nunca é publicada nem logada.
 
 **Mutations**
 
@@ -278,6 +281,36 @@ type City {
   assina protocolo — publicar e ativar exigem, cada um, duas assinaturas de
   `protocol_reviewer`s distintos da cidade que não editaram a versão (ADR 0016); o
   mantenedor executa o ato de publicar ou ativar quando essas assinaturas já existem.
+- **O mantenedor nunca assina, nunca concede nem convida papel privilegiado.** Nenhuma
+  mutation desta API chama `Protocols::Sign`, `GrantRole` ou `InviteMember` com
+  `protocol_reviewer`/`municipal_admin` — uma guarda de arquitetura recusa a chamada e
+  qualquer campo de `Mutation` cujo nome contenha "sign"/"signature".
+
+**Escrita de protocolos (fatia 5a)**
+
+Seis mutations, todas de cidade — exigem `citySlug`, passam pelo escopo do token e têm
+tentativa e resultado auditados (§9):
+
+| Mutation                   | Step-up (TOTP) | Command                      |
+| --------------------------- | -------------- | ------------------------------ |
+| `saveProtocolDraft`         | não            | `Protocols::SaveDraft`         |
+| `submitProtocolForReview`   | não            | `Protocols::SubmitForReview`   |
+| `publishProtocol`           | sim            | `Protocols::Publish`           |
+| `activateProtocol`          | sim            | `Protocols::Activate`          |
+| `retireProtocol`            | sim            | `Protocols::Retire`            |
+| `revertProtocolActivation`  | sim            | `Protocols::RevertActivation`  |
+
+- **O step-up de TOTP cobre os atos que aprovam ou põem uma versão em uso** — publicar,
+  ativar, aposentar e a reversão de emergência. Salvar rascunho e enviar para revisão não
+  pedem: são atos do próprio mantenedor, que ninguém assina por ele.
+- **`revertProtocolActivation`** é a reversão de emergência (spec de assinaturas §6): volta
+  a versão vigente da cidade para a anterior, sem assinatura nova, com motivo obrigatório
+  (ver §9).
+- **Escrita só em cidade `active`.** Suspensa, arquivada e em provisionamento recusam como
+  erro de usuário (`citySlug`), sem conectar.
+- **Códigos de erro na escrita:** `CITY_UNREACHABLE` (falha de conexão, mensagem redigida
+  por `CitySchema.redact`) e `CITY_WRITE_FAILED` (qualquer outra exceção — só a classe,
+  nunca a mensagem de dentro do command).
 
 **Dados operacionais e suas invariantes**
 
@@ -344,6 +377,12 @@ cidade se a alteração foi aplicada.
 - Com token, `credential` é `{ "token_id": "…", "token_name": "…" }`.
 - **`changed_fields` leva só nomes, nunca valores.**
 - `occurred_at` é gravado em UTC e exibido em `America/Sao_Paulo`.
+- **O motivo de uma reversão de emergência (`revertProtocolActivation`) fica na cidade,
+  nunca na auditoria de plataforma.** O texto livre do motivo é gravado na linha
+  `emergency_revert` e no evento de domínio do próprio banco da cidade; `platform_events`
+  leva só `reason_given` (booleano) — é governado pela Ruling R18, que recusa conteúdo
+  livre do cliente. Quem investiga pela plataforma usa o `correlation_id` do par
+  tentativa/resultado para achar o motivo na cidade.
 
 **Eventos de identidade e acesso:** login com sucesso e com falha, TOTP errado, bloqueio
 de conta, fim de sessão, convite, reenvio de convite, desativação de mantenedor, e
@@ -438,7 +477,12 @@ Cada fatia é mergeável sozinha, com a suíte verde.
    GraphQL mínimo (`me`) e infraestrutura de auditoria com trigger.
 3. **Tokens de serviço.**
 4. **Leitura:** `cities`, `city(slug:)`, limites e spec de schema.
-5. **Mutations por módulo:** uma fatia por módulo, criando o command quando faltar.
+5. **Mutations por módulo:** uma fatia por módulo, criando o command quando faltar. A
+   fatia 5 começa pelos protocolos (**5a**, feita); as seguintes cobrem os módulos
+   restantes, cada uma na sua própria fatia — canal de WhatsApp, membros não privilegiados
+   (nunca `InviteAdmin`/`city:invite_admin` pelo mantenedor), perfil da cidade e
+   destinatários de alerta (sem command hoje — criar antes), e operação (republicar
+   evento, reconstruir métricas, jobs falhos).
 6. **Contrato:** SDL publicado em `contracts`.
 
 ## 12. Fora de escopo
