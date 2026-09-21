@@ -62,7 +62,7 @@ draft ──enviar p/ revisão──▶ in_review ──publicar (2 assinaturas 
 |---|---|---|
 | `protocol_contributions` | salvamento de rascunho | `protocol_definition_id`, `actor_id`, `actor_kind` (`user` \| `maintainer`), `content_digest`, `created_at` |
 | `protocol_signatures` | assinatura | `protocol_definition_id`, `purpose` (`publication` \| `activation`), `signer_user_id`, `content_digest`, `created_at` |
-| `protocol_activations` | ato de ativação | `protocol_definition_id`, `kind` (`signed` \| `emergency_revert`), `actor_id`, `actor_kind`, `reason` (só na reversão), `created_at` |
+| `protocol_activations` | ato de ativação | `protocol_definition_id`, `kind` (`signed` \| `emergency_revert` \| `baseline`), `actor_id` (nulo só na linha-base), `actor_kind` (`user` \| `maintainer` \| `system` — `system` só na linha-base), `reason` (só na reversão), `created_at` |
 
 **Digest do conteúdo:** SHA-256 da `definition` serializada em JSON canônico (chaves ordenadas em todos os níveis). A assinatura aponta para esse conteúdo exato.
 
@@ -92,6 +92,8 @@ O ato exige **duas assinaturas de signatários distintos** que satisfaçam as ci
 - Exige step-up e um motivo não vazio. Grava uma linha `emergency_revert` com o motivo e publica `protocol.activation_reverted` com o motivo, a versão de origem e a de destino.
 - A versão com erro volta a `published`, pela mesma demoção da ativação normal.
 
+**Linha-base.** Cada versão que já estava `active` quando esta regra entrou em vigor ganha uma linha de `protocol_activations` do tipo `baseline` (ator `system`, sem assinatura), datada de quando entrou em uso — sem ela, a primeira ativação assinada de uma cidade não teria uma linha anterior para reverter. Ela só pode ser **alvo** de uma reversão, nunca origem: com ela, a primeira ativação assinada de cada cidade passa a ser reversível em emergência, não só a segunda em diante. A migração que grava as linhas-base é irreversível pelo mesmo motivo que as três tabelas só aceitam acréscimo — desfazê-la exigiria desligar o trigger que existe exatamente para impedir isso.
+
 ## 7. A brecha do superusuário
 
 O mantenedor pula a autorização (D6). Se ele pudesse conceder papel ou convidar membros, bastaria criar duas contas de revisor e assinar por elas. Três regras de domínio olham o **tipo de ator**:
@@ -115,8 +117,8 @@ Isso restringe a futura fatia de "membros" da API de manutenção: o mantenedor 
 | Aposentar | publisher | sim, com step-up |
 | Conceder ou revogar `protocol_reviewer` | `municipal_admin` | **nunca** |
 
-- **API da cidade:** ganha os endpoints que faltam (enviar para revisão, assinar, ativar, reverter, conceder papel). Hoje só existem salvar rascunho (`Authoring::ProtocolsController`) e publicar (`PublicationsController`). O step-up da cidade usa o `MfaStepUp` existente.
-- **Leitura:** as superfícies de leitura passam a mostrar, por versão, as assinaturas válidas por finalidade, quantas faltam e quantos revisores elegíveis a cidade tem. Mostram quem assinou (nome de staff), nunca dado de cidadão.
+- **API da cidade:** além de salvar rascunho (`Authoring::ProtocolsController`), tem os endpoints do ciclo com assinatura em `ProtocolLifecycleController` — enviar para revisão (`POST /protocols/:version/submit`), assinar (`POST /protocols/:version/signatures`), ativar (`POST /protocols/:version/activate`), aposentar (`POST /protocols/:version/retire`) e reverter (`POST /protocols/revert`) —, publicar em `PublicationsController` (`POST /protocols/:version/publish`, rota já existente) e conceder papel (`POST /setup/memberships`). O step-up da cidade usa o `MfaStepUp` existente, exigido em assinar, publicar, ativar, aposentar e reverter; não em enviar para revisão nem em conceder papel.
+- **Leitura:** as superfícies de leitura passam a mostrar, por versão, das três tabelas (nunca de `domain_events`) — as assinaturas válidas por finalidade e quantas faltam, quantos revisores elegíveis a cidade tem, quem editou a versão e se ela é reversível em emergência. Mostram quem assinou e quem editou por e-mail de staff, nunca dado de cidadão.
 - **Telas do dashboard:** spec própria, no repo do dashboard.
 
 ## 9. Auditoria
