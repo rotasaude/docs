@@ -36,7 +36,7 @@ O motor de triagem já é neutro em relação ao canal; o WhatsApp só encosta n
 2. **Identidade em dois níveis.** `declared`: CPF declarado (só dígito verificador) + telefone confirmado por OTP. `verified`: documento conferido presencialmente na UBS (subprojeto 2). Este spec só cria o nível `declared`, mas o campo nasce com os dois valores.
 3. **O que cada nível pode fazer.** `declared`: fazer triagem e ver as triagens que ele mesmo fez com aquele telefone. `verified`: histórico completo, confirmações e agendamento (subprojetos 2–4).
 4. **O cidadão é o par (CPF, telefone).** Um telefone serve a vários CPFs (a família que divide um celular) e um CPF pode aparecer em vários telefones. Cada par vê só as suas triagens; quem junta os pares do mesmo CPF é a validação presencial.
-5. **OTP por SMS, com um provedor só, da plataforma**, atrás da interface `OtpSender`. Em desenvolvimento e teste, um `OtpSender` falso grava o código no log. A escolha do provedor (Zenvia, Twilio, SNS…) fica para o plano.
+5. **OTP por SMS, com um provedor só, da plataforma**, atrás da interface `OtpSender`. Em desenvolvimento e teste, um `OtpSender` falso grava o código no log. A escolha do provedor (Zenvia, Twilio, SNS…) é pendência de go-live: o plano entrega o `OtpSender` de log (dev), o de teste e um `Unconfigured` que responde 503 onde nenhum provedor foi configurado.
 6. **Sessão longa e deslizante:** cookie `httpOnly` de 30 dias, renovado a cada uso, com botão "sair" visível. A sessão pertence ao **telefone**; a escolha do CPF vem depois dela, então trocar de pessoa no mesmo aparelho não pede outro SMS.
 7. **Formulário em etapas**, uma pergunta por tela, com botões grandes, barra de progresso e "voltar". Não é chat.
 8. **"Voltar" desfaz a última resposta no backend** (`UndoLastAnswer`), só enquanto a triagem não terminou. Depois de `triage.completed`, o resultado é imutável.
@@ -52,20 +52,22 @@ wpda (formulário em etapas)
   → POST /citizen/session                      código → cookie httpOnly (30 dias)
   → GET  /citizen/consent_term                 termo vigente
   → GET  /citizen/people                       CPFs ligados a este telefone (mascarados)
-  → POST /citizen/conversations                { cpf, consent: true } → abre ou retoma a conversa
-  → POST /citizen/conversations/:id/answers    { answer, idempotency_key } → ConversationAdvance → Messaging::Reply
+  → POST /citizen/conversations                { citizen_id | cpf, consent_version } → abre ou retoma a conversa
+  → POST /citizen/conversations/:id/answers    { answer, idempotency_key } → Citizens::SubmitAnswer → CompleteTriage → próximo passo
   → POST /citizen/conversations/:id/undo       → UndoLastAnswer → passo anterior
-  → GET  /citizen/triages?cpf=…                triagens daquele par (CPF, telefone)
+  → GET  /citizen/triages?citizen_id=…         triagens daquele par (CPF, telefone)
+  → GET  /citizen/triages/:id                  status da triagem + link do relatório quando pronto
   → POST /citizen/triages/:id/revoke_consent   → RevokeConsent
   → DELETE /citizen/session                    sair
 ```
 
-A cidade é resolvida pelo subdomínio, como no dashboard (`CityConnection` a partir do host). As respostas são síncronas: o pedido que grava a resposta devolve o próximo passo; não há fila, polling nem websocket.
+A cidade é resolvida pelo subdomínio, como no dashboard (`CityConnection` a partir do host). As respostas são síncronas: o pedido que grava a resposta devolve o próximo passo. A única espera é a do relatório, que um job gera depois de `triage.completed`: a tela final consulta `GET /citizen/triages/:id` até o link aparecer (até ~15 s).
 
 ### 3.2 Pontos de extensão no backend
 
-- **Entrada normalizada.** `ConversationAdvance.call(conversation:, input:)`, onde `input` é um valor `Messaging::Input(text:, message_ref:, channel:)`. O caminho do WhatsApp monta o `Input` com o `Whatsapp::Ingest::Parser` que já existe e continua se comportando igual. O `extract_body` que relê `inbound.raw` sai do motor.
-- **Resposta:** `Messaging::Reply` não muda. `Whatsapp::QuestionElement` passa a valer só no caminho do WhatsApp; para a web, o passo vai com **todas** as opções, sem truncar títulos. Junto do `Reply`, a web recebe metadados do passo (`step_index`, `total_steps` estimado, `can_undo`) para a barra de progresso e o botão voltar.
+- **A web não passa pelo `ConversationAdvance`** (revisto no plano, 2026-09-22). Ele é o intérprete de texto livre do chat: casa "sair", "cancelar" e "revogar" por expressão regular, e trata o consentimento como mensagem. Na web, isso sequestraria uma resposta de texto livre que fosse "cancelar", e o consentimento é uma tela antes do CPF. O contrato de dados não mora no `ConversationAdvance`, e sim em `GiveConsent` e `CompleteTriage`, e são esses que a web chama, por comandos novos em `Citizens::` (`StartConversation`, `SubmitAnswer`). A criação da triagem sai do `ConversationAdvance` para um comando `StartTriage`, usado pelos dois caminhos. O `ConversationAdvance` e o caminho do WhatsApp ficam como estão.
+- **Validação da resposta:** antes do `CompleteTriage`, a web confere a resposta contra o passo (booleano `true`/`false`, uma das opções do enum, inteiro, texto até 500 caracteres). O motor não recusa resposta fora do esperado: uma resposta sem ramo encerra o fluxo e pontua.
+- **Resposta:** para a web, o passo vai como JSON (`Citizens::StepPayload`) com **todas** as opções, sem truncar títulos, mais `index`, `total` (estimado pelo número de passos do protocolo) e `can_undo`, para a barra de progresso e o botão voltar. `Whatsapp::QuestionElement` fica só no caminho do WhatsApp.
 - **Consentimento:** `channel` vira parâmetro de `GiveConsent` (`"web"` ou `"whatsapp"`), e a evidência da web registra o id da sessão e a versão do termo aceita.
 - **`NotifyCitizenJob`:** não envia nada quando `conversation.channel == "web"`. O link do relatório aparece na tela final.
 - **`UndoLastAnswer`:** comando novo. Retira a última resposta de `triages.answers` e recalcula `current_step` rodando o protocolo (função pura) sobre as respostas que restaram. Falha com erro de domínio se a triagem não estiver em andamento.
@@ -75,7 +77,7 @@ A cidade é resolvida pelo subdomínio, como no dashboard (`CityConnection` a pa
 - **`citizens`** (nova): `cpf` e `phone` cifrados de forma determinística com a chave da cidade (`CityDeterministicKeyProvider`, como `Conversation.phone`), `verification_level` (`declared` | `verified`, padrão `declared`), `created_at`/`updated_at`. Índice único em `(cpf, phone)`.
 - **`citizen_sessions`** (nova): `token_digest`, `phone` (cifrado determinístico), `expires_at`, `last_seen_at`, `revoked_at`.
 - **`otp_challenges`** (nova): `phone` (cifrado determinístico), `code_digest`, `attempts`, `expires_at`, `consumed_at`, `sent_at`.
-- **`conversations`**: ganha `channel` (`whatsapp` | `web`, padrão `whatsapp`) e `citizen_id` (nulo no WhatsApp). O índice de conversa ativa se divide em dois índices parciais: por `citizen_id` quando `channel = 'web'`, e por `phone` quando `channel = 'whatsapp'`. Na web, `phone` recebe o telefone do cidadão, para manter a coluna `null: false` e quem já a lê.
+- **`conversations`**: ganha `channel` (`whatsapp` | `web`, padrão `whatsapp`), `citizen_id` (nulo no WhatsApp) e `last_answer_key` (a chave de idempotência da última resposta da web). O índice de conversa ativa se divide em dois índices parciais: por `citizen_id` quando `channel = 'web'`, e por `phone` quando `channel = 'whatsapp'`. Na web, `phone` recebe o telefone do cidadão, para manter a coluna `null: false` e quem já a lê.
 
 **O que não muda:** `triages`, `consents` (exceto o valor de `channel`), `domain_events` e seus consumidores, `report_snapshots`, `dashboard_metrics` e todas as consultas do dashboard. Se for preciso um nome novo em `Platform.audit`, ele entra em `R18_PLATFORM_EVENT_NAMES`.
 
@@ -146,7 +148,7 @@ Uma triagem de ponta a ponta no navegador, lendo o código do SMS no log, e conf
 - Escolha de protocolo: continua o `triage-respiratoria` fixo.
 - Remoção do código do WhatsApp.
 - Mostrar a web na tela de saúde da ingestão.
-- Escolha do provedor de SMS (fica para o plano).
+- Escolha do provedor de SMS (pendência de go-live, §7).
 
 ## 7. Pendências de go-live
 
