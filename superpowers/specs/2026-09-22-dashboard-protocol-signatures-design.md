@@ -137,6 +137,31 @@ Nada novo. `/admin/api/protocols` e `/admin/api/protocols/:id` já trazem, por v
 - **Com TOTP:** mostra "autenticador ativo" e a janela, se estiver aberta. "Trocar autenticador" passa por `SensitiveAction`, com step-up (§4.2).
 - A chave, o QR e os códigos de recuperação existem só no estado desta tela e somem ao sair dela.
 
+### 5.2.1 Correções da onda final (2026-09-22)
+
+A revisão final encontrou a premissa "nada muda na API" errada:
+`Admin::ProtocolsQuery.status_label` colapsava `active` em `published`, e a
+tela decidia tudo por essa string. Registrado aqui o que mudou:
+
+- **A leitura passou a devolver `active`.** `status_label` não colapsa mais
+  `active` em `published` — a API devolve o status real das cinco fases
+  (`draft`, `in_review`, `published`, `active`, `retired`), e o dashboard
+  distingue as duas (tom de destaque próprio para `active`, rótulos em
+  português na tela). O painel de Eventos também tinha o mesmo problema por
+  outro lado: filtrava por `payload ->> 'name'`, mas os commands publicam
+  `protocol_key:` — o filtro nunca batia, e a lista de nomes aceitos não
+  incluía os eventos de assinatura/ativação/reversão.
+- **Schema e Linter saíram da tela.** `protocols_query.rb` sempre devolveu
+  strings fixas `"ok"` para os dois — nenhum portão de fato roda por trás
+  deles. A lista mostrava um "passou" que não significava nada; as colunas
+  foram removidas do dashboard. A API continua devolvendo os dois campos no
+  payload, sem uso hoje.
+- **Pendência:** a leitura ainda não expõe qual é a versão-alvo de uma
+  reversão (a que ficaria ativa depois de `Reverter`) — só que a ação está
+  disponível e a regra geral (§6: reverte para a ativação imediatamente
+  anterior, que precisa continuar publicada). A tela descreve a regra em
+  texto no `SensitiveAction`, mas não nomeia a versão de antemão.
+
 ## 6. Erros
 
 Todos traduzidos no `SensitiveAction`, num lugar só:
