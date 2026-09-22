@@ -24,6 +24,7 @@ de emendas. Numeração linear. O histórico pré-consolidação vive na pasta d
 | 0014 | [Audit log, retention & LGPD](0014.md) | `domain_events` como evidência imutável; replay; purga por retenção |
 | 0015 | [Contracts & versioning](0015.md) | SemVer por domínio; expand/contract para MAJOR; tolerância do consumidor |
 | 0016 | [Protocol signatures: two city reviewers per publication and per activation](0016.md) | `protocol_reviewer`; duas assinaturas para publicar e para ativar; substitui o quatro-olhos do ADR 0012 |
+| 0017 | [Web citizen channel: declared identity and SMS-confirmed session](0017.md) | Cidadão entra pelo `wpda` com CPF declarado + celular por SMS; mesmo contrato de dados; WhatsApp desligável por cidade |
 
 ## Itens em aberto
 
@@ -38,8 +39,8 @@ vira ADR próprio quando entrar no ciclo.
   `aborted_by_revocation` na `Triage`, sem estado correspondente no `Outcome`
   (ADR 0008/0009).
 - **Mesclar as duas estratégias de scoring** no mesmo fluxo (ADR 0009).
-- **Granularidade de consentimento por finalidade** (`Consent.scope`) e **adaptador de
-  canal de entrada** (web, telefone) (ADR 0008).
+- **Granularidade de consentimento por finalidade** (`Consent.scope`) e **canal de
+  entrada por telefone (voz)** (ADR 0008; a web foi resolvida pelo ADR 0017).
 - **Versionamento de schema de payload** de evento e **particionamento de
   `domain_events`** por volume (ADR 0004).
 - **Seleção de canal no outbound** quando a cidade tiver mais de um número (ADR 0007).

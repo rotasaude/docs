@@ -10,6 +10,8 @@
 
 **Spec:** `docs/superpowers/specs/2026-09-22-web-citizen-channel-design.md`. Este plano implementa §2 a §5 dele.
 
+**ADR:** `docs/adr/0017.md` (canal web do cidadão: estende `api` e `wpda`, sem aplicação nova). Comentários de código que citarem a decisão apontam para o ADR 0017.
+
 ## Global Constraints
 
 - Commits: Conventional Commits **em inglês**, tipo por extenso, terminando com `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`.
