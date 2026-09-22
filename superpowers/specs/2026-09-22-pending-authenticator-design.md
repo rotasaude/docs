@@ -79,6 +79,8 @@ Verifica contra o segredo **ativo**, como hoje, e passa a registrar o passo: có
 
 Numa conta que **nunca** cadastrou TOTP, quem tiver a senha cadastra o próprio autenticador: não há fator anterior a pedir. Fechar isso exige cadastro obrigatório no convite, ou aviso por e-mail ao cadastrar. Fica fora deste spec, registrado como pendência de go-live.
 
+O mesmo vale, de forma mais estreita, numa conta **já cadastrada** se o atacante tiver a senha e **UM** código de recuperação: `step_up` aceita código de recuperação como alternativa ao TOTP (`Mfa::Verify.consume_recovery_code`), então senha + um código de recuperação também bastam para o segundo fator inteiro — `step_up` (com o código) → `enroll` (a guarda de step-up já está satisfeita) → `confirm` com o TOTP de um segredo que o próprio atacante propôs. A promoção substitui `otp_secret` **e** os códigos de recuperação restantes, terminando a troca sem nunca ter visto o autenticador de verdade. Mesma pendência de go-live listada acima (aviso por e-mail): um aviso ao cadastrar/trocar teria o mesmo efeito aqui — dar ao dono da conta a chance de notar uma troca que ele não fez.
+
 ## 5. Dashboard
 
 A fatia 1 escreveu textos que este spec torna falsos. Junto com a API mudam:
@@ -106,9 +108,15 @@ A fatia 1 escreveu textos que este spec torna falsos. Junto com a API mudam:
 
 ## 7. Aplicação nas cidades
 
-- A migração roda com `rails "city:migrate[slug]"`, ou `rails city:migrate:all` para todas. Enquanto uma cidade não migra, o host dela responde `city_schema_behind`, como em toda migração de cidade.
-- **Ordem:** migrar antes de publicar o código novo. A migração só acrescenta colunas nulas, e o código atual convive com elas.
-- Nada a migrar em dado existente.
+- A migração roda com `rails "city:migrate[slug]"`, ou `rails city:migrate:all` para todas.
+- **Ordem — corrigida (achado do fix final):** "migrar antes de publicar" (texto anterior desta seção) não é executável. `CitySchema.expected_version` é a maior versão em `db/city_migrate` **da imagem em execução** — antes de publicar a imagem nova, não existe processo nenhum rodando com as migrations novas para "migrar antes" invocar. A ordem certa é:
+  1. publicar a imagem nova;
+  2. rodar `bin/rails city:migrate:all` como tarefa one-off **da imagem nova**, cidade por cidade, antes de cortar tráfego para ela;
+  3. só então a imagem nova passa a servir requisições dessas cidades.
+- **Nunca migrar por fora dessa rake task** (psql direto, script ad hoc): é `city:migrate:all`/`city:migrate[slug]` (via `CityMigrations`) quem grava `schema_version` no catálogo depois de migrar o banco. Migrar por fora deixa o banco da cidade migrado de fato, mas o catálogo continua com a versão antiga — `CitySchema.behind?` nunca vê o catálogo alcançar `expected_version`, e a cidade fica em 503 `city_schema_behind` **para sempre**, não só durante o rollout.
+- **Janela de 503 esperada:** do momento em que a imagem nova sobe (o `expected_version` dela já é o novo) até `city:migrate:all` terminar para cada cidade, toda cidade ainda no schema antigo responde `city_schema_behind` (`CityResolution`, 503). Isso é esperado — mesmo comportamento de toda migração de cidade — e fecha sozinho quando a tarefa termina.
+- A migração `20260922000002` (`ClearOrphanOtpSecrets`, achado A1 do fix final) limpa contas herdadas de uma troca de autenticador abandonada (`otp_enabled = false` com `otp_secret` ainda presente): depois da limpeza essas contas ficam explicitamente sem segundo fator, e os donos precisam ser avisados para cadastrar de novo.
+- Fora isso, nada a migrar em dado existente.
 
 ## 8. Entrega
 
