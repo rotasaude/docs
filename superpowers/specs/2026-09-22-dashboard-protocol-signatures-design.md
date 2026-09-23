@@ -161,6 +161,23 @@ tela decidia tudo por essa string. Registrado aqui o que mudou:
   disponível e a regra geral (§6: reverte para a ativação imediatamente
   anterior, que precisa continuar publicada). A tela descreve a regra em
   texto no `SensitiveAction`, mas não nomeia a versão de antemão.
+- **O ciclo rodou fim a fim no navegador (plano 2026-09-23).** A pendência
+  registrada no §8 — "verificação manual, uma vez no fim da fatia 3" — estava
+  em aberto por falta de um elenco de dev pronto: exercitar o ciclo exigia
+  cadastrar autenticadores à mão para autor, duas revisoras e publisher a
+  cada reset do banco. `SignatureCrew` (`apps/api/lib/signature_crew.rb`),
+  ligada em `db/seeds.rb`, cria as quatro contas com TOTP fixo e a versão 2
+  em rascunho pelo command de autoria; o `db:seed` imprime o `otpauth://` de
+  cada uma. Com isso o ciclo foi percorrido no dashboard (`curitiba.demo`):
+  enviar para revisão, as duas revisoras assinando a publicação, o publisher
+  publicando, as duas assinando a ativação, o publisher ativando — a v2 foi a
+  `active`, a v1 caiu para `published` (permanece revertível), "Aposentar"
+  sumiu e "Reverter" apareceu na v2. Uma checagem não foi possível como
+  descrita: o autor não tem papel `protocol_reviewer`, então "Assinar
+  publicação" nem aparece para ele numa versão em revisão (a regra de
+  visibilidade por papel do §3 precede o motivo de desabilitação "você
+  editou esta versão") — nenhuma conta do elenco de dev acumula os dois
+  papéis ao mesmo tempo para exercitar esse texto especificamente.
 
 ## 6. Erros
 
