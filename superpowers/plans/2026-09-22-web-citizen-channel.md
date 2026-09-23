@@ -26,6 +26,10 @@
 - Nunca grave CPF, telefone, código OTP ou resposta de triagem em log, exceto o `OtpSender::Log` de desenvolvimento, que mostra o código e o telefone mascarado.
 - Valores fixos do spec: sessão de **30 dias** deslizante; código de **6 dígitos**, válido por **10 min**, **5 tentativas**, reenvio após **60 s**, **5 SMS por telefone por dia**; **10 CPFs por telefone**; texto livre até **500** caracteres; só celular brasileiro (+55, DDD, 9, oito dígitos).
 - Nunca rode `start.sh`. Nunca desligue trigger de imutabilidade.
+- Nunca compare ambiente por literal (`Rails.env == "production"`): `spec/architecture/deployed_environment_guard_spec.rb` varre o repositório; use `Rota.deployed?`.
+- Evento de domínio novo exige `DomainEvents.bind` em `config/initializers/domain_events.rb`; nome novo em `Platform.audit` exige `R18_PLATFORM_EVENT_NAMES`. Este plano não cria nenhum dos dois; se uma task precisar, declare.
+- Hash de código com BCrypt respeita `Mfa::Enroll.recovery_code_cost`. O `OtpChallenge` usa HMAC (sem BCrypt) de propósito.
+- Ponto de partida (2026-09-23): api `main` `3707bd6` (1550/0, ~2m50s), wpda `main` `a1bb602`. `MfaController`/`Mfa::Verify` mudaram (`step_up_factor`, `SecurityMailer`); este plano não os toca.
 
 ## Review Focus
 
@@ -2467,7 +2471,9 @@ import { afterEach } from "vitest";
 afterEach(() => cleanup());
 ```
 
-`vite.config.ts`: no `proxy`, acrescente `"/citizen": proxy(TARGET)` e, no comentário do topo, a linha `//   /citizen   → canal web do cidadão (CitizenApi).`
+`vite.config.ts`: no `proxy`, acrescente `"/citizen": proxy(TARGET)` e, no comentário do topo, a linha `//   /citizen   → canal web do cidadão (CitizenApi).` Mantenha `changeOrigin: false`: o Rails resolve a cidade pelo Host.
+
+No `docker-compose.yml` da raiz do monorepo (fora de git), o comentário do serviço `wpda` ainda diz "autoria de protocolo da cidade"; troque por "frontend do paciente: relatório por token e canal web do cidadão (ADR 0017)".
 
 - [ ] **Step 2: Write the failing tests**
 
