@@ -36,6 +36,8 @@
 
 **Falha ao enfileirar:** capturada, registrada em log com o id do usuário (nunca o e-mail nem o IP), engolida; a resposta segue `200`. Reusa o mesmo caminho defensivo do aviso irmão, inclusive o IP degradado.
 
+**Evento de domínio (fix final, F2):** ANTES de enfileirar o e-mail, `MfaController#step_up` publica `DomainEvents.publish("user.recovery_code_used", user_id:, remaining:)` — só o id do usuário e a contagem restante, nunca o código, nunca o e-mail, nunca o IP. Diferente do e-mail, esta publicação fica **fora** do `rescue` do aviso: falhar ao publicar é falha de verdade, não algo para degradar em log e seguir. Mesmo precedente de `Mfa::PendingEnrollment#confirm` (`user.authenticator_replaced`): evento de cidade, sem consumidor, só para auditoria.
+
 ## 4. O que o e-mail diz
 
 Assunto: `[rota-saúde] Código de recuperação usado`.
@@ -54,6 +56,7 @@ Sem link, sem anexo, sem nenhum código.
 - Destinatário é o dono da conta; conteúdo sobre ele. E-mail e IP de staff, sob base de operação do serviço (ADR 0013); nenhum dado de cidadão.
 - Nenhum código de recuperação, nem parte dele, aparece no e-mail — só a contagem.
 - Valem os dois limites já registrados no aviso irmão (§9.2 dele): os argumentos do envio ficam persistidos na fila do banco da cidade e aparecem em log SQL no nível `debug`.
+- O uso também publica `user.recovery_code_used` no `DomainEvent` da cidade (fix final, F2), com a mesma disciplina de dado do e-mail: só id do usuário e contagem restante — nunca código, e-mail ou IP. O `DomainEvent` é auditoria imutável no banco da cidade (ADR-0014), então essa contagem fica retida ali pelo mesmo prazo dos demais eventos de domínio.
 
 ## 6. Estratégia de teste
 
@@ -80,3 +83,24 @@ Um plano, duas tarefas:
 - Reemissão de códigos de recuperação, e qualquer tela para isso.
 - Bloquear step-up por código de recuperação, ou limitar quantos podem ser usados por período.
 - Aviso de papel privilegiado concedido ou revogado, e de senha alterada (seguem fora, como no spec irmão).
+
+## 9. O que continua silencioso
+
+Este aviso fecha o silêncio da **entrada**: o step-up por código de recuperação avisa (este spec), e trocar o autenticador dentro da janela de 5 minutos que ele abre avisa pelo aviso irmão (`2026-09-23-authenticator-change-notice-design.md`).
+
+Ele **não** avisa nenhum dos atos praticados DENTRO dessa janela de 5 minutos, nem o login em si:
+
+- assinar protocolo;
+- publicar protocolo;
+- ativar protocolo;
+- aposentar protocolo;
+- reverter protocolo;
+- conceder papel privilegiado;
+- revogar papel privilegiado;
+- o login que antecede o step-up.
+
+Cada um desses fica sem aviso próprio — quem quiser saber o que uma sessão step-upada por código de recuperação FEZ, e não só que ela existiu, ainda precisa cruzar `DomainEvent` por conta própria.
+
+## 10. Pendências
+
+1. **Concorrência sem lock:** `Mfa::Verify.consume_recovery_code` faz *read-modify-write* sem lock — lê `user.otp_recovery_codes`, tira o código usado da cópia em memória e grava a lista inteira de volta com `user.update!`. Duas requisições concorrentes com códigos DIFERENTES podem se intercalar: a segunda lê a lista antes do `update!` da primeira comitar, e o `update!` dela (baseado nessa leitura antiga) ressuscita o código que a primeira acabou de consumir. O conserto — lock na linha do usuário (`with_lock`/`SELECT ... FOR UPDATE`), ou uma linha por código em vez de uma lista serializada — é trabalho próprio, fora deste spec.
