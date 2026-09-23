@@ -20,6 +20,7 @@
 - Comandos do api rodam no container, a partir da raiz do monorepo: `docker compose exec -T api bundle exec rspec <arquivos>`.
 - Suíte completa do api: `docker compose stop worker`, depois `docker compose exec -T api bundle exec rspec`, depois `docker compose start worker` (sempre religar, mesmo em falha). Acima de ~3 min é regressão.
 - Specs de request exigem `type: :request` (a inferência por pasta está desligada). O host padrão das specs de request é o de `TEST_CITY_A` (`spec/support/city_request_auth.rb`).
+- **Versão da migração de cidade:** `20260923000001`. A `20260922000003` já existe (`allow_null_inbound_message_raw`, api 4e92622). Antes de criar, confira `ls db/city_migrate | tail -1`; se aparecer versão maior, use a seguinte e ajuste o `define(version:)` do dump.
 - **Migração de cidade:** arquivo em `db/city_migrate`, e `db/city_schema.rb` atualizado **à mão**. Quem prova que os dois batem é `spec/services/city_schema_spec.rb`.
 - Todo `encrypts` num modelo de cidade entra em `CityEncryption::CITY_KEYED_TARGETS` (`app/services/city_encryption.rb`); `spec/architecture/city_encrypted_attributes_guard_spec.rb` falha se faltar.
 - Nunca grave CPF, telefone, código OTP ou resposta de triagem em log, exceto o `OtpSender::Log` de desenvolvimento, que mostra o código e o telefone mascarado.
@@ -40,7 +41,7 @@
 
 **apps/api**
 - Create: `app/services/citizen_identity.rb` (CPF e celular: normalizar, validar, mascarar)
-- Create: `db/city_migrate/20260922000003_create_citizens.rb`; Modify: `db/city_schema.rb` (à mão)
+- Create: `db/city_migrate/20260923000001_create_citizens.rb`; Modify: `db/city_schema.rb` (à mão)
 - Create: `app/models/citizen.rb`, `app/models/citizen_session.rb`, `app/models/otp_challenge.rb`
 - Modify: `app/models/conversation.rb`, `app/services/city_encryption.rb`, `app/models/current.rb`
 - Create: `app/services/otp_sender.rb`; Modify: `config/environments/development.rb`, `config/environments/test.rb`
@@ -206,7 +207,7 @@ Expected: PASS (8 examples).
 **Repo:** `apps/api`.
 
 **Files:**
-- Create: `db/city_migrate/20260922000003_create_citizens.rb`
+- Create: `db/city_migrate/20260923000001_create_citizens.rb`
 - Modify: `db/city_schema.rb` (à mão)
 - Create: `app/models/citizen.rb`, `app/models/citizen_session.rb`
 - Modify: `app/models/conversation.rb`, `app/services/city_encryption.rb`, `app/models/current.rb`
@@ -333,7 +334,7 @@ Expected: FAIL com `uninitialized constant Citizen`.
 - [ ] **Step 3: Migração**
 
 ```ruby
-# db/city_migrate/20260922000003_create_citizens.rb
+# db/city_migrate/20260923000001_create_citizens.rb
 # Canal web do cidadão (spec 2026-09-22-web-citizen-channel §3.3).
 #
 # Aditiva. CPF e telefone vão cifrados de forma determinística com a chave da
@@ -414,7 +415,7 @@ end
 
 Em `db/city_schema.rb`:
 
-1. suba `define(version: ...)` para `2026_09_22_000003`;
+1. suba `define(version: ...)` para `2026_09_23_000001`;
 2. antes de `create_table "consent_terms"` (ordem alfabética), acrescente:
 
 ```ruby
@@ -611,7 +612,7 @@ Expected: PASS. Se a paridade falhar, ajuste o dump conforme o Step 4.
 - [ ] **Step 8: Commit**
 
 ```bash
-/opt/homebrew/bin/git add db/city_migrate/20260922000003_create_citizens.rb db/city_schema.rb app/models/citizen.rb app/models/citizen_session.rb app/models/conversation.rb app/models/current.rb app/services/city_encryption.rb spec/models/citizen_spec.rb spec/models/citizen_session_spec.rb spec/models/conversation_channel_spec.rb
+/opt/homebrew/bin/git add db/city_migrate/20260923000001_create_citizens.rb db/city_schema.rb app/models/citizen.rb app/models/citizen_session.rb app/models/conversation.rb app/models/current.rb app/services/city_encryption.rb spec/models/citizen_spec.rb spec/models/citizen_session_spec.rb spec/models/conversation_channel_spec.rb
 /opt/homebrew/bin/git commit -m "feat: add citizens, citizen sessions and a channel per conversation" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ```
 
