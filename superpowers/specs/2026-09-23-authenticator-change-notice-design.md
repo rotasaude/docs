@@ -68,7 +68,7 @@ Sem saudação personalizada além do endereço, sem link, sem anexo.
 - Destinatário é o próprio dono da conta, e o conteúdo é sobre ele. E-mail de staff e IP de staff, sob base de operação do serviço (ADR 0013); nenhum dado de cidadão.
 - O IP sai no corpo porque o dono precisa julgar "não fui eu" — foi decisão explícita deste spec.
 - Log da falha de enfileiramento não leva e-mail nem IP.
-- `CityMailDeliveryJob` já desliga `log_arguments`, então os argumentos do mailer (incluindo o e-mail e o IP) não vão para log.
+- `CityMailDeliveryJob` já desliga `log_arguments`, então os argumentos do mailer (incluindo o e-mail e o IP) não vão para o log no nível `info` — o padrão de produção. Isso não é o quadro completo: ver Pendências (§9) para o nível `debug` e para a persistência em `solid_queue_jobs`.
 
 ## 6. Estratégia de teste
 
@@ -95,3 +95,9 @@ Um plano, duas tarefas:
 - Segunda via ou reenvio do aviso.
 - Preferência do usuário para desligar o aviso: é aviso de segurança, não boletim.
 - Retenção e expurgo de log do provedor de e-mail.
+
+## 9. Pendências
+
+1. **Gate de go-live:** provar `request.remote_ip` atrás do proxy de produção/staging (um `curl` pelo proxy conferindo o IP que o Rails reporta). A verificação em dev mostrou o IP do container do proxy Vite, não o do cliente — se o `X-Forwarded-For` não chegar, a linha do IP fica inútil.
+2. **Privacidade, limite conhecido:** os argumentos do job (e-mail e IP) ficam persistidos em `solid_queue_jobs.arguments` no banco da cidade, e sobrevivem em `solid_queue_failed_executions` se a entrega falhar; e aparecem no log SQL em nível `debug`. A frase "não vão para log" do §5 vale para o nível `info` (o padrão de produção), não para todos os níveis nem para o banco.
+3. **Follow-up:** senha mais um código de recuperação dá sessão privilegiada por `POST /mfa/step_up` sem tocar no autenticador, e isso NÃO gera aviso. Reusar este mailer com um `kind` novo, avisando quando `Mfa::Verify.consume_recovery_code` tem sucesso no step-up, é o próximo passo natural.
