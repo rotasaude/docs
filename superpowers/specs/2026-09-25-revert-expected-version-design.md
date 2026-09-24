@@ -40,9 +40,13 @@ Um token basta porque as condições se amarram: se a vigente ainda é a mesma *
 
 Tipo: **string** no painel da cidade e **Int** no GraphQL de manutenção, como `version` já é em cada superfície (mesmo argumento de `revertTargetVersion`).
 
-### 3.3 Conferir duas vezes, e a segunda sob lock
+### 3.3 Uma conferência só, e por quê
 
-O token é conferido na leitura rápida (para falhar barato) e **de novo dentro da transação, depois dos `lock!`**, junto das checagens que já existem. Conferir só antes do lock reintroduziria precisamente a corrida que o método inteiro existe para fechar.
+O token é conferido **uma vez**, na leitura rápida — que é onde ele tem valor: é ali que se compara o que a **tela** viu com o que o banco tem agora.
+
+Uma segunda conferência sob lock seria código morto, e a razão precisa ficar escrita porque o instinto (o meu inclusive) diz o contrário. `current` é resolvido uma vez por `find_by(name:, status: "active")` e depois **travado**, não re-resolvido: é a mesma linha, e a `version` dela não muda. Se outra versão tiver sido ativada no meio do caminho, `Protocols::Activate` demove esta para `published` antes de ativar a outra — o índice único parcial em `status = 'active'` não admite duas —, e aí a checagem que **já existe** dentro da transação, `unless current.status == "active"`, dispara antes de qualquer coisa que o token pudesse pegar.
+
+O comentário no código nomeia essa checagem, para que quem vier depois não "conserte" a ausência da segunda conferência.
 
 ### 3.4 Ausência do token é permitida — por enquanto
 
@@ -75,7 +79,7 @@ Nada novo: número de versão de protocolo, que já circula nas duas telas.
 ## 7. Estratégia de teste
 
 - **Domínio:** token igual à vigente passa; token diferente recusa com `:current_version_changed`; **sem token, os exemplos de hoje seguem inalterados** (é o que prova que o caminho antigo não mudou).
-- **Domínio, o exemplo que importa:** a versão vigente muda **entre a leitura rápida e o lock**, e a recusa acontece mesmo assim. É o único exemplo que prova que a conferência sob lock não é decorativa — sem ele, mover a checagem para fora da transação passaria verde.
+- **Domínio, o exemplo que importa:** monta o estado que a tela viu (vigente v2), ativa uma v3 **depois** dessa leitura, e então reverte mandando `expected_version` = 2. Sem o token isso reverteria alguma coisa com sucesso; com ele, recusa. É a corrida que o token existe para pegar, e é a única que ele pega sozinho — a que acontece depois, entre a leitura do command e o lock, já é recusada pelas checagens existentes (§3.3).
 - **Painel da cidade (request):** divergência responde **409** com o código da recusa; token correto reverte; sem token, o comportamento de hoje.
 - **Manutenção (request GraphQL):** divergência recusa apontando para `expectedVersion`; token correto reverte.
 - **Telas (Vitest):** a recusa mostra a frase com o número novo e dispara a releitura da lista; uma asserção de que a mensagem nunca contém `undefined`.
