@@ -112,12 +112,14 @@ dashboard (municipal_admin)
 | "Encaminhado" sem destino e sem descrição | 422 `referral_required` |
 | Unidade de destino inativa ou inexistente | 422 `invalid_unit` |
 | Nome de unidade repetido | 422 `unit_name_taken` |
+| Desativar unidade com atendimentos abertos | 409 `unit_has_open_attendances` (revisto na execução: senão os atendimentos ficariam sem como ser encerrados) |
 | Sem o papel exigido | 403 `forbidden` |
 | Sem sessão / banco da cidade atrasado | 401 / 503 |
 
 ## 7. Segurança e LGPD
 
 - O check-in por código segue a regra do balcão: sem o cidadão presente com o código, nada aparece.
+- Cada busca da exceção publica `attendance.exception_searched` (`by_user_id`, `result_count`; sem CPF) — revisto na execução, para deixar rastro do acesso.
 - A **exceção por CPF** é o único caminho em que o atendente vê triagens de um CPF sem código: exige o papel, conta no limite por servidor, mostra só triagens elegíveis (≤ 3 dias, sem atendimento) e grava método e motivo no atendimento.
 - O atendente vê a prioridade (decisão 7); respostas e relatório nunca aparecem no dashboard do atendimento.
 - `attendances` é a prova (quem fez o check-in, como, onde, quando; quem encerrou, com qual desfecho); os eventos são trilha.
