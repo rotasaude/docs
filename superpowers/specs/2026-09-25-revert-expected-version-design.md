@@ -15,7 +15,7 @@ O que não está fechado é a janela anterior: entre o que a **tela** mostrou e 
 ## 2. Escopo
 
 **Dentro:**
-- `expected_version:` opcional no command, conferido na leitura rápida **e sob lock**;
+- `expected_version:` opcional no command, conferido na leitura rápida — uma vez só, pelo motivo do §3.3;
 - o argumento nas duas superfícies, e uma recusa própria;
 - as duas telas mandando o token e tratando a recusa relendo a lista.
 
@@ -88,7 +88,7 @@ Nada novo: número de versão de protocolo, que já circula nas duas telas.
 
 Um plano, quatro tarefas:
 
-1. `expected_version:` no command, com as duas conferências e a recusa nova;
+1. `expected_version:` no command, com a conferência e a recusa nova;
 2. as duas superfícies do api (corpo REST com 409, argumento GraphQL);
 3. o dashboard mandando o token e tratando a recusa;
 4. o console de manutenção, idem.
