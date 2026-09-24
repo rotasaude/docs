@@ -81,7 +81,9 @@ vira ADR próprio quando entrar no ciclo.
 
 - **Integração gov.br OIDC** e **recovery de MFA** além dos recovery codes (ADR 0011).
 - **Imutabilidade × Art. 18 LGPD** — o que é apagável vs retido por base legal
-  (ADR 0014).
+  (ADR 0014). Inclui a **exclusão do cadastro do cidadão** do canal web (ADR 0017):
+  `citizens` guarda CPF e celular, além de `citizen_sessions` e `otp_challenges`;
+  decidido fora do subprojeto 2 (validação presencial) para análise própria.
 - **Art. 20 LGPD** — revisão humana de decisão automatizada (ADR 0014).
 - **Assinante real de `consent.revoked`** e base legal de retenção pós-revogação
   (ADR 0014).
