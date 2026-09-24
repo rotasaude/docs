@@ -53,7 +53,8 @@ dashboard — módulo "Atendimento" (papel citizen_verifier)
        confere e consome o código sob lock; cria a validação
 
 dashboard — municipal_admin
-  GET  /attendance/verifications?cpf=…                 → 200 {verifications: [...]}
+  POST /attendance/verifications/search {cpf}         → 200 {verifications: [...]}
+       (POST e não GET ?cpf=: o CPF não vai na URL — revisto na execução, 2026-09-24)
   POST /attendance/verifications/:id/revoke {reason}   → 200 {verification}
 ```
 
@@ -94,7 +95,7 @@ dashboard — municipal_admin
 ## 7. Segurança e LGPD
 
 - **O atendente não navega pelo cadastro.** O lookup exige CPF e código; sem o cidadão presente com o código, não se vê nada. O histórico por CPF sem código é só do `municipal_admin` e mostra validações, nunca triagens.
-- **Código:** HMAC, 6 dígitos, 10 min, 5 tentativas, uso único, um ativo por cidadão. Limites: geração por sessão do cidadão (10 por hora) e lookup/validação por servidor (30 a cada 10 minutos), com o `RateLimitStore` resolvido por requisição.
+- **Código:** HMAC, 6 dígitos, 10 min, 5 tentativas, uso único, um ativo por cidadão. Código que não tem exatamente 6 dígitos é recusado sem contar tentativa (revisto na execução). Limites: geração por sessão do cidadão (10 por hora) e lookup/validação por servidor (30 a cada 10 minutos), com o `RateLimitStore` resolvido por requisição.
 - **Logs:** `cpf` e `code` já estão em `filter_parameters`; `reason` também entra.
 - **Auditoria:** `citizen_verifications` é a prova (quem validou, quando; quem desfez, quando, por quê); os eventos são trilha. Conceder o papel exige step-up.
 - **Minimização:** o atendente vê celular mascarado e só data + protocolo das triagens.
