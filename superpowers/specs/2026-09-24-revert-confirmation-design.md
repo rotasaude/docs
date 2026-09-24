@@ -90,7 +90,11 @@ Nada novo: número de versão de protocolo, que já circula nas duas telas. Nenh
 - **Dashboard e manutenção (Vitest), os três ramos em cada:** efetivada igual à prevista (frase com um número); efetivada diferente da prevista (frase com os dois, e o teste monta previsão e resultado como dados independentes, senão não prova nada); resposta sem o número (frase sem número). Em todos, uma asserção de que a mensagem não contém `undefined`.
 - **Painel da cidade (request):** nenhuma mudança de contrato para cobrir — a resposta já traz o protocolo, e a spec dela já existe.
 
-## 10. Entrega
+## 10. Ordem de deploy
+
+**O `api` sobe antes do `maintenance`.** Campo anulável novo é aditivo: um cliente que não o conhece — o dashboard, ou um bundle antigo do maintenance — não quebra. O inverso quebra feio: um bundle novo do maintenance contra um api sem o campo faz o graphql-ruby recusar a consulta inteira na validação, e a reversão de emergência fica impossível até o api subir, com uma mensagem de erro que não ajuda ninguém. Nada chega a ser escrito (a validação acontece antes da execução), então é seguro — mas é indisponibilidade do ato mais urgente do ciclo. O dashboard é independente: ele não depende de nada do api nesta série.
+
+## 11. Entrega
 
 Um plano, três tarefas:
 
@@ -98,7 +102,7 @@ Um plano, três tarefas:
 2. a frase do dashboard, incluindo o retorno de `revertProtocol`;
 3. a frase da manutenção.
 
-## 11. Fora de escopo
+## 12. Fora de escopo
 
 - Mostrar quem ativou a versão que passou a valer, ou quando.
 - Reverter de novo a partir da mensagem de sucesso.
