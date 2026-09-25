@@ -26,6 +26,7 @@ de emendas. Numeração linear. O histórico pré-consolidação vive na pasta d
 | 0016 | [Protocol signatures: two city reviewers per publication and per activation](0016.md) | `protocol_reviewer`; duas assinaturas para publicar e para ativar; substitui o quatro-olhos do ADR 0012 |
 | 0017 | [Web citizen channel: declared identity and SMS-confirmed session](0017.md) | Cidadão entra pelo `wpda` com CPF declarado + celular por SMS; mesmo contrato de dados; WhatsApp desligável por cidade |
 | 0018 | [Health units and attendances: from remote triage to in-person care](0018.md) | `health_units` mínima; check-in na unidade abre `attendances` a partir da triagem; desfecho e encaminhamento descritivo; código do balcão com finalidade |
+| 0019 | [Calling, follow-up requests and appointments: care continues after the outcome](0019.md) | Papel `health_professional` chama e dá o desfecho; retorno e encaminhamento geram pedido; recepção marca horário; cidadão confirma (24h antes) ou cancela; atendimento nasce de triagem ou de horário |
 
 ## Itens em aberto
 
