@@ -10,7 +10,7 @@ de emendas. Numeração linear. O histórico pré-consolidação vive na pasta d
 |---|------|------|
 | 0001 | [Platform & application stack](0001.md) | Rails 8 + Solid Queue no Postgres; imagem única, papéis web/worker; identificadores em inglês |
 | 0002 | [Repository topology (multi-repo)](0002.md) | Um repo por app + `contracts` + `docs`; compartilhar contrato, não código |
-| 0003 | [Multi-tenant isolation (RLS)](0003.md) | Isolamento pelo Postgres; `SET LOCAL` por transação; `rota_app`/`rota_admin`; control plane vs data plane |
+| 0003 | [Multi-tenant isolation (RLS)](0003.md) | **Substituído pelo ADR 0020.** Isolamento pelo Postgres; `SET LOCAL` por transação; `rota_app`/`rota_admin`; control plane vs data plane |
 | 0004 | [Domain events, commands & write atomicity](0004.md) | Command muta + publica evento carimbado; `domain_events` imutável; enqueue após COMMIT |
 | 0005 | [Consumer idempotency & side-effect isolation](0005.md) | `processed_events` exactly-once; corpo transacional; HTTP fora do lock |
 | 0006 | [Queues & clinical priority](0006.md) | Filas por SLA; trabalho pesado nunca atrasa alerta urgente |
@@ -27,6 +27,7 @@ de emendas. Numeração linear. O histórico pré-consolidação vive na pasta d
 | 0017 | [Web citizen channel: declared identity and SMS-confirmed session](0017.md) | Cidadão entra pelo `wpda` com CPF declarado + celular por SMS; mesmo contrato de dados; WhatsApp desligável por cidade |
 | 0018 | [Health units and attendances: from remote triage to in-person care](0018.md) | `health_units` mínima; check-in na unidade abre `attendances` a partir da triagem; desfecho e encaminhamento descritivo; código do balcão com finalidade |
 | 0019 | [Calling, follow-up requests and appointments: care continues after the outcome](0019.md) | Papel `health_professional` chama e dá o desfecho; retorno e encaminhamento geram pedido; recepção marca horário; cidadão confirma (24h antes) ou cancela; atendimento nasce de triagem ou de horário |
+| 0020 | [Database per city: the city is the database, not a column](0020.md) | Um banco e um role por cidade + banco de plataforma; Host escolhe a conexão antes da autenticação; worker por cidade; grant de operador; chave derivada por cidade; substitui o ADR 0003 |
 
 ## Itens em aberto
 
@@ -51,7 +52,7 @@ vira ADR próprio quando entrar no ciclo.
 - **Fatias do dashboard** por médico/posto e **payload para object storage** se o
   snapshot crescer (ADR 0010).
 - **Reavaliação de Solid Queue / tamanho da imagem** sob carga (ADR 0001); **métricas
-  agregadas do operador** (ADR 0003).
+  agregadas do operador** (ADR 0003; o ADR 0020 removeu a visão entre cidades do console).
 - **Mecanismo de distribuição de `contracts`** por domínio, **validação automática de
   categoria** e **compatibilidade de eventos persistidos** (ADR 0015).
 - **Nome da organização**, **preservação de histórico do `api`** na extração e
@@ -77,7 +78,7 @@ vira ADR próprio quando entrar no ciclo.
 - **Suspensão/desprovisionamento de cidade** — retenção pós-saída, base legal
   (ADR 0013).
 - **Biblioteca de templates de protocolo** (herança municipal/estadual) (ADR 0013/0009).
-- **Retenção / TTL por município** (ADR 0003).
+- **Retenção / TTL por município** (ADR 0003; com banco por cidade, ADR 0020).
 
 ### Identidade e LGPD
 

@@ -29,7 +29,7 @@ suas armadilhas.
 
 | Caminho | O que é |
 |---|---|
-| [`adr/`](adr/README.md) | Decisões de arquitetura: 18 ADRs lineares (`0001`–`0018`), mais os itens em aberto |
+| [`adr/`](adr/README.md) | Decisões de arquitetura: 20 ADRs lineares (`0001`–`0020`), mais os itens em aberto |
 | [`superpowers/specs/`](superpowers/specs/) | Specs de design de cada entrega (`AAAA-MM-DD-<tema>-design.md`) |
 | [`superpowers/plans/`](superpowers/plans/) | Planos de implementação, tarefa por tarefa, derivados das specs |
 | [`modulos/`](modulos/README.md) | Mapa dos 14 módulos funcionais: escopo, superfícies, F-IDs, ADRs, critério de fechamento |
@@ -65,17 +65,13 @@ extraídos.
 - **Commits em inglês**, no formato Conventional Commits com o tipo por
   extenso (`feat`, `fix`, `refactor`, `docs`…), em todos os repos.
 
-## Divergência conhecida: RLS × banco por cidade
+## Isolamento entre cidades
 
-O [ADR 0003](adr/0003.md) (isolamento por Row-Level Security numa instalação
-única) ainda aparece como **Aceita**, mas foi substituído na prática pela
-decisão de **um banco por cidade**, desenhada em
-[`superpowers/specs/2026-09-12-banco-por-cidade-design.md`](superpowers/specs/2026-09-12-banco-por-cidade-design.md)
-e implementada nos Planos 1–8. ADRs que falam de RLS, `municipality_id`,
-`rota_app`/`rota_admin` ou "operador = cidade nula" (0003, 0011, 0012, 0013)
-descrevem o modelo anterior nesses pontos. Enquanto o ADR substituto não
-existir, **a spec do banco por cidade e o código são a fonte da verdade** para
-isolamento, identidade do operador e custódia de chave.
+O Rota Saúde usa **um banco por cidade** ([ADR 0020](adr/0020.md)), que
+substituiu o isolamento por Row-Level Security do [ADR 0003](adr/0003.md). Os
+ADRs 0011, 0012 e 0013 ainda descrevem o modelo anterior em alguns pontos
+(identidade global, operador como membership de cidade nula, chave única); onde
+conflitarem com o ADR 0020, ele vence.
 
 ## Proveniência
 
