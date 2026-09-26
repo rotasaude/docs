@@ -18,6 +18,7 @@ F-02.6,Re-pergunta em ambiguidade (default-deny),mod-02,api,0008,feature
 F-02.7,Varredura de timeout / abandoned,mod-02,api,0008,feature
 F-02.8,Enqueue de resposta dentro da transação do lock,mod-02,api,0005,feature
 F-02.9,Visão de conversas no dashboard da cidade,mod-02,dashboard,brief,feature
+F-02.10,Conversa pelo canal web (channel web; uma ativa por cidadão; mesmos comandos de consentimento e triagem),mod-02,api|wpda,"0017,0008",feature
 F-03.1,Interpretador puro (step),mod-03,api,0009,feature
 F-03.2,Linguagem de condição (eq/in/gt/lt/all/any/not),mod-03,api,0009,feature
 F-03.3,Mapeamento tipo de pergunta para elemento WhatsApp,mod-03,api,0009,feature
@@ -75,6 +76,13 @@ F-06.14,Destinatário de alerta por cidade (alert_recipients),mod-06,api|admin,0
 F-06.15,Sem backstop do operador: publicar e ativar protocolo exigem duas revisoras da cidade,mod-06,api|dashboard,0016,feature
 F-06.16,Token assinado de acesso do paciente,mod-06,api|wpda,—,feature
 F-06.17,Eventos platform-scope (Platform.audit),mod-06,api,0014,feature
+F-06.18,Identidade declarada do cidadão: par (CPF + celular) com CPF conferido pelo dígito verificador,mod-06,api|wpda,0017,feature
+F-06.19,Código SMS de confirmação do celular (OtpSender; 6 dígitos; 10 min; limites por celular e IP),mod-06,api|wpda,0017,feature
+F-06.20,Sessão do cidadão por celular (citizen_session; 30 dias deslizantes; várias pessoas por aparelho),mod-06,api|wpda,0017,feature
+F-06.21,Papel citizen_verifier (concedido e revogado pelo municipal_admin com step-up),mod-06,api|dashboard,"0017,0012",feature
+F-06.22,Validação presencial: código Validar no posto no wpda + conferência do documento no dashboard,mod-06,api|wpda|dashboard,0017,feature
+F-06.23,Desfazer validação (só municipal_admin; motivo obrigatório; tabela só de acréscimos),mod-06,api|dashboard,0017,feature
+F-06.24,Histórico do cidadão: par declarado vê só as próprias triagens; verificado vê todo o histórico do CPF,mod-06,api|wpda,0017,feature
 F-07.1,Tabela domain_events append-only,mod-07,api,0014,feature
 F-07.2,Insert na mesma transação do publish,mod-07,api,"0014,0004",feature
 F-07.3,Purge de domain_events (12 meses) recurring,mod-07,api,0014,feature

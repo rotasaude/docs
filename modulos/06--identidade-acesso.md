@@ -54,6 +54,13 @@ aberto por token assinado (ADR 0010).
 | F-06.15 | Sem backstop do operador: publicar e ativar protocolo exigem duas revisoras da cidade | api, dashboard | 0016 |
 | F-06.16 | Token assinado de acesso do paciente | api, wpda | — (toca módulo 04) |
 | F-06.17 | Eventos platform-scope (`Platform.audit`) | api | 0014 |
+| F-06.18 | Identidade declarada do cidadão: par (CPF + celular) com CPF conferido pelo dígito verificador | api, wpda | 0017 |
+| F-06.19 | Código SMS de confirmação do celular (`OtpSender`; 6 dígitos; 10 min; limites por celular e IP) | api, wpda | 0017 |
+| F-06.20 | Sessão do cidadão por celular (`citizen_session`; 30 dias deslizantes; várias pessoas por aparelho) | api, wpda | 0017 |
+| F-06.21 | Papel `citizen_verifier` (concedido e revogado pelo `municipal_admin` com step-up) | api, dashboard | 0017, 0012 |
+| F-06.22 | Validação presencial: código "Validar no posto" no wpda + conferência do documento no dashboard | api, wpda, dashboard | 0017 |
+| F-06.23 | Desfazer validação (só `municipal_admin`; motivo obrigatório; tabela só de acréscimos) | api, dashboard | 0017 |
+| F-06.24 | Histórico do cidadão: par declarado vê só as próprias triagens; verificado vê todo o histórico do CPF | api, wpda | 0017 |
 
 ## Dependências
 
@@ -80,7 +87,7 @@ aberto por token assinado (ADR 0010).
 
 ## Critério de fechamento do módulo
 
-- F-06.1 a F-06.17 verificadas.
+- F-06.1 a F-06.24 verificadas.
 - Suíte de invariante: sessão de uma cidade não autentica em outra (cookie
   host-only, conexão escolhida antes da autenticação); grant expirado ou de
   outra cidade é recusado; o mantenedor nunca assina nem concede papel

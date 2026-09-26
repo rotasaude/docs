@@ -40,6 +40,7 @@ ao 01).
 | F-02.7 | Varredura de timeout / `abandoned` | api | 0008 |
 | F-02.8 | Enqueue de resposta dentro da transação do lock | api | 0005 |
 | F-02.9 | Visão de conversas no dashboard da cidade | dashboard | brief |
+| F-02.10 | Conversa pelo canal web (`channel` `web`; uma ativa por cidadão; mesmos comandos de consentimento e triagem) | api, wpda | 0017, 0008 |
 
 ## Dependências
 
