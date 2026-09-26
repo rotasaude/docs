@@ -107,6 +107,13 @@ F-08.5,Horário sem confirmação expira e falta vira no_show (jobs); o pedido v
 F-08.6,Check-in de horário confirmado (no dia e na unidade) vira atendimento,mod-08,api|dashboard|wpda,0019,feature
 F-09.1,"Cadastro mínimo de unidades de saúde (nome, tipo, ativa) mantido pelo municipal_admin",mod-09,api|dashboard,0018,feature
 F-09.2,Desativar e reativar unidade (desativação recusada com atendimentos abertos),mod-09,api|dashboard,0018,feature
+F-10.1,"Cadastro do profissional da cidade (nome, conselho e registro, CNS) ligado ao usuário com papel health_professional",mod-10,api|dashboard,—,feature
+F-10.2,Vínculo do profissional com uma ou mais unidades,mod-10,api|dashboard,0019,feature
+F-10.3,Especialidades do profissional,mod-10,api|dashboard,0019,feature
+F-10.4,"Escala de atendimento por unidade (dias e horários), base da agenda de vagas do módulo 08",mod-10,api|dashboard,0019,feature
+F-10.5,"Chamada e desfecho só por profissional vinculado à unidade do atendimento, com o profissional gravado no atendimento",mod-10,api|dashboard,0019,feature
+F-10.6,Importação e consulta do cadastro nacional de profissionais (CNES),mod-10,api|dashboard,—,feature
+F-10.7,Profissional como destino do escalonamento de alerta urgente,mod-10,api,0006,feature
 F-13.1,"Código de check-in no wpda (Cheguei na unidade), com finalidade separada do código de validação",mod-13,api|wpda,0018,feature
 F-13.2,Check-in na recepção por código + CPF do documento (triagem de até 3 dias; valida o cadastro declarado no mesmo passo),mod-13,api|dashboard,"0018,0017",feature
 F-13.3,Check-in por exceção: busca por CPF com motivo registrado,mod-13,api|dashboard,0018,feature

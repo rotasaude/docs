@@ -1,6 +1,6 @@
 # Módulo 10 — Profissionais
 
-- **Estado:** Stub
+- **Estado:** Planejado
 - **Tipo:** Estratégico (pós-MVP)
 
 ## Escopo (preliminar)
@@ -33,6 +33,16 @@ A definir. Provavelmente:
 
 ## Funcionalidades planejadas
 
-_(a detalhar)_
+| ID | Funcionalidade | Superfície | ADRs |
+|---|---|---|---|
+| F-10.1 | Cadastro do profissional da cidade (nome, conselho e registro, CNS) ligado ao usuário com papel `health_professional` | api, dashboard | — |
+| F-10.2 | Vínculo do profissional com uma ou mais unidades | api, dashboard | 0019 |
+| F-10.3 | Especialidades do profissional | api, dashboard | 0019 |
+| F-10.4 | Escala de atendimento por unidade (dias e horários), base da agenda de vagas do módulo 08 | api, dashboard | 0019 |
+| F-10.5 | Chamada e desfecho só por profissional vinculado à unidade do atendimento, com o profissional gravado no atendimento | api, dashboard | 0019 |
+| F-10.6 | Importação e consulta do cadastro nacional de profissionais (CNES) | api, dashboard | — |
+| F-10.7 | Profissional como destino do escalonamento de alerta urgente | api | 0006 |
+
+Todas planejadas: nenhuma tem ADR próprio ainda. As marcadas 0019 vêm dos itens em aberto dele; a F-10.7 toca a priorização clínica do ADR 0006.
 
 ## Histórico
