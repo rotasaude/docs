@@ -11,6 +11,7 @@ a história está no git.
 
 | Arquivo | Escopo | ADRs relacionados | Estado |
 |---|---|---|---|
+| `rollout-agendamento.md` | Ordem de deploy e rollback do subprojeto 4 (migração irreversível de horários) | 0019, 0020 | Vigente |
 | (pendente) `custodia-de-chave.md` | Onde a chave do AR Encryption vive, como rotaciona, quem acessa | 0013 | A produzir |
 | (pendente) `atender-requisicao-lgpd.md` | Fluxo Art. 15 (acesso) / Art. 18 (eliminação) / Art. 20 (revisão) | 0003, 0013, 0014 | A produzir |
 | (pendente) `monitoramento-fila.md` | Saúde de Solid Queue: lag, `failed_executions`, jobs travados | 0001, 0006 | A produzir |
