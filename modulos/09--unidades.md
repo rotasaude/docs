@@ -1,7 +1,7 @@
 # Módulo 09 — Unidades
 
 - **Estado:** Entregue
-- **Tipo:** Estratégico (pós-MVP)
+- **Tipo:** MVP
 
 ## Escopo
 

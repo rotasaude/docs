@@ -28,11 +28,10 @@ independentes (ADR 0002).
 
 ## 14 módulos
 
-**MVP (7):** WhatsApp · Conversação · Triagem · Relatórios · Dashboard ·
-Identidade/Acesso · LGPD/Auditoria.
+**MVP (10):** WhatsApp · Conversação · Triagem · Relatórios · Dashboard ·
+Identidade/Acesso · LGPD/Auditoria · Agendamento · Unidades · Acompanhamento.
 
-**Estratégicos (7):** Agendamento · Unidades · Profissionais · Território ·
-Campanhas · Acompanhamento · Analytics.
+**Estratégicos (4):** Profissionais · Território · Campanhas · Analytics.
 
 Índice e mapa em `docs/modulos/README.md`.
 

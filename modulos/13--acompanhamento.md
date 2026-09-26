@@ -1,7 +1,7 @@
 # Módulo 13 — Acompanhamento
 
 - **Estado:** Entregue
-- **Tipo:** Estratégico (pós-MVP)
+- **Tipo:** MVP
 
 ## Escopo
 

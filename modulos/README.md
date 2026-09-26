@@ -39,12 +39,12 @@
 | 05 | [Dashboard](05--dashboard.md) | Entregue | MVP | [0022](../adr/0022.md), [0010](../adr/0010.md), [0020](../adr/0020.md), brief |
 | 06 | [Identidade/Acesso](06--identidade-acesso.md) | Entregue | MVP | [0011](../adr/0011.md), [0012](../adr/0012.md), [0013](../adr/0013.md) |
 | 07 | [LGPD/Auditoria](07--lgpd-auditoria.md) | Entregue | MVP | [0013](../adr/0013.md), [0014](../adr/0014.md), [0020](../adr/0020.md) |
-| 08 | [Agendamento](08--agendamento.md) | Entregue | Estratégico (pós-MVP) | [0019](../adr/0019.md) |
-| 09 | [Unidades](09--unidades.md) | Entregue | Estratégico (pós-MVP) | [0018](../adr/0018.md) |
+| 08 | [Agendamento](08--agendamento.md) | Entregue | MVP | [0019](../adr/0019.md) |
+| 09 | [Unidades](09--unidades.md) | Entregue | MVP | [0018](../adr/0018.md) |
 | 10 | [Profissionais](10--profissionais.md) | Planejado | Estratégico (pós-MVP) | [0021](../adr/0021.md), [0019](../adr/0019.md) |
 | 11 | [Território](11--territorio.md) | Stub | Estratégico (pós-MVP) | a definir |
 | 12 | [Campanhas](12--campanhas.md) | Stub | Estratégico (pós-MVP) | a definir |
-| 13 | [Acompanhamento](13--acompanhamento.md) | Entregue | Estratégico (pós-MVP) | [0018](../adr/0018.md), [0019](../adr/0019.md) |
+| 13 | [Acompanhamento](13--acompanhamento.md) | Entregue | MVP | [0018](../adr/0018.md), [0019](../adr/0019.md) |
 | 14 | [Analytics](14--analytics.md) | Stub | Estratégico (pós-MVP) | a definir |
 
 ## Mapa módulo × superfície (MVP)
@@ -61,19 +61,23 @@ repositório próprio (ADR 0002).
 | 05 Dashboard | ✓ | — | ✓ | — |
 | 06 Identidade/Acesso | ✓ | ✓ | ✓ | ✓ |
 | 07 LGPD/Auditoria | ✓ | ✓ | ✓ | — |
+| 08 Agendamento | ✓ | — | ✓ | ✓ |
+| 09 Unidades | ✓ | — | ✓ | — |
+| 13 Acompanhamento | ✓ | — | ✓ | ✓ |
 
 ¹ Módulo 03: a autoria de protocolo é da cidade (`dashboard`); o
 `admin` atua só como backstop do `platform_operator` (ver módulo 06).
 
 ## Recorte MVP × pós-MVP
 
-- **MVP (01–07):** WhatsApp, Conversação, Triagem, Relatórios, Dashboard,
-  Identidade/Acesso, LGPD/Auditoria. Escopo do piloto; especificados com F-IDs
-  e critério de fechamento.
-- **Pós-MVP (08–14):** Agendamento, Unidades, Profissionais, Território,
-  Campanhas, Acompanhamento, Analytics. Entram no ciclo quando ganham ADR e
-  F-IDs: 08, 09 e 13 já têm a primeira fatia entregue (ADRs 0018 e 0019), o 10
-  está planejado (ADR 0021), e 11, 12 e 14 seguem como stubs.
+- **MVP (01–09 e 13):** WhatsApp, Conversação, Triagem, Relatórios, Dashboard,
+  Identidade/Acesso, LGPD/Auditoria, Agendamento, Unidades e Acompanhamento.
+  Escopo do piloto; especificados com F-IDs e critério de fechamento. 08, 09 e
+  13 entraram juntos (2026-09-26): são a fatia presencial dos ADRs 0018 e 0019
+  (unidade → check-in e desfecho → pedido e horário) e dependem uns dos outros.
+- **Pós-MVP (10, 11, 12, 14):** Profissionais, Território, Campanhas e
+  Analytics. Entram no ciclo quando ganham ADR e F-IDs: o 10 está planejado
+  (ADR 0021), e 11, 12 e 14 seguem como stubs.
 
 ## Mapa ADR → módulos governados
 
@@ -130,3 +134,6 @@ contratos, isolamento) e, em geral, não pertencem a um módulo único.
 | 05 Dashboard | todos os MVP, 06 |
 | 06 Identidade/Acesso | 03, 07 |
 | 07 LGPD/Auditoria | todos (banco por cidade, ADR 0020) |
+| 08 Agendamento | 06, 09, 13 |
+| 09 Unidades | — |
+| 13 Acompanhamento | 03, 06, 08, 09 |

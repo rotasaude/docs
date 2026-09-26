@@ -33,7 +33,7 @@ suas armadilhas.
 | [`superpowers/specs/`](superpowers/specs/) | Specs de design de cada entrega (`AAAA-MM-DD-<tema>-design.md`) |
 | [`superpowers/plans/`](superpowers/plans/) | Planos de implementação, tarefa por tarefa, derivados das specs |
 | [`modulos/`](modulos/README.md) | Mapa dos 14 módulos funcionais: escopo, superfícies, F-IDs, ADRs, critério de fechamento |
-| [`funcionalidades-mvp.csv`](funcionalidades-mvp.csv) | As 91 funcionalidades do MVP (F-IDs), espelhadas no board do GitHub Project #1 |
+| [`funcionalidades-mvp.csv`](funcionalidades-mvp.csv) | Os F-IDs de todos os módulos (MVP e pós-MVP), espelhados no board do GitHub Project #1 |
 | [`ciclo-desenvolvimento.md`](ciclo-desenvolvimento.md) | Como o trabalho flui do ADR ao PR (ADR → módulo → funcionalidade → tarefa) |
 | [`operacao/`](operacao/README.md) | Runbooks operacionais; a maior parte ainda a produzir |
 | `relatorios/` | Relatórios de drift (gerados; vazio hoje) |
