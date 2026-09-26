@@ -61,6 +61,7 @@ aberto por token assinado (ADR 0010).
 | F-06.22 | Validação presencial: código "Validar no posto" no wpda + conferência do documento no dashboard | api, wpda, dashboard | 0017 |
 | F-06.23 | Desfazer validação (só `municipal_admin`; motivo obrigatório; tabela só de acréscimos) | api, dashboard | 0017 |
 | F-06.24 | Histórico do cidadão: par declarado vê só as próprias triagens; verificado vê todo o histórico do CPF | api, wpda | 0017 |
+| F-06.25 | Papel `health_professional` (chama e registra o desfecho; concedido pelo `municipal_admin` com step-up) | api, dashboard | 0019, 0012 |
 
 ## Dependências
 
@@ -87,7 +88,7 @@ aberto por token assinado (ADR 0010).
 
 ## Critério de fechamento do módulo
 
-- F-06.1 a F-06.24 verificadas.
+- F-06.1 a F-06.25 verificadas.
 - Suíte de invariante: sessão de uma cidade não autentica em outra (cookie
   host-only, conexão escolhida antes da autenticação); grant expirado ou de
   outra cidade é recusado; o mantenedor nunca assina nem concede papel

@@ -1,6 +1,6 @@
 # Módulo 08 — Agendamento
 
-- **Estado:** Stub
+- **Estado:** Em andamento (primeira fatia entregue)
 - **Tipo:** Estratégico (pós-MVP)
 
 ## Escopo (preliminar)
@@ -11,10 +11,11 @@ e gestão de agenda pelo paciente no wpda. Depende fortemente do módulo
 
 ## ADRs governantes
 
-A definir quando entrar no ciclo. Provavelmente:
+| ADR | Papel no módulo |
+|---|---|
+| 0019 | Pedido de agendamento e horário: nascem do desfecho de retorno ou encaminhamento; confirmação com prazo, expiração e falta |
 
-- ADR de modelo de agenda (slots, recorrência, exceções).
-- ADR de janela de comunicação (lembrete WhatsApp, confirmação, no-show).
+Ainda a decidir: agenda de vagas publicada pela unidade, o cidadão escolhendo o horário e lembretes (em aberto no ADR 0019).
 
 ## Superfícies
 
@@ -33,6 +34,13 @@ A definir quando entrar no ciclo. Provavelmente:
 
 ## Funcionalidades planejadas
 
-_(a detalhar)_
+| ID | Funcionalidade | Superfície | ADRs |
+|---|---|---|---|
+| F-08.1 | Pedido de agendamento nasce do desfecho de retorno ou encaminhamento (fila de pedidos da unidade de destino) | api, dashboard | 0019 |
+| F-08.2 | Recepção marca data e hora ou encerra o pedido com justificativa; remarcar cria um horário novo | api, dashboard | 0019 |
+| F-08.3 | Agenda do dia da unidade | api, dashboard | 0019 |
+| F-08.4 | Cidadão vê, confirma (até 24h antes) ou cancela (com motivo) o horário no `wpda` | api, wpda | 0019 |
+| F-08.5 | Horário sem confirmação expira e falta vira `no_show` (jobs); o pedido volta marcado para a fila | api | 0019 |
+| F-08.6 | Check-in de horário confirmado (no dia e na unidade) vira atendimento | api, dashboard, wpda | 0019 |
 
 ## Histórico

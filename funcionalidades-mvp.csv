@@ -83,6 +83,7 @@ F-06.21,Papel citizen_verifier (concedido e revogado pelo municipal_admin com st
 F-06.22,Validação presencial: código Validar no posto no wpda + conferência do documento no dashboard,mod-06,api|wpda|dashboard,0017,feature
 F-06.23,Desfazer validação (só municipal_admin; motivo obrigatório; tabela só de acréscimos),mod-06,api|dashboard,0017,feature
 F-06.24,Histórico do cidadão: par declarado vê só as próprias triagens; verificado vê todo o histórico do CPF,mod-06,api|wpda,0017,feature
+F-06.25,Papel health_professional (chama e registra o desfecho; concedido pelo municipal_admin com step-up),mod-06,api|dashboard,"0019,0012",feature
 F-07.1,Tabela domain_events append-only,mod-07,api,0014,feature
 F-07.2,Insert na mesma transação do publish,mod-07,api,"0014,0004",feature
 F-07.3,Purge de domain_events (12 meses) recurring,mod-07,api,0014,feature
@@ -98,3 +99,17 @@ F-07.12,Platform.audit para eventos de identidade,mod-07,api,0014,feature
 F-07.13,Painel de eventos no dashboard da cidade,mod-07,dashboard,brief,feature
 F-07.14,Console de plataforma sem visão entre cidades; entrada por grant auditada nos dois bancos,mod-07,api|admin,"0014,0020",feature
 F-07.15,Tratamento de revogação de consentimento (assinante de consent.revoked),mod-07,api,0008,feature
+F-08.1,Pedido de agendamento nasce do desfecho de retorno ou encaminhamento (fila de pedidos da unidade de destino),mod-08,api|dashboard,0019,feature
+F-08.2,Recepção marca data e hora ou encerra o pedido com justificativa; remarcar cria um horário novo,mod-08,api|dashboard,0019,feature
+F-08.3,Agenda do dia da unidade,mod-08,api|dashboard,0019,feature
+F-08.4,"Cidadão vê, confirma (até 24h antes) ou cancela (com motivo) o horário no wpda",mod-08,api|wpda,0019,feature
+F-08.5,Horário sem confirmação expira e falta vira no_show (jobs); o pedido volta marcado para a fila,mod-08,api,0019,feature
+F-08.6,Check-in de horário confirmado (no dia e na unidade) vira atendimento,mod-08,api|dashboard|wpda,0019,feature
+F-09.1,"Cadastro mínimo de unidades de saúde (nome, tipo, ativa) mantido pelo municipal_admin",mod-09,api|dashboard,0018,feature
+F-09.2,Desativar e reativar unidade (desativação recusada com atendimentos abertos),mod-09,api|dashboard,0018,feature
+F-13.1,"Código de check-in no wpda (Cheguei na unidade), com finalidade separada do código de validação",mod-13,api|wpda,0018,feature
+F-13.2,Check-in na recepção por código + CPF do documento (triagem de até 3 dias; valida o cadastro declarado no mesmo passo),mod-13,api|dashboard,"0018,0017",feature
+F-13.3,Check-in por exceção: busca por CPF com motivo registrado,mod-13,api|dashboard,0018,feature
+F-13.4,Atendimento com estados waiting/in_care/closed e fila da unidade pela prioridade da triagem,mod-13,api|dashboard,"0018,0019",feature
+F-13.5,Chamada do cidadão pelo health_professional (chamar o próximo ou um específico),mod-13,api|dashboard,0019,feature
+F-13.6,Desfecho do atendimento: atendido; encaminhado (unidade e/ou descrição); retorno; saiu sem atendimento,mod-13,api|dashboard,"0018,0019",feature

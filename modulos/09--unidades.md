@@ -1,6 +1,6 @@
 # Módulo 09 — Unidades
 
-- **Estado:** Stub
+- **Estado:** Em andamento (primeira fatia entregue)
 - **Tipo:** Estratégico (pós-MVP)
 
 ## Escopo (preliminar)
@@ -11,10 +11,11 @@ Base para roteamento de paciente após triagem.
 
 ## ADRs governantes
 
-A definir. Provavelmente:
+| ADR | Papel no módulo |
+|---|---|
+| 0018 | Cadastro mínimo de unidades (`health_units`: nome, tipo, ativa) como apoio do check-in e do atendimento |
 
-- ADR de modelo de unidade (tipo, hierarquia, vínculo com município).
-- ADR de geolocalização (uso ou não para roteamento).
+Ainda a decidir: endereço, horário, especialidades e geolocalização (sem refazer a tabela).
 
 ## Superfícies
 
@@ -31,6 +32,9 @@ A definir. Provavelmente:
 
 ## Funcionalidades planejadas
 
-_(a detalhar)_
+| ID | Funcionalidade | Superfície | ADRs |
+|---|---|---|---|
+| F-09.1 | Cadastro mínimo de unidades de saúde (`health_units`: nome, tipo, ativa) mantido pelo `municipal_admin` | api, dashboard | 0018 |
+| F-09.2 | Desativar e reativar unidade (desativação recusada com atendimentos abertos) | api, dashboard | 0018 |
 
 ## Histórico
