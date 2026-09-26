@@ -24,7 +24,7 @@ conversa (módulo 02) nem aplica protocolo (módulo 03).
 |---|---|
 | `api` | Webhook ingestion, `Whatsapp::Ingest`, `ProcessInboundMessageJob`, `SendWhatsappJob`, `Whatsapp::Outbound`, validação HMAC, dedup por `wamid` |
 | `admin` | Configuração de canal por cidade (`municipality_channels`), custódia do token, registro do número, número desconhecido (`unknown_channels`) |
-| `dashboard` | Saúde da ingestão (taxa de mensagens, falhas de HMAC, número desconhecido por cidade, fila de outbound) |
+| `dashboard` | Saúde da ingestão da cidade: volume inbound, distribuição de ack (aproximada pelo status do outbound) e backlog de purga do `raw` |
 | `wpda` | — |
 
 ## Funcionalidades planejadas
@@ -40,7 +40,7 @@ conversa (módulo 02) nem aplica protocolo (módulo 03).
 | F-01.7 | Outbound (template aprovado, janela >24h) | api | 0005 |
 | F-01.8 | Cadastro de canal por cidade | admin | 0007, 0013 |
 | F-01.9 | Custódia/rotação do `access_token` | admin | 0013 |
-| F-01.10 | Painel de saúde da ingestão | dashboard | brief |
+| F-01.10 | Painel de saúde da ingestão (volume inbound, ack aproximado, backlog de purga) | dashboard | brief |
 
 ## Dependências
 
