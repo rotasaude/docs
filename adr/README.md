@@ -28,6 +28,7 @@ de emendas. Numeração linear. O histórico pré-consolidação vive na pasta d
 | 0018 | [Health units and attendances: from remote triage to in-person care](0018.md) | `health_units` mínima; check-in na unidade abre `attendances` a partir da triagem; desfecho e encaminhamento descritivo; código do balcão com finalidade |
 | 0019 | [Calling, follow-up requests and appointments: care continues after the outcome](0019.md) | Papel `health_professional` chama e dá o desfecho; retorno e encaminhamento geram pedido; recepção marca horário; cidadão confirma (24h antes) ou cancela; atendimento nasce de triagem ou de horário |
 | 0020 | [Database per city: the city is the database, not a column](0020.md) | Um banco e um role por cidade + banco de plataforma; Host escolhe a conexão antes da autenticação; worker por cidade; grant de operador; chave derivada por cidade; substitui o ADR 0003 |
+| 0021 | [Health professionals: a user profile linked to units, with dated shifts](0021.md) | Perfil do profissional 1:1 com o usuário; vínculo com unidade e CBO com início e fim; turnos com data; chamada e desfecho exigem vínculo ativo com a unidade; o turno não bloqueia ato clínico |
 
 ## Itens em aberto
 
