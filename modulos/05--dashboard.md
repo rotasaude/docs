@@ -8,6 +8,7 @@
 O `dashboard` em si — painel operacional da cidade, tenant-scoped,
 dono `municipal_admin` / `viewer`. Read-only na fase 1. Nove painéis
 operacionais (overview + 8 módulos), seguindo o brief do dashboard.
+Os painéis agregam ao vivo no banco da cidade (ADR 0022).
 
 Este módulo é peculiar: é o **app inteiro**, não um corte de funcionalidade
 backend. Implementa-se em paralelo com os demais módulos MVP — cada um
@@ -17,7 +18,8 @@ contribui com seu painel observacional aqui.
 
 | ADR | Papel no módulo |
 |---|---|
-| 0010 | `dashboard_metrics` projeção, leitura nunca recalcula |
+| 0022 | Painéis agregam ao vivo por janela de período; `as_of` = instante da leitura, carimbado em todo agregado |
+| 0010 | `dashboard_metrics` reconstrutível; hoje só manutenção e painel de Saúde a leem (ADR 0022) |
 | 0020 | Cada cidade é um banco: o painel lê só a cidade do Host, sem filtro por `municipality_id` |
 | brief do dashboard | Especificação completa dos 9 painéis e contrato de API |
 
@@ -25,7 +27,7 @@ contribui com seu painel observacional aqui.
 
 | Superfície | O que aparece |
 |---|---|
-| `api` | Namespace `Admin::` (read-only), `app/queries/`, projeção `dashboard_metrics` mantida por consumer |
+| `api` | Namespace `Admin::` (read-only), `app/queries/admin/` (agregação ao vivo), projeção `dashboard_metrics` mantida por consumer |
 | `admin` | — (admin tem dashboard próprio cross-tenant; não é este) |
 | `dashboard` | **É o app.** React, recharts, 9 painéis, navegação por módulo |
 | `wpda` | — |
@@ -82,9 +84,18 @@ contribui com seu painel observacional aqui.
 
 - F-05.1 a F-05.14 verificadas.
 - Suíte de invariante: nenhum endpoint retorna dado fora do tenant; todo
-  agregado mostra timestamp de origem; nenhum painel dispara recompute
-  pesado.
-- Decisão registrada: quais KPIs vêm de `dashboard_metrics` (projeção) vs.
-  agregação ao vivo.
+  agregado mostra timestamp de origem; nenhuma consulta de painel sai da
+  janela de período nem recalcula a projeção.
+- ~~Decisão registrada: quais KPIs vêm de `dashboard_metrics` (projeção) vs.
+  agregação ao vivo.~~ Feito: todos ao vivo (ADR 0022).
 
 ## Histórico
+
+- 2026-09-26 — Verificação do módulo (dossiê por F-ID). F-05.2 `Verified`.
+  Bloqueios: F-05.3 (blocos de KPI e painel de Saúde do Overview sem carimbo),
+  F-05.9 (tiers fixos `low/medium/high` contra os tiers do protocolo; prioridade
+  tratada como booleano; divisão por modo sempre vazia; trilha só no seed de
+  demonstração), F-05.14 (rebuild apaga `consents_revoked` e não recria). Os
+  demais F-IDs ficam `Done` com ressalvas em cards próprios (testes de painel
+  ausentes, estados de conversa ignorados, colunas de validação fixas em
+  Protocolos). Decisão projeção vs. ao vivo registrada no ADR 0022.
