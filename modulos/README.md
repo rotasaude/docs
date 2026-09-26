@@ -35,7 +35,7 @@
 | 01 | [WhatsApp](01--whatsapp.md) | Entregue | MVP | [0005](../adr/0005.md), [0007](../adr/0007.md), [0013](../adr/0013.md) |
 | 02 | [Conversação](02--conversacao.md) | Entregue | MVP | [0005](../adr/0005.md), [0008](../adr/0008.md) |
 | 03 | [Triagem](03--triagem.md) | Entregue | MVP | [0009](../adr/0009.md) |
-| 04 | [Relatórios](04--relatorios.md) | Entregue | MVP | [0010](../adr/0010.md) |
+| 04 | [Relatórios](04--relatorios.md) | Fechado | MVP | [0010](../adr/0010.md) |
 | 05 | [Dashboard](05--dashboard.md) | Entregue | MVP | [0010](../adr/0010.md), [0020](../adr/0020.md), brief |
 | 06 | [Identidade/Acesso](06--identidade-acesso.md) | Entregue | MVP | [0011](../adr/0011.md), [0012](../adr/0012.md), [0013](../adr/0013.md) |
 | 07 | [LGPD/Auditoria](07--lgpd-auditoria.md) | Entregue | MVP | [0013](../adr/0013.md), [0014](../adr/0014.md), [0020](../adr/0020.md) |

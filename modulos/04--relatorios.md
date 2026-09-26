@@ -1,6 +1,6 @@
 # Módulo 04 — Relatórios
 
-- **Estado:** Entregue
+- **Estado:** Fechado
 - **Tipo:** MVP
 
 ## Escopo
@@ -69,3 +69,14 @@ leitura (CQRS).
   F-04.7 passa a dizer que o canal web mostra o link na tela. ADR 0010 revisado:
   o HMAC do token é conferido depois do lookup pelo índice único. Achado bloqueante
   em F-04.7 (o aviso se perde quando roda antes do snapshot) em correção no api.
+- 2026-09-26 — módulo **Fechado**. F-04.1 a F-04.7 verificadas pelo usuário.
+  Critério cumprido no api (merge abe6dfe): trigger de imutabilidade em
+  `report_snapshots` (migração de cidade 20260926100001), suítes
+  `spec/invariants/report_snapshot_immutability_spec.rb` e
+  `spec/invariants/report_snapshot_frozen_spec.rb` (caso clínico: `municipal`
+  v120 → v130, com a resposta de `/r/:token` idêntica byte a byte, porque as
+  versões são inteiras), e o bug de F-04.7 corrigido (o aviso tenta de novo até
+  o snapshot existir). Testes de tela no wpda (cccba3d) e no dashboard (9abe471).
+  Decisões: a tela do wpda segue sem mostrar o `summary`; o roteamento de
+  `/wpda/` em produção é bloqueio de go-live da plataforma (README do api, ADR
+  0020 "Em aberto"), não pendência da F-04.5.
