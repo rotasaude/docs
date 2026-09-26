@@ -5,8 +5,9 @@
 
 ## Escopo
 
-Autenticação (staff e plataforma), sessão, MFA, memberships, RBAC, convites,
-provisionamento de município. Identidade do cidadão (no wpda) usa token
+Autenticação (staff da cidade e operador de plataforma), sessão, MFA,
+memberships, RBAC, convites, provisionamento de cidade e entrada do operador
+numa cidade por grant. Identidade do cidadão (no wpda) usa token
 assinado — não há senha de cidadão neste módulo.
 
 ## ADRs governantes
@@ -14,15 +15,17 @@ assinado — não há senha de cidadão neste módulo.
 | ADR | Papel no módulo |
 |---|---|
 | 0011 | `has_secure_password`, `Session`, MFA TOTP (operador no login, publisher em step-up), seam gov.br |
-| 0012 | Memberships, roles, append-only, control plane vs data plane, fallback de quatro olhos, eventos platform-scope |
-| 0013 | Provisionamento de município (control plane + data plane, command único) |
+| 0012 | Memberships, roles, append-only, eventos platform-scope |
+| 0013 | Provisionamento de cidade, secrets e custódia de chave |
+| 0016 | Duas revisoras por publicação e por ativação; substitui o quatro-olhos do 0012 e acaba com o backstop do operador |
+| 0020 | Banco por cidade: `users`/`memberships` no banco da cidade, `Operator` na plataforma, grant de entrada, chave derivada por cidade |
 
 ## Superfícies
 
 | Superfície | O que aparece |
 |---|---|
-| `api` | `users`, `sessions`, `identities`, `memberships`, `invitations`, `municipalities`, `ProvisionMunicipality`, policies, MFA, `Platform.audit` |
-| `admin` | Provisionar cidade, custódia de chave (visão), gestão de operadores, MFA obrigatória no login, visão cross-tenant |
+| `api` | Na cidade: `users`, `sessions`, `identities`, `memberships`, `invitations`. Na plataforma: `operators`, `operator_sessions`, `cities`, `city_grants`. `POST /cities` + `ProvisionCityJob`, policies, MFA, `Platform.audit` |
+| `admin` | Provisionar cidade, registrar canal, entrar numa cidade por grant (sessão só leitura), MFA obrigatória no login; sem visão entre cidades |
 | `dashboard` | Login (cidade), gestão de usuários da cidade (`municipal_admin`), convites, RBAC visível, publicação de protocolo com step-up |
 | `wpda` | Acesso via token assinado (sem login), revogação de token |
 
@@ -52,24 +55,28 @@ assinado — não há senha de cidadão neste módulo.
 
 - Módulo 07 (LGPD/Auditoria) — eventos de identidade são platform-scope,
   caminho irmão do `DomainEvents.publish`.
-- Módulo 03 (Triagem) — backstop e step-up MFA na publicação.
+- Módulo 03 (Triagem) — assinaturas das revisoras (ADR 0016) e step-up MFA
+  na publicação e na ativação.
 
 ## Riscos herdados
 
-- **(ADR 0013):** chave única do AR Encryption protege secrets de todas
-  as cidades. Aceito no piloto; endurecimento (envelope encryption por
-  tenant) fica fora.
-- **(ADR 0012):** quatro olhos colapsa em município pequeno; fallback via
-  backstop do `platform_operator` desenhado mas exige operador disponível.
-- **Em aberto:** integração gov.br OIDC; recovery assistido de MFA;
-  desprovisionamento de cidade (inverso de `ProvisionMunicipality`).
+- **(ADR 0020):** a chave de cada cidade é derivada da chave da plataforma.
+  Um dump de uma cidade não abre outra, mas quem tem a chave da plataforma
+  deriva todas; e ainda não há procedimento para rotacioná-la.
+- **(ADR 0016):** cidade sem duas revisoras elegíveis fica bloqueada para
+  publicar e ativar protocolo. Não há backstop do operador de plataforma.
+- **(ADR 0020):** quem atua em duas prefeituras tem duas contas e dois
+  cadastros de MFA.
+- **Em aberto:** gates de go-live do gov.br (callback único em `auth.*` já
+  implementado); recovery assistido de MFA.
 
 ## Critério de fechamento do módulo
 
 - F-06.1 a F-06.17 verificadas.
-- Suíte de invariante: RLS-exempt apenas no control plane (users, sessions,
-  identities, memberships, municipality_channels, municipalities);
-  membership revogado não autoriza; step-up MFA bloqueia publicação sem TOTP
+- Suíte de invariante: sessão de uma cidade não autentica em outra (cookie
+  host-only, conexão escolhida antes da autenticação); grant expirado ou de
+  outra cidade é recusado; o mantenedor nunca assina nem concede papel
+  privilegiado; membership revogado não autoriza; step-up MFA bloqueia publicação sem TOTP
   recente; convite expirado não cria usuário.
 - Documentação de custódia/rotação de chave registrada em `docs/operacao/`.
 

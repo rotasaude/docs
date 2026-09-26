@@ -6,8 +6,8 @@
 ## Escopo
 
 Trilha de auditoria via `domain_events`, retenção, purge, criptografia em
-repouso, isolamento multi-tenant (RLS), tratamento de revogação de
-consentimento. Atravessa o sistema inteiro mas tem responsabilidades
+repouso, isolamento entre cidades (um banco por cidade), tratamento de
+revogação de consentimento. Atravessa o sistema inteiro mas tem responsabilidades
 próprias.
 
 ## ADRs governantes
@@ -16,14 +16,14 @@ próprias.
 |---|---|
 | 0014 | `domain_events` append-only, escopo (todos os eventos), TTL 12 meses, purge |
 | 0013 | Cifragem do `raw` (AR Encryption), TTL curto, purge backstop |
-| 0003 | RLS, dois papéis (`rota_app` / `rota_admin`), políticas, fail-closed |
+| 0020 | Um banco e um role por cidade, conexão escolhida pelo Host, `platform_events` no banco de plataforma, chave derivada por cidade (substitui o RLS do ADR 0003) |
 
 ## Superfícies
 
 | Superfície | O que aparece |
 |---|---|
-| `api` | `DomainEvent`, `domain_events` table, RLS em todas as tabelas de tenant, purge recorrentes, `Platform.audit` (caminho irmão para platform-scope) |
-| `admin` | Visão cross-tenant de eventos de plataforma, configuração de retenção (futuro), saúde do RLS |
+| `api` | `DomainEvent` e `domain_events` no banco de cada cidade, purge recorrentes, `Platform.audit` gravando em `platform_events` no banco de plataforma |
+| `admin` | Nenhuma visão entre cidades; entrada numa cidade por grant, auditada nos dois bancos; configuração de retenção (futuro) |
 | `dashboard` | Eventos de domínio da cidade (referências), inspeção, busca por janela de tempo / nome |
 | `wpda` | — |
 
@@ -49,8 +49,8 @@ próprias.
 
 ## Dependências
 
-- Todos os outros módulos — RLS impõe isolamento universal; auditoria
-  cobre eventos de todos.
+- Todos os outros módulos — o banco por cidade isola o dado de todos;
+  auditoria cobre eventos de todos.
 
 ## Riscos herdados
 
@@ -64,15 +64,21 @@ próprias.
 - **(ADR 0014) (Art. 20):** revisão humana de decisão automatizada não
   tem dono. Trail (módulo 03) dá insumo mas não fluxo.
 - Todas as recurring tasks concentram fragilidade no
-  worker. Worker parado = LGPD violada por purge não executado.
+  worker. Worker parado = LGPD violada por purge não executado. Com um
+  supervisor por cidade, uma cidade atrasada ou fora do ar para só as
+  tarefas dela.
+- **(ADR 0020):** a proteção entre cidades está inteira no resolver de
+  conexão. Errar a conexão entrega uma cidade inteira; o resolver precisa do
+  mesmo peso de teste que o RLS tinha.
 
 ## Critério de fechamento do módulo
 
 - F-07.1 a F-07.15 verificadas.
 - Suíte de invariante (a mais importante do MVP): cidade A não vê dado de
-  cidade B em nenhuma tabela de domínio; `rota_app` sem
-  `app.municipality_id` setado levanta; `domain_events` é insert-only;
-  purge respeita TTL; `raw` decifrável apenas com a chave do env.
+  cidade B (host A não lê o banco B; sessão, job e grant de A não valem em B —
+  `spec/cities/city_isolation_spec.rb`); `domain_events` é insert-only;
+  purge respeita TTL; `raw` decifrável apenas com a chave derivada da própria
+  cidade.
 - Documentação operacional do "como atender uma requisição LGPD" registrada
   em `docs/operacao/`.
 

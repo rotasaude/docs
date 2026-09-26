@@ -43,7 +43,8 @@ ao 01).
 
 ## Dependências
 
-- Módulo 01 (WhatsApp) — entrega o inbound roteado com `municipality_id`.
+- Módulo 01 (WhatsApp) — entrega o inbound já no banco da cidade dona do
+  `phone_number_id` (ADR 0020); a conversa não carrega `municipality_id`.
 - Módulo 03 (Triagem) — `handle_answer` delega ao motor de protocolos.
 - Módulo 07 (LGPD/Auditoria) — versionamento de termos por cidade
   (`consent_terms`).
