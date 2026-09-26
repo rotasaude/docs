@@ -33,18 +33,18 @@ assinado — não há senha de cidadão neste módulo.
 | F-06.1 | `has_secure_password` + `Session` (Rails 8 generator) | api | 0011 |
 | F-06.2 | Reset de senha por e-mail | api | 0011 |
 | F-06.3 | MFA TOTP + recovery codes | api | 0011 |
-| F-06.4 | MFA obrigatória no login do `platform_operator` | api, admin | 0011 |
+| F-06.4 | MFA obrigatória no login do operador de plataforma (`Operator`) | api, admin | 0011, 0020 |
 | F-06.5 | Step-up MFA no ato de publicar protocolo | api, dashboard | 0011, 0009 |
 | F-06.6 | Modelo `memberships` (append-only, end-dating) | api | 0012 |
-| F-06.7 | Roles (`platform_operator`, `municipal_admin`, `protocol_author`, `protocol_publisher`, `viewer`) | api | 0012 |
-| F-06.8 | Policies (defesa em profundidade: policy + RLS) | api | 0012 |
+| F-06.7 | Papéis da cidade (`municipal_admin`, `protocol_author`, `protocol_publisher`, `protocol_reviewer`, `citizen_verifier`, `health_professional`, `viewer`); operador fora das memberships | api | 0012, 0016, 0020 |
+| F-06.8 | Policies (defesa em profundidade: policy + banco da cidade escolhido pelo Host) | api | 0012, 0020 |
 | F-06.9 | Convites (`invitations`) | api, admin, dashboard | 0012 |
 | F-06.10 | Desativação de usuário (append-only) | api, dashboard | 0012 |
-| F-06.11 | `ProvisionMunicipality` (control + data plane num command) | api, admin | 0013 |
+| F-06.11 | Provisionamento de cidade em duas fases (`POST /cities` + `ProvisionCityJob`) | api, admin | 0013, 0020 |
 | F-06.12 | Custódia de chave AR Encryption no env por ambiente | api (config) | 0013 |
 | F-06.13 | Termos de consentimento por cidade (`consent_terms`) | api, dashboard | 0013 |
 | F-06.14 | Destinatário de alerta por cidade (`alert_recipients`) | api, admin | 0013 |
-| F-06.15 | Backstop de publisher pelo `platform_operator` | api, admin | 0012 |
+| F-06.15 | Sem backstop do operador: publicar e ativar protocolo exigem duas revisoras da cidade | api, dashboard | 0016 |
 | F-06.16 | Token assinado de acesso do paciente | api, wpda | — (toca módulo 04) |
 | F-06.17 | Eventos platform-scope (`Platform.audit`) | api | 0014 |
 

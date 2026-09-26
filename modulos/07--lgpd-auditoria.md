@@ -36,15 +36,15 @@ próprias.
 | F-07.3 | Purge de `domain_events` (12 meses) recurring | api | 0014 |
 | F-07.4 | Cifragem do `raw` (AR Encryption) | api | 0013 |
 | F-07.5 | Purge do `raw` pós-processamento (recurring) | api | 0014 |
-| F-07.6 | RLS habilitado + FORCE em todas as tabelas de tenant | api | 0003 |
-| F-07.7 | Dois papéis Postgres (`rota_app` / `rota_admin`) | api (config) | 0003 |
-| F-07.8 | `around_action` `within_tenant` na web | api | 0003 |
-| F-07.9 | `TenantScopedJob` concern para jobs | api | 0003 |
-| F-07.10 | Carimbo `municipality_id` no `publish` | api | 0004 |
-| F-07.11 | `domain_events.municipality_id` nullable (platform-scope) | api | 0014 |
+| F-07.6 | Um banco e um role Postgres por cidade (`CONNECT` revogado de `PUBLIC` + `CONNECTION LIMIT`) | api | 0020 |
+| F-07.7 | Roles Postgres: `rota_city_<slug>` por cidade + `rota_platform` + `rota_provisioner` (só no worker) | api (config) | 0020 |
+| F-07.8 | Cidade resolvida pelo Host antes da autenticação (`CityCatalog` + `CityConnection.with`) | api | 0020 |
+| F-07.9 | `CityScopedJob` e `EachCityJob`: jobs na fila do banco da cidade | api | 0020, 0006 |
+| F-07.10 | `DomainEvents.publish` grava no `domain_events` do banco da cidade (sem `municipality_id`) | api | 0004, 0020 |
+| F-07.11 | `platform_events` no banco de plataforma (sem dado pessoal; referencia `city_id`) | api | 0014, 0020 |
 | F-07.12 | `Platform.audit` para eventos de identidade | api | 0014 |
 | F-07.13 | Painel de eventos no dashboard da cidade | dashboard | brief |
-| F-07.14 | Painel cross-tenant no admin | admin | brief |
+| F-07.14 | Console de plataforma sem visão entre cidades; entrada por grant auditada nos dois bancos | api, admin | 0014, 0020 |
 | F-07.15 | Tratamento de revogação de consentimento (assinante de `consent.revoked`) | api | 0008 |
 
 ## Dependências

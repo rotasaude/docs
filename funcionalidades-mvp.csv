@@ -11,7 +11,7 @@ F-01.9,Custódia/rotação do access_token,mod-01,admin,0013,feature
 F-01.10,Painel de saúde da ingestão,mod-01,dashboard,brief,feature
 F-02.1,Estados awaiting_consent / in_progress,mod-02,api,0008,feature
 F-02.2,Estados terminais (completed/declined/cancelled/abandoned),mod-02,api,0008,feature
-F-02.3,Índice único parcial em (municipality_id phone) ativos,mod-02,api,"0008,0007",feature
+F-02.3,Índice único parcial em phone para conversas ativas do WhatsApp (por banco de cidade),mod-02,api,"0008,0007,0020",feature
 F-02.4,Captura de consentimento (botões interativos),mod-02,api,0008,feature
 F-02.5,Revogação (consent.revoked),mod-02,api,0008,feature
 F-02.6,Re-pergunta em ambiguidade (default-deny),mod-02,api,0008,feature
@@ -61,18 +61,18 @@ F-05.14,Job de reconciliação (rebuild de projeção),mod-05,api,0010,feature
 F-06.1,has_secure_password + Session (Rails 8 generator),mod-06,api,0011,feature
 F-06.2,Reset de senha por e-mail,mod-06,api,0011,feature
 F-06.3,MFA TOTP + recovery codes,mod-06,api,0011,feature
-F-06.4,MFA obrigatória no login do platform_operator,mod-06,api|admin,0011,feature
+F-06.4,MFA obrigatória no login do operador de plataforma (Operator),mod-06,api|admin,"0011,0020",feature
 F-06.5,Step-up MFA no ato de publicar protocolo,mod-06,api|dashboard,"0011,0009",feature
 F-06.6,Modelo memberships (append-only end-dating),mod-06,api,0012,feature
-F-06.7,Roles (platform_operator/municipal_admin/protocol_author/protocol_publisher/viewer),mod-06,api,0012,feature
-F-06.8,Policies (defesa em profundidade: policy + RLS),mod-06,api,0012,feature
+F-06.7,Papéis da cidade (municipal_admin/protocol_author/protocol_publisher/protocol_reviewer/citizen_verifier/health_professional/viewer); operador fora das memberships,mod-06,api,"0012,0016,0020",feature
+F-06.8,Policies (defesa em profundidade: policy + banco da cidade escolhido pelo Host),mod-06,api,"0012,0020",feature
 F-06.9,Convites (invitations),mod-06,api|admin|dashboard,0012,feature
 F-06.10,Desativação de usuário (append-only),mod-06,api|dashboard,0012,feature
-F-06.11,ProvisionMunicipality (control + data plane num command),mod-06,api|admin,0013,feature
+F-06.11,Provisionamento de cidade em duas fases (POST /cities + ProvisionCityJob),mod-06,api|admin,"0013,0020",feature
 F-06.12,Custódia de chave AR Encryption no env por ambiente,mod-06,api,0013,feature
 F-06.13,Termos de consentimento por cidade (consent_terms),mod-06,api|dashboard,0013,feature
 F-06.14,Destinatário de alerta por cidade (alert_recipients),mod-06,api|admin,0013,feature
-F-06.15,Backstop de publisher pelo platform_operator,mod-06,api|admin,0012,feature
+F-06.15,Sem backstop do operador: publicar e ativar protocolo exigem duas revisoras da cidade,mod-06,api|dashboard,0016,feature
 F-06.16,Token assinado de acesso do paciente,mod-06,api|wpda,—,feature
 F-06.17,Eventos platform-scope (Platform.audit),mod-06,api,0014,feature
 F-07.1,Tabela domain_events append-only,mod-07,api,0014,feature
@@ -80,13 +80,13 @@ F-07.2,Insert na mesma transação do publish,mod-07,api,"0014,0004",feature
 F-07.3,Purge de domain_events (12 meses) recurring,mod-07,api,0014,feature
 F-07.4,Cifragem do raw (AR Encryption),mod-07,api,0013,feature
 F-07.5,Purge do raw pós-processamento (recurring),mod-07,api,0014,feature
-F-07.6,RLS habilitado + FORCE em todas as tabelas de tenant,mod-07,api,0003,feature
-F-07.7,Dois papéis Postgres (rota_app / rota_admin),mod-07,api,0003,feature
-F-07.8,around_action within_tenant na web,mod-07,api,0003,feature
-F-07.9,TenantScopedJob concern para jobs,mod-07,api,0003,feature
-F-07.10,Carimbo municipality_id no publish,mod-07,api,0004,feature
-F-07.11,domain_events.municipality_id nullable (platform-scope),mod-07,api,0014,feature
+F-07.6,Um banco e um role Postgres por cidade (CONNECT revogado de PUBLIC + CONNECTION LIMIT),mod-07,api,0020,feature
+F-07.7,Roles Postgres: rota_city_<slug> por cidade + rota_platform + rota_provisioner (só no worker),mod-07,api,0020,feature
+F-07.8,Cidade resolvida pelo Host antes da autenticação (CityCatalog + CityConnection.with),mod-07,api,0020,feature
+F-07.9,CityScopedJob e EachCityJob: jobs na fila do banco da cidade,mod-07,api,"0020,0006",feature
+F-07.10,DomainEvents.publish grava no domain_events do banco da cidade (sem municipality_id),mod-07,api,"0004,0020",feature
+F-07.11,platform_events no banco de plataforma (sem dado pessoal; referencia city_id),mod-07,api,"0014,0020",feature
 F-07.12,Platform.audit para eventos de identidade,mod-07,api,0014,feature
 F-07.13,Painel de eventos no dashboard da cidade,mod-07,dashboard,brief,feature
-F-07.14,Painel cross-tenant no admin,mod-07,api|admin,"0014,0003,0012",feature
+F-07.14,Console de plataforma sem visão entre cidades; entrada por grant auditada nos dois bancos,mod-07,api|admin,"0014,0020",feature
 F-07.15,Tratamento de revogação de consentimento (assinante de consent.revoked),mod-07,api,0008,feature

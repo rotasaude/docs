@@ -33,7 +33,7 @@ ao 01).
 |---|---|---|---|
 | F-02.1 | Estados `awaiting_consent` / `in_progress` | api | 0008 |
 | F-02.2 | Estados terminais (`completed`, `declined`, `cancelled`, `abandoned`) | api | 0008 |
-| F-02.3 | Índice único parcial em `(municipality_id, phone)` ativos | api | 0008, 0007 |
+| F-02.3 | Índice único parcial em `phone` para conversas ativas do WhatsApp (por banco de cidade) | api | 0008, 0007, 0020 |
 | F-02.4 | Captura de consentimento (botões interativos) | api | 0008 |
 | F-02.5 | Revogação (`consent.revoked`) | api | 0008 |
 | F-02.6 | Re-pergunta em ambiguidade (default-deny) | api | 0008 |
