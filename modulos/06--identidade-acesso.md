@@ -7,8 +7,11 @@
 
 Autenticação (staff da cidade e operador de plataforma), sessão, MFA,
 memberships, RBAC, convites, provisionamento de cidade e entrada do operador
-numa cidade por grant. Identidade do cidadão (no wpda) usa token
-assinado — não há senha de cidadão neste módulo.
+numa cidade por grant. Identidade do cidadão, sem senha: **declarada** no
+`wpda` (CPF conferido pelo dígito verificador + celular confirmado por código
+SMS, ADR 0017) e **comprovada** por um servidor da UBS no primeiro atendimento
+presencial (`citizen_verifier`, ADR 0017). O relatório público continua
+aberto por token assinado (ADR 0010).
 
 ## ADRs governantes
 
@@ -18,16 +21,17 @@ assinado — não há senha de cidadão neste módulo.
 | 0012 | Memberships, roles, append-only, eventos platform-scope |
 | 0013 | Provisionamento de cidade, secrets e custódia de chave |
 | 0016 | Duas revisoras por publicação e por ativação; substitui o quatro-olhos do 0012 e acaba com o backstop do operador |
+| 0017 | Identidade do cidadão: declarada (par CPF + celular, sessão `citizen_session` por celular, código SMS por `OtpSender`) e comprovada no balcão pelo papel `citizen_verifier` |
 | 0020 | Banco por cidade: `users`/`memberships` no banco da cidade, `Operator` na plataforma, grant de entrada, chave derivada por cidade |
 
 ## Superfícies
 
 | Superfície | O que aparece |
 |---|---|
-| `api` | Na cidade: `users`, `sessions`, `identities`, `memberships`, `invitations`. Na plataforma: `operators`, `operator_sessions`, `cities`, `city_grants`. `POST /cities` + `ProvisionCityJob`, policies, MFA, `Platform.audit` |
+| `api` | Na cidade: `users`, `sessions`, `identities`, `memberships`, `invitations`; do cidadão, `citizens`, `citizen_sessions`, `otp_challenges`, `citizen_verification_codes`, `citizen_verifications`. Na plataforma: `operators`, `operator_sessions`, `cities`, `city_grants`. `POST /cities` + `ProvisionCityJob`, policies, MFA, `Platform.audit` |
 | `admin` | Provisionar cidade, registrar canal, entrar numa cidade por grant (sessão só leitura), MFA obrigatória no login; sem visão entre cidades |
-| `dashboard` | Login (cidade), gestão de usuários da cidade (`municipal_admin`), convites, RBAC visível, publicação de protocolo com step-up |
-| `wpda` | Acesso via token assinado (sem login), revogação de token |
+| `dashboard` | Login (cidade), gestão de usuários da cidade (`municipal_admin`), convites, RBAC visível, publicação de protocolo com step-up, validação presencial do cidadão (`citizen_verifier`) |
+| `wpda` | Entrada do cidadão por CPF declarado + código SMS (sessão por celular, várias pessoas por aparelho); relatório público por token assinado |
 
 ## Funcionalidades planejadas
 
@@ -67,6 +71,10 @@ assinado — não há senha de cidadão neste módulo.
   publicar e ativar protocolo. Não há backstop do operador de plataforma.
 - **(ADR 0020):** quem atua em duas prefeituras tem duas contas e dois
   cadastros de MFA.
+- **(ADR 0017):** CPF declarado não prova nada. Por isso cada par (CPF,
+  celular) vê só as próprias triagens até a validação presencial.
+- **(ADR 0017):** o provedor real de SMS é pendência de go-live; sem ele o
+  envio do código responde 503 (em dev, o código sai no log do `api`).
 - **Em aberto:** gates de go-live do gov.br (callback único em `auth.*` já
   implementado); recovery assistido de MFA.
 
@@ -76,7 +84,9 @@ assinado — não há senha de cidadão neste módulo.
 - Suíte de invariante: sessão de uma cidade não autentica em outra (cookie
   host-only, conexão escolhida antes da autenticação); grant expirado ou de
   outra cidade é recusado; o mantenedor nunca assina nem concede papel
-  privilegiado; membership revogado não autoriza; step-up MFA bloqueia publicação sem TOTP
+  privilegiado; sessão do cidadão e sessão de servidor nunca autenticam uma
+  à outra; um par (CPF, celular) não vê triagem de outro par; membership
+  revogado não autoriza; step-up MFA bloqueia publicação sem TOTP
   recente; convite expirado não cria usuário.
 - Documentação de custódia/rotação de chave registrada em `docs/operacao/`.
 
