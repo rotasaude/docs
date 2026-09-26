@@ -3,11 +3,23 @@
 - **Estado:** Em andamento (primeira fatia entregue)
 - **Tipo:** Estratégico (pós-MVP)
 
-## Escopo (preliminar)
+## Escopo
 
-Continuidade do cuidado após triagem/consulta — ficha de acompanhamento
-do paciente, evolução, retorno agendado, lembretes de medicação,
-follow-up automatizado por WhatsApp.
+A passagem da triagem remota para o cuidado presencial (ADRs 0018 e 0019).
+
+**Entregue:** o cidadão gera no `wpda` o código "Cheguei na unidade"; a
+recepção faz o check-in pelo código e o CPF do documento (triagem de até 3
+dias, validando o cadastro declarado no mesmo passo) ou, sem celular, por
+exceção com motivo. O atendimento entra na fila da unidade pela prioridade da
+triagem, passa por `waiting` → `in_care` → `closed`, é chamado pelo
+`health_professional` e termina com um desfecho: atendido, encaminhado
+(unidade e/ou descrição), retorno ou saiu sem atendimento. Retorno e
+encaminhamento para unidade da cidade geram pedido de agendamento (módulo 08).
+`triages`, consentimentos, relatórios e métricas não mudam por nada disso.
+
+**Fora, por enquanto:** ficha de acompanhamento, evolução, lembretes de
+medicação, follow-up automatizado e expiração de atendimentos abertos
+esquecidos.
 
 ## ADRs governantes
 
@@ -20,18 +32,24 @@ Ainda a decidir: ficha de acompanhamento, evolução e follow-up automatizado.
 
 ## Superfícies
 
-| Superfície | Papel previsto |
+| Superfície | O que aparece |
 |---|---|
-| `api` | Modelo de ficha, jobs de follow-up |
+| `api` | `attendances` (só acréscimos e transições previstas), código de balcão com finalidade, rotas de check-in, fila, chamada e desfecho em `/attendance`, código de check-in em `/citizen/triages/:id/check_in_code` |
 | `admin` | — |
-| `dashboard` | Visão de ficha por paciente, evolução |
-| `wpda` | Paciente vê própria ficha, recebe lembretes |
+| `dashboard` | Módulo Atendimento: check-in (código ou exceção), fila da unidade, chamada e desfecho |
+| `wpda` | "Cheguei na unidade" nas triagens do cidadão |
 
-## Pré-requisitos
+## Dependências
 
-- Módulo 04 (Relatórios) — ficha é evolução do snapshot.
-- Módulo 08 (Agendamento) — retorno agendado.
-- Módulo 10 (Profissionais) — atribuição de responsável.
+- Módulo 03 (Triagem) — todo atendimento nasce de uma triagem ou de um
+  horário, e a cadeia sempre chega a uma triagem.
+- Módulo 06 (Identidade/Acesso) — papéis `citizen_verifier` e
+  `health_professional`; validação do cadastro no check-in.
+- Módulo 09 (Unidades) — onde o atendimento acontece.
+- Módulo 08 (Agendamento) — recebe o pedido do desfecho de retorno ou
+  encaminhamento.
+- Módulo 10 (Profissionais) — só quando o profissional tiver vínculo formal
+  com a unidade.
 
 ## Funcionalidades planejadas
 

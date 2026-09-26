@@ -3,11 +3,22 @@
 - **Estado:** Em andamento (primeira fatia entregue)
 - **Tipo:** Estratégico (pós-MVP)
 
-## Escopo (preliminar)
+## Escopo
 
-Marcação de consultas pela cidade para os pacientes triados; visualização
-e gestão de agenda pelo paciente no wpda. Depende fortemente do módulo
-09 (Unidades) e 10 (Profissionais).
+Continuidade presencial marcada: quando um atendimento termina em **retorno**
+ou **encaminhamento** para uma unidade da cidade, nasce um **pedido de
+agendamento** na unidade de destino (ADR 0019).
+
+**Entregue:** a recepção marca data e hora (ou encerra o pedido com
+justificativa), vê a agenda do dia e remarca criando um horário novo. O
+cidadão vê o horário no `wpda` e confirma até 24h antes ou cancela com
+motivo. Horário sem confirmação expira, falta vira `no_show`, e nos dois
+casos o pedido volta marcado para a fila: ninguém sai dela sem uma pessoa
+decidir. No dia, o check-in do horário confirmado vira atendimento.
+
+**Fora, por enquanto:** agenda de vagas publicada pela unidade, o cidadão
+escolhendo o horário, lembrete antes do prazo, remarcação pedida pelo
+cidadão e encaminhamento para fora da rede da cidade.
 
 ## ADRs governantes
 
@@ -19,18 +30,21 @@ Ainda a decidir: agenda de vagas publicada pela unidade, o cidadão escolhendo o
 
 ## Superfícies
 
-| Superfície | Papel previsto |
+| Superfície | O que aparece |
 |---|---|
-| `api` | Modelo de agenda, comandos, jobs de lembrete |
+| `api` | `appointment_requests`, `appointments` (só acréscimos e transições previstas), rotas de pedidos, marcação e agenda em `/attendance`, rotas do cidadão em `/citizen/appointments`, jobs de expiração e de falta |
 | `admin` | — |
-| `dashboard` | Visão da agenda da cidade, gestão de slots |
-| `wpda` | Agendar, ver agendamentos, cancelar, confirmar |
+| `dashboard` | Módulo Atendimento: fila de pedidos da unidade, marcação e agenda do dia |
+| `wpda` | Horários do cidadão: ver, confirmar, cancelar e gerar o código de check-in do horário |
 
-## Pré-requisitos
+## Dependências
 
-- Módulo 09 (Unidades) definido.
-- Módulo 10 (Profissionais) definido.
-- Janela de 24h do WhatsApp resolvida para lembretes (templates).
+- Módulo 13 (Acompanhamento) — o pedido nasce do desfecho de um atendimento,
+  e o check-in do horário abre um atendimento novo.
+- Módulo 09 (Unidades) — a unidade de destino do pedido.
+- Módulo 06 (Identidade/Acesso) — o par (CPF, celular) do atendimento de
+  origem é quem vê o horário no `wpda`.
+- Módulo 10 (Profissionais) — só para a agenda de vagas futura.
 
 ## Funcionalidades planejadas
 

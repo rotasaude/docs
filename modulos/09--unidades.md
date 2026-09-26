@@ -3,11 +3,17 @@
 - **Estado:** Em andamento (primeira fatia entregue)
 - **Tipo:** Estratégico (pós-MVP)
 
-## Escopo (preliminar)
+## Escopo
 
-Cadastro de unidades de saúde da cidade (UBS, UPA, postos, hospitais
-parceiros), com endereço, especialidades atendidas, horário, capacidade.
-Base para roteamento de paciente após triagem.
+Cadastro das unidades de saúde da cidade, apoio do check-in, do atendimento e
+do agendamento (ADR 0018).
+
+**Entregue:** cadastro mínimo (`health_units`: nome, tipo, ativa), mantido
+pelo `municipal_admin`; desativar e reativar, com a desativação recusada
+enquanto houver atendimento aberto na unidade.
+
+**Fora, por enquanto:** endereço, horário de funcionamento, especialidades,
+capacidade e geolocalização. Entram sem refazer a tabela.
 
 ## ADRs governantes
 
@@ -19,16 +25,16 @@ Ainda a decidir: endereço, horário, especialidades e geolocalização (sem ref
 
 ## Superfícies
 
-| Superfície | Papel previsto |
+| Superfície | O que aparece |
 |---|---|
-| `api` | Modelo `health_units`, commands de CRUD |
+| `api` | `health_units`, rotas de unidades em `/attendance/units` |
 | `admin` | — (cadastro é da cidade) |
-| `dashboard` | CRUD de unidades da cidade |
-| `wpda` | — (consumido indireto via agendamento) |
+| `dashboard` | Cadastro de unidades e escolha da unidade do balcão no módulo Atendimento |
+| `wpda` | — (a unidade aparece no horário do cidadão) |
 
-## Pré-requisitos
+## Dependências
 
-- Módulo 11 (Território) — endereço/geolocalização compartilhados.
+- Módulo 11 (Território) — só quando endereço e geolocalização entrarem.
 
 ## Funcionalidades planejadas
 
