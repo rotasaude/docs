@@ -62,4 +62,29 @@ Ainda a decidir: ficha de acompanhamento, evolução e follow-up automatizado.
 | F-13.5 | Chamada do cidadão pelo `health_professional` (chamar o próximo ou um específico) | api, dashboard | 0019 |
 | F-13.6 | Desfecho do atendimento: atendido; encaminhado (unidade e/ou descrição); retorno; saiu sem atendimento | api, dashboard | 0018, 0019 |
 
+## Riscos herdados
+
+- **Clínica (ADR 0018):** o atendente passa a ver a prioridade da triagem de
+  quem fez check-in, uma ampliação deliberada do que o balcão mostrava.
+  Respostas e relatório continuam fora do balcão.
+- **Clínica (ADR 0019):** atendimento aberto esquecido não expira; fica na
+  fila até alguém encerrar.
+- **LGPD (ADR 0018):** o check-in por exceção busca por CPF sem o cidadão
+  apresentar o código; o motivo é obrigatório e a busca deixa trilha.
+- **Em aberto:** ficha de acompanhamento, evolução, lembretes de medicação,
+  follow-up automatizado e vínculo formal do profissional com a unidade
+  (módulo 10).
+
+## Critério de fechamento do módulo
+
+- F-13.1 a F-13.6 verificadas.
+- Suíte de invariante: todo atendimento nasce de uma triagem ou de um
+  horário, nunca dos dois; uma triagem e um horário têm no máximo um
+  atendimento cada; check-in nunca muda e atendimento encerrado não muda
+  mais; desfecho clínico só a partir de `in_care`, e "saiu sem atendimento"
+  só a partir de `waiting`; a exceção por CPF sempre grava método e motivo;
+  `triages`, consentimentos, relatórios e métricas não mudam por check-in,
+  chamada nem desfecho; o CPF nunca vai na URL; nenhum payload de evento
+  carrega CPF, celular, motivo ou descrição do encaminhamento.
+
 ## Histórico

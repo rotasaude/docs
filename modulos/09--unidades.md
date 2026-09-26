@@ -43,4 +43,22 @@ Ainda a decidir: endereço, horário, especialidades e geolocalização (sem ref
 | F-09.1 | Cadastro mínimo de unidades de saúde (`health_units`: nome, tipo, ativa) mantido pelo `municipal_admin` | api, dashboard | 0018 |
 | F-09.2 | Desativar e reativar unidade (desativação recusada com atendimentos abertos) | api, dashboard | 0018 |
 
+## Riscos herdados
+
+- **Operacional (ADR 0018):** o cadastro é mínimo. Sem endereço, horário e
+  especialidades, o encaminhamento e a marcação dependem de a recepção saber
+  para onde mandar o cidadão.
+- **Operacional:** uma unidade desativada some da escolha do balcão; a
+  desativação é recusada enquanto houver atendimento aberto, mas pedidos e
+  horários futuros para ela precisam de decisão da recepção.
+- **Em aberto:** endereço, horário de funcionamento, especialidades,
+  capacidade e geolocalização (módulo 11).
+
+## Critério de fechamento do módulo
+
+- F-09.1 e F-09.2 verificadas.
+- Suíte de invariante: só o `municipal_admin` cria, edita, desativa e
+  reativa unidade; desativação com atendimento aberto é recusada; unidade
+  inativa não recebe check-in.
+
 ## Histórico

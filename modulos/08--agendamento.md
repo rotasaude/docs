@@ -57,4 +57,26 @@ Ainda a decidir: agenda de vagas publicada pela unidade, o cidadão escolhendo o
 | F-08.5 | Horário sem confirmação expira e falta vira `no_show` (jobs); o pedido volta marcado para a fila | api | 0019 |
 | F-08.6 | Check-in de horário confirmado (no dia e na unidade) vira atendimento | api, dashboard, wpda | 0019 |
 
+## Riscos herdados
+
+- **Clínica (ADR 0019):** sem lembrete, o cancelamento automático pune quem
+  não abre o `wpda`. A marca "sem confirmação" na fila é a rede de proteção:
+  a recepção pode ligar e remarcar.
+- **Operacional (ADR 0019):** a recepção digita data e hora sem agenda de
+  vagas; nada impede marcar dois cidadãos no mesmo horário.
+- **Operacional:** expiração e falta dependem dos jobs do worker da cidade.
+  Worker parado deixa horário vencido aberto e pedido fora da fila.
+- **Em aberto:** agenda de vagas, escolha do horário pelo cidadão, lembrete,
+  remarcação pedida pelo cidadão e encaminhamento para fora da rede.
+
+## Critério de fechamento do módulo
+
+- F-08.1 a F-08.6 verificadas.
+- Suíte de invariante: todo horário pertence a um pedido e todo pedido nasce
+  de um atendimento; um pedido tem no máximo um horário vivo; horário
+  encerrado não muda, e o que foi marcado nunca muda; cancelamento exige
+  motivo; expiração e falta devolvem o pedido à fila marcado; check-in de
+  horário só no dia, na unidade e com o horário confirmado; nenhum payload de
+  evento carrega CPF, celular, motivo ou nota.
+
 ## Histórico
