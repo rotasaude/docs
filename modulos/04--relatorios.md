@@ -1,6 +1,6 @@
 # Módulo 04 — Relatórios
 
-- **Estado:** Planejado
+- **Estado:** Entregue
 - **Tipo:** MVP
 
 ## Escopo

@@ -1,6 +1,6 @@
 # Módulo 06 — Identidade/Acesso
 
-- **Estado:** Planejado
+- **Estado:** Entregue
 - **Tipo:** MVP
 
 ## Escopo

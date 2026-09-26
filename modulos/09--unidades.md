@@ -1,6 +1,6 @@
 # Módulo 09 — Unidades
 
-- **Estado:** Em andamento (primeira fatia entregue)
+- **Estado:** Entregue
 - **Tipo:** Estratégico (pós-MVP)
 
 ## Escopo

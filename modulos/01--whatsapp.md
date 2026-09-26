@@ -1,6 +1,6 @@
 # Módulo 01 — WhatsApp
 
-- **Estado:** Planejado
+- **Estado:** Entregue
 - **Tipo:** MVP
 
 ## Escopo

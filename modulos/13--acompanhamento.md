@@ -1,6 +1,6 @@
 # Módulo 13 — Acompanhamento
 
-- **Estado:** Em andamento (primeira fatia entregue)
+- **Estado:** Entregue
 - **Tipo:** Estratégico (pós-MVP)
 
 ## Escopo

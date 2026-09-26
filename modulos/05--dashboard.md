@@ -1,6 +1,6 @@
 # Módulo 05 — Dashboard
 
-- **Estado:** Planejado
+- **Estado:** Entregue
 - **Tipo:** MVP
 
 ## Escopo
@@ -18,7 +18,7 @@ contribui com seu painel observacional aqui.
 | ADR | Papel no módulo |
 |---|---|
 | 0010 | `dashboard_metrics` projeção, leitura nunca recalcula |
-| 0003 | RLS escopa por `municipality_id` automaticamente |
+| 0020 | Cada cidade é um banco: o painel lê só a cidade do Host, sem filtro por `municipality_id` |
 | brief do dashboard | Especificação completa dos 9 painéis e contrato de API |
 
 ## Superfícies

@@ -1,6 +1,6 @@
 # Módulo 03 — Triagem
 
-- **Estado:** Planejado
+- **Estado:** Entregue
 - **Tipo:** MVP
 
 ## Escopo

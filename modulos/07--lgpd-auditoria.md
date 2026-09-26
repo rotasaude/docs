@@ -1,6 +1,6 @@
 # Módulo 07 — LGPD/Auditoria
 
-- **Estado:** Planejado
+- **Estado:** Entregue
 - **Tipo:** MVP
 
 ## Escopo

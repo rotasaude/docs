@@ -1,6 +1,6 @@
 # Módulo 08 — Agendamento
 
-- **Estado:** Em andamento (primeira fatia entregue)
+- **Estado:** Entregue
 - **Tipo:** Estratégico (pós-MVP)
 
 ## Escopo

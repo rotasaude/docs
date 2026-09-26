@@ -1,6 +1,6 @@
 # Módulo 02 — Conversação
 
-- **Estado:** Planejado
+- **Estado:** Entregue
 - **Tipo:** MVP
 
 ## Escopo
