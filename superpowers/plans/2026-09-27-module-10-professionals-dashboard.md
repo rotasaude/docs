@@ -322,7 +322,8 @@ const FIELD_LABEL: Record<string, string> = {
 };
 
 const MESSAGES: Record<string, string> = {
-  missing_role: "este usuário não tem o papel de profissional de saúde",
+  user_missing_role: "este usuário não tem o papel de profissional de saúde",
+  missing_role: "seu papel não permite esta ação",
   missing_link: "Você não tem vínculo com esta unidade",
   already_exists: "este usuário já tem perfil profissional",
   cns_taken: "este CNS já está em outro perfil",
