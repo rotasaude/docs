@@ -124,7 +124,7 @@ Uma migração em `db/city_migrate`, só de expansão e reversível.
 | `GET /professionals` | admin | Perfis com vínculos ativos e encerrados (unidade, CBO e título, início, fim, quem abriu e quem encerrou). CNS mascarado (`*** **** **** 1234`); o CNS inteiro só aparece em `GET /professionals/:id` |
 | `GET /professionals/:id` | admin | Perfil completo, com CNS, telefone e e-mail decifrados |
 | `GET /professionals/pending` | admin | Usuários com `health_professional` ativo e `professional_status != ok` |
-| `POST /professionals` | admin | Cria o perfil (`user_id` + campos). Sem o papel ativo → 422 `missing_role`; perfil já existente → 409 `already_exists` |
+| `POST /professionals` | admin | Cria o perfil (`user_id` + campos). Sem o papel ativo → 422 `user_missing_role` (o usuário-alvo não tem o papel; `missing_role` fica só para quem chama sem o papel, 403); perfil já existente → 409 `already_exists` |
 | `POST /professionals/:id` | admin | Edita qualquer campo do perfil (menos `user_id`) |
 | `GET /professionals/me` | quem tem perfil | Próprio perfil completo, vínculos ativos e turnos válidos dos próximos 14 dias. Sem perfil → 404 `no_profile` |
 | `POST /professionals/me` | quem tem perfil | Aceita só `professional_name`, `phone`, `contact_email`; qualquer outra chave → 422 `field_not_editable` com a lista |
@@ -242,7 +242,7 @@ Cada linha tem a spec e a mutação que precisa deixá-la vermelha. A evidência
 | Invariante | Prova | Mutação |
 |---|---|---|
 | Perfil 1:1 com o usuário | 2º perfil do mesmo usuário falha **no banco** | remover o UNIQUE de `user_id` |
-| Perfil só com o papel | `Create` sem o papel → `missing_role` | tirar a checagem |
+| Perfil só com o papel | `Create` sem o papel → `user_missing_role` | tirar a checagem |
 | Vínculo só por acréscimo | por SQL: UPDATE de `started_at`, `health_unit_id` e `cbo_code`, 2º `ended_at` e DELETE falham | desligar `professional_links_guard` |
 | Um vínculo ativo por (profissional, unidade, CBO) | 2º insert ativo igual falha no banco | remover o índice parcial |
 | Turno só por acréscimo, sem sobreposição, ≤ 24h | por SQL contra o trigger, a EXCLUDE e o CHECK | remover cada um |
