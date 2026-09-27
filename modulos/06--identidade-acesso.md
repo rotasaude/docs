@@ -1,6 +1,6 @@
 # Módulo 06 — Identidade/Acesso
 
-- **Estado:** Entregue
+- **Estado:** Fechado
 - **Tipo:** MVP
 
 ## Escopo
@@ -49,7 +49,7 @@ aberto por token assinado (ADR 0010).
 | F-06.10 | Desativação de usuário (append-only) | api, dashboard | 0012 |
 | F-06.11 | Provisionamento de cidade em duas fases (`POST /cities` + `ProvisionCityJob`) | api, admin | 0013, 0020 |
 | F-06.12 | Custódia de chave AR Encryption no env por ambiente | api (config) | 0013 |
-| F-06.13 | Termos de consentimento por cidade (`consent_terms`) | api, dashboard | 0013 |
+| F-06.13 | Termos de consentimento por cidade (`consent_terms`) | api | 0013 |
 | F-06.14 | Destinatário de alerta por cidade (`alert_recipients`) | api, admin | 0013 |
 | F-06.15 | Sem backstop do operador: publicar e ativar protocolo exigem duas revisoras da cidade | api, dashboard | 0016 |
 | F-06.16 | Token assinado de acesso do paciente | api, wpda | — (toca módulo 04) |
@@ -86,16 +86,71 @@ aberto por token assinado (ADR 0010).
 - **Em aberto:** gates de go-live do gov.br (callback único em `auth.*` já
   implementado); recovery assistido de MFA.
 
+## Riscos que continuam
+
+- **Produção sem credentials próprias:** desde este fechamento produção só
+  sobe com `config/credentials/production.yml.enc`. O arquivo e a
+  `production.key` ainda não existem; até lá o job `production-boot` da CI
+  fica vermelho e produção não sobe. Passos em `operacao/custodia-de-chave.md`.
+- **Chave da plataforma sem rotação:** a de cada cidade rotaciona
+  (`city:rotate_key`); a da plataforma, da qual todas derivam, não.
+- **Destinatário de alerta (F-06.14):** só é definido no provisionamento; não
+  há tela nem endpoint para editar. O despacho usa só o primeiro destinatário
+  de e-mail; o canal `whatsapp` e a ordem de escalonamento ficam sem uso.
+- **Usuário desativado não volta:** não há reativação, e o e-mail dele não
+  pode ser convidado de novo na cidade. Quem foi desativado antes deste
+  fechamento ainda tem memberships ativas (a lista já o esconde).
+- **Termo de consentimento sem tela:** versão nova só por
+  `city:consent_term:publish`, rodada pela plataforma.
+- **Operador sem autocadastro:** nasce por `operator:create`, com TOTP já
+  ativo; a tela `MfaEnroll` do `admin` fica sem uso (rota da cidade).
+- **Convite:** o token fica em claro em `invitations` e nos argumentos do job
+  de e-mail (`solid_queue_jobs`) até a limpeza da fila.
+- **Suíte de invariante espalhada:** os exemplos estão em `requests/`,
+  `commands/` e `architecture/`, sem tag nem pasta própria.
+
 ## Critério de fechamento do módulo
 
-- F-06.1 a F-06.25 verificadas.
-- Suíte de invariante: sessão de uma cidade não autentica em outra (cookie
-  host-only, conexão escolhida antes da autenticação); grant expirado ou de
-  outra cidade é recusado; o mantenedor nunca assina nem concede papel
-  privilegiado; sessão do cidadão e sessão de servidor nunca autenticam uma
-  à outra; um par (CPF, celular) não vê triagem de outro par; membership
-  revogado não autoriza; step-up MFA bloqueia publicação sem TOTP
-  recente; convite expirado não cria usuário.
-- Documentação de custódia/rotação de chave registrada em `docs/operacao/`.
+- ✓ F-06.1 a F-06.25 verificadas.
+- ✓ Suíte de invariante, no `api`:
+  - sessão de uma cidade não autentica em outra:
+    `requests/city_session_isolation_spec.rb`, `architecture/cookie_domain_spec.rb`;
+  - grant expirado ou de outra cidade é recusado: `requests/session_grant_spec.rb`;
+  - o mantenedor nunca assina nem concede papel privilegiado:
+    `commands/protocols_authoring_spec.rb`, `commands/grant_role_spec.rb`,
+    `architecture/protocol_signatures_guard_spec.rb`;
+  - sessão do cidadão e sessão de servidor nunca autenticam uma à outra:
+    `requests/citizen_api/otp_and_session_spec.rb`,
+    `requests/citizen_session_on_staff_endpoints_spec.rb`;
+  - um par (CPF, celular) não vê triagem de outro par:
+    `requests/citizen_api/isolation_spec.rb`;
+  - membership revogado não autoriza: `requests/admin/api/membership_gate_spec.rb`;
+  - step-up MFA bloqueia publicação sem TOTP recente:
+    `requests/protocol_lifecycle_spec.rb`;
+  - convite expirado não cria usuário: `commands/accept_invitation_spec.rb`,
+    `requests/setup_accept_invitation_spec.rb`.
+- ✓ Custódia e rotação de chave em `operacao/custodia-de-chave.md`.
 
 ## Histórico
+
+- 2026-09-27 — Módulo fechado: 25/25 `Verified`. A verificação por F-ID
+  achou cinco lacunas reais, consertadas com TDD:
+  - F-06.10: a desativação respondia sempre 403; agora é do `municipal_admin`,
+    com step-up, e revoga os papéis ativos. O dashboard ganhou o botão.
+  - F-06.9: o convite de membro não era entregue; agora sai por e-mail
+    (`MemberInvitationMailer`), substitui o pendente do mesmo e-mail, e o
+    aceite recusa convite vencido, senha curta e e-mail já cadastrado, com
+    trava na linha. O dashboard ganhou o formulário de convite.
+  - F-06.12: o initializer lia `AR_ENCRYPTION_*` e o deploy injetava
+    `ACTIVE_RECORD_ENCRYPTION_*`; agora lê os dois, derruba o boot publicado
+    sem chave, e produção exige credentials próprias.
+  - F-06.4: `operator:create` cria o operador com TOTP; o `admin` explica
+    `mfa_enrollment_required` e o fim das tentativas no login.
+  - F-06.13: `city:consent_term:publish` publica versão nova; o hash do
+    consentimento passa a ser o do texto do termo da cidade.
+  Triggers de só acréscimos em `consent_terms`, `memberships` e `users`
+  (migrações de cidade `20260927200001` e `20260927200002`). Testes novos
+  para limite por IP, step-up dos papéis `citizen_verifier` e
+  `health_professional`, e as invariantes de sessão cruzada e convite vencido.
+  Commits: api `c36cd01` (2125 exemplos, 0 falhas), dashboard `b248fba`
+  (321 testes), admin `9a8c0f6` (46 testes).

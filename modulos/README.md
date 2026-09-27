@@ -37,7 +37,7 @@
 | 03 | [Triagem](03--triagem.md) | Fechado | MVP | [0009](../adr/0009.md), [0016](../adr/0016.md), [0010](../adr/0010.md), [0020](../adr/0020.md) |
 | 04 | [Relatórios](04--relatorios.md) | Fechado | MVP | [0010](../adr/0010.md) |
 | 05 | [Dashboard](05--dashboard.md) | Fechado | MVP | [0022](../adr/0022.md), [0010](../adr/0010.md), [0020](../adr/0020.md), brief |
-| 06 | [Identidade/Acesso](06--identidade-acesso.md) | Entregue | MVP | [0011](../adr/0011.md), [0012](../adr/0012.md), [0013](../adr/0013.md) |
+| 06 | [Identidade/Acesso](06--identidade-acesso.md) | Fechado | MVP | [0011](../adr/0011.md), [0012](../adr/0012.md), [0013](../adr/0013.md) |
 | 07 | [LGPD/Auditoria](07--lgpd-auditoria.md) | Entregue | MVP | [0013](../adr/0013.md), [0014](../adr/0014.md), [0020](../adr/0020.md) |
 | 08 | [Agendamento](08--agendamento.md) | Entregue | MVP | [0019](../adr/0019.md) |
 | 09 | [Unidades](09--unidades.md) | Entregue | MVP | [0018](../adr/0018.md) |

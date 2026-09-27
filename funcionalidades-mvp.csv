@@ -71,7 +71,7 @@ F-06.9,Convites (invitations),mod-06,api|admin|dashboard,0012,feature
 F-06.10,Desativação de usuário (append-only),mod-06,api|dashboard,0012,feature
 F-06.11,Provisionamento de cidade em duas fases (POST /cities + ProvisionCityJob),mod-06,api|admin,"0013,0020",feature
 F-06.12,Custódia de chave AR Encryption no env por ambiente,mod-06,api,0013,feature
-F-06.13,Termos de consentimento por cidade (consent_terms),mod-06,api|dashboard,0013,feature
+F-06.13,Termos de consentimento por cidade (consent_terms),mod-06,api,0013,feature
 F-06.14,Destinatário de alerta por cidade (alert_recipients),mod-06,api|admin,0013,feature
 F-06.15,Sem backstop do operador: publicar e ativar protocolo exigem duas revisoras da cidade,mod-06,api|dashboard,0016,feature
 F-06.16,Token assinado de acesso do paciente,mod-06,api|wpda,—,feature
