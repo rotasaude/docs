@@ -68,5 +68,14 @@ conversa (módulo 02) nem aplica protocolo (módulo 03).
 ## Histórico
 
 _(funcionalidades concluídas aparecem aqui em ordem cronológica reversa)_
+
+- **2026-09-27** — Lacunas da verificação fechadas (api c358656, admin 0445567,
+  dashboard c162db4). Canal inativo passa a ser descartado e logado, e não mais
+  registrado como número desconhecido (F-01.4). `GET /unknown_channels` e a tela
+  "Números desconhecidos" do console (F-01.5). O backlog de purga do painel usa
+  a retenção real do `raw`, de 90 dias, e conta só linhas ainda não purgadas
+  (F-01.10). Suíte de invariante em
+  `spec/architecture/whatsapp_edge_invariants_spec.rb`. Runbook em
+  `operacao/provisionar-canal-whatsapp.md`.
 </content>
 </invoke>
