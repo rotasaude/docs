@@ -88,7 +88,7 @@ F-07.1,Tabela domain_events append-only,mod-07,api,0014,feature
 F-07.2,Insert na mesma transação do publish,mod-07,api,"0014,0004",feature
 F-07.3,Purge de domain_events (12 meses) recurring,mod-07,api,0014,feature
 F-07.4,Cifragem do raw (AR Encryption),mod-07,api,0013,feature
-F-07.5,Purge do raw pós-processamento (recurring),mod-07,api,0014,feature
+F-07.5,Purge do raw após 90 dias processado ou não (recurring),mod-07,api,0014,feature
 F-07.6,Um banco e um role Postgres por cidade (CONNECT revogado de PUBLIC + CONNECTION LIMIT),mod-07,api,0020,feature
 F-07.7,Roles Postgres: rota_city_<slug> por cidade + rota_platform + rota_provisioner (só no worker),mod-07,api,0020,feature
 F-07.8,Cidade resolvida pelo Host antes da autenticação (CityCatalog + CityConnection.with),mod-07,api,0020,feature

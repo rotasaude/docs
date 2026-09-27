@@ -14,7 +14,7 @@ a história está no git.
 | `rollout-agendamento.md` | Ordem de deploy e rollback do subprojeto 4 (migração irreversível de horários) | 0019, 0020 | Vigente |
 | `provisionar-canal-whatsapp.md` | Registrar, validar e rotacionar o canal WhatsApp de uma cidade | 0007, 0013, 0017, 0020 | Vigente |
 | `custodia-de-chave.md` | Onde a chave do AR Encryption vive, como rotaciona, quem acessa | 0013, 0020 | Vigente |
-| (pendente) `atender-requisicao-lgpd.md` | Fluxo Art. 15 (acesso) / Art. 18 (eliminação) / Art. 20 (revisão) | 0003, 0013, 0014 | A produzir |
+| `atender-requisicao-lgpd.md` | Acesso, revogação, eliminação (sem decisão) e revisão de decisão automatizada | 0013, 0014, 0017, 0020 | Vigente |
 | (pendente) `monitoramento-fila.md` | Saúde de Solid Queue: lag, `failed_executions`, jobs travados | 0001, 0006 | A produzir |
 | (pendente) `restore-postgres.md` | RPO/RTO, drill de restore, atenção à fila no mesmo banco | 0001 | A produzir |
 | (pendente) `plantao-alerta-urgente.md` | Quem recebe, cadeia de escalonamento, janela de 24h do WhatsApp | 0006, 0013 | A produzir |

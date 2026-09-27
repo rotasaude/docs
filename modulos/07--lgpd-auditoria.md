@@ -1,6 +1,6 @@
 # Módulo 07 — LGPD/Auditoria
 
-- **Estado:** Entregue
+- **Estado:** Fechado
 - **Tipo:** MVP
 
 ## Escopo
@@ -31,17 +31,17 @@ próprias.
 
 | ID | Funcionalidade | Superfície | ADRs |
 |---|---|---|---|
-| F-07.1 | Tabela `domain_events` append-only | api | 0014 |
+| F-07.1 | Tabela `domain_events` append-only (trigger; DELETE só além de 12 meses) | api | 0014 |
 | F-07.2 | Insert na mesma transação do `publish` | api | 0014, 0004 |
 | F-07.3 | Purge de `domain_events` (12 meses) recurring | api | 0014 |
 | F-07.4 | Cifragem do `raw` (AR Encryption) | api | 0013 |
-| F-07.5 | Purge do `raw` pós-processamento (recurring) | api | 0014 |
+| F-07.5 | Purge do `raw` após 90 dias, processado ou não (recurring) | api | 0014 |
 | F-07.6 | Um banco e um role Postgres por cidade (`CONNECT` revogado de `PUBLIC` + `CONNECTION LIMIT`) | api | 0020 |
 | F-07.7 | Roles Postgres: `rota_city_<slug>` por cidade + `rota_platform` + `rota_provisioner` (só no worker) | api (config) | 0020 |
 | F-07.8 | Cidade resolvida pelo Host antes da autenticação (`CityCatalog` + `CityConnection.with`) | api | 0020 |
 | F-07.9 | `CityScopedJob` e `EachCityJob`: jobs na fila do banco da cidade | api | 0020, 0006 |
 | F-07.10 | `DomainEvents.publish` grava no `domain_events` do banco da cidade (sem `municipality_id`) | api | 0004, 0020 |
-| F-07.11 | `platform_events` no banco de plataforma (sem dado pessoal; referencia `city_id`) | api | 0014, 0020 |
+| F-07.11 | `platform_events` no banco de plataforma (sem dado pessoal; referencia `city_id`; imutável por trigger) | api | 0014, 0020 |
 | F-07.12 | `Platform.audit` para eventos de identidade | api | 0014 |
 | F-07.13 | Painel de eventos no dashboard da cidade | dashboard | brief |
 | F-07.14 | Console de plataforma sem visão entre cidades; entrada por grant auditada nos dois bancos | api, admin | 0014, 0020 |
@@ -58,9 +58,10 @@ próprias.
   frente com append-only de `consents`, `domain_events`, `report_snapshots`.
   Nenhum ADR resolveu. Decisão de "o que é apagável vs. retido por base
   legal" continua em aberto.
-- **(ADR 0014):** `consent.revoked` é publicado mas não desfaz nada;
-  efeitos colaterais já disparados permanecem. Falta consumer real e base
-  legal declarada de retenção pós-revogação.
+- **(ADR 0014):** `consent.revoked` tem assinantes (F-07.15): zeram o
+  conteúdo clínico da triagem interrompida e contam a métrica. Efeitos já
+  disparados permanecem, e falta base legal declarada de retenção
+  pós-revogação.
 - **(ADR 0014) (Art. 20):** revisão humana de decisão automatizada não
   tem dono. Trail (módulo 03) dá insumo mas não fluxo.
 - Todas as recurring tasks concentram fragilidade no
@@ -71,15 +72,80 @@ próprias.
   conexão. Errar a conexão entrega uma cidade inteira; o resolver precisa do
   mesmo peso de teste que o RLS tinha.
 
+## Riscos que continuam
+
+- **Eliminação (Art. 18, VI) sem decisão:** o ADR "Art. 18 LGPD — exclusão do
+  cadastro do cidadão" segue pendente. Até ele, nada se apaga à mão, e as
+  tabelas de auditoria recusam por trigger. Ver
+  `operacao/atender-requisicao-lgpd.md`.
+- **Revisão de decisão automatizada (Art. 20) sem dono:** a trilha existe,
+  mas o fluxo de revisão, não.
+- **Dado pessoal em `domain_events`:** `user.invited` grava o e-mail do servidor
+  convidado no payload, por 12 meses. Não há guarda de payload do lado da cidade,
+  como a de `platform_events`. O painel só mostra referências, mas o dado fica
+  na trilha.
+- **Telefone das mensagens sem prazo:** `inbound_messages.from` e
+  `outbound_messages.to` agora são cifrados, mas não expiram.
+- **Rollout da cifra dos telefones:** depois do deploy, e com web e worker
+  antigos já drenados, rode `city:encrypt_message_phones:all`. Até lá, linha
+  antiga em claro levanta ao ser lida (produção não aceita dado sem cifra), e
+  `ReencryptionJob`/`city:rotate_key` falham na cidade. Restaurar um dump
+  anterior à cifra traz o texto claro de volta; rode a task de novo depois do
+  `city:restore`.
+- **Retenção fixa no banco:** o TTL de 12 meses de `domain_events` e
+  `platform_events` está no trigger. Encurtar exige migração.
+- **Worker parado = purga parada:** com um supervisor por cidade, só a cidade
+  afetada atrasa.
+
 ## Critério de fechamento do módulo
 
-- F-07.1 a F-07.15 verificadas.
-- Suíte de invariante (a mais importante do MVP): cidade A não vê dado de
-  cidade B (host A não lê o banco B; sessão, job e grant de A não valem em B —
-  `spec/cities/city_isolation_spec.rb`); `domain_events` é insert-only;
-  purge respeita TTL; `raw` decifrável apenas com a chave derivada da própria
-  cidade.
-- Documentação operacional do "como atender uma requisição LGPD" registrada
-  em `docs/operacao/`.
+- ✓ F-07.1 a F-07.15 verificadas.
+- ✓ Suíte de invariante, no `api`:
+  - cidade A não vê dado de B:
+    - por conexão: `cities/city_isolation_spec.rb`;
+    - pelo Host (host desconhecido responde 404 antes de autenticar):
+      `cities/city_isolation_requests_spec.rb`;
+    - por role de banco: `services/city_database_spec.rb`;
+  - sessão de A não vale em B: `requests/city_session_isolation_spec.rb`,
+    `requests/operator_city_session_spec.rb`;
+  - job de A não grava em B: `models/city_connection_queue_spec.rb`,
+    `jobs/concerns/city_scoped_job_spec.rb`,
+    `architecture/current_city_assignment_spec.rb`;
+  - grant de A não vale em B: `requests/session_grant_spec.rb`,
+    `services/city_grants_spec.rb`;
+  - `domain_events` só recebe acréscimos: `models/domain_event_append_only_spec.rb`;
+  - `platform_events` só recebe acréscimos: `events/maintenance_audit_spec.rb`;
+  - evento some com o rollback da transação: `events/domain_events_spec.rb`;
+  - purga respeita o TTL: `jobs/purge_domain_events_job_spec.rb`,
+    `jobs/purge_inbound_raw_job_spec.rb`;
+  - `raw` e telefones só se decifram com a chave da própria cidade:
+    `models/city_connection_encryption_spec.rb`,
+    `models/message_phone_encryption_spec.rb`;
+  - credencial do provisioner só no worker:
+    `config/provisioner_credential_spec.rb`.
+- ✓ Requisição LGPD em `operacao/atender-requisicao-lgpd.md`.
 
 ## Histórico
+
+- 2026-09-27: módulo fechado, com 15/15 `Verified`. A verificação por F-ID
+  achou lacunas reais, consertadas com TDD:
+  - F-07.1: `domain_events` não era só acréscimo. Agora um trigger só aceita
+    marcar `published_at` uma vez e recusa DELETE dentro de 12 meses. O modelo
+    trata o evento gravado como somente leitura. A purga usa o mesmo corte em
+    SQL e recusa janela menor que 12 meses.
+  - F-07.11: a imutabilidade de `platform_events` cobria só `maintenance.*`.
+    Agora cobre toda a trilha: auditoria de manutenção nunca sai; o resto só
+    sai além de 12 meses.
+  - F-07.13: a tela ganhou janela de tempo própria e busca por nome, e o
+    endpoint ganhou specs e escape de curinga.
+  - O telefone das mensagens (`inbound_messages.from`,
+    `outbound_messages.to`) passou a ser cifrado com a chave da cidade.
+  - Specs novas:
+    - F-07.2: rollback do evento junto com a transação.
+    - F-07.5: corte exato, idempotência, mensagem nunca processada.
+    - F-07.7: credencial do provisioner só no worker; atributos dos roles.
+    - Isolamento pelo Host e guarda estática de `Current.city`.
+  - Migrações: de cidade `20260927300001`; de plataforma `20260927300002`.
+  - ADR 0014 ganhou nota apontando o mecanismo do ADR 0020.
+  - Commits: api `433f7c0` (2167 exemplos, 0 falhas), dashboard
+    `a4316d2` (339 testes).
