@@ -1,6 +1,6 @@
 # Módulo 08 — Agendamento
 
-- **Estado:** Entregue
+- **Estado:** Fechado
 - **Tipo:** MVP
 
 ## Escopo
@@ -63,7 +63,10 @@ Ainda a decidir: agenda de vagas publicada pela unidade, o cidadão escolhendo o
   não abre o `wpda`. A marca "sem confirmação" na fila é a rede de proteção:
   a recepção pode ligar e remarcar.
 - **Operacional (ADR 0019):** a recepção digita data e hora sem agenda de
-  vagas; nada impede marcar dois cidadãos no mesmo horário.
+  vagas; nada impede marcar dois cidadãos no mesmo horário (api#26).
+- **Operacional:** o fuso é fixo em `America/Sao_Paulo` no api, no dashboard e
+  no `wpda`; o ADR fala em fuso da cidade. Uma cidade fora do horário de
+  Brasília teria prazo, falta e "hoje" deslocados (api#27).
 - **Operacional:** expiração e falta dependem dos jobs do worker da cidade.
   Worker parado deixa horário vencido aberto e pedido fora da fila.
 - **Em aberto:** agenda de vagas, escolha do horário pelo cidadão, lembrete,
@@ -80,3 +83,22 @@ Ainda a decidir: agenda de vagas publicada pela unidade, o cidadão escolhendo o
   evento carrega CPF, celular, motivo ou nota.
 
 ## Histórico
+
+- 2026-09-27: módulo fechado, com 6/6 `Verified`. A verificação por F-ID
+  achou lacunas reais, consertadas com TDD (api 71a4711, dashboard 72ed9ad,
+  wpda bb42097; api 2200/0, dashboard 342, wpda 95):
+  - F-08.6: o check-in por exceção respondia `triage_not_eligible` para
+    qualquer horário recusado. Agora diz `not_today`, `wrong_unit` (com o nome
+    da unidade) ou `appointment_not_eligible`, e o `fulfil` reconfere dia e
+    unidade sob o lock, não só o status (api#24).
+  - F-08.2: o dashboard lia a data e hora digitadas no fuso do navegador.
+    Agora lê como hora da cidade (dashboard#8).
+  - F-08.4: o `wpda` oferecia Confirmar depois do prazo, até o job rodar, e
+    o servidor recusava. Agora o botão some e a tela avisa. Saiu um texto de
+    pedido reaberto que nunca aparecia.
+  - Critério cumprido: `spec/invariants/appointment_invariants_spec.rb`
+    (api#25) cobre as recusas no banco, o escopo do check-in e uma varredura
+    do ciclo inteiro provando que nenhum payload de evento carrega CPF,
+    celular, motivo ou nota (conferida injetando a nota num payload).
+  - Continuam como riscos, não como pendência dos F-IDs: horário duplicado
+    (api#26) e fuso fixo (api#27).
