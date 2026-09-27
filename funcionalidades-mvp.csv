@@ -20,24 +20,24 @@ F-02.8,Enqueue de resposta dentro da transação do lock,mod-02,api,0005,feature
 F-02.9,"Visão de conversas no dashboard: distribuição por estado (funil e desfechos), taxa de abandono, vivas agora e tempo até concluir",mod-02,api|dashboard,brief,feature
 F-02.10,"Conversa pelo canal web (channel web; uma ativa por cidadão; consentimento, resposta, desfazer e revogação)",mod-02,api|wpda,"0017,0008",feature
 F-03.1,Interpretador puro (step),mod-03,api,0009,feature
-F-03.2,Linguagem de condição (eq/in/gt/lt/all/any/not),mod-03,api,0009,feature
-F-03.3,Mapeamento tipo de pergunta para elemento WhatsApp,mod-03,api,0009,feature
+F-03.2,"Linguagem de condição (eq, in, gt, lt, all, any, not)",mod-03,api,0009,feature
+F-03.3,Mapeamento tipo de pergunta → elemento WhatsApp (canal descontinuado),mod-03,api,0009,feature
 F-03.4,evaluate modo weighted,mod-03,api,0009,feature
 F-03.5,evaluate modo decision_table,mod-03,api,0009,feature
 F-03.6,priority_when (independente do modo),mod-03,api,0009,feature
-F-03.7,Trail estruturado,mod-03,api,0009,feature
-F-03.8,Storage protocols + workflow draft/in_review/published/retired,mod-03,api,0009,feature
-F-03.9,Gate server-side (schema + linter de grafo + scoring),mod-03,api,0009,feature
-F-03.10,RBAC protocol_author / protocol_publisher,mod-03,api|dashboard,"0009,0012",feature
-F-03.11,Step-up MFA na publicação,mod-03,api|dashboard,"0009,0011",feature
+F-03.7,"Trail estruturado (scored, rule_matched, priority_rule, tier_assigned) em Outcome#explanation",mod-03,api,0009,feature
+F-03.8,Storage protocol_definitions + workflow draft/in_review/published/active/retired,mod-03,api,"0009,0016",feature
+F-03.9,Gate server-side (schema + linter de grafo + validações de scoring),mod-03,api,0009,feature
+F-03.10,RBAC protocol_author / protocol_reviewer / protocol_publisher,mod-03,api|dashboard,"0009,0012,0016",feature
+F-03.11,Step-up MFA na publicação e nos demais atos do ciclo,mod-03,api|dashboard,"0009,0011",feature
 F-03.12,Editor JSON + preview ao vivo na cidade,mod-03,dashboard,0009,feature
-F-03.13,Publicação + auditoria (protocol.published),mod-03,api|dashboard,"0009,0014",feature
-F-03.14,Aposentadoria (retired não deleta),mod-03,api|dashboard,0009,feature
-F-03.15,Triagens completam com protocol_version congelado,mod-03,api,"0010,0009",feature
-F-03.16,Inspeção de trail (referências sem clínica crua),mod-03,dashboard,"0009,brief",feature
-F-03.17,Resultado da triagem renderizado no wpda,mod-03,wpda,0009,feature
-F-03.18,Ativação de versão por cidade (ActivateProtocolVersion),mod-03,api|dashboard,0009,feature
-F-03.19,Aposentadoria com guarda R4 (RetireProtocolVersion),mod-03,api|dashboard,0009,feature
+F-03.13,Publicação com duas assinaturas + auditoria (protocol.published),mod-03,api|dashboard,"0009,0014,0016",feature
+F-03.14,"Aposentadoria (retired, não deleta; trigger no banco da cidade)",mod-03,api|dashboard,0009,feature
+F-03.15,Triagens completam na versão congelada (protocol_definition_id),mod-03,api,"0010,0009",feature
+F-03.16,"Inspeção de trail (referências, sem clínica crua)",mod-03,api|dashboard,0009,feature
+F-03.17,Resultado da triagem renderizado no wpda,mod-03,api|wpda,"0009,0010",feature
+F-03.18,Ativação de versão na cidade (Protocols::Activate; só published; duas assinaturas),mod-03,api|dashboard,"0009,0016",feature
+F-03.19,Aposentadoria com guarda R4 (Protocols::Retire recusa a versão active),mod-03,api|dashboard,0009,feature
 F-04.1,GenerateReportJob consumindo triage.completed,mod-04,api,"0004,0005,0010",feature
 F-04.2,Snapshot report_snapshots com payload + versão do protocolo (protocol_definition_id),mod-04,api,0010,feature
 F-04.3,Token assinado para acesso público (sem login),mod-04,api,—,feature

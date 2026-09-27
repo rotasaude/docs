@@ -34,7 +34,7 @@
 |---|---|---|---|---|
 | 01 | [WhatsApp](01--whatsapp.md) | Fechado | MVP | [0005](../adr/0005.md), [0007](../adr/0007.md), [0013](../adr/0013.md) |
 | 02 | [Conversação](02--conversacao.md) | Fechado | MVP | [0005](../adr/0005.md), [0008](../adr/0008.md), [0017](../adr/0017.md) |
-| 03 | [Triagem](03--triagem.md) | Entregue | MVP | [0009](../adr/0009.md) |
+| 03 | [Triagem](03--triagem.md) | Fechado | MVP | [0009](../adr/0009.md), [0016](../adr/0016.md), [0010](../adr/0010.md), [0020](../adr/0020.md) |
 | 04 | [Relatórios](04--relatorios.md) | Fechado | MVP | [0010](../adr/0010.md) |
 | 05 | [Dashboard](05--dashboard.md) | Entregue | MVP | [0022](../adr/0022.md), [0010](../adr/0010.md), [0020](../adr/0020.md), brief |
 | 06 | [Identidade/Acesso](06--identidade-acesso.md) | Entregue | MVP | [0011](../adr/0011.md), [0012](../adr/0012.md), [0013](../adr/0013.md) |
@@ -56,7 +56,7 @@ repositório próprio (ADR 0002).
 |---|:---:|:---:|:---:|:---:|
 | 01 WhatsApp | ✓ | ✓ | ✓ | — |
 | 02 Conversação | ✓ | — | ✓ | ✓ |
-| 03 Triagem | ✓ | —¹ | ✓ | ✓ |
+| 03 Triagem | ✓ | ✓¹ | ✓ | ✓ |
 | 04 Relatórios | ✓ | — | ✓ | ✓ |
 | 05 Dashboard | ✓ | — | ✓ | — |
 | 06 Identidade/Acesso | ✓ | ✓ | ✓ | ✓ |
@@ -65,8 +65,10 @@ repositório próprio (ADR 0002).
 | 09 Unidades | ✓ | — | ✓ | — |
 | 13 Acompanhamento | ✓ | — | ✓ | ✓ |
 
-¹ Módulo 03: a autoria de protocolo é da cidade (`dashboard`); o
-`admin` atua só como backstop do `platform_operator` (ver módulo 06).
+¹ Módulo 03: a autoria e as assinaturas são da cidade (`dashboard`); o
+`admin` só lista os protocolos de cada cidade. O mantenedor publica e ativa
+pelo app `maintenance` quando as assinaturas da cidade já existem, sem nunca
+assinar (ADR 0016).
 
 ## Recorte MVP × pós-MVP
 
