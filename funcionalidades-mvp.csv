@@ -45,11 +45,11 @@ F-04.4,Rota /r/token lê do snapshot nunca recalcula,mod-04,api,0010,feature
 F-04.5,Renderização do relatório no wpda,mod-04,wpda,0010,feature
 F-04.6,Lista de relatórios no dashboard da cidade,mod-04,dashboard,brief,feature
 F-04.7,Notificação ao cidadão: link via WhatsApp (no canal web o link aparece na tela final),mod-04,api,0004,feature
-F-05.1,Esqueleto do app + roteamento + i18n PT-BR,mod-05,dashboard,brief,feature
+F-05.1,Esqueleto do app + navegação + textos PT-BR,mod-05,dashboard,brief,feature
 F-05.2,Auth boundary (consome módulo 06),mod-05,api|dashboard,"0011,0012",feature
 F-05.3,Carimbo dados de timestamp universal,mod-05,dashboard,brief,feature
 F-05.4,Painel Overview,mod-05,api|dashboard,brief,feature
-F-05.5,Painel Ingestão,mod-05,api|dashboard,brief,feature
+F-05.5,"Painel Ingestão (WhatsApp, canal descontinuado)",mod-05,api|dashboard,brief,feature
 F-05.6,Painel Conversas,mod-05,api|dashboard,brief,feature
 F-05.7,Painel Consentimento,mod-05,api|dashboard,brief,feature
 F-05.8,Painel Triagens,mod-05,api|dashboard,brief,feature

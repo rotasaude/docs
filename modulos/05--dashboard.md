@@ -1,6 +1,6 @@
 # Módulo 05 — Dashboard
 
-- **Estado:** Entregue
+- **Estado:** Fechado
 - **Tipo:** MVP
 
 ## Escopo
@@ -28,7 +28,7 @@ contribui com seu painel observacional aqui.
 | Superfície | O que aparece |
 |---|---|
 | `api` | Namespace `Admin::` (read-only), `app/queries/admin/` (agregação ao vivo), projeção `dashboard_metrics` mantida por consumer |
-| `admin` | — (admin tem dashboard próprio cross-tenant; não é este) |
+| `admin` | O console do operador lê os mesmos painéis, só leitura, pelo grant de operador na cidade (Plano 3B); ainda no contrato antigo da Classificação (card admin#2) |
 | `dashboard` | **É o app.** React, recharts, 9 painéis, navegação por módulo |
 | `wpda` | — |
 
@@ -37,7 +37,7 @@ contribui com seu painel observacional aqui.
 | Painel | Módulo backend correspondente |
 |---|---|
 | Overview | (cross) |
-| Ingestão WhatsApp | 01 |
+| Ingestão WhatsApp (canal descontinuado) | 01 |
 | Conversas | 02 |
 | Consentimento | 02 + 07 |
 | Triagens | 03 |
@@ -50,11 +50,11 @@ contribui com seu painel observacional aqui.
 
 | ID | Funcionalidade | Superfície | ADRs |
 |---|---|---|---|
-| F-05.1 | Esqueleto do app + roteamento + i18n PT-BR | dashboard | brief |
+| F-05.1 | Esqueleto do app + navegação + textos PT-BR | dashboard | brief |
 | F-05.2 | Auth boundary (consome módulo 06; não implementa aqui) | dashboard, api | 0011, 0012 |
 | F-05.3 | Carimbo "dados de \<timestamp\>" universal | dashboard | brief |
 | F-05.4 | Painel Overview | dashboard, api | brief |
-| F-05.5 | Painel Ingestão | dashboard, api | brief |
+| F-05.5 | Painel Ingestão (WhatsApp, canal descontinuado) | dashboard, api | brief |
 | F-05.6 | Painel Conversas | dashboard, api | brief |
 | F-05.7 | Painel Consentimento | dashboard, api | brief |
 | F-05.8 | Painel Triagens | dashboard, api | brief |
@@ -80,12 +80,30 @@ contribui com seu painel observacional aqui.
 - **Operacional:** dashboard sem auth não vai para produção; bloqueio no
   módulo 06.
 
+## Riscos que continuam
+
+- **Brief do dashboard nunca migrado:** os painéis não têm critério de aceite
+  formal além dos comentários `§4.x` no código e destas specs.
+- **Custo da leitura ao vivo (ADR 0022):** cada leitura agrega o período. O
+  gatilho de revisão é p95 acima de 1 s em qualquer `GET /admin/api/*`.
+- **Contrato duplo da Classificação:** `priorityTrue`, `priorityTrend` e o pivô
+  `low/medium/high` ficam como apelidos até o `admin` migrar (card admin#2).
+  Depois, remover os apelidos do `Admin::ClassificationQuery`.
+- **Navegação sem URL:** o app troca de tela por estado, sem link direto nem
+  botão voltar; "PT-BR" são textos fixos, sem biblioteca de i18n.
+- **Ingestão:** mede só o WhatsApp, canal descontinuado; o canal web não tem
+  painel de ingestão próprio (a entrada do cidadão aparece em Conversas).
+- **Consentimento:** recusa não tem contagem — na web quem não aceita o termo
+  não deixa registro.
+
 ## Critério de fechamento do módulo
 
-- F-05.1 a F-05.14 verificadas.
-- Suíte de invariante: nenhum endpoint retorna dado fora do tenant; todo
-  agregado mostra timestamp de origem; nenhuma consulta de painel sai da
-  janela de período nem recalcula a projeção.
+- ✓ F-05.1 a F-05.14 verificadas.
+- ✓ Suíte de invariante (`spec/requests/admin/api/module_05_invariants_spec.rb`):
+  nenhum endpoint retorna dado de outra cidade; todo painel devolve `as_of`
+  (instante da leitura); nenhum dado clínico cru nem identidade do cidadão;
+  `/admin/api` só leitura; nenhum painel operacional lê `dashboard_metrics`.
+  Cada query tem spec da janela de período.
 - ~~Decisão registrada: quais KPIs vêm de `dashboard_metrics` (projeção) vs.
   agregação ao vivo.~~ Feito: todos ao vivo (ADR 0022).
 
@@ -99,3 +117,20 @@ contribui com seu painel observacional aqui.
   demais F-IDs ficam `Done` com ressalvas em cards próprios (testes de painel
   ausentes, estados de conversa ignorados, colunas de validação fixas em
   Protocolos). Decisão projeção vs. ao vivo registrada no ADR 0022.
+- 2026-09-27 — módulo **Fechado**. F-05.1 a F-05.14 verificadas pelo usuário.
+  F-05.6 subiu direto (consertado no fechamento do módulo 02). F-05.1 e F-05.5
+  renomeadas para descrever o que existe. Consertado no api (merge bd706e5): o
+  rebuild recria `consents_revoked` e `since:` não apaga o histórico anterior;
+  Classificação e Overview com os tiers reais dos protocolos e a urgência pela
+  régua do alerta (`Protocols::Urgency`), com apelidos do contrato antigo para
+  o `admin`; Consentimento conta todo concedido no período; colunas
+  schema/linter/gates de Protocolos vêm do `Protocols::Gate`; data inválida no
+  período responde 422 (antes 500) e o painel Eventos lê só o período
+  validado; specs de todas as queries, do `UpdateDashboardJob` e a suíte de
+  invariante com duas cidades; os testes Minitest que a CI nunca rodava foram
+  portados e removidos; guarda de ponteiros de ADR aceita até 0022. No
+  dashboard (e80386b): carimbo em toda linha de KPI e no resumo de Saúde,
+  Classificação no contrato novo com tolerância ao antigo (ADR 0015), testes de
+  tela de 7 painéis e da fronteira de sessão. Ordem de deploy: api antes do
+  dashboard. Com o WhatsApp descontinuado, a Ingestão fica como canal
+  descontinuado, sem bloquear.
