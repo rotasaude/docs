@@ -1,6 +1,6 @@
 # Módulo 09 — Unidades
 
-- **Estado:** Entregue
+- **Estado:** Fechado
 - **Tipo:** MVP
 
 ## Escopo
@@ -48,9 +48,10 @@ Ainda a decidir: endereço, horário, especialidades e geolocalização (sem ref
 - **Operacional (ADR 0018):** o cadastro é mínimo. Sem endereço, horário e
   especialidades, o encaminhamento e a marcação dependem de a recepção saber
   para onde mandar o cidadão.
-- **Operacional:** uma unidade desativada some da escolha do balcão; a
-  desativação é recusada enquanto houver atendimento aberto, mas pedidos e
-  horários futuros para ela precisam de decisão da recepção.
+- **Operacional:** uma unidade desativada some da escolha do balcão. A
+  desativação é recusada enquanto houver atendimento aberto ou pedido de
+  agendamento aberto ou marcado para ela (`unit_has_open_attendances`,
+  `unit_has_open_requests`); a recepção precisa encerrar esses antes.
 - **Em aberto:** endereço, horário de funcionamento, especialidades,
   capacidade e geolocalização (módulo 11).
 
@@ -62,3 +63,13 @@ Ainda a decidir: endereço, horário, especialidades e geolocalização (sem ref
   inativa não recebe check-in.
 
 ## Histórico
+
+- 2026-09-26 — Verificação do módulo (dossiê por F-ID): F-09.1 e F-09.2
+  `Verified`. Fechamento no api: a desativação trava a unidade (FOR UPDATE)
+  e o check-in (por código e por exceção) e o encaminhamento a travam com
+  FOR SHARE, o que fecha a corrida em que um check-in entrava numa unidade
+  sendo desativada. Suíte de invariante completa: escritas recusadas para
+  `citizen_verifier`, `health_professional` e `viewer`; unidade inativa
+  recusada nos dois check-ins; spec de concorrência com threads reais.
+  Módulo `Fechado` em 2026-09-27 (api dd24533; suíte 2218/0; invariantes em
+  `spec/invariants/health_unit_invariants_spec.rb`, com teste de mutação).
