@@ -22,9 +22,10 @@ conversa (módulo 02) nem aplica protocolo (módulo 03).
 
 | Superfície | O que aparece |
 |---|---|
-| `api` | Webhook ingestion, `Whatsapp::Ingest`, `ProcessInboundMessageJob`, `SendWhatsappJob`, `Whatsapp::Outbound`, validação HMAC, dedup por `wamid` |
-| `admin` | Configuração de canal por cidade (`municipality_channels`), custódia do token, registro do número, número desconhecido (`unknown_channels`) |
+| `api` | Webhook ingestion, `Whatsapp::Ingest`, `ProcessInboundMessageJob`, `SendWhatsappJob`, `Whatsapp::Outbound`, validação HMAC, dedup por `wamid`; rakes `channels:register` e `channels:rotate_token` (a rotação do token só existe por rake, feita por um `municipal_admin` da cidade) |
+| `admin` | Console da plataforma (`admin.*`, operador com TOTP): "Registrar canal" (`POST /cities/:id/channel`, cria o `CityChannel` no banco de plataforma, com o token cifrado) e "Números desconhecidos" (`GET /unknown_channels`, leitura de `unknown_channels`) |
 | `dashboard` | Saúde da ingestão da cidade: volume inbound, distribuição de ack (aproximada pelo status do outbound) e backlog de purga do `raw` |
+| `maintenance` | Detalhe da cidade: leitura do canal (número, `phone_number_id`, WABA, ativo), nunca o token |
 | `wpda` | — |
 
 ## Funcionalidades planejadas
@@ -38,8 +39,8 @@ conversa (módulo 02) nem aplica protocolo (módulo 03).
 | F-01.5 | Parking de número desconhecido | api, admin | 0007 |
 | F-01.6 | Outbound (texto livre) | api | 0005 |
 | F-01.7 | Outbound (template aprovado, janela >24h) | api | 0005 |
-| F-01.8 | Cadastro de canal por cidade | admin | 0007, 0013 |
-| F-01.9 | Custódia/rotação do `access_token` | admin | 0013 |
+| F-01.8 | Cadastro de canal por cidade | api, admin | 0007, 0013 |
+| F-01.9 | Custódia/rotação do `access_token` | api | 0013 |
 | F-01.10 | Painel de saúde da ingestão (volume inbound, ack aproximado, backlog de purga) | dashboard | brief |
 
 ## Dependências

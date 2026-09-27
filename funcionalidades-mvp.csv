@@ -6,8 +6,8 @@ F-01.4,Roteamento por phone_number_id,mod-01,api,0007,feature
 F-01.5,Parking de número desconhecido,mod-01,api|admin,0007,feature
 F-01.6,Outbound (texto livre),mod-01,api,0005,feature
 F-01.7,Outbound (template aprovado janela maior que 24h),mod-01,api,0005,feature
-F-01.8,Cadastro de canal por cidade,mod-01,admin,"0007,0013",feature
-F-01.9,Custódia/rotação do access_token,mod-01,admin,0013,feature
+F-01.8,Cadastro de canal por cidade,mod-01,api|admin,"0007,0013",feature
+F-01.9,Custódia/rotação do access_token,mod-01,api,0013,feature
 F-01.10,"Painel de saúde da ingestão (volume inbound, ack aproximado, backlog de purga)",mod-01,dashboard,brief,feature
 F-02.1,Estados awaiting_consent / in_progress,mod-02,api,0008,feature
 F-02.2,Estados terminais (completed/declined/cancelled/abandoned),mod-02,api,0008,feature
