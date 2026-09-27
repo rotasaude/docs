@@ -80,3 +80,13 @@ leitura (CQRS).
   Decisões: a tela do wpda segue sem mostrar o `summary`; o roteamento de
   `/wpda/` em produção é bloqueio de go-live da plataforma (README do api, ADR
   0020 "Em aberto"), não pendência da F-04.5.
+- 2026-09-27 — mudanças do fechamento do módulo 03 que tocam este, relidas sem
+  reabrir o módulo (api 63f8568, wpda 512a90b): o `GenerateReportJob` não grava
+  mais o `summary` (respostas do cidadão) no snapshot e o `/r/:token` não o
+  devolve; o tipo `Report` do wpda perdeu o campo. Snapshot antigo ainda guarda
+  `summary` no banco (o trigger de imutabilidade impede limpar) até expirar e
+  sair pela `PurgeExpiredReportsJob`. A `report_snapshot_frozen_spec` passou a
+  desligar o trigger `protocol_definitions_guard` dentro da transação para
+  simular a edição por fora de uma versão publicada. O WhatsApp foi
+  descontinuado: na F-04.7 vale o canal web (link na tela final); o envio pelo
+  WhatsApp e o risco herdado do ADR 0005 ficam como canal descontinuado.
