@@ -1,6 +1,6 @@
 # Módulo 01 — WhatsApp
 
-- **Estado:** Entregue
+- **Estado:** Fechado
 - **Tipo:** MVP
 
 ## Escopo
@@ -68,6 +68,10 @@ conversa (módulo 02) nem aplica protocolo (módulo 03).
 ## Histórico
 
 _(funcionalidades concluídas aparecem aqui em ordem cronológica reversa)_
+
+- **2026-09-27** — Módulo **Fechado**. F-01.1 a F-01.10 estão `Verified` no
+  board. A suíte de invariante (dedup, HMAC, falha fechada, TTL do `raw`) e o
+  runbook de provisionamento de canal estão publicados.
 
 - **2026-09-27** — Lacunas da verificação fechadas (api c358656, admin 0445567,
   dashboard c162db4). Canal inativo passa a ser descartado e logado, e não mais

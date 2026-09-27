@@ -32,7 +32,7 @@
 
 | # | Módulo | Estado | Tipo | ADRs governantes |
 |---|---|---|---|---|
-| 01 | [WhatsApp](01--whatsapp.md) | Entregue | MVP | [0005](../adr/0005.md), [0007](../adr/0007.md), [0013](../adr/0013.md) |
+| 01 | [WhatsApp](01--whatsapp.md) | Fechado | MVP | [0005](../adr/0005.md), [0007](../adr/0007.md), [0013](../adr/0013.md) |
 | 02 | [Conversação](02--conversacao.md) | Entregue | MVP | [0005](../adr/0005.md), [0008](../adr/0008.md) |
 | 03 | [Triagem](03--triagem.md) | Entregue | MVP | [0009](../adr/0009.md) |
 | 04 | [Relatórios](04--relatorios.md) | Fechado | MVP | [0010](../adr/0010.md) |
