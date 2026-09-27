@@ -17,8 +17,8 @@ F-02.5,Revogação (consent.revoked),mod-02,api,0008,feature
 F-02.6,Re-pergunta em ambiguidade (default-deny),mod-02,api,0008,feature
 F-02.7,Varredura de timeout / abandoned,mod-02,api,0008,feature
 F-02.8,Enqueue de resposta dentro da transação do lock,mod-02,api,0005,feature
-F-02.9,Visão de conversas no dashboard da cidade,mod-02,dashboard,brief,feature
-F-02.10,Conversa pelo canal web (channel web; uma ativa por cidadão; mesmos comandos de consentimento e triagem),mod-02,api|wpda,"0017,0008",feature
+F-02.9,"Visão de conversas no dashboard: distribuição por estado (funil e desfechos), taxa de abandono, vivas agora e tempo até concluir",mod-02,api|dashboard,brief,feature
+F-02.10,"Conversa pelo canal web (channel web; uma ativa por cidadão; consentimento, resposta, desfazer e revogação)",mod-02,api|wpda,"0017,0008",feature
 F-03.1,Interpretador puro (step),mod-03,api,0009,feature
 F-03.2,Linguagem de condição (eq/in/gt/lt/all/any/not),mod-03,api,0009,feature
 F-03.3,Mapeamento tipo de pergunta para elemento WhatsApp,mod-03,api,0009,feature

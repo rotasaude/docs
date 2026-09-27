@@ -33,7 +33,7 @@
 | # | Módulo | Estado | Tipo | ADRs governantes |
 |---|---|---|---|---|
 | 01 | [WhatsApp](01--whatsapp.md) | Fechado | MVP | [0005](../adr/0005.md), [0007](../adr/0007.md), [0013](../adr/0013.md) |
-| 02 | [Conversação](02--conversacao.md) | Entregue | MVP | [0005](../adr/0005.md), [0008](../adr/0008.md) |
+| 02 | [Conversação](02--conversacao.md) | Fechado | MVP | [0005](../adr/0005.md), [0008](../adr/0008.md), [0017](../adr/0017.md) |
 | 03 | [Triagem](03--triagem.md) | Entregue | MVP | [0009](../adr/0009.md) |
 | 04 | [Relatórios](04--relatorios.md) | Fechado | MVP | [0010](../adr/0010.md) |
 | 05 | [Dashboard](05--dashboard.md) | Entregue | MVP | [0022](../adr/0022.md), [0010](../adr/0010.md), [0020](../adr/0020.md), brief |
@@ -55,7 +55,7 @@ repositório próprio (ADR 0002).
 | Módulo | `api` | `admin` | `dashboard` | `wpda` |
 |---|:---:|:---:|:---:|:---:|
 | 01 WhatsApp | ✓ | ✓ | ✓ | — |
-| 02 Conversação | ✓ | — | ✓ | — |
+| 02 Conversação | ✓ | — | ✓ | ✓ |
 | 03 Triagem | ✓ | —¹ | ✓ | ✓ |
 | 04 Relatórios | ✓ | — | ✓ | ✓ |
 | 05 Dashboard | ✓ | — | ✓ | — |
@@ -94,6 +94,7 @@ Referência reversa do índice acima (stubs ainda não declaram ADR governante).
 | [0012](../adr/0012.md) | 06 |
 | [0013](../adr/0013.md) | 01, 06, 07 |
 | [0014](../adr/0014.md) | 07 |
+| [0017](../adr/0017.md) | 02 |
 | [0018](../adr/0018.md) | 09, 13 |
 | [0019](../adr/0019.md) | 08, 10, 13 |
 | [0020](../adr/0020.md) | 05, 07 |
