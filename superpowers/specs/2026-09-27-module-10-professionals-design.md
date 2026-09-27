@@ -6,7 +6,7 @@
 - `apps/api`:
   - banco de cada cidade: `professionals`, `professional_links` e `professional_shifts` novas, extensão `btree_gist`;
   - lista CBO da saúde versionada (`config/professionals/cbo_saude.yml`);
-  - rotas `/professionals*`, `/links/*`, `/shifts/*`, `/cbo`;
+  - rotas sob o prefixo único `/professionals` (uma entrada só no proxy do Vite);
   - regra clínica em `Attendances::Call`, `CallNext` e `Close`;
   - `GET /setup/memberships` ganha `professional_status`;
   - semente de dev (unidades e profissionais).
@@ -129,11 +129,11 @@ Uma migração em `db/city_migrate`, só de expansão e reversível.
 | `GET /professionals/me` | quem tem perfil | Próprio perfil completo, vínculos ativos e turnos válidos dos próximos 14 dias. Sem perfil → 404 `no_profile` |
 | `POST /professionals/me` | quem tem perfil | Aceita só `professional_name`, `phone`, `contact_email`; qualquer outra chave → 422 `field_not_editable` com a lista |
 | `POST /professionals/:id/links` | admin + step-up | `{health_unit_id, cbo_code}`. Erros: `mfa_required` (401), `invalid_unit`, `invalid_cbo`, `council_mismatch` (422), `already_linked` (409) |
-| `POST /links/:id/end` | admin + step-up | Encerra e cancela os turnos futuros. Já encerrado → 409 `already_ended` |
+| `POST /professionals/links/:id/end` | admin + step-up | Encerra e cancela os turnos futuros. Já encerrado → 409 `already_ended` |
 | `GET /professionals/:id/shifts?from=&to=` | admin | Turnos de todos os vínculos no intervalo (padrão: hoje + 14 dias; máximo de 62 dias), válidos e cancelados |
-| `POST /links/:id/shifts` | admin | `{starts_at, ends_at}` em ISO 8601. Erros: `link_ended` (409), `shift_overlap` (409, com o turno em conflito: unidade, início e fim), `invalid_shift` (422: fim antes do início, mais de 24h, antes do início do vínculo) |
-| `POST /shifts/:id/cancel` | admin | `{reason}` obrigatório, até 200 caracteres. Já cancelado → 409 `already_cancelled` |
-| `GET /cbo` | admin | Lista sem os `deprecated` |
+| `POST /professionals/links/:id/shifts` | admin | `{starts_at, ends_at}` em ISO 8601. Erros: `link_ended` (409), `shift_overlap` (409, com o turno em conflito: unidade, início e fim), `invalid_shift` (422: fim antes do início, mais de 24h, antes do início do vínculo) |
+| `POST /professionals/shifts/:id/cancel` | admin | `{reason}` obrigatório, até 200 caracteres. Já cancelado → 409 `already_cancelled` |
+| `GET /professionals/cbo` | admin | Lista sem os `deprecated` |
 
 "admin" = `municipal_admin` ativo. Qualquer outro papel nas rotas de admin → 403.
 
@@ -155,10 +155,10 @@ Todos devolvem `Result` e publicam o evento na mesma transação.
 
 ### 4.3 Regra clínica (F-10.5)
 
-`Professionals::ClinicalAuthorization.check!(user:, health_unit_id:)`, chamada **dentro** de uma transação já aberta:
+`Professionals::ClinicalAuthorization.check(user:, health_unit_id:)`, chamada **dentro** de uma transação já aberta, devolve um símbolo:
 
-1. papel `health_professional` ativo para o usuário; senão, `Result.fail(:missing_role)`;
-2. `professional_links` ativo do perfil desse usuário com essa unidade, em qualquer CBO, travado com `FOR SHARE`; senão, `Result.fail(:missing_link)`;
+1. papel `health_professional` ativo para o usuário; senão, `:missing_role`;
+2. `professional_links` ativo do perfil desse usuário com essa unidade, em qualquer CBO, travado com `FOR SHARE`; senão, `:missing_link`;
 3. `:ok`. **Nenhuma consulta a `professional_shifts`.**
 
 | Comando | Onde entra |
@@ -248,7 +248,7 @@ Cada linha tem a spec e a mutação que precisa deixá-la vermelha. A evidência
 | Turno só por acréscimo, sem sobreposição, ≤ 24h | por SQL contra o trigger, a EXCLUDE e o CHECK | remover cada um |
 | Sem turno em vínculo encerrado | `ScheduleShift` recusa `link_ended`; `EndLink` cancela os futuros e mantém o passado e o em curso | tirar o cancelamento do `EndLink` |
 | Só o `municipal_admin` cadastra | request spec de toda rota de escrita com cada outro papel → 403 | afrouxar o filtro |
-| Papel + vínculo com a unidade do atendimento | sem papel → `missing_role`; sem vínculo, vínculo em outra unidade ou vínculo encerrado → `missing_link`; `left` pela recepção sem vínculo → ok | tirar o `check!` de `Call` e de `Close` |
+| Papel + vínculo com a unidade do atendimento | sem papel → `missing_role`; sem vínculo, vínculo em outra unidade ou vínculo encerrado → `missing_link`; `left` pela recepção sem vínculo → ok | tirar o `check` de `Call` e de `Close` |
 | Turno nunca bloqueia ato clínico | vinculado sem turno, ou com turno cancelado, chama e fecha | fazer a regra consultar turnos |
 | Eventos sem dado sensível | payload de cada `professional.*` sem CNS, registro, telefone, e-mail ou nome | pôr o `cns` no payload |
 
