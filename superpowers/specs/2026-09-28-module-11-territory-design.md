@@ -36,7 +36,7 @@
 | D1 | Uso no Ciclo 1: indicar a unidade de referência do cidadão e recortar os painéis por bairro. Sem mapa, sem PostGIS. |
 | D2 | Bairros: semente própria por cidade como carga inicial; depois o `municipal_admin` cria, renomeia, desativa, reativa e edita a cobertura no dashboard. A carga nunca sobrescreve o que foi editado. |
 | D3 | O cidadão informa o bairro uma vez, na escolha da pessoa no wpda, e pode trocar. "Prefiro não informar" é permitido. A triagem copia o bairro na criação. |
-| D4 | Unidade de referência: mostrada no resultado e no relatório; pré-selecionada como destino no desfecho "encaminhado". Várias unidades: todas; nenhuma: o bloco some. Nunca restringe. |
+| D4 | Unidade de referência: mostrada no resultado da triagem, só na área logada do cidadão (nunca no relatório público, decisão de 2026-09-28); pré-selecionada como destino no desfecho "encaminhado". Várias unidades: todas; nenhuma: o bloco some. Nunca restringe. |
 | D5 | Filtro de bairro nos painéis com cidadão (5, ver §1), parâmetro opcional, com supressão de 1 a 4 quando o filtro está ligado. |
 | D6 | Endereço da unidade em texto; CEP consultado pelo navegador do dashboard direto no ViaCEP; falha = preenchimento à mão; o bairro do CEP é só sugestão. |
 | D7 | Abordagem 1: uma cópia só, na triagem; os outros painéis chegam ao bairro pelas chaves existentes; conversa e atendimento sem triagem usam o bairro atual do cidadão. |
@@ -54,6 +54,7 @@ Uma migração em `db/city_migrate`, só de expansão e reversível.
 | `name` | string | NOT NULL, sem espaços nas pontas, não vazio, até 120; índice único em `lower(name)` |
 | `active` | boolean | NOT NULL, default true |
 | `source` | string | NOT NULL, `seed` ou `manual` (check) |
+| `seed_key` | string | opcional; único quando presente; chave estável do item da semente (decisão de 2026-09-28) |
 | timestamps | | |
 
 ### 3.2 `neighborhood_coverages`
@@ -77,7 +78,7 @@ Uma migração em `db/city_migrate`, só de expansão e reversível.
 | `citizens` | `neighborhood_id` | opcional, FK, índice |
 | `triages` | `neighborhood_id` | opcional, FK, índice (`neighborhood_id`, `created_at`) |
 
-**Trigger de cidade** (em `db/city_triggers.sql`, no padrão do snapshot do módulo 04): `UPDATE` em `triages` que mude `neighborhood_id` levanta erro. A cópia acontece só no `INSERT`.
+**Trigger de cidade** (em `db/city_triggers.sql`, no padrão do snapshot do módulo 04): `UPDATE` em `triages` que mude `neighborhood_id` levanta erro. A cópia acontece só no `INSERT`. Única exceção (decisão de 2026-09-28): mudar para `NULL` quando a triagem é anonimizada por revogação de consentimento; a anonimização zera o bairro.
 
 ### 3.4 Semente por cidade
 
@@ -92,7 +93,8 @@ neighborhoods:
 ```
 
 Rake `city:territory:seed[slug]` (e `city:territory:seed:all`), dentro do contexto da cidade:
-- bairro ausente (comparado por `lower(name)`) → cria com `source: seed`;
+- cada item do YAML tem `key` estável; a carga casa por `seed_key`, nunca por nome, então renomear no dashboard não gera duplicado;
+- chave ausente no banco → cria com `source: seed` e `seed_key`; se já houver bairro manual com o mesmo nome (`lower`), não cria: aviso;
 - bairro existente → não toca (nem nome, nem ativo);
 - cobertura: cria o par só quando o bairro foi **criado nesta carga** e a unidade existe e está ativa pelo nome; unidade não encontrada vira aviso na saída, não erro;
 - arquivo ausente → mensagem e saída sem erro;
@@ -124,15 +126,17 @@ Recusas: `name_taken` (422), `blank_name` (422), `inactive_unit` (422, unidade i
 
 | Método e rota | Faz |
 |---|---|
-| `GET /citizen/neighborhoods` | bairros ativos, por nome: `[{id, name}]` |
+| `GET /citizen/neighborhoods` | bairros ativos, por nome: `{ neighborhoods: [{id, name}] }` |
 | `GET /citizen/people` | cada pessoa ganha `neighborhood: {id, name} \| null` |
 | `POST /citizen/conversations` | aceita `neighborhood_id` opcional (regra em §4.2) |
 | `POST /citizen/people/:id/neighborhood` | `{ neighborhood_id \| null }`; CPF fora da sessão = 404; bairro inativo ou inexistente = 422 `invalid_neighborhood` |
-| `GET /citizen/triages/:id` e o relatório | ganham `reference_units: [{id, name, kind, address}]` |
+| `GET /citizen/triages/:id` | ganha `reference_units: [{id, name, kind, address: {street, number, complement, zip}}]` (campos de `address` podem ser nulos). O relatório público (link sem login) **não** ganha, para não revelar o bairro |
 
 **Unidades** (`/attendance/units`): `create` e `update` aceitam `address_street`, `address_number`, `address_complement`, `address_zip`, `neighborhood_id`. CEP fora de 8 dígitos = 422 `invalid_zip`; bairro inexistente = 422 `invalid_neighborhood`. As leituras devolvem os campos.
 
-**Atendimento:** a leitura do atendimento que o formulário de desfecho usa ganha `reference_unit_ids` (unidades ativas que cobrem o bairro **da triagem** do atendimento; sem triagem, o bairro atual do cidadão).
+**Atendimento:** cada linha de `GET /attendance/units/:id/queue` (que alimenta o formulário de desfecho) ganha `reference_unit_ids` (unidades ativas que cobrem o bairro **da triagem** do atendimento; sem triagem, o bairro atual do cidadão), **sem a própria unidade do atendimento** (decisão de 2026-09-28: encaminhar para si mesma não faz sentido; para isso há o "retorno").
+
+**Lista para o filtro:** `GET /admin/api/neighborhoods` → `{ neighborhoods: [{id, name, active}] }`, só leitura, mesma autorização dos demais `/admin/api` da cidade: o filtro vale para todos os papéis que leem os painéis (decisão de 2026-09-28).
 
 **Painéis** (`/admin/api/overview`, `classification`, `triages`, `reports`, `conversations`): aceitam `neighborhood_id=<uuid>` ou `neighborhood_id=none`. Parâmetro inválido = 422 `invalid_neighborhood`. A resposta ganha `filter: { neighborhood: {id, name} | "none" | null }`.
 
@@ -163,7 +167,8 @@ Recusas: `name_taken` (422), `blank_name` (422), `inactive_unit` (422, unidade i
 - 1 a 4 → `{ suppressed: true }`; 0 e ≥ 5 → o número;
 - vale para KPI, contagem por categoria e pontos de série (sparkline);
 - percentuais e médias calculados sobre um total de 1 a 4 → `{ suppressed: true }`;
-- listas de amostra (`sampleTriages`, linhas de relatório) somem quando o total filtrado do painel estiver suprimido.
+- listas de amostra (`sampleTriages`, linhas de relatório) vêm como `null` quando o total filtrado do painel estiver suprimido;
+- KPI com valor suprimido vem com `delta: null`.
 
 O console `admin` não envia o parâmetro, então nunca vê `{ suppressed: true }`.
 
@@ -171,23 +176,24 @@ O console `admin` não envia o parâmetro, então nunca vê `{ suppressed: true 
 
 - **Território** (menu, só `municipal_admin`): tabela de bairros (nome, origem, estado, nº de unidades), busca por nome, criar e renomear em diálogo, desativar e reativar, e a cobertura em caixas de seleção das unidades ativas. Erros da API com texto em português.
 - **Formulário de unidade** (módulo 09): campos de endereço; ao completar 8 dígitos de CEP, o navegador chama `https://viacep.com.br/ws/<cep>/json/` com timeout de 5 s; sucesso preenche logradouro e mostra "bairro segundo o CEP: X" como sugestão; o admin escolhe o bairro na lista da cidade (pré-seleciona se o nome bate, sem diferenciar maiúsculas e acentos). Erro, `{erro: true}` ou timeout: aviso "não foi possível consultar o CEP" e campos livres. Se houver CSP no deploy do dashboard, liberar `connect-src https://viacep.com.br`.
-- **Desfecho "encaminhado":** a unidade de destino já vem com a primeira de `reference_unit_ids` por nome; as outras de referência sobem para o topo da lista com a etiqueta "referência".
-- **Seletor de bairro** nos 5 painéis: "Todos", "Sem bairro" e os bairros (inativos marcados), guardado na URL (`?bairro=`); valor suprimido aparece como "< 5" com uma dica explicando a regra.
+- **Desfecho "encaminhado":** a unidade de destino já vem com a primeira de `reference_unit_ids` por nome (nunca a própria unidade; se só ela for de referência, nada vem escolhido); as outras de referência sobem para o topo da lista com a etiqueta "referência".
+- **Seletor de bairro** nos 5 painéis, para todos os papéis que os leem (lista de `GET /admin/api/neighborhoods`): "Todos", "Sem bairro" e os bairros (inativos marcados), guardado na URL (`?bairro=`); valor suprimido aparece como "< 5" com uma dica explicando a regra.
 - O cache já é por usuário (`useSessionQueryClient`); as chaves de consulta levam o bairro.
 
 ## 6. wpda
 
 - **"Para quem é esta triagem?":** CPF novo → escolhe o bairro numa lista com busca, junto com o CPF, com "Prefiro não informar". Pessoa existente sem bairro → a pergunta aparece uma vez antes de começar. O `neighborhood_id` vai no `POST /citizen/conversations`.
 - **"Trocar bairro"** ao lado de cada pessoa, usando `POST /citizen/people/:id/neighborhood`.
-- **Resultado e relatório:** bloco "Sua unidade de referência" com nome, tipo e endereço de cada unidade de `reference_units`; lista vazia = bloco ausente.
+- **Resultado da triagem (área logada):** bloco "Sua unidade de referência" com nome, tipo e endereço de cada unidade de `reference_units` de `GET /citizen/triages/:id`; lista vazia = bloco ausente. O relatório público (`/r/:token`) não mostra o bloco.
 
 ## 7. Testes
 
 ### 7.1 Invariantes: `spec/invariants/territory_invariants_spec.rb`
 
-- `UPDATE` do bairro de uma triagem levanta erro no banco.
+- `UPDATE` do bairro de uma triagem levanta erro no banco, exceto para `NULL` na anonimização por revogação.
 - Bairro inativo não entra em cobertura nem no cidadão.
 - `Territory::ReferenceUnits` nunca devolve unidade inativa.
+- O relatório público nunca contém `reference_units` nem bairro.
 - Com filtro, nenhum dos 5 painéis devolve um número de 1 a 4 em lugar algum do JSON (varredura recursiva).
 - Rodar a semente duas vezes não muda nada; rodar depois de editar não desfaz a edição.
 - Nenhum código do `api` referencia `viacep` (varredura do fonte).
