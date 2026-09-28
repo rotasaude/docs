@@ -107,8 +107,8 @@ Uma migração em `db/city_migrate`, só de expansão e reversível.
 
 `config/professionals/cbo_saude.yml`, versionada no api e igual para todas as cidades. Cada entrada tem `code` (6 dígitos), `title`, `council` (ou `null`) e `deprecated` (padrão `false`).
 
-- Conteúdo inicial: as ocupações de saúde de uso corrente no CNES. Médicos (famílias 2231 e 2251 a 2253, com clínico 225125, pediatra 225124, médico de família 225142, ginecologista 225250, psiquiatra 225133 entre outros), enfermagem (223505 enfermeiro, 322205 técnico, 322230 auxiliar), odontologia (223208 cirurgião-dentista clínico, 322405 técnico em saúde bucal), farmácia (223405), psicologia (251510), fisioterapia (223605), nutrição (223710), fonoaudiologia (223810), serviço social (251605) e 515105 agente comunitário de saúde (sem conselho).
-- `Professionals::Cbo` carrega o arquivo uma vez e expõe `find(code)`, `active` e `council_for(code)`.
+- Conteúdo inicial: as ocupações de saúde de uso corrente no CNES. Médicos (famílias 2231 e 2251 a 2253, com clínico 225125, pediatra 225124, médico de família 225142, ginecologista 225250, psiquiatra 225133 entre outros), enfermagem (223505 enfermeiro, 322205 técnico, 322230 auxiliar), odontologia (223208 cirurgião-dentista clínico, 322405 técnico em saúde bucal), farmácia (223405), psicologia (251510), fisioterapia (223605), nutrição (223710), fonoaudiologia (223810), serviço social (251605). Agente comunitário (515105) e agente de endemias (515140) ficaram fora: não têm conselho nem registro, que o perfil exige; voltam com o CNES (decisão do usuário, 2026-09-27).
+- `Professionals::Cbo` carrega o arquivo uma vez e expõe `find(code)`, `active` e `all` (o conselho exigido vem em `find(code).council`).
 - Código nunca sai do arquivo; quando cai em desuso, vira `deprecated: true`. Um código `deprecated` não abre vínculo novo, mas continua válido nos vínculos que já existem.
 
 ### 3.5 Eventos

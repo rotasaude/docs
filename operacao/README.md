@@ -11,6 +11,7 @@ a história está no git.
 
 | Arquivo | Escopo | ADRs relacionados | Estado |
 |---|---|---|---|
+| `rollout-profissionais.md` | Ordem de deploy do módulo 10 em duas imagens do api (a regra da chamada só depois do cadastro) e o requisito de `btree_gist` | 0019, 0020, 0021 | Vigente |
 | `rollout-agendamento.md` | Ordem de deploy e rollback do subprojeto 4 (migração irreversível de horários) | 0019, 0020 | Vigente |
 | `provisionar-canal-whatsapp.md` | Registrar, validar e rotacionar o canal WhatsApp de uma cidade | 0007, 0013, 0017, 0020 | Vigente |
 | `custodia-de-chave.md` | Onde a chave do AR Encryption vive, como rotaciona, quem acessa | 0013, 0020 | Vigente |

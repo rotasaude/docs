@@ -41,7 +41,7 @@
 | 07 | [LGPD/Auditoria](07--lgpd-auditoria.md) | Fechado | MVP | [0013](../adr/0013.md), [0014](../adr/0014.md), [0020](../adr/0020.md) |
 | 08 | [Agendamento](08--agendamento.md) | Fechado | MVP | [0019](../adr/0019.md) |
 | 09 | [Unidades](09--unidades.md) | Fechado | MVP | [0018](../adr/0018.md) |
-| 10 | [Profissionais](10--profissionais.md) | Planejado | Estratégico (pós-MVP) | [0021](../adr/0021.md), [0019](../adr/0019.md) |
+| 10 | [Profissionais](10--profissionais.md) | Em andamento | Estratégico (pós-MVP) | [0021](../adr/0021.md), [0019](../adr/0019.md) |
 | 11 | [Território](11--territorio.md) | Stub | Estratégico (pós-MVP) | a definir |
 | 12 | [Campanhas](12--campanhas.md) | Stub | Estratégico (pós-MVP) | a definir |
 | 13 | [Acompanhamento](13--acompanhamento.md) | Entregue | MVP | [0018](../adr/0018.md), [0019](../adr/0019.md) |
@@ -78,8 +78,9 @@ assinar (ADR 0016).
   13 entraram juntos (2026-09-26): são a fatia presencial dos ADRs 0018 e 0019
   (unidade → check-in e desfecho → pedido e horário) e dependem uns dos outros.
 - **Pós-MVP (10, 11, 12, 14):** Profissionais, Território, Campanhas e
-  Analytics. Entram no ciclo quando ganham ADR e F-IDs: o 10 está planejado
-  (ADR 0021), e 11, 12 e 14 seguem como stubs.
+  Analytics. Entram no ciclo quando ganham ADR e F-IDs: o 10 está em andamento
+  (ADR 0021; F-10.1 a F-10.5 entregues, CNES e escalonamento em aberto), e 11,
+  12 e 14 seguem como stubs.
 
 ## Mapa ADR → módulos governados
 
