@@ -1,6 +1,6 @@
 # Módulo 10 — Profissionais
 
-- **Estado:** Em andamento
+- **Estado:** Fechado
 - **Tipo:** Estratégico (pós-MVP)
 
 ## Escopo
@@ -112,7 +112,13 @@ fechamento do módulo neste ciclo.
   recebia 403 na lista de unidades e nunca chegava à fila; corrigido no api em
   `a2d20c8`. Spec e planos em `superpowers/specs/2026-09-27-module-10-professionals-design.md`
   e `superpowers/plans/2026-09-27-module-10-professionals-*.md`. Módulo passa de
-  `Planejado` a `Em andamento` (F-10.6 e F-10.7 seguem sem implementação).
+  `Planejado` a `Em andamento`.
 - 2026-09-28 — F-10.6 (CNES) e F-10.7 (escalonamento do alerta) tirados do
   Ciclo 1 por decisão do usuário; o critério de fechamento passa a cobrir
   F-10.1 a F-10.5.
+- 2026-09-28 — Verificação do módulo (dossiê por F-ID,
+  [`relatorios/2026-09-28-verificacao-modulo-10.md`](../relatorios/2026-09-28-verificacao-modulo-10.md)):
+  F-10.1 a F-10.5 `Verified` por aprovação do usuário, sem lacuna bloqueante
+  (api 218 exemplos e dashboard 132 testes rodados na verificação, 0 falhas).
+  Critério de fechamento do Ciclo 1 cumprido; módulo `Fechado`. F-10.6 e
+  F-10.7 seguem `Not Started`, fora do Ciclo 1.
