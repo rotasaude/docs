@@ -114,6 +114,13 @@ F-10.4,"Turnos com data por vínculo, base da agenda de vagas do módulo 08",mod
 F-10.5,"Chamada e desfecho só por profissional vinculado à unidade do atendimento, com o profissional gravado no atendimento",mod-10,api|dashboard,"0021,0019",feature
 F-10.6,Importação e consulta do cadastro nacional de profissionais (CNES) (fora do Ciclo 1),mod-10,api|dashboard,—,feature
 F-10.7,Profissional como destino do escalonamento de alerta urgente (fora do Ciclo 1),mod-10,api,0006,feature
+F-11.1,Bairros da cidade: semente própria e edição pelo municipal_admin,mod-11,api|dashboard,0023,feature
+F-11.2,Cobertura: quais unidades atendem cada bairro,mod-11,api|dashboard,0023,feature
+F-11.3,"Endereço da unidade, com consulta de CEP pelo navegador",mod-11,api|dashboard,"0023,0018",feature
+F-11.4,"Bairro declarado pelo cidadão, copiado de forma imutável na triagem",mod-11,api|wpda,0023,feature
+F-11.5,Unidade de referência no resultado da triagem (área logada),mod-11,api|wpda,0023,feature
+F-11.6,Unidade de referência pré-selecionada no desfecho encaminhado,mod-11,api|dashboard,"0023,0019",feature
+F-11.7,"Filtro de bairro nos painéis, com supressão de contagens de 1 a 4",mod-11,api|dashboard,"0023,0022",feature
 F-13.1,"Código de check-in no wpda (Cheguei na unidade), com finalidade separada do código de validação",mod-13,api|wpda,0018,feature
 F-13.2,Check-in na recepção por código + CPF do documento (triagem de até 3 dias; valida o cadastro declarado no mesmo passo),mod-13,api|dashboard,"0018,0017",feature
 F-13.3,Check-in por exceção: busca por CPF com motivo registrado,mod-13,api|dashboard,0018,feature
