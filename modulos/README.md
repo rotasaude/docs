@@ -79,7 +79,7 @@ assinar (ADR 0016).
   (unidade → check-in e desfecho → pedido e horário) e dependem uns dos outros.
 - **Pós-MVP (10, 11, 12, 14):** Profissionais, Território, Campanhas e
   Analytics. Entram no ciclo quando ganham ADR e F-IDs: o 10 está em andamento
-  (ADR 0021; F-10.1 a F-10.5 entregues, CNES e escalonamento em aberto), e 11,
+  (ADR 0021; F-10.1 a F-10.5 entregues; CNES e escalonamento fora do Ciclo 1), e 11,
   12 e 14 seguem como stubs.
 
 ## Mapa ADR → módulos governados

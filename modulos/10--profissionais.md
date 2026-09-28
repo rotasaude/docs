@@ -65,11 +65,17 @@ escalonamento do alerta urgente (em aberto no ADR 0021).
 | F-10.3 | Ocupação do profissional por vínculo (código CBO da saúde) | api, dashboard | 0021 |
 | F-10.4 | Turnos com data por vínculo, base da agenda de vagas do módulo 08 | api, dashboard | 0021 |
 | F-10.5 | Chamada e desfecho só por profissional vinculado à unidade do atendimento, com o profissional gravado no atendimento | api, dashboard | 0021, 0019 |
-| F-10.6 | Importação e consulta do cadastro nacional de profissionais (CNES) | api, dashboard | — |
-| F-10.7 | Profissional como destino do escalonamento de alerta urgente | api | 0006 |
+| F-10.6 | Importação e consulta do cadastro nacional de profissionais (CNES) (fora do Ciclo 1) | api, dashboard | — |
+| F-10.7 | Profissional como destino do escalonamento de alerta urgente (fora do Ciclo 1) | api | 0006 |
 
-F-10.1 a F-10.5 entregues (ADR 0021). F-10.6 (CNES) e F-10.7 (escalonamento)
-seguem em aberto no ADR.
+F-10.1 a F-10.5 entregues (ADR 0021).
+
+**Fora do Ciclo 1 (decisão do usuário, 2026-09-28):** F-10.6 (CNES) e F-10.7
+(escalonamento do alerta urgente). Os dois dependem de pontos em aberto: a
+fonte e o escopo do CNES (API do DATASUS ou arquivo; importar ou só consultar)
+e o conceito de plantão do ADR 0006. Continuam no registro de F-IDs e no board
+como `Not Started`, marcados "fora do Ciclo 1", e não contam para o
+fechamento do módulo neste ciclo.
 
 ## Riscos herdados
 
@@ -88,7 +94,8 @@ seguem em aberto no ADR.
 
 ## Critério de fechamento do módulo
 
-- F-10.1 a F-10.7 verificadas (F-10.6 e F-10.7 dependem de decisão).
+- F-10.1 a F-10.5 verificadas. F-10.6 e F-10.7 estão fora do Ciclo 1 e não
+  contam para este fechamento.
 - Suíte de invariante (`spec/invariants/professional_invariants_spec.rb`, com
   teste de mutação): perfil 1:1 com o usuário; vínculo e turno só por acréscimo;
   um vínculo ativo por (profissional, unidade, CBO); turnos sem sobreposição e
@@ -106,3 +113,6 @@ seguem em aberto no ADR.
   `a2d20c8`. Spec e planos em `superpowers/specs/2026-09-27-module-10-professionals-design.md`
   e `superpowers/plans/2026-09-27-module-10-professionals-*.md`. Módulo passa de
   `Planejado` a `Em andamento` (F-10.6 e F-10.7 seguem sem implementação).
+- 2026-09-28 — F-10.6 (CNES) e F-10.7 (escalonamento do alerta) tirados do
+  Ciclo 1 por decisão do usuário; o critério de fechamento passa a cobrir
+  F-10.1 a F-10.5.
