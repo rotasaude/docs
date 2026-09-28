@@ -30,6 +30,7 @@ de emendas. Numeração linear. O histórico pré-consolidação vive na pasta d
 | 0020 | [Database per city: the city is the database, not a column](0020.md) | Um banco e um role por cidade + banco de plataforma; Host escolhe a conexão antes da autenticação; worker por cidade; grant de operador; chave derivada por cidade; substitui o ADR 0003 |
 | 0021 | [Health professionals: a user profile linked to units, with dated shifts](0021.md) | Perfil do profissional 1:1 com o usuário; vínculo com unidade e CBO com início e fim; turnos com data; chamada e desfecho exigem vínculo ativo com a unidade; o turno não bloqueia ato clínico |
 | 0022 | [City dashboard panels read live, not from the projection](0022.md) | Painéis da cidade agregam ao vivo por janela de período; `as_of` = instante da leitura, carimbado em todo agregado; `DashboardMetric` só para manutenção e painel de Saúde |
+| 0023 | [Territory by declared neighborhood, without geometry](0023.md) | Bairros por cidade (semente + edição do admin), cobertura bairro→unidades, bairro declarado pelo cidadão e copiado na triagem; unidade de referência informa e sugere, nunca restringe; filtro por bairro nos painéis com supressão de 1 a 4; CEP pelo navegador; sem PostGIS |
 
 ## Itens em aberto
 
