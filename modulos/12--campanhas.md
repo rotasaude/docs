@@ -1,6 +1,6 @@
 # Módulo 12 — Campanhas
 
-- **Estado:** Planejado
+- **Estado:** Entregue
 - **Tipo:** Estratégico (pós-MVP)
 
 ## Escopo
@@ -12,7 +12,7 @@ caixa atrás do login; um **SMS** com texto fixo e link é opcional, ligado por
 cidade. A premissa original (templates do WhatsApp aprovados pelo Meta) caiu
 com a descontinuação do WhatsApp.
 
-**Planejado (F-12.1 a F-12.7):**
+**Entregue (F-12.1 a F-12.7):**
 - papel `campaign_manager` (privilegiado, step-up) e chave de SMS da cidade,
   ligada pelo `municipal_admin`;
 - público = recorte geográfico (cidade toda, área de unidade de referência ou
@@ -82,10 +82,17 @@ texto livre no SMS.
   de 5 telefones; revogado fora do público; nenhum SMS sem opt-in e chave;
   texto fixo sem identificador; nenhuma lista de destinatários no dashboard;
   campanha enviada imutável; anonimização apaga destinatários; eventos sem PII.
-- Runbook `operacao/rollout-campanhas.md`.
+- Runbook [`operacao/rollout-campanhas.md`](../operacao/rollout-campanhas.md).
 
 ## Histórico
 
 - 2026-09-29 — Escopo decidido com o usuário; ADR 0024 e spec
   `superpowers/specs/2026-09-29-module-12-campaigns-design.md`. F-12.1 a
   F-12.7 criados. Módulo passa de `Stub` a `Planejado`.
+- 2026-09-29 — F-12.1 a F-12.7 entregues e publicados: api `4425347` (suíte
+  2742/0; invariantes com mutação), dashboard `c69a932` (667 testes), wpda
+  `32e6420` (249 testes). Prova no navegador feita com o usuário (construtor
+  com prévia e "menos de 5", envio com step-up, aviso no wpda com CPF
+  mascarado e selo, preferências, SMS no log com texto fixo, alerta de SMS sem
+  provedor). Decisões da execução no ADR 0024, seção Revisão. Módulo passa a
+  `Entregue`; falta a verificação (dossiê por F-ID).
