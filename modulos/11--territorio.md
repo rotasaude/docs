@@ -1,6 +1,6 @@
 # Módulo 11 — Território
 
-- **Estado:** Planejado
+- **Estado:** Entregue
 - **Tipo:** Estratégico (pós-MVP)
 
 ## Escopo
@@ -11,7 +11,7 @@ do cidadão e o endereço da unidade. Serve a dois usos no Ciclo 1: indicar a
 unidade de referência do cidadão e recortar os painéis por bairro. É também a
 base do recorte territorial dos módulos 12 (Campanhas) e 14 (Analytics).
 
-**Planejado (F-11.1 a F-11.7):**
+**Entregue (F-11.1 a F-11.7):**
 - bairros por cidade: semente própria versionada (casada por `seed_key`) como
   carga inicial; depois o `municipal_admin` cria, renomeia, desativa e
   reativa no dashboard;
@@ -83,7 +83,7 @@ agendamento à unidade de referência, horário de funcionamento da unidade.
   a própria unidade no desfecho; nenhum número de 1 a 4 com filtro ligado;
   semente idempotente e sem desfazer edições; relatório público sem bairro nem
   referência; `api` sem chamada ao ViaCEP.
-- Runbook `operacao/rollout-territorio.md`.
+- Runbook [`operacao/rollout-territorio.md`](../operacao/rollout-territorio.md).
 
 ## Histórico
 
@@ -91,3 +91,11 @@ agendamento à unidade de referência, horário de funcionamento da unidade.
   `superpowers/specs/2026-09-28-module-11-territory-design.md` e planos
   `superpowers/plans/2026-09-28-module-11-territory-{api,dashboard,wpda}.md`.
   F-11.1 a F-11.7 criados. Módulo passa de `Stub` a `Planejado`.
+- 2026-09-29 — F-11.1 a F-11.7 entregues e publicados: api `2995f95` (suíte
+  2580/0; invariantes com mutação), dashboard `cbbb75b` (531 testes), wpda
+  `d1b552f` (165 testes). Prova no navegador feita com o usuário (Território,
+  CEP, filtro com "< 5" e "oculto", pré-seleção no "encaminhado" nunca na
+  própria unidade, bairro e unidade de referência no wpda, relatório público
+  sem unidade e com "Voltar ao início"). Decisões da execução no ADR 0023,
+  seção Revisão. Módulo passa a `Entregue`; falta a verificação (dossiê por
+  F-ID).

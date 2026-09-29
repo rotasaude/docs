@@ -73,3 +73,7 @@ Ainda a decidir: endereço, horário, especialidades e geolocalização (sem ref
   recusada nos dois check-ins; spec de concorrência com threads reais.
   Módulo `Fechado` em 2026-09-27 (api dd24533; suíte 2218/0; invariantes em
   `spec/invariants/health_unit_invariants_spec.rb`, com teste de mutação).
+- 2026-09-29 — Endereço da unidade (logradouro, número, complemento, CEP e
+  bairro onde fica) entregue pelo módulo 11 (F-11.3, ADR 0023; api `b5e9ba3`),
+  sem refazer a tabela; `lock_active!` e a trava da desativação inalterados.
+  Resolve em parte o risco do cadastro mínimo (rotasaude/api#28).
