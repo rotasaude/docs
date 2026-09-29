@@ -249,9 +249,9 @@ Recusas: sem papel → 403 `missing_role`; step-up ausente → o 401 padrão do 
 
 | Rota | Resposta |
 |---|---|
-| `GET /citizen/notices` | avisos de todos os cidadãos do telefone da sessão, mais novo primeiro: id (do `campaign_recipient`), título, texto, `dispatched_at`, `read`, nome da pessoa quando o telefone tem mais de um cidadão; mais `unread_count` (0 se todos os cidadãos do telefone silenciaram) |
+| `GET /citizen/notices` | avisos de todos os cidadãos do telefone da sessão, mais novo primeiro: id (do `campaign_recipient`), título, texto, `dispatched_at`, `read`, `cpf_masked` da pessoa quando o telefone tem mais de um cidadão (cidadão não tem nome); mais `unread_count` (0 se todos os cidadãos do telefone silenciaram) |
 | `POST /citizen/notices/:id/read` | marca lido; id de outro telefone → 404 |
-| `GET /citizen/contact_preferences` | por pessoa do telefone: `sms_opt_in`, `notices_muted`; mais `sms_available` (chave da cidade) |
+| `GET /citizen/contact_preferences` | por pessoa do telefone (`citizen_id`, `cpf_masked`): `sms_opt_in`, `notices_muted`; mais `sms_available` (chave da cidade) |
 | `PUT /citizen/contact_preferences/:citizen_id` | altera; cidadão de outro telefone → 404 |
 
 ### 6.3 Agregados do painel da campanha
@@ -277,7 +277,7 @@ Recusas: sem papel → 403 `missing_role`; step-up ausente → o 401 padrão do 
 ## 8. wpda
 
 - **Início:** selo com `unread_count` num link "Avisos" (some quando 0).
-- **`/avisos`:** lista (título, data, "novo"); tocar abre o texto e marca lido. Com mais de uma pessoa no telefone, o nome da pessoa aparece em cada aviso. Vazio: "Nenhum aviso da Secretaria por enquanto."
+- **`/avisos`:** lista (título, data, "novo"); tocar abre o texto e marca lido. Com mais de uma pessoa no telefone, o CPF mascarado da pessoa aparece em cada aviso. Vazio: "Nenhum aviso da Secretaria por enquanto."
 - **`/preferencias`:** por pessoa do telefone, "Receber avisos por SMS" (só quando `sms_available`) com a explicação "A Secretaria de Saúde pode enviar um SMS avisando que há um aviso novo aqui. Você pode desligar quando quiser.", e "Silenciar avisos" (tira o selo; os avisos continuam na lista).
 - **Link do SMS:** `/wpda/avisos` sem sessão passa pelo login (CPF + código) e volta a `/avisos`.
 - Regras da casa: texto ≥ 18px, alvos ≥ 48px, links com `import.meta.env.BASE_URL`.
