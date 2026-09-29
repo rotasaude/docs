@@ -43,7 +43,7 @@
 | 09 | [Unidades](09--unidades.md) | Fechado | MVP | [0018](../adr/0018.md) |
 | 10 | [Profissionais](10--profissionais.md) | Fechado | Estratégico (pós-MVP) | [0021](../adr/0021.md), [0019](../adr/0019.md) |
 | 11 | [Território](11--territorio.md) | Fechado | Estratégico (pós-MVP) | [0023](../adr/0023.md) |
-| 12 | [Campanhas](12--campanhas.md) | Stub | Estratégico (pós-MVP) | a definir |
+| 12 | [Campanhas](12--campanhas.md) | Planejado | Estratégico (pós-MVP) | [0024](../adr/0024.md) |
 | 13 | [Acompanhamento](13--acompanhamento.md) | Entregue | MVP | [0018](../adr/0018.md), [0019](../adr/0019.md) |
 | 14 | [Analytics](14--analytics.md) | Stub | Estratégico (pós-MVP) | a definir |
 
@@ -80,8 +80,9 @@ assinar (ADR 0016).
 - **Pós-MVP (10, 11, 12, 14):** Profissionais, Território, Campanhas e
   Analytics. Entram no ciclo quando ganham ADR e F-IDs: o 10 está fechado
   (ADR 0021; F-10.1 a F-10.5 verificadas; CNES e escalonamento fora do Ciclo 1), o 11
-  está fechado (ADR 0023; F-11.1 a F-11.7, bairro declarado sem geometria), e
-  12 e 14 seguem como stubs.
+  está fechado (ADR 0023; F-11.1 a F-11.7, bairro declarado sem geometria), o
+  12 está planejado (ADR 0024; F-12.1 a F-12.7, avisos no wpda com SMS
+  opcional), e o 14 segue como stub.
 
 ## Mapa ADR → módulos governados
 
@@ -104,7 +105,8 @@ Referência reversa do índice acima (stubs ainda não declaram ADR governante).
 | [0020](../adr/0020.md) | 05, 07 |
 | [0021](../adr/0021.md) | 10 |
 | [0022](../adr/0022.md) | 05 |
-| [0023](../adr/0023.md) | 11 |
+| [0023](../adr/0023.md) | 11, 12 |
+| [0024](../adr/0024.md) | 12 |
 
 > ADRs adicionais aparecem nas tabelas de F-IDs dos módulos (ex.: 0004, 0005)
 > como apoio a funcionalidades específicas, sem serem governantes do módulo

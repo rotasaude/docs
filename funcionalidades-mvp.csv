@@ -121,6 +121,13 @@ F-11.4,"Bairro declarado pelo cidadão, copiado de forma imutável na triagem",m
 F-11.5,Unidade de referência no resultado da triagem (área logada),mod-11,api|wpda,0023,feature
 F-11.6,Unidade de referência pré-selecionada no desfecho encaminhado,mod-11,api|dashboard,"0023,0019",feature
 F-11.7,"Filtro de bairro nos painéis, com supressão de contagens de 1 a 4",mod-11,api|dashboard,"0023,0022",feature
+F-12.1,Papel campaign_manager e chave de SMS por cidade,mod-12,api|dashboard,0024,feature
+F-12.2,"Construtor de público: 3 recortes, 7 critérios clínicos, mínimo de 5 telefones e prévia",mod-12,api|dashboard,"0024,0023",feature
+F-12.3,"Criar, agendar, desagendar, cancelar e enviar campanha com step-up",mod-12,api|dashboard,"0024,0016",feature
+F-12.4,"Público congelado no envio e aviso no wpda (caixa, selo, lido)",mod-12,api|wpda,0024,feature
+F-12.5,"Preferências do cidadão: opt-in de SMS e silenciar avisos",mod-12,api|wpda,"0024,0017",feature
+F-12.6,"Envio de SMS: gateway plugável, janela 8h-20h e estado por destinatário",mod-12,api,0024,feature
+F-12.7,"Painel da campanha: agregados e alertas de SMS",mod-12,api|dashboard,0024,feature
 F-13.1,"Código de check-in no wpda (Cheguei na unidade), com finalidade separada do código de validação",mod-13,api|wpda,0018,feature
 F-13.2,Check-in na recepção por código + CPF do documento (triagem de até 3 dias; valida o cadastro declarado no mesmo passo),mod-13,api|dashboard,"0018,0017",feature
 F-13.3,Check-in por exceção: busca por CPF com motivo registrado,mod-13,api|dashboard,0018,feature
