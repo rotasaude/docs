@@ -31,6 +31,7 @@ de emendas. Numeração linear. O histórico pré-consolidação vive na pasta d
 | 0021 | [Health professionals: a user profile linked to units, with dated shifts](0021.md) | Perfil do profissional 1:1 com o usuário; vínculo com unidade e CBO com início e fim; turnos com data; chamada e desfecho exigem vínculo ativo com a unidade; o turno não bloqueia ato clínico |
 | 0022 | [City dashboard panels read live, not from the projection](0022.md) | Painéis da cidade agregam ao vivo por janela de período; `as_of` = instante da leitura, carimbado em todo agregado; `DashboardMetric` só para manutenção e painel de Saúde |
 | 0023 | [Territory by declared neighborhood, without geometry](0023.md) | Bairros por cidade (semente + edição do admin), cobertura bairro→unidades, bairro declarado pelo cidadão e copiado na triagem; unidade de referência informa e sugere, nunca restringe; filtro por bairro nos painéis com supressão de 1 a 4; CEP pelo navegador; sem PostGIS |
+| 0024 | [Campaigns as wpda notices, with optional SMS per city](0024.md) | Aviso da cidade no wpda para público por recorte geográfico × critérios clínicos (E); público congelado no envio; mínimo de 5 telefones; SMS opcional por cidade, com opt-in e texto fixo; papel `campaign_manager` com step-up |
 
 ## Itens em aberto
 
