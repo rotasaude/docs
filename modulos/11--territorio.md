@@ -1,6 +1,6 @@
 # Módulo 11 — Território
 
-- **Estado:** Entregue
+- **Estado:** Fechado
 - **Tipo:** Estratégico (pós-MVP)
 
 ## Escopo
@@ -99,3 +99,9 @@ agendamento à unidade de referência, horário de funcionamento da unidade.
   sem unidade e com "Voltar ao início"). Decisões da execução no ADR 0023,
   seção Revisão. Módulo passa a `Entregue`; falta a verificação (dossiê por
   F-ID).
+- 2026-09-29 — Verificação do módulo (dossiê por F-ID,
+  [`relatorios/2026-09-29-verificacao-modulo-11.md`](../relatorios/2026-09-29-verificacao-modulo-11.md)):
+  duas lacunas de teste fechadas antes de subir (rollback da migração e trava
+  da cobertura sob concorrência; api `d03fa02`, suíte 2583/0), dica do filtro
+  corrigida (dashboard `e810afb`). F-11.1 a F-11.7 `Verified` por aprovação do
+  usuário. Critério de fechamento cumprido; módulo `Fechado`.
