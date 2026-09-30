@@ -1,6 +1,6 @@
 # Módulo 13 — Acompanhamento
 
-- **Estado:** Entregue
+- **Estado:** Fechado
 - **Tipo:** MVP
 
 ## Escopo
@@ -88,3 +88,20 @@ Ainda a decidir: ficha de acompanhamento, evolução e follow-up automatizado.
   carrega CPF, celular, motivo ou descrição do encaminhamento.
 
 ## Histórico
+
+- 2026-09-30 — Verificação do módulo (dossiê por F-ID,
+  [`relatorios/2026-09-30-verificacao-modulo-13.md`](../relatorios/2026-09-30-verificacao-modulo-13.md)):
+  as seis F-IDs estavam implementadas; lacunas de teste e o critério de
+  fechamento fechados antes de subir — suíte
+  `spec/invariants/attendance_invariants_spec.rb` (itens a–h mais "nasce
+  `waiting`"), testes por F-ID. Decisões do usuário (ADRs 0018 e 0019,
+  Revisão): trilha da busca por exceção com `citizen_ids` e `health_unit_id`;
+  corrida de check-in devolve `already_checked_in` com unidade e hora;
+  "chamar o próximo" com `SKIP LOCKED` e fila ordenada no banco (prioridade,
+  chegada, id); atendimento nasce `waiting` garantido por trigger (migração de
+  cidade `20260930100001_guard_attendance_insert`); encaminhar para a própria
+  unidade segue permitido. Runbook
+  [`operacao/atendimento.md`](../operacao/atendimento.md). api `92a34e3`
+  (suíte 2826/0), dashboard `b1e0f37`, wpda `4d07728`. F-13.1 a F-13.6
+  `Verified` por aprovação do usuário. Critério de fechamento cumprido; módulo
+  `Fechado`.

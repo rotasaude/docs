@@ -44,7 +44,7 @@
 | 10 | [Profissionais](10--profissionais.md) | Fechado | MVP | [0021](../adr/0021.md), [0019](../adr/0019.md) |
 | 11 | [Território](11--territorio.md) | Fechado | MVP | [0023](../adr/0023.md) |
 | 12 | [Campanhas](12--campanhas.md) | Fechado | MVP | [0024](../adr/0024.md) |
-| 13 | [Acompanhamento](13--acompanhamento.md) | Entregue | MVP | [0018](../adr/0018.md), [0019](../adr/0019.md) |
+| 13 | [Acompanhamento](13--acompanhamento.md) | Fechado | MVP | [0018](../adr/0018.md), [0019](../adr/0019.md) |
 | 14 | [Analytics](14--analytics.md) | Stub | MVP | a definir |
 
 ## Mapa módulo × superfície (MVP)
@@ -76,8 +76,8 @@ assinar (ADR 0016).
   então, 10, 11, 12 e 14 eram "Estratégico (pós-MVP)"; o recorte anterior era
   01–09 e 13 (08, 09 e 13 tinham entrado juntos em 2026-09-26, como a fatia
   presencial dos ADRs 0018 e 0019).
-- O MVP fecha quando os 14 módulos estiverem `Fechado`. Hoje faltam o 13
-  (`Entregue`, verificação pendente) e o 14 (`Stub`, sem ADR nem F-IDs).
+- O MVP fecha quando os 14 módulos estiverem `Fechado`. Hoje falta só o 14
+  (`Stub`, sem ADR nem F-IDs); o 13 fechou em 2026-09-30.
 - Itens tirados do Ciclo 1 continuam registrados no módulo, marcados "(fora do
   Ciclo 1)": F-10.6 (CNES) e F-10.7 (escalonamento do alerta urgente).
 
