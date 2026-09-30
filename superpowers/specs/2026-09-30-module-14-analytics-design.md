@@ -190,6 +190,21 @@ Sessão de operador; lê só `city_analytics_indicators` (cidades × semanas × 
 
 `Admin::SmallCount` passa a valer sempre dentro de `analytics/*` (não só com filtro). Na plataforma, o valor suprimido é gravado como `value NULL, suppressed true` — o número 1–4 nunca sai do banco da cidade.
 
+**Total do grupo (decisão de 2026-09-30):** um valor exibido que é a soma, ou
+uma taxa, de partes exibidas na mesma resposta fica **oculto** sempre que
+qualquer dessas partes estiver oculta. Concretamente:
+- `total` de uma linha com série → oculto se qualquer célula da série for oculta;
+- célula de período de um agregado (`triages.*[p]`) → oculta se qualquer parte
+  daquele período (tier, protocolo) for oculta;
+- `triages_total.*` → oculto se qualquer célula de `triages.*` ou qualquer
+  `total` de `by_tier`/`by_protocol`/`by_neighborhood` for oculto;
+- toda Rate → oculta se qualquer parte do numerador ou do denominador for
+  oculta (faixas de espera, estados de agendamento, desfechos);
+- calibração: se qualquer `outcomes[x]` de uma linha for oculto, `total` e
+  todos os `shares` da linha ficam ocultos;
+- epidemiologia: `total` da opção oculto se qualquer célula da série for oculta.
+Cruzar tabelas diferentes continua possível (risco residual registrado no ADR 0025).
+
 ### 6.4 Maintenance (GraphQL)
 
 - `City.analyticsIndicators(from:, to:)` → lista de `{ weekStart, indicator, value, suppressed }` de `city_analytics_indicators`.

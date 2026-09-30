@@ -15,6 +15,20 @@ Spec: `../specs/2026-09-30-module-14-analytics-design.md` · ADR `../../adr/0025
   (`month`), fuso `America/Sao_Paulo`.
 - Séries (`series`) são arrays alinhados com `data.periods`.
 - Supressão aplicada **depois** de somar período e recorte (`Admin::SmallCount`).
+- **Total do grupo (decisão de 2026-09-30):** um valor exibido que é a soma, ou
+  uma taxa, de partes exibidas na mesma resposta fica **oculto** sempre que
+  qualquer dessas partes estiver oculta. Concretamente:
+  - `total` de uma linha com série → oculto se qualquer célula da série for oculta;
+  - célula de período de um agregado (`triages.*[p]`) → oculta se qualquer parte
+    daquele período (tier, protocolo) for oculta;
+  - `triages_total.*` → oculto se qualquer célula de `triages.*` ou qualquer
+    `total` de `by_tier`/`by_protocol`/`by_neighborhood` for oculto;
+  - toda Rate → oculta se qualquer parte do numerador ou do denominador for
+    oculta (faixas de espera, estados de agendamento, desfechos);
+  - calibração: se qualquer `outcomes[x]` de uma linha for oculto, `total` e
+    todos os `shares` da linha ficam ocultos;
+  - epidemiologia: `total` da opção oculto se qualquer célula da série for oculta.
+  Cruzar tabelas diferentes continua possível (risco residual registrado no ADR 0025).
 
 ## 1. Cidade — `GET /admin/api/analytics/:front`
 
