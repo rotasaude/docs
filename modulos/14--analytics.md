@@ -1,6 +1,6 @@
 # Módulo 14 — Analytics
 
-- **Estado:** Entregue
+- **Estado:** Fechado
 - **Tipo:** MVP
 
 ## Escopo
@@ -12,7 +12,7 @@ cada cidade (ADR 0025): contagens por dia e recorte, sem coluna de pessoa,
 refeitas para os últimos 30 dias a cada execução, com dado até D-1, guardadas
 por 5 anos.
 
-**Entregue (F-14.1 a F-14.9):**
+**Entregue e verificado (F-14.1 a F-14.9):**
 - consolidação diária por cidade, execuções registradas, purga de 5 anos e
   reconstrução por rake;
 - papel `analyst` (só leitura, sem step-up) e área Analytics no dashboard para
@@ -110,3 +110,12 @@ supressão complementar contra subtração entre recortes.
   partes das concluídas e foi corrigido. Runbook
   [`operacao/analytics.md`](../operacao/analytics.md). Módulo passa a
   `Entregue`; falta a verificação (dossiê por F-ID).
+- 2026-09-30 — Verificação do módulo (dossiê por F-ID,
+  [`relatorios/2026-09-30-verificacao-modulo-14.md`](../relatorios/2026-09-30-verificacao-modulo-14.md)):
+  nenhum GAP-IMPL; lacunas fechadas antes de subir — só semanas fechadas na
+  plataforma, calibração vazia sem consolidação, vazamento de `by_unit` da
+  qualidade corrigido, enum exige `options` (contracts `protocols-v1.3.0`), 28
+  testes novos (api `22535ac`, suíte 3005/0; dashboard `f10ca49`; admin
+  `60ed688`). F-14.1 a F-14.9 `Verified` por aprovação do usuário. Critério de
+  fechamento cumprido; módulo `Fechado`. Com ele, os 14 módulos do MVP (Ciclo 1)
+  estão fechados.

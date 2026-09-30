@@ -63,10 +63,43 @@ final (ledger SDD do api):
 - Spec §4.1 diz 2h; o job roda às 2h30 (depois do `sweep_abandoned`). A tela
   do admin diz "2h".
 
-## Decisões pendentes
+## Decisão do usuário (2026-09-30)
 
-1. Semana corrente incompleta publicada na plataforma.
-2. Quais lacunas fechar antes de subir para `Verified`.
+- Publicar na plataforma só semanas fechadas.
+- Fechar todas as lacunas do dossiê antes de subir para `Verified`.
+- A regra "enum exige `options`" mora no schema do contracts (`protocols-v1.3.0`).
+
+## Correções (TDD; cada teste visto vermelho por ausência ou por mutação)
+
+- **Semanas fechadas** (api `50ac18d`): `Publish` apaga as semanas tocadas e
+  regrava só as fechadas (segunda + 6 ≤ ontem).
+- **Calibração sem consolidação** (api `e1bde26`): `versions: []`, como as
+  outras frentes; `consolidated:` passou a ser obrigatório.
+- **Vazamento em `by_unit` da qualidade** (api `8e542b1`, `22535ac`): com o
+  recorte de unidade, atendimentos e taxas da unidade ficavam visíveis ao lado
+  de uma célula oculta (ex.: desfecho `[10, 2]` → 52 − 40 − 10 = 2). Agora usam
+  como partes as células de cada período da unidade. Achado pelo teste do item
+  16 e, na parte por período, pela revisão independente.
+- **Enum sem `options`** (contracts `dc2fd98`, tag `protocols-v1.3.0`; api
+  `259d86d`, `336a6d5`): o schema recusa; nenhum protocolo existente violava.
+- **28 lacunas de teste** do api (trava liberada depois de falha, rake,
+  republicação no rebuild, bordas de 90 dias, 36 h e 104 semanas, varredura
+  1–4 forte por frente, 422 via HTTP e parâmetros em array, membership inativa,
+  convite de `analyst`, estados vazios, tier nulo, cópia do schema fixada por
+  digest, recusa de `analytic` em integer no ciclo, assinatura cobrindo a marca,
+  fuso da epidemiologia, atomicidade do `Publish`, `lastError` via GraphQL).
+- dashboard `284deae`, `f10ca49`: verificador dos dados de teste contra a regra
+  do total (inclui `by_unit`), estado vazio e "desatualizado" por aba. admin
+  `60ed688`: texto "2h30".
+- Suíte completa do api: 3005/0. Dashboard 779, admin 87.
+
+Comportamento documentado: opções do `enum` vêm da versão mais recente do ciclo
+(opção removida some da série); pergunta desmarcada numa versão nova continua
+com o texto da última versão que a marcava. Rascunho com `analytic` em integer é
+salvo; a recusa vem no envio para revisão e na publicação.
+
+Cruzamento entre tabelas da mesma resposta (ex.: bairro × tier na demanda; soma
+dos `by_unit` sem recorte) segue como risco residual do ADR 0025.
 
 ## Riscos que continuam
 
