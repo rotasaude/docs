@@ -131,7 +131,7 @@ Purga de linhas com mais de 90 dias no próprio job.
 Regras:
 - Atendimento não tem bairro: o território da demanda é o bairro da triagem; atendimento, agendamento e pedido são recortados por unidade.
 - `epi.answer` conta só triagens `completed` cuja versão de protocolo (`protocol_definition_id` → `definition`) marca a pergunta `analytic` com `answer_type` `boolean`/`enum`, e só respostas que batem com uma opção declarada (resposta fora da lista é ignorada).
-- `calibration.outcome` usa o atendimento com `triage_id` = a triagem; se houver mais de um, o mais recente encerrado.
+- `calibration.outcome` usa o atendimento com `triage_id` = a triagem (`attendances.triage_id` é único: no máximo um). O atendimento de retorno, que nasce de agendamento, não entra na calibração.
 
 ## 4. Consolidação
 
@@ -147,7 +147,7 @@ Regras:
 
 ### 4.2 Revogação
 
-A revogação não toca `analytics_daily_facts`. Dentro da janela de 30 dias, a triagem revogada deixa de contar na próxima execução porque o cru mudou (vira `triage.aborted`/`revocation`, sem respostas); fora da janela, o número consolidado fica. Registrado no ADR 0025.
+A revogação não toca `analytics_daily_facts`. **Triagem revogada** = `aborted_by_revocation` **ou** triagem cuja própria conversa tem consentimento revogado (o `RevokeConsent` só aborta triagem `in_progress`; a revogada depois de concluída continua `completed` no cru). Triagem revogada conta só em `triage.started` e em `triage.aborted`/`revocation`, sem bairro, e nunca em `triage.completed`, `calibration.outcome` ou `epi.answer`. Dentro da janela de 30 dias, a revogação passa a valer na próxima execução; fora dela, o número consolidado fica. Registrado no ADR 0025.
 
 ### 4.3 `city:analytics:rebuild[from,to]`
 

@@ -39,6 +39,12 @@ Erros 422: `{ "error": "invalid_range" }` (datas ausentes/inválidas/invertidas
 ou períodos demais), `{ "error": "invalid_neighborhood" }`,
 `{ "error": "invalid_unit" }`, `{ "error": "invalid_protocol" }`.
 
+**Unidades para o seletor:** `demand` e `quality` trazem sempre
+`data.units: [ { "health_unit_id": "uuid", "name": "UBS ...", "active": true } ]`
+— todas as unidades da cidade (ativas e inativas), ordenadas por nome,
+independentes do recorte. É a fonte do seletor de unidade (o `analyst` não
+lê `/attendance/units`).
+
 **Envelope:**
 
 ```json
@@ -60,6 +66,7 @@ ou com mais de 36 h.
 ```json
 {
   "triages": { "started": [Cell], "completed": [Cell], "aborted": [Cell] },
+  "triages_total": { "started": Cell, "completed": Cell, "aborted": Cell },
   "by_tier":         [ { "tier": "alto", "series": [Cell], "total": Cell } ],
   "by_protocol":     [ { "protocol_name": "Respiratório", "series": [Cell], "total": Cell } ],
   "by_neighborhood": [ { "neighborhood_id": "uuid|null", "name": "Zona 7|Sem bairro", "total": Cell } ],
@@ -160,7 +167,7 @@ type AnalyticsStatus {
 }
 extend type City {
   analyticsIndicators(from: ISO8601Date!, to: ISO8601Date!): [AnalyticsIndicator!]!   # até 104 semanas
-  analyticsStatus: AnalyticsStatus!
+  analyticsStatus: AnalyticsStatus   # anulável, como counts/operations/profile: erro de cidade não anula `city`
 }
 ```
 
