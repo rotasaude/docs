@@ -1,7 +1,7 @@
 # Módulo 14 — Analytics
 
 - **Estado:** Stub
-- **Tipo:** Estratégico (pós-MVP)
+- **Tipo:** MVP
 
 ## Escopo (preliminar)
 

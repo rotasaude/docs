@@ -1,7 +1,7 @@
 # Módulo 10 — Profissionais
 
 - **Estado:** Fechado
-- **Tipo:** Estratégico (pós-MVP)
+- **Tipo:** MVP
 
 ## Escopo
 

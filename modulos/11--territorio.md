@@ -1,7 +1,7 @@
 # Módulo 11 — Território
 
 - **Estado:** Fechado
-- **Tipo:** Estratégico (pós-MVP)
+- **Tipo:** MVP
 
 ## Escopo
 

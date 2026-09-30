@@ -1,7 +1,7 @@
 # Módulo 12 — Campanhas
 
 - **Estado:** Fechado
-- **Tipo:** Estratégico (pós-MVP)
+- **Tipo:** MVP
 
 ## Escopo
 

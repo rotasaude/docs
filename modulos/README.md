@@ -19,10 +19,10 @@
     suítes de invariante presentes.
 
   Um F-ID novo num módulo `Entregue` o devolve a `Em andamento`.
-- **Tipo:** `MVP` (escopo do piloto) ou `Estratégico (pós-MVP)`.
+- **Tipo:** `MVP`. Desde 2026-09-30 os 14 módulos formam o MVP (Ciclo 1);
+  o tipo `Estratégico (pós-MVP)` deixou de ser usado.
 - **F-IDs:** funcionalidades têm ID `F-NN.M`, único por módulo. Todo módulo
-  fora de `Stub` carrega F-IDs, ADRs governantes e critério de fechamento,
-  seja MVP ou pós-MVP.
+  fora de `Stub` carrega F-IDs, ADRs governantes e critério de fechamento.
 - **ADRs governantes:** decisões arquiteturais que regem o módulo, em
   [`docs/adr/`](../adr/). `brief` = brief formal do dashboard, **item em
   aberto** (ver [`docs/adr/README.md`](../adr/README.md)); o rascunho está
@@ -41,11 +41,11 @@
 | 07 | [LGPD/Auditoria](07--lgpd-auditoria.md) | Fechado | MVP | [0013](../adr/0013.md), [0014](../adr/0014.md), [0020](../adr/0020.md) |
 | 08 | [Agendamento](08--agendamento.md) | Fechado | MVP | [0019](../adr/0019.md) |
 | 09 | [Unidades](09--unidades.md) | Fechado | MVP | [0018](../adr/0018.md) |
-| 10 | [Profissionais](10--profissionais.md) | Fechado | Estratégico (pós-MVP) | [0021](../adr/0021.md), [0019](../adr/0019.md) |
-| 11 | [Território](11--territorio.md) | Fechado | Estratégico (pós-MVP) | [0023](../adr/0023.md) |
-| 12 | [Campanhas](12--campanhas.md) | Fechado | Estratégico (pós-MVP) | [0024](../adr/0024.md) |
+| 10 | [Profissionais](10--profissionais.md) | Fechado | MVP | [0021](../adr/0021.md), [0019](../adr/0019.md) |
+| 11 | [Território](11--territorio.md) | Fechado | MVP | [0023](../adr/0023.md) |
+| 12 | [Campanhas](12--campanhas.md) | Fechado | MVP | [0024](../adr/0024.md) |
 | 13 | [Acompanhamento](13--acompanhamento.md) | Entregue | MVP | [0018](../adr/0018.md), [0019](../adr/0019.md) |
-| 14 | [Analytics](14--analytics.md) | Stub | Estratégico (pós-MVP) | a definir |
+| 14 | [Analytics](14--analytics.md) | Stub | MVP | a definir |
 
 ## Mapa módulo × superfície (MVP)
 
@@ -70,19 +70,16 @@ repositório próprio (ADR 0002).
 pelo app `maintenance` quando as assinaturas da cidade já existem, sem nunca
 assinar (ADR 0016).
 
-## Recorte MVP × pós-MVP
+## Escopo do MVP (Ciclo 1)
 
-- **MVP (01–09 e 13):** WhatsApp, Conversação, Triagem, Relatórios, Dashboard,
-  Identidade/Acesso, LGPD/Auditoria, Agendamento, Unidades e Acompanhamento.
-  Escopo do piloto; especificados com F-IDs e critério de fechamento. 08, 09 e
-  13 entraram juntos (2026-09-26): são a fatia presencial dos ADRs 0018 e 0019
-  (unidade → check-in e desfecho → pedido e horário) e dependem uns dos outros.
-- **Pós-MVP (10, 11, 12, 14):** Profissionais, Território, Campanhas e
-  Analytics. Entram no ciclo quando ganham ADR e F-IDs: o 10 está fechado
-  (ADR 0021; F-10.1 a F-10.5 verificadas; CNES e escalonamento fora do Ciclo 1), o 11
-  está fechado (ADR 0023; F-11.1 a F-11.7, bairro declarado sem geometria), o
-  12 está fechado (ADR 0024; F-12.1 a F-12.7, avisos no wpda com SMS
-  opcional), e o 14 segue como stub.
+- **MVP = os 14 módulos (01–14)**, decisão do usuário em 2026-09-30. Até
+  então, 10, 11, 12 e 14 eram "Estratégico (pós-MVP)"; o recorte anterior era
+  01–09 e 13 (08, 09 e 13 tinham entrado juntos em 2026-09-26, como a fatia
+  presencial dos ADRs 0018 e 0019).
+- O MVP fecha quando os 14 módulos estiverem `Fechado`. Hoje faltam o 13
+  (`Entregue`, verificação pendente) e o 14 (`Stub`, sem ADR nem F-IDs).
+- Itens tirados do Ciclo 1 continuam registrados no módulo, marcados "(fora do
+  Ciclo 1)": F-10.6 (CNES) e F-10.7 (escalonamento do alerta urgente).
 
 ## Mapa ADR → módulos governados
 
