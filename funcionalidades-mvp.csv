@@ -134,3 +134,12 @@ F-13.3,Check-in por exceção: busca por CPF com motivo registrado,mod-13,api|da
 F-13.4,Atendimento com estados waiting/in_care/closed e fila da unidade pela prioridade da triagem,mod-13,api|dashboard,"0018,0019",feature
 F-13.5,Chamada do cidadão pelo health_professional (chamar o próximo ou um específico),mod-13,api|dashboard,0019,feature
 F-13.6,Desfecho do atendimento: atendido; encaminhado (unidade e/ou descrição); retorno; saiu sem atendimento,mod-13,api|dashboard,"0018,0019",feature
+F-14.1,"Consolidação diária anônima por cidade (janela de 30 dias, execuções registradas, purga de 5 anos, reconstrução)",mod-14,api,0025,feature
+F-14.2,"Papel analyst e área Analytics da cidade, com supressão de 1 a 4 sempre",mod-14,api|dashboard,"0025,0023",feature
+F-14.3,Demanda por território: triagens por bairro/protocolo/tier; atendimentos e pedidos por unidade,mod-14,api|dashboard,"0025,0023",feature
+F-14.4,"Qualidade operacional: espera em faixas, falta, expiração, saiu sem atendimento, retorno",mod-14,api|dashboard,"0025,0019",feature
+F-14.5,Calibração de protocolo: versão × tier × desfecho do atendimento,mod-14,api|dashboard,"0025,0016",feature
+F-14.6,Perguntas analíticas no protocolo (analytic em boolean/enum no schema e no editor),mod-14,contracts|api|dashboard,"0025,0016",feature
+F-14.7,"Epidemiologia por perguntas marcadas, por bairro",mod-14,api|dashboard,"0025,0023",feature
+F-14.8,Indicadores semanais fixos publicados na plataforma e tela no console do operador,mod-14,api|admin,"0025,0020",feature
+F-14.9,Analytics no maintenance: indicadores e estado do pipeline,mod-14,api|maintenance,0025,feature

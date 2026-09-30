@@ -45,7 +45,7 @@
 | 11 | [Território](11--territorio.md) | Fechado | MVP | [0023](../adr/0023.md) |
 | 12 | [Campanhas](12--campanhas.md) | Fechado | MVP | [0024](../adr/0024.md) |
 | 13 | [Acompanhamento](13--acompanhamento.md) | Fechado | MVP | [0018](../adr/0018.md), [0019](../adr/0019.md) |
-| 14 | [Analytics](14--analytics.md) | Stub | MVP | a definir |
+| 14 | [Analytics](14--analytics.md) | Planejado | MVP | [0025](../adr/0025.md), [0023](../adr/0023.md), [0016](../adr/0016.md), [0020](../adr/0020.md) |
 
 ## Mapa módulo × superfície (MVP)
 
@@ -77,7 +77,8 @@ assinar (ADR 0016).
   01–09 e 13 (08, 09 e 13 tinham entrado juntos em 2026-09-26, como a fatia
   presencial dos ADRs 0018 e 0019).
 - O MVP fecha quando os 14 módulos estiverem `Fechado`. Hoje falta só o 14
-  (`Stub`, sem ADR nem F-IDs); o 13 fechou em 2026-09-30.
+  (`Planejado`: ADR 0025 e F-14.1 a F-14.9, desde 2026-09-30); o 13 fechou em
+  2026-09-30.
 - Itens tirados do Ciclo 1 continuam registrados no módulo, marcados "(fora do
   Ciclo 1)": F-10.6 (CNES) e F-10.7 (escalonamento do alerta urgente).
 
@@ -99,11 +100,12 @@ Referência reversa do índice acima (stubs ainda não declaram ADR governante).
 | [0017](../adr/0017.md) | 02 |
 | [0018](../adr/0018.md) | 09, 11, 13 |
 | [0019](../adr/0019.md) | 08, 10, 11, 13 |
-| [0020](../adr/0020.md) | 05, 07 |
+| [0020](../adr/0020.md) | 05, 07, 14 |
 | [0021](../adr/0021.md) | 10 |
 | [0022](../adr/0022.md) | 05 |
-| [0023](../adr/0023.md) | 11, 12 |
+| [0023](../adr/0023.md) | 11, 12, 14 |
 | [0024](../adr/0024.md) | 12 |
+| [0025](../adr/0025.md) | 14 |
 
 > ADRs adicionais aparecem nas tabelas de F-IDs dos módulos (ex.: 0004, 0005)
 > como apoio a funcionalidades específicas, sem serem governantes do módulo
