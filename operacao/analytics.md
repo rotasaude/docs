@@ -26,7 +26,8 @@
    antigo mostra erro nas telas de Analytics.
 3. **Rebuild inicial**, depois do deploy do api:
    `bin/rails "city:analytics:rebuild:all"` — consolida cada cidade desde o dado
-   cru mais antigo, em blocos de 30 dias, e publica as semanas na plataforma. O
+   cru mais antigo, em blocos de 30 dias, e publica as semanas fechadas na plataforma (a semana corrente, incompleta,
+   nunca é publicada). O
    que já foi purgado do cru (eventos com mais de 12 meses, conteúdo de triagem
    revogada) não volta.
 4. **Conceder o papel** "Análise" (`analyst`) em Equipe a quem vai ler o

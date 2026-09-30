@@ -19,10 +19,11 @@ Spec: `../specs/2026-09-30-module-14-analytics-design.md` · ADR `../../adr/0025
   uma taxa, de partes exibidas na mesma resposta fica **oculto** sempre que
   qualquer dessas partes estiver oculta. Concretamente:
   - `total` de uma linha com série → oculto se qualquer célula da série for oculta;
-  - célula de período de um agregado (`triages.*[p]`) → oculta se qualquer parte
-    daquele período (tier, protocolo) for oculta;
-  - `triages_total.*` → oculto se qualquer célula de `triages.*` ou qualquer
-    `total` de `by_tier`/`by_protocol`/`by_neighborhood` for oculto;
+  - `triages.completed[p]` → oculta se qualquer parte daquele período (tier,
+    protocolo) for oculta (tier e protocolo só recortam as concluídas);
+  - `triages_total.started`/`.aborted` → oculto se qualquer célula da própria
+    série for oculta; `triages_total.completed` → também se qualquer `total` de
+    `by_tier`/`by_protocol`/`by_neighborhood` for oculto;
   - toda Rate → oculta se qualquer parte do numerador ou do denominador for
     oculta (faixas de espera, estados de agendamento, desfechos);
   - calibração: se qualquer `outcomes[x]` de uma linha for oculto, `total` e

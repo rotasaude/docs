@@ -137,7 +137,7 @@ Regras:
 
 ### 4.1 `ConsolidateAnalyticsJob`
 
-- Recorrente de cidade, `every day at 2am America/Sao_Paulo`, fila `housekeeping`.
+- Recorrente de cidade, `every day at 2:30am America/Sao_Paulo` (depois do `sweep_abandoned`, às 2h), fila `housekeeping`.
 - Janela: de `hoje − 30` até `ontem` (inclusive). O dia corrente nunca é consolidado.
 - Advisory lock por cidade (`pg_try_advisory_lock`); se outro run estiver ativo, sai sem fazer nada e sem gravar `analytics_runs`.
 - Cria `analytics_runs` `running`; numa **transação única**: apaga os fatos da janela e regrava a partir do cru, um consolidador por frente (`Analytics::Consolidate::Demand`, `::Quality`, `::Calibration`, `::Epidemiology`), cada um com `INSERT ... SELECT ... GROUP BY` no SQL.
@@ -157,7 +157,7 @@ Rake por cidade (`CITY=slug`) ou `:all`. Reconsolida a janela em blocos de 30 di
 
 ### 5.1 `Analytics::Publish`
 
-Calcula, a partir de `analytics_daily_facts`, os indicadores das semanas tocadas pela janela, aplica a supressão (§6.3) e faz upsert em `city_analytics_indicators` via `PlatformRecord`. Idempotente por (cidade, semana, indicador).
+Calcula, a partir de `analytics_daily_facts`, os indicadores das semanas **fechadas** tocadas pela janela (segunda + 6 dias ≤ ontem; a semana corrente, incompleta, nunca é publicada), aplica a supressão (§6.3) e faz upsert em `city_analytics_indicators` via `PlatformRecord`. Idempotente por (cidade, semana, indicador).
 
 ### 5.2 Conjunto fixo
 
@@ -194,10 +194,11 @@ Sessão de operador; lê só `city_analytics_indicators` (cidades × semanas × 
 uma taxa, de partes exibidas na mesma resposta fica **oculto** sempre que
 qualquer dessas partes estiver oculta. Concretamente:
 - `total` de uma linha com série → oculto se qualquer célula da série for oculta;
-- célula de período de um agregado (`triages.*[p]`) → oculta se qualquer parte
-  daquele período (tier, protocolo) for oculta;
-- `triages_total.*` → oculto se qualquer célula de `triages.*` ou qualquer
-  `total` de `by_tier`/`by_protocol`/`by_neighborhood` for oculto;
+- `triages.completed[p]` → oculta se qualquer parte daquele período (tier,
+  protocolo) for oculta (tier e protocolo só recortam as concluídas);
+- `triages_total.started`/`.aborted` → oculto se qualquer célula da própria
+  série for oculta; `triages_total.completed` → também se qualquer `total` de
+  `by_tier`/`by_protocol`/`by_neighborhood` for oculto;
 - toda Rate → oculta se qualquer parte do numerador ou do denominador for
   oculta (faixas de espera, estados de agendamento, desfechos);
 - calibração: se qualquer `outcomes[x]` de uma linha for oculto, `total` e
