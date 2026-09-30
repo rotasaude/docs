@@ -119,7 +119,7 @@ dashboard (municipal_admin)
 ## 7. Segurança e LGPD
 
 - O check-in por código segue a regra do balcão: sem o cidadão presente com o código, nada aparece.
-- Cada busca da exceção publica `attendance.exception_searched` (`by_user_id`, `result_count`; sem CPF) — revisto na execução, para deixar rastro do acesso.
+- Cada busca da exceção publica `attendance.exception_searched` (`by_user_id`, `result_count`; sem CPF) — revisto na execução, para deixar rastro do acesso; desde 2026-09-30 também `citizen_ids` e `health_unit_id` (ADR 0018, Revisão).
 - A **exceção por CPF** é o único caminho em que o atendente vê triagens de um CPF sem código: exige o papel, conta no limite por servidor, mostra só triagens elegíveis (≤ 3 dias, sem atendimento) e grava método e motivo no atendimento.
 - O atendente vê a prioridade (decisão 7); respostas e relatório nunca aparecem no dashboard do atendimento.
 - `attendances` é a prova (quem fez o check-in, como, onde, quando; quem encerrou, com qual desfecho); os eventos são trilha.
