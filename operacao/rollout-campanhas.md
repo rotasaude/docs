@@ -42,7 +42,16 @@ Só depois de:
    queda depois do envio pode reenviar o lote (até 99 mensagens). Antes de
    ligar, o backend real precisa de chave de idempotência por destinatário ou
    o envio precisa sair da transação;
-3. testar em staging com a chave ligada numa cidade de teste.
+3. definir no backend real que `SmsGateway::Unavailable` significa só "sem
+   provedor": falha transitória do provedor deve levantar outro erro (vai para
+   a retentativa e depois `failed`); senão uma queda momentânea marca a
+   campanha inteira como `unavailable`, sem reenvio;
+4. testar em staging com a chave ligada numa cidade de teste.
+
+SMS parado: o `Campaigns::DueJob` reenfileira sozinho os SMS `pending` há mais
+de 10 min e os `deferred` dentro da janela, por até 48 h depois do envio da
+campanha. Depois disso desiste; o que sobrar aparece no painel como pendente e
+nas falhas do Solid Queue.
 
 Então cada cidade liga a chave em Comunicação → Campanhas (`municipal_admin`,
 com step-up). Desligar a chave não interrompe SMS já pendentes de uma

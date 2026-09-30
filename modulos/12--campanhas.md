@@ -1,6 +1,6 @@
 # Módulo 12 — Campanhas
 
-- **Estado:** Entregue
+- **Estado:** Fechado
 - **Tipo:** Estratégico (pós-MVP)
 
 ## Escopo
@@ -96,3 +96,11 @@ texto livre no SMS.
   mascarado e selo, preferências, SMS no log com texto fixo, alerta de SMS sem
   provedor). Decisões da execução no ADR 0024, seção Revisão. Módulo passa a
   `Entregue`; falta a verificação (dossiê por F-ID).
+- 2026-09-30 — Verificação do módulo (dossiê por F-ID,
+  [`relatorios/2026-09-29-verificacao-modulo-12.md`](../relatorios/2026-09-29-verificacao-modulo-12.md)):
+  lacunas fechadas antes de subir — spec do `down`/`up` da migração, teste
+  negativo do `appointment_no_show`, trava do `DispatchJob` com threads,
+  `unavailable` fora da janela, evento quando o provedor cai no meio do lote e
+  reenfileiramento do SMS parado com teto de 48 h (api `476084d`, suíte
+  2760/0). F-12.1 a F-12.7 `Verified` por aprovação do usuário. Critério de
+  fechamento cumprido; módulo `Fechado`.
