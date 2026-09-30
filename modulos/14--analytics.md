@@ -1,6 +1,6 @@
 # Módulo 14 — Analytics
 
-- **Estado:** Planejado
+- **Estado:** Entregue
 - **Tipo:** MVP
 
 ## Escopo
@@ -12,7 +12,7 @@ cada cidade (ADR 0025): contagens por dia e recorte, sem coluna de pessoa,
 refeitas para os últimos 30 dias a cada execução, com dado até D-1, guardadas
 por 5 anos.
 
-**Planejado (F-14.1 a F-14.9):**
+**Entregue (F-14.1 a F-14.9):**
 - consolidação diária por cidade, execuções registradas, purga de 5 anos e
   reconstrução por rake;
 - papel `analyst` (só leitura, sem step-up) e área Analytics no dashboard para
@@ -99,3 +99,14 @@ supressão complementar contra subtração entre recortes.
 - 2026-09-30 — Escopo decidido com o usuário; ADR 0025 e spec
   `superpowers/specs/2026-09-30-module-14-analytics-design.md`. F-14.1 a
   F-14.9 criados. Módulo passa de `Stub` a `Planejado`.
+- 2026-09-30 — F-14.1 a F-14.9 entregues e publicados: contracts `3747c80`
+  (tag `protocols-v1.2.0`), api `ecadd09` (suíte 2960/0; invariantes do ADR 0025
+  com teste de mutação), dashboard `c4fd035` (765 testes), admin `6436f23`
+  (87), maintenance `baf3219` (166). Decidido na execução: total ou taxa
+  oculto quando qualquer parte da mesma resposta é oculta (ADR 0025); triagem
+  concluída e depois revogada tratada como revogada na consolidação. Prova no
+  navegador feita com a semente de dev (analista de Maringá, console do
+  operador, aba Analytics do maintenance); o total de iniciadas herdava as
+  partes das concluídas e foi corrigido. Runbook
+  [`operacao/analytics.md`](../operacao/analytics.md). Módulo passa a
+  `Entregue`; falta a verificação (dossiê por F-ID).
