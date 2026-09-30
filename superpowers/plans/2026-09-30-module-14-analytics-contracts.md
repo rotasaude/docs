@@ -139,7 +139,8 @@ linhas por total desc.
 }
 ```
 
-`prompt`/`options` vêm da versão mais recente (maior `version`) que marca a
+`prompt`/`options` vêm da versão mais recente (maior `version`), entre as
+versões publicadas, ativas ou aposentadas (nunca rascunho), que marca a
 pergunta `analytic`. Boolean: valores `"true"`/`"false"`, rótulos `Sim`/`Não`.
 Enum: valor = rótulo = a string da opção. Sem pergunta marcada → `questions: []`.
 
