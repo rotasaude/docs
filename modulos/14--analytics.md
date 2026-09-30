@@ -48,7 +48,7 @@ supressão complementar contra subtração entre recortes.
 
 | Superfície | Papel previsto |
 |---|---|
-| `api` | `analytics_daily_facts`, `analytics_runs` (cidade); `city_analytics_indicators` (plataforma); `ConsolidateAnalyticsJob`, `city:analytics:rebuild`; `GET /admin/api/analytics/*`; `GET /operators/analytics`; `analyticsIndicators` e `analyticsStatus` no GraphQL de manutenção; `analytic` no schema de protocolo |
+| `api` | `analytics_daily_facts`, `analytics_runs` (cidade); `city_analytics_indicators` (plataforma); `ConsolidateAnalyticsJob`, `city:analytics:rebuild`; `GET /admin/api/analytics/*`; `GET /city_analytics` (console); `analyticsIndicators` e `analyticsStatus` no GraphQL de manutenção; `analytic` no schema de protocolo |
 | `admin` | Tela "Analytics das cidades" (indicadores fixos por semana) |
 | `dashboard` | Área Analytics (Demanda, Qualidade, Calibração, Epidemiologia); caixa "Usar em Analytics" no editor de protocolo; papel em Equipe |
 | `maintenance` | Bloco Analytics na ficha da cidade: estado do pipeline e indicadores |

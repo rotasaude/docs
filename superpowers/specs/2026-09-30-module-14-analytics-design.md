@@ -9,7 +9,7 @@
   - papel `analyst` (não privilegiado);
   - `Analytics::Consolidate` (um consolidador por frente), `ConsolidateAnalyticsJob` recorrente por cidade, rake `city:analytics:rebuild`;
   - `Analytics::Publish` (indicadores fixos da cidade para a plataforma);
-  - rotas `GET /admin/api/analytics/*` (cidade), `GET /operators/analytics` (console), campos novos no `CityType` do GraphQL de manutenção;
+  - rotas `GET /admin/api/analytics/*` (cidade), `GET /city_analytics` no host do console (`Operators::CityAnalyticsController`), campos novos no `CityType` do GraphQL de manutenção;
   - schema de protocolo: `analytic: true` em pergunta `boolean`/`enum` (cópia do `contracts`).
 - `apps/dashboard`: área "Analytics" (Demanda, Qualidade, Calibração, Epidemiologia), caixa "Usar em Analytics" no `ProtocolEditor`, papel novo em Equipe.
 - `apps/admin`: tela "Analytics das cidades".
@@ -182,7 +182,7 @@ Taxa: suprimida se numerador **ou** denominador estiver em 1–4. Com denominado
 - Cada frente devolve séries por período e uma tabela do período inteiro; toda célula numérica passa por `Admin::SmallCount.wrap` **depois** de somar; taxas seguem a regra da §5.2.
 - Epidemiologia devolve, por pergunta marcada, o `prompt` e as opções da versão mais recente que a marcou, e os valores por opção.
 
-### 6.2 Console do operador: `GET /operators/analytics?from&to`
+### 6.2 Console do operador: `GET /city_analytics?from&to` (host do console)
 
 Sessão de operador; lê só `city_analytics_indicators` (cidades × semanas × indicadores) e o nome/slug da cidade. Nunca abre banco de cidade.
 
