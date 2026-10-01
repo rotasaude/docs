@@ -1,6 +1,6 @@
 # Módulo 07 — LGPD/Auditoria
 
-- **Estado:** Fechado
+- **Estado:** Em andamento
 - **Tipo:** MVP
 
 ## Escopo
@@ -45,7 +45,8 @@ próprias.
 | F-07.12 | `Platform.audit` para eventos de identidade | api | 0014 |
 | F-07.13 | Painel de eventos no dashboard da cidade | dashboard | brief |
 | F-07.14 | Console de plataforma sem visão entre cidades; entrada por grant auditada nos dois bancos | api, admin | 0014, 0020 |
-| F-07.15 | Tratamento de revogação de consentimento (assinante de `consent.revoked`) | api | 0008 |
+| F-07.15 | Tratamento de revogação de consentimento (assinante de `consent.revoked`; anonimiza a triagem sem atendimento, concluída ou não) | api | 0008, 0026 |
+| F-07.16 | Exclusão do cadastro do cidadão no posto (Art. 18): verificador pede, admin confirma com step-up; casca no lugar do CPF e do celular; quem foi atendido fica retido | api, dashboard | 0026 |
 
 ## Dependências
 
@@ -54,14 +55,13 @@ próprias.
 
 ## Riscos herdados
 
-- **(ADR 0014) (LGPD vs. imutabilidade):** Art. 18 (eliminação) bate de
-  frente com append-only de `consents`, `domain_events`, `report_snapshots`.
-  Nenhum ADR resolveu. Decisão de "o que é apagável vs. retido por base
-  legal" continua em aberto.
-- **(ADR 0014):** `consent.revoked` tem assinantes (F-07.15): zeram o
-  conteúdo clínico da triagem interrompida e contam a métrica. Efeitos já
-  disparados permanecem, e falta base legal declarada de retenção
-  pós-revogação.
+- **(ADR 0014) (LGPD vs. imutabilidade):** resolvido pelo ADR 0026 — a
+  exclusão deixa uma casca no lugar do CPF e do celular, e o que só aceita
+  acréscimo (`consents`, `domain_events`, `citizen_verifications`) fica, sem
+  ninguém identificável por trás.
+- **(ADR 0014):** `consent.revoked` tem assinantes (F-07.15): anonimizam a
+  triagem sem atendimento (interrompida ou concluída) e contam a métrica. A
+  triagem que virou atendimento fica retida por tutela da saúde (ADR 0026).
 - **(ADR 0014) (Art. 20):** revisão humana de decisão automatizada não
   tem dono. Trail (módulo 03) dá insumo mas não fluxo.
 - Todas as recurring tasks concentram fragilidade no
@@ -74,10 +74,21 @@ próprias.
 
 ## Riscos que continuam
 
-- **Eliminação (Art. 18, VI) sem decisão:** o ADR "Art. 18 LGPD — exclusão do
-  cadastro do cidadão" segue pendente. Até ele, nada se apaga à mão, e as
-  tabelas de auditoria recusam por trigger. Ver
-  `operacao/atender-requisicao-lgpd.md`.
+- **Exclusão (Art. 18, VI):** decidida no ADR 0026 e entregue (F-07.16).
+  Ficam de fora: purga de `citizen_sessions`, `otp_challenges` e
+  `outbound_messages`; texto livre congelado em atendimento, agendamento e
+  pedido; revogação pelo WhatsApp depois de a conversa terminar. Os argumentos
+  de job em `solid_queue_jobs` (ex.: `SendWhatsappJob(to:)`) guardam o
+  telefone até a limpeza da fila.
+- **Painéis ao vivo e triagem anonimizada:** a concluída anonimizada continua
+  contando como concluída nos painéis do módulo 05 ("sem tier"); o Analytics
+  já a trata como revogada.
+- **Admin sem autenticador:** a tela de pedidos de exclusão não leva o
+  `municipal_admin` sem TOTP até a Segurança; ele precisa cadastrar antes.
+- **Rollout do ADR 0026:** web e worker trocam juntos (worker antigo não
+  monta o relatório a partir do evento só com `triage_id`); `city:migrate:all`
+  antes do tráfego (o check-in lê `anonymized_at`); publicar em cada cidade o
+  termo de consentimento novo (`city:consent_term:publish`).
 - **Revisão de decisão automatizada (Art. 20) sem dono:** a trilha existe,
   mas o fluxo de revisão, não.
 - **Dado pessoal em `domain_events`:** `user.invited` grava o e-mail do servidor
@@ -99,7 +110,7 @@ próprias.
 
 ## Critério de fechamento do módulo
 
-- ✓ F-07.1 a F-07.15 verificadas.
+- ✓ F-07.1 a F-07.15 verificadas. F-07.16 entregue em 2026-10-01 (ADR 0026), aguardando verificação.
 - ✓ Suíte de invariante, no `api`:
   - cidade A não vê dado de B:
     - por conexão: `cities/city_isolation_spec.rb`;
@@ -149,3 +160,18 @@ próprias.
   - ADR 0014 ganhou nota apontando o mecanismo do ADR 0020.
   - Commits: api `433f7c0` (2167 exemplos, 0 falhas), dashboard
     `a4316d2` (339 testes).
+
+- 2026-10-01: ADR 0026 (resolve rotasaude/api#30 e rotasaude/docs#2).
+  - F-07.15: a revogação passa a anonimizar também a triagem concluída sem
+    atendimento (`triages.anonymized_at`); a que virou atendimento fica retida;
+    o check-in recusa triagem anonimizada ou de conversa revogada, com trava na
+    linha.
+  - Trilha só com referência: `triage.completed`/`urgent` levam só
+    `triage_id`; `consent.revoked` leva a origem (`web`, `whatsapp`, `erasure`).
+    Os assinantes pulam a triagem anonimizada.
+  - F-07.16 (novo): exclusão do cadastro no posto, por duas pessoas, com casca
+    no lugar do CPF e do celular; `citizen_erasure_requests` só aceita
+    acréscimos.
+  - Migrações de cidade `20261001000001` e `20261001000002`.
+  - Commits: api `eafe586` (3059 exemplos, 0 falhas), dashboard `723ccf1`
+    (792 testes).

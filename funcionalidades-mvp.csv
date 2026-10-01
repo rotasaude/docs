@@ -98,7 +98,8 @@ F-07.11,platform_events no banco de plataforma (sem dado pessoal; referencia cit
 F-07.12,Platform.audit para eventos de identidade,mod-07,api,0014,feature
 F-07.13,Painel de eventos no dashboard da cidade,mod-07,dashboard,brief,feature
 F-07.14,Console de plataforma sem visão entre cidades; entrada por grant auditada nos dois bancos,mod-07,api|admin,"0014,0020",feature
-F-07.15,Tratamento de revogação de consentimento (assinante de consent.revoked),mod-07,api,0008,feature
+F-07.15,Tratamento de revogação de consentimento (assinante de consent.revoked),mod-07,api,"0008,0026",feature
+F-07.16,Exclusão do cadastro do cidadão no posto (Art. 18) com casca no lugar do CPF e do celular,mod-07,api|dashboard,0026,feature
 F-08.1,Pedido de agendamento nasce do desfecho de retorno ou encaminhamento (fila de pedidos da unidade de destino),mod-08,api|dashboard,0019,feature
 F-08.2,Recepção marca data e hora ou encerra o pedido com justificativa; remarcar cria um horário novo,mod-08,api|dashboard,0019,feature
 F-08.3,Agenda do dia da unidade,mod-08,api|dashboard,0019,feature

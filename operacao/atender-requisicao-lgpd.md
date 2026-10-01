@@ -65,25 +65,37 @@ O próprio titular revoga pela conversa (canal web) ou pela triagem
 da cidade: `RevokeConsent` dentro de `CityConnection.with(city)`, para a
 conversa do titular.
 
-- Publica `consent.revoked`. Os assinantes zeram o conteúdo clínico da triagem
-  interrompida (`AnonymizeRevokedTriageJob`) e contam a métrica. A casca da
-  triagem e o registro do consentimento ficam, com `revoked_at`.
+- Publica `consent.revoked`. Os assinantes anonimizam as triagens da conversa
+  que **não viraram atendimento**, interrompidas ou concluídas
+  (`AnonymizeRevokedTriageJob`, ADR 0026), e contam a métrica. A triagem que
+  virou atendimento no posto fica retida por tutela da saúde. A casca da
+  triagem e o registro do consentimento ficam, com `revoked_at`. Triagem
+  anonimizada não recebe mais check-in.
 - Efeitos anteriores à revogação continuam: relatório emitido, atendimento
   feito, alerta enviado.
 
 ### Eliminação (Art. 18, VI)
 
-**Sem decisão.** O que pode ser apagado e o que fica retido por base legal
-(prontuário, auditoria) é o ADR pendente "Art. 18 LGPD — exclusão do cadastro
-do cidadão" (card no board, módulo 07). Até ele:
+Decidida no ADR 0026. A exclusão é feita **no posto**, pela própria cidade, e
+vale para **todos os pares (CPF + celular) do CPF**:
 
-1. Não apague nada à mão. As tabelas de auditoria recusam por trigger:
-   `domain_events` e `platform_events` são só acréscimo (DELETE só depois de
-   12 meses), assim como `consents`/`consent_terms`, `citizen_verifications`,
-   `attendances`, `appointments`, `memberships` e `users`.
-2. Responda à cidade com o que existe e o prazo de retenção de cada parte
-   (tabela acima e seção "Retenção").
-3. Se o titular também revoga, aplique a revogação (acima).
+1. O `citizen_verifier` confere o documento com foto e registra o pedido no
+   Atendimento do dashboard ("Pedir exclusão do cadastro").
+2. Se algum par do CPF já foi atendido, o pedido nasce **retido por base
+   legal** e nada se apaga. Responda ao titular com isso; a revogação continua
+   disponível.
+3. Senão, o `municipal_admin` (outra pessoa) confirma com step-up em "Pedidos
+   de exclusão", ou recusa com motivo.
+4. Na confirmação, numa transação: os consentimentos são revogados, as
+   triagens anonimizadas, saem sessões, códigos, preferências, inscrições em
+   campanha e mensagens do telefone, e o CPF e o celular viram um marcador que
+   não identifica ninguém. Ficam `consents`, `citizen_verifications`, a trilha
+   (só referências), os agregados do Analytics e o relatório já emitido, até a
+   validade.
+
+Não apague nada à mão: as tabelas de auditoria recusam por trigger. Pedido que
+chega à plataforma por outro canal volta para a cidade, que chama o titular ao
+posto.
 
 ### Revisão de decisão automatizada (Art. 20)
 
@@ -120,10 +132,11 @@ nova. Acesso não altera dado.
 ## Riscos
 
 - O telefone das mensagens (`inbound_messages.from`, `outbound_messages.to`)
-  é cifrado, mas fica sem prazo de retenção.
+  é cifrado, mas fica sem prazo de retenção (a exclusão apaga as mensagens do
+  telefone).
 - O payload de `user.invited` em `domain_events` guarda o e-mail do servidor
   convidado (não é titular cidadão, mas é dado pessoal), por 12 meses.
-- Eliminação e revisão humana seguem sem decisão (ver acima).
+- A revisão humana de decisão automatizada segue sem fluxo (ver acima).
 
 ## ADRs relacionados
 
