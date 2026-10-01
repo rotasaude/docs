@@ -110,7 +110,9 @@ próprias.
 
 ## Critério de fechamento do módulo
 
-- ✓ F-07.1 a F-07.15 verificadas. F-07.16 entregue em 2026-10-01 (ADR 0026), aguardando verificação.
+- F-07.1 a F-07.14 verificadas. F-07.15 mudou de comportamento com o ADR 0026 e
+  voltou a aguardar verificação (2026-10-01), junto com a F-07.16, entregue no
+  mesmo dia.
 - ✓ Suíte de invariante, no `api`:
   - cidade A não vê dado de B:
     - por conexão: `cities/city_isolation_spec.rb`;
@@ -175,3 +177,7 @@ próprias.
   - Migrações de cidade `20261001000001` e `20261001000002`.
   - Commits: api `eafe586` (3059 exemplos, 0 falhas), dashboard `723ccf1`
     (792 testes).
+- 2026-10-01 — por decisão do usuário, a F-07.15 volta de `Verified` para `Done`
+  no board #1 e é verificada junto com a F-07.16, porque o ADR 0026 mudou o que a
+  revogação apaga. O catálogo público mostra o módulo como "Em validação" até as
+  duas serem verificadas.
