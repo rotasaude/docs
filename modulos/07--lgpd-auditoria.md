@@ -75,11 +75,8 @@ próprias.
 ## Riscos que continuam
 
 - **Exclusão (Art. 18, VI):** decidida no ADR 0026 e entregue (F-07.16).
-  Ficam de fora: purga de `citizen_sessions`, `otp_challenges` e
-  `outbound_messages`; texto livre congelado em atendimento, agendamento e
-  pedido; revogação pelo WhatsApp depois de a conversa terminar. Os argumentos
-  de job em `solid_queue_jobs` (ex.: `SendWhatsappJob(to:)`) guardam o
-  telefone até a limpeza da fila.
+  Ficam de fora: texto livre congelado em atendimento, agendamento e pedido;
+  revogação pelo WhatsApp depois de a conversa terminar.
 - **Painéis ao vivo e triagem anonimizada:** a concluída anonimizada continua
   contando como concluída nos painéis do módulo 05 ("sem tier"); o Analytics
   já a trata como revogada.
@@ -95,8 +92,8 @@ próprias.
   convidado no payload, por 12 meses. Não há guarda de payload do lado da cidade,
   como a de `platform_events`. O painel só mostra referências, mas o dado fica
   na trilha.
-- **Telefone das mensagens sem prazo:** `inbound_messages.from` e
-  `outbound_messages.to` agora são cifrados, mas não expiram.
+- **Retenção do canal do cidadão:** prazos decididos em 2026-10-01 (api#31) e
+  listados no runbook LGPD (Retenção). Com o worker parado, a purga não roda.
 - **Rollout da cifra dos telefones:** depois do deploy, e com web e worker
   antigos já drenados, rode `city:encrypt_message_phones:all`. Até lá, linha
   antiga em claro levanta ao ser lida (produção não aceita dado sem cifra), e
@@ -191,3 +188,10 @@ próprias.
   Passada na tela do dashboard feita em dev. Commits: api `73b4a8e` (3068
   exemplos, 0 falhas). Dossiê:
   [`relatorios/2026-10-01-verificacao-modulo-07-adr-0026.md`](../relatorios/2026-10-01-verificacao-modulo-07-adr-0026.md).
+- 2026-10-01: retenção do canal do cidadão (api#31). `PurgeCitizenChannelJob`
+  diário por cidade apaga códigos SMS 7 dias depois de vencer, sessões 30 dias
+  depois de vencer ou de serem encerradas, mensagens enviadas aos 90 dias e
+  recebidas aos 12 meses (o `raw` segue zerado aos 90 dias, F-07.5). Jobs que
+  falharam são descartados depois de 30 dias, na cidade e na plataforma; os
+  concluídos já saíam em 1 dia. Commits: api `2a12f53` (3087 exemplos, 0
+  falhas).

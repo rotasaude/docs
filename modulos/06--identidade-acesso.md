@@ -154,3 +154,9 @@ aberto por token assinado (ADR 0010).
   `health_professional`, e as invariantes de sessão cruzada e convite vencido.
   Commits: api `c36cd01` (2125 exemplos, 0 falhas), dashboard `b248fba`
   (321 testes), admin `9a8c0f6` (46 testes).
+
+- 2026-10-01: códigos SMS (`otp_challenges`) e sessões do cidadão
+  (`citizen_sessions`) passam a ter prazo de retenção (api#31): os códigos saem
+  7 dias depois de vencer e as sessões 30 dias depois de vencer ou de serem
+  encerradas, por `PurgeCitizenChannelJob` (módulo 07). A cota de 5 códigos por
+  celular em 24 h não muda.

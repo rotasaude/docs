@@ -112,7 +112,13 @@ fluxo de revisão ainda não tem dono no produto (risco do módulo 07).
 | `domain_events` | 12 meses | `PurgeDomainEventsJob`, diário; o trigger recusa antes disso |
 | `report_snapshots` | 30 dias depois de expirar | `PurgeExpiredReportsJob`, diário |
 | `processed_events` (dedup, sem dado pessoal) | 60 dias | `PurgeProcessedEventsJob`, diário |
-| O resto do cadastro | sem prazo | depende do ADR do Art. 18 |
+| `otp_challenges` (códigos SMS) | 7 dias depois de vencer | `PurgeCitizenChannelJob`, diário |
+| `citizen_sessions` (sessões do cidadão) | 30 dias depois de vencer ou de ser encerrada | `PurgeCitizenChannelJob`, diário |
+| `outbound_messages` (mensagens enviadas, com o conteúdo) | 90 dias, a linha inteira | `PurgeCitizenChannelJob`, diário |
+| `inbound_messages` (mensagens recebidas, já sem o `raw`) | 12 meses, a linha inteira | `PurgeCitizenChannelJob`, diário |
+| Jobs concluídos da fila (argumentos com telefone ou e-mail) | 1 dia | `clear_solid_queue_finished`, de hora em hora |
+| Jobs que falharam (com os argumentos) | 30 dias, descartados | purga diária da fila, na cidade e na plataforma |
+| O resto do cadastro | sem prazo | só sai pela exclusão (ADR 0026); quem foi atendido fica retido |
 
 Com o worker parado, a purga não roda. Uma cidade atrasada só atrasa a si
 mesma (um supervisor por cidade).
@@ -131,9 +137,12 @@ nova. Acesso não altera dado.
 
 ## Riscos
 
-- O telefone das mensagens (`inbound_messages.from`, `outbound_messages.to`)
-  é cifrado, mas fica sem prazo de retenção (a exclusão apaga as mensagens do
-  telefone).
+- Os prazos do canal do cidadão (códigos, sessões, mensagens, jobs da fila)
+  foram decididos em 2026-10-01 (api#31). Eles respeitam o que o sistema usa:
+  a cota de 5 códigos por celular conta as últimas 24 h, a sessão dura 30 dias
+  renovados a cada uso, o painel de Ingestão lê até 30 dias de mensagens e o
+  reenvio da Meta é deduplicado pelo `message_id` por cerca de 7 dias. Não
+  encurte sem rever isso.
 - O payload de `user.invited` em `domain_events` guarda o e-mail do servidor
   convidado (não é titular cidadão, mas é dado pessoal), por 12 meses.
 - A revisão humana de decisão automatizada segue sem fluxo (ver acima).
