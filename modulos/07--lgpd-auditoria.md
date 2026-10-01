@@ -1,6 +1,6 @@
 # Módulo 07 — LGPD/Auditoria
 
-- **Estado:** Em andamento
+- **Estado:** Fechado
 - **Tipo:** MVP
 
 ## Escopo
@@ -110,9 +110,8 @@ próprias.
 
 ## Critério de fechamento do módulo
 
-- F-07.1 a F-07.14 verificadas. F-07.15 mudou de comportamento com o ADR 0026 e
-  voltou a aguardar verificação (2026-10-01), junto com a F-07.16, entregue no
-  mesmo dia.
+- ✓ F-07.1 a F-07.16 verificadas (F-07.15 e F-07.16 em 2026-10-01, ADR 0026;
+  dossiê `relatorios/2026-10-01-verificacao-modulo-07-adr-0026.md`).
 - ✓ Suíte de invariante, no `api`:
   - cidade A não vê dado de B:
     - por conexão: `cities/city_isolation_spec.rb`;
@@ -181,3 +180,14 @@ próprias.
   no board #1 e é verificada junto com a F-07.16, porque o ADR 0026 mudou o que a
   revogação apaga. O catálogo público mostra o módulo como "Em validação" até as
   duas serem verificadas.
+- 2026-10-01 — módulo fechado de novo, com 16/16 `Verified`. A verificação da
+  F-07.15 e da F-07.16 achou e fechou com TDD:
+  - triagem encerrada por tempo ou cancelamento e depois revogada mantinha o
+    conteúdo; agora é anonimizada como as outras;
+  - pedido de exclusão recusado guardava o CPF; agora o CPF vira marcador na
+    recusa (migração de cidade `20261001000003`);
+  - a rotação de chave falharia com pedido decidido; o pedido decidido aceita só
+    a re-cifra do CPF.
+  Passada na tela do dashboard feita em dev. Commits: api `73b4a8e` (3068
+  exemplos, 0 falhas). Dossiê:
+  [`relatorios/2026-10-01-verificacao-modulo-07-adr-0026.md`](../relatorios/2026-10-01-verificacao-modulo-07-adr-0026.md).
