@@ -131,6 +131,13 @@ Cumprido em 2026-09-27.
 
 _(funcionalidades concluídas aparecem aqui em ordem cronológica reversa)_
 
+- **2026-10-01** — Reversão de emergência exige a versão esperada (passo 3
+  do rollout da spec 2026-09-25, issue api#11; api 5e99d09, merge de 677083c). Sem a versão que
+  a tela mostrava em uso, `Protocols::RevertActivation` recusa com
+  `expected_version_required` (422 no REST, `expectedVersion` na mutation de
+  manutenção). O argumento GraphQL segue anulável no schema para não quebrar a
+  validação do console publicado. Deploy: api antes do maintenance.
+
 - **2026-09-27** — Módulo **Fechado**. F-03.1 a F-03.19 `Verified` no board.
   O dossiê achou cinco `Done` que não se sustentavam; todos consertados (api
   63f8568, merge de 42f497e, 13367c2, 9c47e95 e 52abdab; dashboard ffb9061;

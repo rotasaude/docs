@@ -72,6 +72,8 @@ Sem token, o comportamento é byte por byte o de hoje. Isso é transitório, e �
 
 **O risco assumido:** entre o passo 1 e o passo 3 existe um caminho sem guarda. O passo 3 vira **issue no Project #1 no mesmo dia em que o passo 1 for mergeado** — não memória de quem estava na sala. O comentário no `call` e no argumento do GraphQL registra que esse passo existe, por que não pôde ser o primeiro, e que enquanto ele não vier a ausência do token é aceita.
 
+**Passo 3 executado (2026-10-01, api 5e99d09, issue api#11).** A ausência da versão virou recusa própria, `expected_version_required`: 422 no REST e `path: "expectedVersion"` na mutation. Uma correção a esta seção: o argumento GraphQL **continua anulável no schema**. O console publicado declara `$expectedVersion: Int`, e uma variável anulável numa posição `Int!` é erro de validação — com `required: true` o api teria de esperar o maintenance, invertendo a ordem. Recusando no command, o caminho sem guarda fecha sem depender da ordem de deploy, que segue **api antes do maintenance**. O console pode passar a declarar `Int!` quando quiser; não é pré-requisito.
+
 ## 6. Privacidade
 
 Nada novo: número de versão de protocolo, que já circula nas duas telas.
