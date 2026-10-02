@@ -63,7 +63,9 @@ Ainda a decidir: agenda de vagas publicada pela unidade, o cidadão escolhendo o
   não abre o `wpda`. A marca "sem confirmação" na fila é a rede de proteção:
   a recepção pode ligar e remarcar.
 - **Operacional (ADR 0019):** a recepção digita data e hora sem agenda de
-  vagas; nada impede marcar dois cidadãos no mesmo horário (api#26).
+  vagas. Desde 2026-10-01 o horário já ocupado na unidade é avisado e só sai
+  como encaixe confirmado (api#26); sem profissional nem duração no horário,
+  o aviso olha só o início igual.
 - **Operacional:** o fuso é fixo em `America/Sao_Paulo` no api, no dashboard e
   no `wpda`; o ADR fala em fuso da cidade. Uma cidade fora do horário de
   Brasília teria prazo, falta e "hoje" deslocados (api#27).
@@ -102,3 +104,8 @@ Ainda a decidir: agenda de vagas publicada pela unidade, o cidadão escolhendo o
     celular, motivo ou nota (conferida injetando a nota num payload).
   - Continuam como riscos, não como pendência dos F-IDs: horário duplicado
     (api#26) e fuso fixo (api#27).
+- 2026-10-01: conflito de horário (api#26). A marcação recusa com 409
+  `slot_taken` quando a unidade já tem horário vivo no mesmo início e diz
+  quantos; a recepção vê o aviso e pode "Marcar mesmo assim", e o evento
+  registra o encaixe (`fit_in`). Trava por unidade e início contra duas
+  recepções ao mesmo tempo. Decisão na Revisão do ADR 0019.
