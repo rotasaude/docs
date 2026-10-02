@@ -1,6 +1,6 @@
 # Módulo 08 — Agendamento
 
-- **Estado:** Fechado
+- **Estado:** Em andamento
 - **Tipo:** MVP
 
 ## Escopo
@@ -16,9 +16,12 @@ motivo. Horário sem confirmação expira, falta vira `no_show`, e nos dois
 casos o pedido volta marcado para a fila: ninguém sai dela sem uma pessoa
 decidir. No dia, o check-in do horário confirmado vira atendimento.
 
+Um SMS lembra o cidadão 24h antes do prazo de confirmação, e o `wpda` mostra
+na entrada os horários a confirmar (F-08.7).
+
 **Fora, por enquanto:** agenda de vagas publicada pela unidade, o cidadão
-escolhendo o horário, lembrete antes do prazo, remarcação pedida pelo
-cidadão e encaminhamento para fora da rede da cidade.
+escolhendo o horário, lembrete do horário já confirmado, remarcação pedida
+pelo cidadão e encaminhamento para fora da rede da cidade.
 
 ## ADRs governantes
 
@@ -26,7 +29,7 @@ cidadão e encaminhamento para fora da rede da cidade.
 |---|---|
 | 0019 | Pedido de agendamento e horário: nascem do desfecho de retorno ou encaminhamento; confirmação com prazo, expiração e falta |
 
-Ainda a decidir: agenda de vagas publicada pela unidade, o cidadão escolhendo o horário e lembretes (em aberto no ADR 0019).
+Ainda a decidir: agenda de vagas publicada pela unidade e o cidadão escolhendo o horário (em aberto no ADR 0019).
 
 ## Superfícies
 
@@ -56,12 +59,15 @@ Ainda a decidir: agenda de vagas publicada pela unidade, o cidadão escolhendo o
 | F-08.4 | Cidadão vê, confirma (até 24h antes) ou cancela (com motivo) o horário no `wpda` | api, wpda | 0019 |
 | F-08.5 | Horário sem confirmação expira e falta vira `no_show` (jobs); o pedido volta marcado para a fila | api | 0019 |
 | F-08.6 | Check-in de horário confirmado (no dia e na unidade) vira atendimento | api, dashboard, wpda | 0019 |
+| F-08.7 | Lembrete por SMS 24h antes do prazo de confirmação do horário (opt-out do cidadão) e aviso no wpda dos horários a confirmar | api, wpda | 0019 |
 
 ## Riscos herdados
 
-- **Clínica (ADR 0019):** sem lembrete, o cancelamento automático pune quem
-  não abre o `wpda`. A marca "sem confirmação" na fila é a rede de proteção:
-  a recepção pode ligar e remarcar.
+- **Clínica (ADR 0019):** o cancelamento automático pune quem não abre o
+  `wpda`. Desde 2026-10-02 há lembrete por SMS (F-08.7), mas ele só sai com
+  o provedor contratado e a chave de SMS da cidade ligada; até lá, a marca
+  "sem confirmação" na fila segue como rede de proteção (a recepção liga e
+  remarca). Ligar o SMS antes do prazo ainda alcança os horários pendentes.
 - **Operacional (ADR 0019):** a recepção digita data e hora sem agenda de
   vagas. Desde 2026-10-01 o horário já ocupado na unidade é avisado e só sai
   como encaixe confirmado (api#26); sem profissional nem duração no horário,
@@ -71,12 +77,13 @@ Ainda a decidir: agenda de vagas publicada pela unidade, o cidadão escolhendo o
   provisionamento e o banco recusa trocá-lo (api#36).
 - **Operacional:** expiração e falta dependem dos jobs do worker da cidade.
   Worker parado deixa horário vencido aberto e pedido fora da fila.
-- **Em aberto:** agenda de vagas, escolha do horário pelo cidadão, lembrete,
-  remarcação pedida pelo cidadão e encaminhamento para fora da rede.
+- **Em aberto:** agenda de vagas, escolha do horário pelo cidadão, lembrete do
+  horário confirmado, remarcação pedida pelo cidadão e encaminhamento para
+  fora da rede.
 
 ## Critério de fechamento do módulo
 
-- F-08.1 a F-08.6 verificadas.
+- F-08.1 a F-08.7 verificadas.
 - Suíte de invariante: todo horário pertence a um pedido e todo pedido nasce
   de um atendimento; um pedido tem no máximo um horário vivo; horário
   encerrado não muda, e o que foi marcado nunca muda; cancelamento exige
@@ -113,3 +120,11 @@ Ainda a decidir: agenda de vagas publicada pela unidade, o cidadão escolhendo o
   falta depois da meia-noite, o check-in "só hoje" e a agenda seguem o fuso
   da cidade; a recepção digita e vê a hora nele, e o cidadão também. Suíte de
   invariante em `America/Manaus` (`spec/invariants/city_time_zone_invariants_spec.rb`).
+- 2026-10-02: lembrete de confirmação (api#39, F-08.7). Um SMS 24h antes do
+  prazo, só para horário ainda sem confirmação, dentro das 8h–20h da cidade;
+  não exige o opt-in das campanhas, mas respeita o opt-out de lembretes;
+  texto fixo sem unidade, data nem motivo. Sem chave de SMS, sem provedor ou
+  com opt-out, nada sai e o lembrete segue pendente até o prazo; só a resposta
+  do provedor o grava (`appointment_reminders`, só acréscimo, um por horário). No `wpda`, faixa com os horários a confirmar e
+  interruptor de lembrete nas preferências. Módulo volta a `Em andamento`
+  até a verificação da F-08.7.

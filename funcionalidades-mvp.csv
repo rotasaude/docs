@@ -106,6 +106,7 @@ F-08.3,Agenda do dia da unidade,mod-08,api|dashboard,0019,feature
 F-08.4,"Cidadão vê, confirma (até 24h antes) ou cancela (com motivo) o horário no wpda",mod-08,api|wpda,0019,feature
 F-08.5,Horário sem confirmação expira e falta vira no_show (jobs); o pedido volta marcado para a fila,mod-08,api,0019,feature
 F-08.6,Check-in de horário confirmado (no dia e na unidade) vira atendimento,mod-08,api|dashboard|wpda,0019,feature
+F-08.7,Lembrete por SMS 24h antes do prazo de confirmação do horário (opt-out do cidadão) e aviso no wpda dos horários a confirmar,mod-08,api|wpda,0019,feature
 F-09.1,"Cadastro mínimo de unidades de saúde (nome, tipo, ativa) mantido pelo municipal_admin",mod-09,api|dashboard,0018,feature
 F-09.2,Desativar e reativar unidade (desativação recusada com atendimentos abertos),mod-09,api|dashboard,0018,feature
 F-10.1,"Cadastro do profissional da cidade (nome, conselho e registro, CNS) ligado ao usuário com papel health_professional",mod-10,api|dashboard,0021,feature
