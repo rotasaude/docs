@@ -1,6 +1,6 @@
 # Módulo 08 — Agendamento
 
-- **Estado:** Em andamento
+- **Estado:** Fechado
 - **Tipo:** MVP
 
 ## Escopo
@@ -128,3 +128,11 @@ Ainda a decidir: agenda de vagas publicada pela unidade e o cidadão escolhendo 
   do provedor o grava (`appointment_reminders`, só acréscimo, um por horário). No `wpda`, faixa com os horários a confirmar e
   interruptor de lembrete nas preferências. Módulo volta a `Em andamento`
   até a verificação da F-08.7.
+- 2026-10-02: F-08.7 verificada pelo usuário; módulo `Fechado` de novo
+  (F-08.1 a F-08.7 `Verified`). Prova em dev (Curitiba): janela do lembrete
+  exata (prazo − 24h), SMS de texto fixo no backend de log, linha `sent` e
+  evento só com ids, interruptor de lembrete independente do opt-in das
+  campanhas, faixa "horário para confirmar" levando aos agendamentos.
+  Evidências em `evidencias/2026-10-02-lembrete-confirmacao/` (raiz do
+  monorepo). Quem entra pelo link do SMS passa pelo termo antes de ver a
+  faixa (fluxo normal de entrada do `wpda`).
