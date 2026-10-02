@@ -66,9 +66,9 @@ Ainda a decidir: agenda de vagas publicada pela unidade, o cidadão escolhendo o
   vagas. Desde 2026-10-01 o horário já ocupado na unidade é avisado e só sai
   como encaixe confirmado (api#26); sem profissional nem duração no horário,
   o aviso olha só o início igual.
-- **Operacional:** o fuso é fixo em `America/Sao_Paulo` no api, no dashboard e
-  no `wpda`; o ADR fala em fuso da cidade. Uma cidade fora do horário de
-  Brasília teria prazo, falta e "hoje" deslocados (api#27).
+- **Operacional:** desde 2026-10-02 prazo, falta, "hoje" e a agenda seguem o
+  fuso da cidade (api#27; Revisão do ADR 0020). Trocar o fuso de uma cidade
+  já provisionada ainda não tem caminho.
 - **Operacional:** expiração e falta dependem dos jobs do worker da cidade.
   Worker parado deixa horário vencido aberto e pedido fora da fila.
 - **Em aberto:** agenda de vagas, escolha do horário pelo cidadão, lembrete,
@@ -109,3 +109,7 @@ Ainda a decidir: agenda de vagas publicada pela unidade, o cidadão escolhendo o
   quantos; a recepção vê o aviso e pode "Marcar mesmo assim", e o evento
   registra o encaixe (`fit_in`). Trava por unidade e início contra duas
   recepções ao mesmo tempo. Decisão na Revisão do ADR 0019.
+- 2026-10-02: fuso da cidade (api#27). O dia, o prazo de confirmação, a
+  falta depois da meia-noite, o check-in "só hoje" e a agenda seguem o fuso
+  da cidade; a recepção digita e vê a hora nele, e o cidadão também. Suíte de
+  invariante em `America/Manaus` (`spec/invariants/city_time_zone_invariants_spec.rb`).

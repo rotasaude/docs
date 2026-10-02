@@ -70,7 +70,8 @@ texto livre no SMS.
 
 - **Subtração entre campanhas:** públicos quase iguais podem revelar, pela
   diferença, um grupo menor que 5; aceito no Ciclo 1, a rever com o módulo 14.
-- **Fuso fixo** em `America/Sao_Paulo` (api#27): a janela do SMS herda.
+- **Fuso da cidade** (api#27, 2026-10-02): a janela do SMS (8h–20h) é a hora
+  local da cidade.
 - **Chave ligada sem provedor:** SMS vira `unavailable`, sem reenvio.
 - **`tier` é texto do protocolo:** renomear a faixa separa triagens antigas e
   novas no critério.
