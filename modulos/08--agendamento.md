@@ -67,8 +67,8 @@ Ainda a decidir: agenda de vagas publicada pela unidade, o cidadão escolhendo o
   como encaixe confirmado (api#26); sem profissional nem duração no horário,
   o aviso olha só o início igual.
 - **Operacional:** desde 2026-10-02 prazo, falta, "hoje" e a agenda seguem o
-  fuso da cidade (api#27; Revisão do ADR 0020). Trocar o fuso de uma cidade
-  já provisionada ainda não tem caminho.
+  fuso da cidade (api#27; Revisão do ADR 0020). O fuso é definido no
+  provisionamento e o banco recusa trocá-lo (api#36).
 - **Operacional:** expiração e falta dependem dos jobs do worker da cidade.
   Worker parado deixa horário vencido aberto e pedido fora da fila.
 - **Em aberto:** agenda de vagas, escolha do horário pelo cidadão, lembrete,
