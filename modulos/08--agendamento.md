@@ -80,6 +80,11 @@ Ainda a decidir: agenda de vagas publicada pela unidade e o cidadão escolhendo 
 - **Em aberto:** agenda de vagas, escolha do horário pelo cidadão, lembrete do
   horário confirmado, remarcação pedida pelo cidadão e encaminhamento para
   fora da rede.
+- **Texto livre congelado (api#32, decidido em 2026-10-03):** a justificativa
+  de encerrar o pedido, a nota que vira o pedido e o motivo do cancelamento
+  pelo cidadão não mudam depois do envio. O dashboard e o `wpda` avisam antes
+  do envio que o texto não poderá ser alterado e que não se deve escrever
+  dado pessoal.
 
 ## Critério de fechamento do módulo
 
@@ -136,3 +141,6 @@ Ainda a decidir: agenda de vagas publicada pela unidade e o cidadão escolhendo 
   Evidências em `evidencias/2026-10-02-lembrete-confirmacao/` (raiz do
   monorepo). Quem entra pelo link do SMS passa pelo termo antes de ver a
   faixa (fluxo normal de entrada do `wpda`).
+- 2026-10-03: aviso de texto congelado (api#32) na justificativa de encerrar
+  pedido e na nota do retorno/encaminhamento (dashboard) e no motivo do
+  cancelamento (`wpda`). Nada muda no api.

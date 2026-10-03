@@ -74,6 +74,12 @@ Ainda a decidir: ficha de acompanhamento, evolução e follow-up automatizado.
 - **Em aberto:** ficha de acompanhamento, evolução, lembretes de medicação,
   follow-up automatizado e vínculo formal do profissional com a unidade
   (módulo 10).
+- **Texto livre congelado (api#32, decidido em 2026-10-03):** motivo do
+  check-in por exceção, descrição do encaminhamento, nota do retorno e motivo
+  de recusa da exclusão não mudam depois do envio (triggers). A tela avisa
+  antes do envio que o texto não poderá ser alterado e que não se deve
+  escrever nome, telefone, CPF ou outro dado pessoal. O que já foi escrito com
+  dado pessoal continua lá.
 
 ## Critério de fechamento do módulo
 
@@ -105,3 +111,7 @@ Ainda a decidir: ficha de acompanhamento, evolução e follow-up automatizado.
   (suíte 2826/0), dashboard `b1e0f37`, wpda `4d07728`. F-13.1 a F-13.6
   `Verified` por aprovação do usuário. Critério de fechamento cumprido; módulo
   `Fechado`.
+- 2026-10-03: aviso de texto congelado (api#32). Decisão do usuário: os
+  textos continuam imutáveis; a interface avisa antes do envio. Dashboard
+  (Atendimento): motivo da exceção, descrição do encaminhamento, nota do
+  retorno, justificativa de encerrar pedido e motivo de recusa da exclusão.
