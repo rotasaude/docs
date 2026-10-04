@@ -150,3 +150,13 @@ contribui com seu painel observacional aqui.
   console antigo no ar deixa o KPI de urgência e o pivô do console sem valor. O
   dashboard ainda tem a tolerância ao contrato antigo, que agora não tem mais
   quem a use.
+- 2026-10-04 — triagem revogada fora dos números de concluídas (api#34, ADR
+  0026; Revisão do ADR 0022). Mesma regra de "revogada" do Analytics. A
+  revogada sai de concluídas, urgentes, taxa e tempo de conclusão e tiers em
+  Visão geral, Classificação, Conversas e Triagens, e dos contadores da
+  projeção; aparece à parte como contagem de revogadas (sem linha nem dado do
+  cidadão), escondida com filtro de bairro. A revogação recalcula do zero o dia
+  dos contadores (`ForgetRevokedTriageMetricsJob`), e o recálculo é seguro com
+  jobs simultâneos. Commits: api `4354c61` (3160 exemplos, 0 falhas),
+  dashboard `67882de` (813 testes).
+
