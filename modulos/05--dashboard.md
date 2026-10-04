@@ -86,9 +86,10 @@ contribui com seu painel observacional aqui.
   formal além dos comentários `§4.x` no código e destas specs.
 - **Custo da leitura ao vivo (ADR 0022):** cada leitura agrega o período. O
   gatilho de revisão é p95 acima de 1 s em qualquer `GET /admin/api/*`.
-- **Contrato duplo da Classificação:** `priorityTrue`, `priorityTrend` e o pivô
-  `low/medium/high` ficam como apelidos até o `admin` migrar (card admin#2).
-  Depois, remover os apelidos do `Admin::ClassificationQuery`.
+- ~~**Contrato duplo da Classificação:** `priorityTrue`, `priorityTrend` e o
+  pivô `low/medium/high` ficam como apelidos até o `admin` migrar (card
+  admin#2).~~ Resolvido em 2026-10-04: o `admin` migrou e os apelidos saíram
+  do `Admin::ClassificationQuery` (ver Histórico).
 - **Navegação sem URL:** o app troca de tela por estado, sem link direto nem
   botão voltar; "PT-BR" são textos fixos, sem biblioteca de i18n.
 - **Ingestão:** mede só o WhatsApp, canal descontinuado; o canal web não tem
@@ -134,3 +135,18 @@ contribui com seu painel observacional aqui.
   tela de 7 painéis e da fronteira de sessão. Ordem de deploy: api antes do
   dashboard. Com o WhatsApp descontinuado, a Ingestão fica como canal
   descontinuado, sem bloquear.
+- 2026-10-04 — Contrato da Classificação contraído (ADR 0015, card admin#2).
+  O console do operador (`apps/admin`) passou a ler o contrato novo, como o
+  dashboard: `urgent`, `urgentTrend` e `urgentMaxPriority` (rótulo "Casos
+  urgentes (priority ≤ N)"), pivô por `tierKeys` com `byProtocol[].counts` no
+  lugar das colunas fixas `low/medium/high` (que mostravam sempre 0, porque os
+  tiers reais são vocabulário livre do protocolo) e `priority` inteira na
+  amostra, com `urgent` marcando as urgentes; amostra `null` aparece como
+  oculta. O KPI de urgência do Overview já vinha genérico (o `id` só serve de
+  chave), sem mudança. Depois disso, o api removeu os apelidos
+  (`LEGACY_TIERS`, `priorityTrue`, `priorityTrend`) do
+  `Admin::ClassificationQuery`, com spec fixando as chaves da resposta.
+  **Ordem de deploy: `admin` antes do api** — api sem os apelidos com o
+  console antigo no ar deixa o KPI de urgência e o pivô do console sem valor. O
+  dashboard ainda tem a tolerância ao contrato antigo, que agora não tem mais
+  quem a use.
