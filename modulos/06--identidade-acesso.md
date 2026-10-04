@@ -160,3 +160,9 @@ aberto por token assinado (ADR 0010).
   7 dias depois de vencer e as sessões 30 dias depois de vencer ou de serem
   encerradas, por `PurgeCitizenChannelJob` (módulo 07). A cota de 5 códigos por
   celular em 24 h não muda.
+- 2026-10-04: o contrato de sessão troca `municipality_*` por `city_slug`,
+  `city_name` e `city_uf`, e o envelope de `/admin/api` troca `municipality`
+  por `city` (api#35; Revisão do ADR 0020). Ordem de deploy: api com as duas
+  formas → dashboard e admin → api sem as antigas. O contrato passa a ser
+  documentado e versionado no contracts (`session-v1.0.0`). Fora deste
+  contrato e sem consumidor hoje: `GET /admin/api/municipalities`.
