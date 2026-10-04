@@ -40,7 +40,7 @@
 | 06 | [Identidade/Acesso](06--identidade-acesso.md) | Fechado | MVP | [0011](../adr/0011.md), [0012](../adr/0012.md), [0013](../adr/0013.md) |
 | 07 | [LGPD/Auditoria](07--lgpd-auditoria.md) | Fechado | MVP | [0013](../adr/0013.md), [0014](../adr/0014.md), [0020](../adr/0020.md), [0026](../adr/0026.md) |
 | 08 | [Agendamento](08--agendamento.md) | Fechado | MVP | [0019](../adr/0019.md) |
-| 09 | [Unidades](09--unidades.md) | Fechado | MVP | [0018](../adr/0018.md) |
+| 09 | [Unidades](09--unidades.md) | Em andamento | MVP | [0018](../adr/0018.md) |
 | 10 | [Profissionais](10--profissionais.md) | Fechado | MVP | [0021](../adr/0021.md), [0019](../adr/0019.md) |
 | 11 | [Território](11--territorio.md) | Fechado | MVP | [0023](../adr/0023.md) |
 | 12 | [Campanhas](12--campanhas.md) | Fechado | MVP | [0024](../adr/0024.md) |

@@ -1,6 +1,6 @@
 # Módulo 09 — Unidades
 
-- **Estado:** Fechado
+- **Estado:** Em andamento
 - **Tipo:** MVP
 
 ## Escopo
@@ -42,6 +42,7 @@ Ainda a decidir: endereço, horário, especialidades e geolocalização (sem ref
 |---|---|---|---|
 | F-09.1 | Cadastro mínimo de unidades de saúde (`health_units`: nome, tipo, ativa) mantido pelo `municipal_admin` | api, dashboard | 0018 |
 | F-09.2 | Desativar e reativar unidade (desativação recusada com atendimentos abertos) | api, dashboard | 0018 |
+| F-09.3 | Esvaziar unidade: o `municipal_admin` move pedidos abertos e horários marcados para outra unidade ativa (mesma data e hora; nova confirmação com 48h ou mais), com motivo imutável | api, dashboard, wpda | 0018, 0019 |
 
 ## Riscos herdados
 
@@ -51,13 +52,15 @@ Ainda a decidir: endereço, horário, especialidades e geolocalização (sem ref
 - **Operacional:** uma unidade desativada some da escolha do balcão. A
   desativação é recusada enquanto houver atendimento aberto ou pedido de
   agendamento aberto ou marcado para ela (`unit_has_open_attendances`,
-  `unit_has_open_requests`); a recepção precisa encerrar esses antes.
+  `unit_has_open_requests`). Desde 2026-10-04 (api#29, F-09.3) o
+  `municipal_admin` esvazia a unidade, movendo pedidos e horários para outra,
+  e então desativa; atendimento aberto continua precisando ser encerrado.
 - **Em aberto:** endereço, horário de funcionamento, especialidades,
   capacidade e geolocalização (módulo 11).
 
 ## Critério de fechamento do módulo
 
-- F-09.1 e F-09.2 verificadas.
+- F-09.1 a F-09.3 verificadas.
 - Suíte de invariante: só o `municipal_admin` cria, edita, desativa e
   reativa unidade; desativação com atendimento aberto é recusada; unidade
   inativa não recebe check-in.
@@ -77,3 +80,11 @@ Ainda a decidir: endereço, horário, especialidades e geolocalização (sem ref
   bairro onde fica) entregue pelo módulo 11 (F-11.3, ADR 0023; api `b5e9ba3`),
   sem refazer a tabela; `lock_active!` e a trava da desativação inalterados.
   Resolve em parte o risco do cadastro mínimo (rotasaude/api#28).
+- 2026-10-04: esvaziar unidade (api#29, F-09.3). Decisões do usuário: mover
+  para outra unidade (não cancelar pela recepção); o horário vai com a mesma
+  data e hora e, com 48h ou mais, pede nova confirmação; em lote, pelo
+  `municipal_admin`, com uma unidade de destino escolhida na tela e um motivo
+  imutável (aviso da api#32); sem sugestão pela referência do bairro. O
+  pedido e o horário antigos encerram como `moved` e os novos apontam para
+  eles; registro só de acréscimo em `health_unit_drains`. Módulo volta a
+  `Em andamento` até a verificação da F-09.3.

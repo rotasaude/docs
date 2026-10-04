@@ -144,3 +144,8 @@ Ainda a decidir: agenda de vagas publicada pela unidade e o cidadão escolhendo 
 - 2026-10-03: aviso de texto congelado (api#32) na justificativa de encerrar
   pedido e na nota do retorno/encaminhamento (dashboard) e no motivo do
   cancelamento (`wpda`). Nada muda no api.
+- 2026-10-04: pedido e horário podem mudar de unidade pelo esvaziamento
+  (api#29, F-09.3): o antigo encerra como `moved` (estado novo do horário e
+  motivo novo de encerramento do pedido) e o novo, na unidade de destino,
+  mantém data e hora; com 48h ou mais, pede nova confirmação e entra no
+  lembrete (F-08.7) e na expiração (F-08.5). No `wpda`, "Local alterado".

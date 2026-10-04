@@ -109,6 +109,7 @@ F-08.6,Check-in de horário confirmado (no dia e na unidade) vira atendimento,mo
 F-08.7,Lembrete por SMS 24h antes do prazo de confirmação do horário (opt-out do cidadão) e aviso no wpda dos horários a confirmar,mod-08,api|wpda,0019,feature
 F-09.1,"Cadastro mínimo de unidades de saúde (nome, tipo, ativa) mantido pelo municipal_admin",mod-09,api|dashboard,0018,feature
 F-09.2,Desativar e reativar unidade (desativação recusada com atendimentos abertos),mod-09,api|dashboard,0018,feature
+F-09.3,Esvaziar unidade: o municipal_admin move pedidos abertos e horários marcados para outra unidade ativa (mesma data e hora; nova confirmação com 48h ou mais), com motivo imutável,mod-09,api|dashboard|wpda,0018|0019,feature
 F-10.1,"Cadastro do profissional da cidade (nome, conselho e registro, CNS) ligado ao usuário com papel health_professional",mod-10,api|dashboard,0021,feature
 F-10.2,Vínculo do profissional com uma ou mais unidades,mod-10,api|dashboard,0021,feature
 F-10.3,Ocupação do profissional por vínculo (código CBO da saúde),mod-10,api|dashboard,0021,feature

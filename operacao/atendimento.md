@@ -100,6 +100,22 @@ Publicar a imagem do api e rodar `bin/rails city:migrate:all` **da imagem
 nova** antes de cortar o tráfego; nunca migrar fora do rake. O dashboard
 pode subir depois do api.
 
+## Fechar uma unidade (esvaziar e desativar)
+
+Quando uma unidade precisa fechar (reforma, mudança de endereço), o
+`municipal_admin` a esvazia antes de desativar (api#29, F-09.3):
+
+1. Em **Atendimento → Unidades**, a unidade com pedidos ou horários mostra
+   **Esvaziar**. Escolha a unidade de destino (ativa) e escreva o motivo — ele
+   não pode ser alterado depois e não deve ter dado pessoal.
+2. Todos os pedidos abertos e horários marcados vão para o destino. Os
+   horários mantêm data e hora; com 48h ou mais, o cidadão precisa confirmar
+   de novo (e recebe o lembrete, quando houver SMS). No `wpda`, ele vê "Local
+   alterado".
+3. Atendimentos abertos não são movidos: encerre-os na fila.
+4. Clique em **Desativar**. Se um pedido novo tiver chegado entre o
+   esvaziamento e a desativação, ela é recusada; esvazie de novo.
+
 ## ADRs relacionados
 
 0017, 0018, 0019, 0021.
