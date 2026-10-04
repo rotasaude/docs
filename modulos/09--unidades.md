@@ -1,6 +1,6 @@
 # Módulo 09 — Unidades
 
-- **Estado:** Em andamento
+- **Estado:** Fechado
 - **Tipo:** MVP
 
 ## Escopo
@@ -88,3 +88,12 @@ Ainda a decidir: endereço, horário, especialidades e geolocalização (sem ref
   pedido e o horário antigos encerram como `moved` e os novos apontam para
   eles; registro só de acréscimo em `health_unit_drains`. Módulo volta a
   `Em andamento` até a verificação da F-09.3.
+- 2026-10-04: F-09.3 verificada pelo usuário; módulo `Fechado` de novo
+  (F-09.1 a F-09.3 `Verified`). Prova em dev (Curitiba): unidade de teste com
+  6 pedidos e 2 horários esvaziada para a UBS Vila Nova pela tela, registro
+  com motivo, horário a 48h ou mais pedindo nova confirmação e o de menos de
+  48h confirmado, pedido mantendo o lugar na fila, desativação passando e
+  "Local alterado" no `wpda`. Evidências em
+  `evidencias/2026-10-04-esvaziar-unidade/` (raiz do monorepo). Rollout:
+  reiniciar os processos depois de `city:migrate:all` (o primeiro esvaziamento
+  em dev deu 500 com o cache de colunas antigo; nada mudou).
