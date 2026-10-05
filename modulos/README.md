@@ -46,6 +46,7 @@
 | 12 | [Campanhas](12--campanhas.md) | Fechado | MVP | [0024](../adr/0024.md) |
 | 13 | [Acompanhamento](13--acompanhamento.md) | Fechado | MVP | [0018](../adr/0018.md), [0019](../adr/0019.md) |
 | 14 | [Analytics](14--analytics.md) | Fechado | MVP | [0025](../adr/0025.md), [0023](../adr/0023.md), [0016](../adr/0016.md), [0020](../adr/0020.md) |
+| 15 | [Triagem por perfil](15--triagem-por-perfil.md) | Planejado | Ciclo 2 | [0027](../adr/0027.md), [0009](../adr/0009.md), [0017](../adr/0017.md) |
 
 ## Mapa módulo × superfície (MVP)
 

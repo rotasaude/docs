@@ -146,3 +146,11 @@ F-14.6,Perguntas analíticas no protocolo (analytic em boolean/enum no schema e 
 F-14.7,"Epidemiologia por perguntas marcadas, por bairro",mod-14,api|dashboard,"0025,0023",feature
 F-14.8,Indicadores semanais fixos publicados na plataforma e tela no console do operador,mod-14,api|admin,"0025,0020",feature
 F-14.9,Analytics no maintenance: indicadores e estado do pipeline,mod-14,api|maintenance,0025,feature
+F-15.1,"Perfil do par: nascimento, sexo, identidade de gênero; declarado/conferido; obrigatório no wpda",mod-15,api|wpda|dashboard,"0027,0017",feature
+F-15.2,Linguagem de condição com gte/lte e variáveis profile./outcome./citizen. reservadas,mod-15,contracts|api,"0027,0009",feature
+F-15.3,"Oferta assinada no protocolo: elegibilidade, título, resumo e intervalo de repetição",mod-15,contracts|api,"0027,0016",feature
+F-15.4,"Catálogo da cidade: pausar, ordenar, restringir (soma com E) e período",mod-15,api|dashboard,"0027,0016",feature
+F-15.5,Catálogo do cidadão no wpda e início pelo protocolo escolhido,mod-15,api|wpda,0027,feature
+F-15.6,"Sugestões ao fim da triagem, pendentes no catálogo (nunca com resultado urgente)",mod-15,contracts|api|wpda,"0027,0009",feature
+F-15.7,"Construtor visual de condições, simulador de perfil e pré-visualização no visual do wpda",mod-15,dashboard,0027,feature
+F-15.8,"Contadores por protocolo: oferecida, iniciada, concluída, vinda de sugestão",mod-15,api|dashboard,"0027,0025",feature

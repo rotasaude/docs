@@ -1,7 +1,7 @@
 # Módulo 15 — Triagem direcionada por perfil — design
 
 **Data:** 2026-10-05
-**Status:** aprovado em conversa (2026-10-05), aguardando revisão do texto
+**Status:** aprovado (2026-10-05)
 **Afeta:**
 - `contracts`: schema de protocolo `protocols-v1.4.0` (`offer`, `suggestions`, `gte`/`lte`).
 - `apps/api`:
@@ -13,7 +13,7 @@
 - `apps/dashboard`: construtor visual de condições, simulador, pré-visualização no visual do wpda, aba "Catálogo de triagens", contadores.
 - `apps/admin`, `apps/maintenance`: nada.
 
-**ADR:** `docs/adr/0027.md` · **Módulo:** `docs/modulos/15--triagem-por-perfil.md` (a criar)
+**ADR:** `docs/adr/0027.md` · **Módulo:** `docs/modulos/15--triagem-por-perfil.md`
 
 **Fora desta entrega:** editor visual completo do protocolo (subprojeto seguinte), condição de saúde declarada (módulo 23), perfil vindo do CADSUS (módulo 16), aviso de triagem vencida (módulo 23), recorte por idade/sexo no Analytics, estimativa de público.
 
