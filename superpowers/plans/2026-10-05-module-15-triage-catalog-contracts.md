@@ -39,7 +39,7 @@ Acréscimos ao `contracts/protocols/schema.json` (tudo opcional, MINOR):
   "items": {
     "type": "object", "additionalProperties": false, "required": ["protocol", "when"],
     "properties": {
-      "protocol": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{1,63}$" },
+      "protocol": { "type": "string", "pattern": "^[a-z][a-z0-9-]+$" },
       "when":     { "$ref": "#/$defs/condition" }
     }
   }
@@ -117,12 +117,18 @@ Corpo: `{ "birth_date", "sex", "gender_identity" }` (a chave
 {
   "in_progress": { "conversation_id": "uuid", "protocol_name": "triage-respiratoria", "title": "Sintomas respiratórios" },
   "suggested": [ { "protocol_name": "saude-mental-aprofundada", "title": "…", "summary": "…",
-                   "suggestion_id": "uuid", "source_triage_id": "uuid", "suggested_on": "2026-10-02" } ],
+                   "suggestion_id": "uuid", "source_triage_id": "uuid", "source_title": "Saúde mental",
+                   "suggested_on": "2026-10-02" } ],
   "available": [ { "protocol_name": "saude-do-idoso", "title": "…", "summary": "…" } ],
   "recent":    [ { "protocol_name": "saude-do-idoso", "title": "…", "summary": "…",
-                   "last_completed_on": "2026-03-10", "next_available_on": "2027-03-10" } ]
+                   "last_completed_on": "2026-03-10", "next_available_on": "2027-03-10" } ],
+  "reference_units": [ "<mesmo formato de reference_units em GET /citizen/triages/:id>" ]
 }
 ```
+`reference_units` vem de `Territory::ReferenceUnits.for(citizen.neighborhood_id)`
+(bairro **atual** do par) e usa `Territory::ReferenceUnits.as_json_list`; `[]`
+sem bairro. `source_title` é o título (regra de `title` abaixo) do protocolo da
+triagem de origem.
 `in_progress` é `null` sem triagem em andamento. Um protocolo aparece em
 `suggested` **ou** em `available`, nunca nos dois. Ordem: `position` do
 catálogo, depois `title`. `title` cai para o `name` quando o protocolo não tem
@@ -169,11 +175,11 @@ ADR 0025).
 ### 4.2 `PUT /triage_catalog/:protocol_name`
 
 Só `municipal_admin`, com step-up (`MfaStepUp#require_step_up!`, 401
-`step_up_required` como nas outras rotas). Corpo:
+`{ "error": "mfa_required" }` como nas outras rotas). Corpo:
 `{ "enabled", "position", "restriction", "available_from", "available_until" }`.
 - 404 `unknown_protocol` (nenhuma versão com esse `name`);
 - 422 `invalid_restriction` (variável fora de 1, árvore inválida),
-  `invalid_period`, `invalid_position`;
+  `invalid_period`, `invalid_position` (`position` inteiro ≥ 1);
 - 200 `{ "offer": <item 4.1> }`. Evento `triage_offer.changed`
   `{ protocol_name, user_id }`.
 
@@ -191,15 +197,23 @@ Corpo: `{ "definition": <protocolo JSON>, "profile": { "age": 62, "sex": "female
   "errors": [] }
 ```
 `errors` lista os erros do gate para `offer`/`suggestions`, no mesmo formato do
-`POST /protocols/:name/gate` de hoje. `eligibility_text` é gerado no `api` só
+`POST /protocols/:name/gate` de hoje. Definição inválida responde **200** com
+`eligible: false`, `suggestions: []` e os `errors` (nunca 422), para o editor
+mostrar o erro ao lado do construtor. `eligibility_text` é gerado no `api` só
 para conferência; a frase da tela é do construtor do dashboard.
 
 ### 4.4 Validação presencial (existente, muda)
 
 A rota de validação do dashboard (a que chama `Citizens::Verify`) ganha
 `birth_date` e `sex` obrigatórios e `gender_identity` opcional, conferidos no
-documento. A busca que monta a tela de validação devolve o perfil declarado de
-cada par (formato 3.1, `profile`) para o atendente confirmar ou corrigir.
+documento. A busca que monta a tela de validação devolve, em `citizen.profile`
+(formato 3.1), o perfil declarado do par do código, para o atendente confirmar
+ou corrigir. Recusas novas: 422 `invalid_birth_date`, `invalid_sex`,
+`invalid_gender_identity`. O perfil conferido é gravado em todos os pares do
+CPF que a validação marca `verified`.
+
+**"Idade igual a N"** no construtor vira `all` de `gte` + `lte` com o mesmo N:
+`eq` compara texto e `profile.age` é inteiro.
 
 ## 5. Eventos de domínio (só ids)
 
@@ -217,3 +231,32 @@ Nenhum carrega `birth_date`, idade, `sex` ou `gender_identity`.
 2. `api` — cópia do schema, migração de cidade, rotas acima; `VALID_RANGE`
    `(1..27)`. Porta de dev isolada sugerida: 3032.
 3. `wpda` e `dashboard` — depois do `api`, em paralelo.
+
+## 7. Acréscimos da escrita dos planos (2026-10-05)
+
+Incorporados depois de os quatro planos serem escritos; valem sobre as seções
+acima.
+
+- **Avisos do gate:** `POST /authoring/protocols/gate` passa a devolver
+  `warnings` (só quando há aviso) e `simulate_offer` sempre devolve `warnings`
+  (`[]` sem aviso). O único aviso deste módulo: sugestão para protocolo que não
+  existe na cidade. O dashboard mostra `warnings` do simulador sem bloquear.
+- **`PUT /triage_catalog/:name`:** `enabled` não booleano → 422
+  `invalid_enabled`; `restriction` acima de 4096 bytes de JSON → 422
+  `invalid_restriction`.
+- **`POST /citizen/conversations`:** protocolo inexistente ou inativo pedido por
+  um par → 409 `not_offered`; o 503 `no_protocol` fica só para a conversa sem
+  cidadão (WhatsApp).
+- **Catálogo:** o protocolo em andamento aparece só em `in_progress`, nunca em
+  `suggested` ou `available`.
+- **`POST /citizen/people` com par existente:** ignora perfil e
+  `neighborhood_id`; o wpda usa as rotas próprias de perfil e bairro.
+- **Validação presencial:** a validação marca só o par do código (como hoje);
+  chave `gender_identity` ausente mantém o declarado, presente (mesmo `null`)
+  grava o que veio.
+- **Contadores:** "oferecida" soma uma por leitura do catálogo (não por pessoa),
+  guardada em `triage_offer_daily_counts` (agregado por dia e protocolo, sem
+  coluna de pessoa); `started` conta todos os canais, inclusive revogadas; janela
+  = hoje e os 29 dias anteriores, no fuso da cidade.
+- **Deploy casado:** o `api` passa a exigir `protocol_name`; o `wpda` novo e o
+  `api` novo sobem juntos (nenhuma cidade em produção hoje).
