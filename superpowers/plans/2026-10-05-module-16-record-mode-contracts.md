@@ -6,7 +6,9 @@ Fonte única dos formatos usados por mais de um app. Os planos (`contracts`,
 `api-foundation`, `api-exporter`, `dashboard`, `admin`, `maintenance`) citam
 este arquivo; mudar um formato começa aqui.
 
-Erros HTTP sempre `{ "error": "<reason>" }`. Step-up: 401
+Erros HTTP sempre `{ "error": "<reason>" }`. Nas rotas da cidade (§5), a
+resposta 200 de escrita é o objeto puro, sem envelope; o console (§4) usa
+`{ "data": ... }` nas leituras. Step-up: 401
 `{ "error": "mfa_required" }` (padrão existente).
 
 ## 1. Sessão — `contracts/session` `session-v1.1.0` (MINOR)
@@ -85,7 +87,7 @@ plano **api-exporter** (lê a `ledi_outbox`):
 
 ```json
 { "data": { "cities": [ { "slug": "curitiba", "name": "Curitiba", "record_mode": "record",
-  "competences": [ { "competence": "202610", "deadline_on": "2026-11-14",
+  "competences": [ { "competence": "202610", "deadline_on": "2026-11-16",
      "business_days_left": 7, "accepted": 120, "rejected": 3, "pending": 10,
      "failed": 0, "alert": "none" } ] } ],
   "terminology": { "sigtap_current_competence": "202610", "sigtap_imported": true,
@@ -119,7 +121,8 @@ SIGTAP da competência corrente).
         "local": {...} | null, "cnes": {...}, "confidence": "exact"|"probable" } ],
      "divergences": [ { "kind": "no_bond_in_cnes"|"cbo_mismatch"|"team_inactive_in_cnes"|"unit_without_cnes",
         "subject": { "type", "id", "label" }, "detail" } ] }`
-  `local`/`cnes` mostram nome, CNES/INE/CBO e CPF/CNS **mascarados**.
+  `local`/`cnes` = `{ name, cnes?, ine?, cbo?, cpf_masked?, cns_masked? }`
+  (CPF/CNS sempre mascarados); `detail` é string ou `null`.
 - `POST /cnes/apply` (step-up) corpo `{ "proposal_ids": [...] }` →
   `{ "applied": n, "skipped": [ { "id", "reason": "stale" } ] }` (proposta que
   mudou desde a leitura é pulada).
@@ -131,17 +134,21 @@ SIGTAP da competência corrente).
      "counts": { "accepted", "rejected", "pending", "sending", "failed" },
      "rejections": [ { "message", "count" } ],
      "fichas": [ { "id", "ficha_type", "status", "attempts", "last_error", "created_at", "accepted_at" } ] }`
-  (`fichas` paginado, 50 por página, `?page=`). Exige `ledi_export` ligado.
+  (`fichas` paginado, 50 por página, `?page=`, com `fichas_total`). Exige
+  `ledi_export` ligado.
 - `POST /production/fichas/:id/resend` (step-up) → 200 com a ficha; 409
   `not_rejected`. Regra de `uuid` definida pela prova técnica.
 
 ### 5.4 CADSUS na validação presencial
-- `POST /attendance/cadsus_lookup` corpo `{ "code" }` (o mesmo código do
-  `POST /attendance/lookup`) → exige `cadsus_lookup` utilizável;
+- `POST /attendance/cadsus_lookup` corpo `{ "cpf", "code" }` (os mesmos do
+  `POST /attendance/lookup`; o par é identificado por `VerificationCodeMatch`) →
+  interruptor desligado: 403 `feature_disabled`; ligado mas não utilizável
+  (credencial ausente/recusada) ou serviço fora: 503 `cadsus_unavailable`;
   `{ "found": bool, "cns_masked", "birth_date_matches": bool|null,
      "sex_matches": bool|null }` — nunca devolve nome, mãe ou endereço.
   Erros: 503 `cadsus_unavailable`, 404 `not_found`.
-- A confirmação da validação (`Citizens::Verify`) ganha `cadsus_confirmed: bool`;
+- A confirmação da validação (`Citizens::Verify`) ganha `cadsus_confirmed`
+  (opcional, ausente = `false`);
   com `true`, grava `citizens.cns` e `citizens.cadsus_checked_at` da última
   consulta da mesma sessão (até 10 min).
 
