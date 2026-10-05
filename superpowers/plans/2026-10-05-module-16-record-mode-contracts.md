@@ -67,18 +67,32 @@ Auditoria `city.record_settings_changed` (`city_id`, campos mudados, nunca
 valores de URL).
 
 ### 4.2 `GET /cities/:id` e `GET /cities` (existentes, ganham campos)
-`record_mode`, `ibge_code`, `pec_url`, `features: [{ key, enabled, usable, missing }]`.
+`record_mode`, `ibge_code`, `pec_url`, `city_reachable`,
+`features: [{ key, enabled, usable, missing }]`. O `show` passa a devolver
+também os campos do item da lista (`name`, `uf`, `created_at`…). Com o banco da
+cidade inalcançável: `ibge_code: null` e `city_reachable: false` (o console
+bloqueia a edição do IBGE nesse estado), sem falhar a resposta.
+
+**Regras do PATCH (§4.1):** `null` limpa `pec_url` e `ibge_code`; `""` é tratado
+como `null`; `record_mode` nunca é nulo (422 `invalid_record_mode`). Cidade
+inexistente: 404 `{ "error": "not_found" }`. Auditoria: um só evento,
+`city.record_settings_changed`.
 
 ### 4.3 `GET /city_production`
-Resumo por cidade da competência corrente e da anterior:
+Resumo por cidade da competência corrente e da anterior (corrente primeiro),
+no envelope `{ "data": ... }` como `/cities` e `/city_analytics`. Entregue pelo
+plano **api-exporter** (lê a `ledi_outbox`):
 
 ```json
-{ "cities": [ { "slug": "curitiba", "name": "Curitiba", "record_mode": "record",
+{ "data": { "cities": [ { "slug": "curitiba", "name": "Curitiba", "record_mode": "record",
   "competences": [ { "competence": "202610", "deadline_on": "2026-11-14",
      "business_days_left": 7, "accepted": 120, "rejected": 3, "pending": 10,
      "failed": 0, "alert": "none" } ] } ],
-  "terminology": { "sigtap_current_competence": "202610", "sigtap_imported": true } }
+  "terminology": { "sigtap_current_competence": "202610", "sigtap_imported": true,
+                   "sigtap_alert": false } } }
 ```
+`sigtap_alert` é calculado no `api` (dia ≥ 5 do mês em `America/Sao_Paulo` sem a
+SIGTAP da competência corrente).
 `alert`: `none` | `attention` (≤ 5 dias úteis com pendente/recusada) |
 `critical` (`record` e zero aceitas a ≤ 3 dias úteis).
 
@@ -149,5 +163,5 @@ Resumo por cidade da competência corrente e da anterior:
 1. `contracts` `session-v1.1.0` (push com autorização).
 2. `api-foundation` (interruptores, modo, credenciais, terminologias, CNES, CADSUS).
 3. `api-exporter` (prova técnica primeiro; depende da fundação).
-4. `maintenance` e `admin` depois da fundação; `dashboard` depois do exportador
+4. `maintenance` depois da fundação; `admin` e `dashboard` depois do exportador
    (Produção) — as telas de Integrações, CNES e CADSUS podem começar com a fundação.

@@ -55,7 +55,7 @@
 
 ### 3.2 Modo e endereço
 - `cities.record_mode` (`off`|`integrated`|`record`, default `off`), `cities.pec_url` (HTTPS, nulo). O código IBGE é o `city_profile.ibge_code` existente (banco da cidade, gravado no provisionamento); a edição pelo console grava lá.
-- Console `admin`: edição dos três na ficha da cidade; `Platform.audit("city.record_mode_changed" / "city.pec_url_changed" / "city.ibge_code_changed")`.
+- Console `admin`: edição dos três na ficha da cidade; `Platform.audit("city.record_settings_changed")` (campos mudados, nunca valores de URL).
 
 ### 3.3 Credenciais
 - `integration_credentials` (cidade): `kind` (`ledi`|`cadsus`, único), `secret` (jsonb cifrado: `ledi` = `{ username, password }`; `cadsus` = `{ username, password }`), `set_by_user_id`, `set_at`, `last_check_at`, `last_check_status` (`ok`|`unauthorized`|`unreachable`|`error`), `last_check_message` (sem segredo).
