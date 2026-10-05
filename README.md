@@ -36,6 +36,7 @@ suas armadilhas.
 | [`funcionalidades-mvp.csv`](funcionalidades-mvp.csv) | Os F-IDs dos 14 módulos do MVP, espelhados no board do GitHub Project #1 |
 | [`ciclo-desenvolvimento.md`](ciclo-desenvolvimento.md) | Como o trabalho flui do ADR ao PR (ADR → módulo → funcionalidade → tarefa) |
 | [`operacao/`](operacao/README.md) | Runbooks operacionais; a maior parte ainda a produzir |
+| [`pesquisa/`](pesquisa/2026-10-05-mapa-de-integracoes.md) | Levantamentos de contexto externo (integrações com governo e terceiros, mercado) que antecedem ADRs e specs |
 | `relatorios/` | Relatórios de drift (gerados; vazio hoje) |
 | [`_v1/`](_v1/README.md) | Arquivo read-only do corpus anterior (25 ADRs com cadeia de emendas) |
 | [`_refundacao/`](_refundacao/PROVENIENCIA.md) | Como o v1 virou v2: destilado, mapa de consolidação, validação e reconciliação com o código |
