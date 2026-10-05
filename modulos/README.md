@@ -7,7 +7,7 @@
 
 ## Convenções
 
-- **Numeração:** `01`–`14`, dois dígitos, prefixo do nome do arquivo.
+- **Numeração:** `01`–`35`, dois dígitos, prefixo do nome do arquivo.
 - **Estado:** mede o andamento dos F-IDs do módulo no board, independente do
   tipo:
   - `Stub` — esboço, sem F-IDs.
@@ -19,8 +19,8 @@
     suítes de invariante presentes.
 
   Um F-ID novo num módulo `Entregue` o devolve a `Em andamento`.
-- **Tipo:** `MVP`. Desde 2026-09-30 os 14 módulos formam o MVP (Ciclo 1);
-  o tipo `Estratégico (pós-MVP)` deixou de ser usado.
+- **Tipo:** `MVP` (módulos 01–14, Ciclo 1) ou `Ciclo 2` (15 em diante). O
+  tipo `Estratégico (pós-MVP)` deixou de ser usado em 2026-09-30.
 - **F-IDs:** funcionalidades têm ID `F-NN.M`, único por módulo. Todo módulo
   fora de `Stub` carrega F-IDs, ADRs governantes e critério de fechamento.
 - **ADRs governantes:** decisões arquiteturais que regem o módulo, em
@@ -47,6 +47,26 @@
 | 13 | [Acompanhamento](13--acompanhamento.md) | Fechado | MVP | [0018](../adr/0018.md), [0019](../adr/0019.md) |
 | 14 | [Analytics](14--analytics.md) | Fechado | MVP | [0025](../adr/0025.md), [0023](../adr/0023.md), [0016](../adr/0016.md), [0020](../adr/0020.md) |
 | 15 | [Triagem por perfil](15--triagem-por-perfil.md) | Planejado | Ciclo 2 | [0027](../adr/0027.md), [0009](../adr/0009.md), [0017](../adr/0017.md) |
+| 16 | [Modo de prontuário e exportação](16--modo-de-prontuario.md) | Stub | Ciclo 2 | — |
+| 17 | [Agenda dos profissionais](17--agenda.md) | Stub | Ciclo 2 | — |
+| 18 | [Acolhimento](18--acolhimento.md) | Stub | Ciclo 2 | — |
+| 19 | [Consulta (prontuário da APS)](19--consulta.md) | Stub | Ciclo 2 | — |
+| 20 | [Linha do tempo do paciente](20--linha-do-tempo.md) | Stub | Ciclo 2 | — |
+| 21 | [Exames e laboratório](21--exames.md) | Stub | Ciclo 2 | — |
+| 22 | [Procedimentos e faturamento](22--procedimentos.md) | Stub | Ciclo 2 | — |
+| 23 | [Linhas de cuidado](23--linhas-de-cuidado.md) | Stub | Ciclo 2 | — |
+| 24 | [Atendimento domiciliar e coletivo](24--domiciliar-e-coletivo.md) | Stub | Ciclo 2 | — |
+| 25 | [Vigilância epidemiológica](25--vigilancia-epidemiologica.md) | Stub | Ciclo 2 | — |
+| 26 | [Regulação de média e alta complexidade](26--regulacao.md) | Stub | Ciclo 2 | — |
+| 27 | [Farmácia e almoxarifado](27--farmacia-e-almoxarifado.md) | Stub | Ciclo 2 | — |
+| 28 | [Odontologia](28--odontologia.md) | Stub | Ciclo 2 | — |
+| 29 | [Sala de vacina](29--sala-de-vacina.md) | Stub | Ciclo 2 | — |
+| 30 | [Transporte sanitário e TFD](30--transporte-e-tfd.md) | Stub | Ciclo 2 | — |
+| 31 | [Atenção psicossocial (CAPS)](31--caps.md) | Stub | Ciclo 2 | — |
+| 32 | [Urgência (UPA)](32--urgencia.md) | Stub | Ciclo 2 | — |
+| 33 | [Ouvidoria](33--ouvidoria.md) | Stub | Ciclo 2 | — |
+| 34 | [Telessaúde](34--telessaude.md) | Stub | Ciclo 2 | — |
+| 35 | [Zoonoses e endemias](35--zoonoses-e-endemias.md) | Stub | Ciclo 2 | — |
 
 ## Mapa módulo × superfície (MVP)
 
@@ -81,6 +101,26 @@ assinar (ADR 0016).
   2026-09-30:** o 14 foi o último (verificação no mesmo dia).
 - Itens tirados do Ciclo 1 continuam registrados no módulo, marcados "(fora do
   Ciclo 1)": F-10.6 (CNES) e F-10.7 (escalonamento do alerta urgente).
+
+## Ciclo 2 — plataforma da atenção primária
+
+Decidido no brainstorm de 2026-10-05: o Rota Saúde vira **suíte completa**
+para disputar edital municipal, com **modo de prontuário por cidade** (registro
+ou integrado ao e-SUS PEC). Contexto externo em
+[`pesquisa/2026-10-05-mapa-de-integracoes.md`](../pesquisa/2026-10-05-mapa-de-integracoes.md).
+
+- **Ordem:** 15 → 16 → 17 → 18 → 19 → 20 → 21 → 22 → 23 → 24 → 25 → 26. Os
+  módulos 15 e 17 não dependem de integração externa. Do 16 em diante, nada vira
+  spec antes das decisões de credencial e do uso do PEC em cada cidade.
+- **Lacunas dos editais (27–35):** entraram com a decisão de suíte completa,
+  numeradas pela frequência nos 15 editais analisados; a ordem entre elas e o
+  roteiro 15–26 ainda será decidida pela matriz de requisitos dos editais.
+  Laboratório municipal, faturamento BPA e app offline do ACS ampliam os
+  módulos 21, 22 e 24.
+- **Subprojeto seguinte ao 15:** editor visual completo do protocolo (módulo 03).
+- **Linhas de produto separadas** (fora desta numeração, só intenção):
+  hospitalar (prontuário hospitalar e de maternidade, gestão hospitalar) e
+  vigilância sanitária.
 
 ## Mapa ADR → módulos governados
 
