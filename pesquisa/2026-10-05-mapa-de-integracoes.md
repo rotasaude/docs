@@ -136,6 +136,8 @@ aquela função; **Opc.** = opcional; **—** = não se aplica.
    lacunas da §6; vender como camada sobre o PEC ou ERP da prefeitura exige
    outro caminho jurídico (CPSI do Marco Legal das Startups, inexigibilidade
    ou contrato complementar). Decide a ordem do portfólio inteiro.
+   **Decidido em 2026-10-05: suíte completa.** O roteiro passa a incluir as
+   lacunas da §6, ordenadas pelo que a prova de conceito dos editais elimina.
 2. **Credencial por cidade ou da plataforma?** RNDS, LEDI e gov.br parecem
    exigir titularidade da secretaria (CNES, e-CNPJ, domínio .gov.br). Encaixa
    no banco por cidade (ADR 0020), mas o fluxo de onboarding muda.
