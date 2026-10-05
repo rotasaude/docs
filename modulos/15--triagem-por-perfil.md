@@ -1,6 +1,6 @@
 # Módulo 15 — Triagem direcionada por perfil
 
-- **Estado:** Planejado
+- **Estado:** Fechado
 - **Tipo:** Ciclo 2
 
 ## Escopo
@@ -10,7 +10,7 @@ O cidadão deixa de fazer sempre a mesma triagem. Cada cidade oferece um
 ela pela idade e pelo sexo. O fim de uma triagem pode **sugerir** outra (ADR
 0027).
 
-**Planejado (F-15.1 a F-15.8):**
+**Entregue (F-15.1 a F-15.8):**
 - perfil do par (CPF, celular): data de nascimento, sexo e identidade de
   gênero opcional; `declared` ou `verified`; obrigatório no wpda depois de
   "para quem é?";
@@ -97,3 +97,15 @@ Analytics, estimativa de público.
   0027 e spec `superpowers/specs/2026-10-05-module-15-triage-catalog-design.md`.
   F-15.1 a F-15.8 criados (board #1, `Not Started`). Módulo nasce
   `Planejado`.
+- 2026-10-05 — Implementado e publicado em `main`: contracts `a912c1c` (tag
+  `protocols-v1.4.0`), api `a582dbe` (suíte 3309/0; inclui a correção em que o
+  início por `cpf` com CPF novo responde 409 `profile_required` sem gravar o
+  par), wpda `6a5d55c`, dashboard `66c0d45`. Migração de cidade
+  `20261005100001`. Suíte de invariante
+  `spec/invariants/triage_catalog_invariants_spec.rb`; runbook
+  [`operacao/rollout-catalogo-de-triagens.md`](../operacao/rollout-catalogo-de-triagens.md).
+  Prova no navegador em Curitiba aprovada pelo usuário (catálogo por perfil,
+  sugestão, expiração ao pausar, construtor, simulador). F-15.1 a F-15.8
+  `Verified`. Critério de fechamento cumprido; módulo `Fechado`. Achados em
+  aberto: protocolo sem `offer` aparece ao cidadão pelo nome técnico; o
+  simulador mostra a sugestão pelo nome técnico.
