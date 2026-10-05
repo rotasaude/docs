@@ -172,3 +172,51 @@ SIGTAP da competência corrente).
 3. `api-exporter` (prova técnica primeiro; depende da fundação).
 4. `maintenance` depois da fundação; `admin` e `dashboard` depois do exportador
    (Produção) — as telas de Integrações, CNES e CADSUS podem começar com a fundação.
+
+## 8. Acréscimos da escrita dos planos (2026-10-05)
+
+Incorporados depois dos seis planos escritos; valem sobre as seções acima e
+sobre os planos.
+
+**Console (§4.2/§4.3)**
+- Cidade não ativa (suspensa, arquivada, em provisionamento) sai com
+  `city_reachable: false`, `ibge_code: null` e `missing: ["city_unreachable"]`.
+- Item de competência ganha `sending` (opcional); `pending` não soma `sending`.
+- `alert = attention` conta pendentes, recusadas **e** `failed`.
+- Resumo do console mora na plataforma (`city_production_summaries`, publicado
+  por job), como no Analytics.
+- **Prazo:** vale a tabela oficial de prazos do SIAPS do ano quando o `api` a tem
+  (`config`); o cálculo por dias úteis (feriados nacionais) é só o recurso para
+  ano sem tabela. Divergência entre os dois é aviso no console, nunca silêncio.
+
+**API de manutenção (§3)**
+- Cidade inexistente usa a recusa existente (`path: "citySlug"`);
+  `unknown_feature` sai como `UserError { path: "key", message: "unknown_feature" }`.
+- Além de `city.feature_changed`, a mutation grava o par
+  `maintenance.city.feature_changed` como toda mutation da API de manutenção.
+- `CityMutation` ganha `on_platform` para a escrita que não abre o banco da
+  cidade.
+
+**Cidade (§5)**
+- Integrações: `last_check_message` é texto nosso, em português, até 200
+  caracteres; a tela mostra como veio.
+- CNES: `POST /cnes/apply` também pula com `reason: "conflict"`; lista vazia,
+  > 500 ids ou id malformado → 422 `invalid_proposals`. Unidade aceita e devolve
+  `cnes` (422 `invalid_cnes`, `cnes_taken`); profissional aceita `cpf` e devolve
+  `cpf_masked` (409 `cpf_taken`).
+- Produção: competência malformada → 422 `invalid_competence`; reenvio publica
+  `ledi.ficha_resent { outbox_id, user_id }`.
+- CADSUS: `POST /attendance/cadsus_lookup` devolve os mesmos erros de código do
+  `/attendance/lookup` (422 `invalid_cpf`, `invalid_code`, `code_expired`,
+  `code_exhausted`) — não há `404 not_found`; `cadsus_confirmed: true` sem
+  consulta válida da mesma sessão nos últimos 10 min → 409
+  `cadsus_lookup_missing` (nada validado, código não consumido). O CNS da
+  consulta fica pendente em colunas de `citizens` até a confirmação.
+
+**Exportador (§6 da spec)**
+- `payload` é texto Base64 cifrado; `ledi_outbox.first_attempt_at` conta as 24 h
+  até `failed`; o lote vira `sending` em transação curta e o HTTP fica fora dela;
+  login recusado pausa o envio na hora; `numLote` não é enviado.
+- A prova técnica pode mudar o formato do login (JSON × multipart), tratar 400
+  como credencial inválida e acrescentar CA local em dev/test
+  (`LEDI_PEC_CA_FILE`); o `Ledi::PecClient` da fundação acompanha.
