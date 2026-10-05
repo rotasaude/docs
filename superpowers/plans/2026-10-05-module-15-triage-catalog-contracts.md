@@ -187,7 +187,7 @@ Só `municipal_admin`, com step-up (`MfaStepUp#require_step_up!`, 401
 
 Papéis do editor (`protocol_author`, `protocol_reviewer`). Não grava nada.
 
-Corpo: `{ "definition": <protocolo JSON>, "profile": { "age": 62, "sex": "female", "neighborhood_id": null }, "answers": { "q1": "sim" }, "outcome": { "tier": "high", "score": 17, "priority": "normal" } }`
+Corpo: `{ "definition": <protocolo JSON>, "profile": { "age": 62, "sex": "female", "neighborhood_id": null }, "answers": { "q1": "sim" }, "outcome": { "tier": "high", "score": 17, "priority": 1 } }`
 (`answers` e `outcome` opcionais).
 
 ```json
