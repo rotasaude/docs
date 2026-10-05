@@ -47,7 +47,7 @@ Acréscimos ao `contracts/protocols/schema.json` (tudo opcional, MINOR):
 ```
 
 `$defs/condition` ganha `gte` e `lte` com o mesmo formato de `gt`/`lt`
-(`[operando, número]`). Operando de variável reservada é string com prefixo
+(`[operando, valor]`, valor número ou string, como em `gt`/`lt`). Operando de variável reservada é string com prefixo
 `profile.`, `outcome.` ou `citizen.`.
 
 Variáveis permitidas por lugar (o schema não distingue; quem confere é o gate
