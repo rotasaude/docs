@@ -34,6 +34,7 @@ de emendas. Numeração linear. O histórico pré-consolidação vive na pasta d
 | 0024 | [Campaigns as wpda notices, with optional SMS per city](0024.md) | Aviso da cidade no wpda para público por recorte geográfico × critérios clínicos (E); público congelado no envio; mínimo de 5 telefones; SMS opcional por cidade, com opt-in e texto fixo; papel `campaign_manager` com step-up |
 | 0025 | [Analytics as daily anonymous consolidation per city, with a fixed suppressed set for the platform](0025.md) | Consolidação diária anônima no banco da cidade (janela de 30 dias, D-1, 5 anos); supressão de 1 a 4 sempre; epidemiologia só por perguntas `analytic` (boolean/enum) marcadas no protocolo assinado; papel `analyst`; plataforma lê só 6 indicadores semanais suprimidos |
 | 0026 | [Citizen erasure as an in-place tombstone, and revocation that keeps only what became a health record](0026.md) | Revogação anonimiza a triagem concluída sem atendimento e retém a que virou atendimento; trilha só com referência; exclusão no posto por duas pessoas (verificador pede, admin confirma com step-up), casca no lugar do CPF e celular; quem foi atendido fica retido |
+| 0027 | [Triage catalog per citizen profile, with signed eligibility, city restriction and suggestions](0027.md) | Perfil do par (nascimento, sexo; declarado/conferido; obrigatório no wpda); elegibilidade e sugestões assinadas no protocolo na linguagem de condição; catálogo da cidade só restringe (soma com E); intervalo de repetição; sugestão nunca com resultado urgente |
 
 ## Itens em aberto
 
