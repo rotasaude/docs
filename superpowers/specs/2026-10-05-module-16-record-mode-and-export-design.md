@@ -5,7 +5,7 @@
 **Afeta:**
 - `contracts`: `session-v1.1.0` (`features` no contrato de sessão).
 - `apps/api`:
-  - plataforma: `cities.ibge_code`, `cities.record_mode`, `cities.pec_url`; `city_features`; terminologias (`terminology_releases`, CID-10, CIAP-2, SIGTAP); retratos do CNES;
+  - plataforma: `cities.record_mode`, `cities.pec_url` (o IBGE já existe em `city_profile.ibge_code`); `city_features`; terminologias (`terminology_releases`, CID-10, CIAP-2, SIGTAP); retratos do CNES;
   - cidade: `integration_credentials`, `ledi_outbox`, `health_teams`, `health_team_members`, `health_units.cnes`, `professionals.cpf`;
   - `Platform::Features`, `Terminology::*`, `Cnes::*`, `Ledi::*`, `Cadsus::*`; jobs `Ledi::DeliverJob` e alertas de competência; comandos do operador `terminology:import`, `cnes:import`;
   - mutation de interruptor na API de manutenção; rotas novas na cidade e no console.
@@ -20,7 +20,7 @@
 
 ## 1. Ponto de partida
 
-- **Cidade** (`cities`, plataforma): `slug`, `name`, `uf`, `time_zone`, `status`, `database_url`, `encryption_key`. **Não há código IBGE** — necessário para LEDI e CNES.
+- **Cidade** (`cities`, plataforma): `slug`, `name`, `uf`, `time_zone`, `status`, `database_url`, `encryption_key`. O **código IBGE** mora no `city_profile.ibge_code` do banco da cidade (opcional, gravado no provisionamento).
 - **Unidades** (`health_units`, cidade): nome, tipo, endereço, bairro, ativa. Sem CNES.
 - **Profissionais** (`professionals`, cidade, ADR 0021): já têm `cns` (obrigatório), conselho, registro, `user_id`; vínculo com unidade e CBO em `professional_links`; CBO num arquivo (`config/professionals/cbo_saude.yml`). Sem CPF, sem equipe.
 - **Perfil do cidadão** (ADR 0027): nascimento, sexo, identidade de gênero, `declared`/`verified`. Sem CNS.
@@ -54,7 +54,7 @@
 - Recusa: `403 { error: "feature_disabled", feature: <key> }`.
 
 ### 3.2 Modo e endereço
-- `cities.record_mode` (`off`|`integrated`|`record`, default `off`), `cities.pec_url` (HTTPS, nulo), `cities.ibge_code` (7 dígitos, nulo até preencher).
+- `cities.record_mode` (`off`|`integrated`|`record`, default `off`), `cities.pec_url` (HTTPS, nulo). O código IBGE é o `city_profile.ibge_code` existente (banco da cidade, gravado no provisionamento); a edição pelo console grava lá.
 - Console `admin`: edição dos três na ficha da cidade; `Platform.audit("city.record_mode_changed" / "city.pec_url_changed" / "city.ibge_code_changed")`.
 
 ### 3.3 Credenciais

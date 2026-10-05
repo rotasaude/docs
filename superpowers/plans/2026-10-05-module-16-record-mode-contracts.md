@@ -11,7 +11,7 @@ Erros HTTP sempre `{ "error": "<reason>" }`. Step-up: 401
 
 ## 1. Sessão — `contracts/session` `session-v1.1.0` (MINOR)
 
-`session_user` ganha `features` (opcional, array de string): chaves de
+`session_user` ganha `features` (opcional, array de string; `uniqueItems`, cada item `^[a-z][a-z0-9_]*$`): chaves de
 interruptor **ligadas** para a cidade do host. Ausente na sessão do console de
 plataforma. Consumidor trata ausente como `[]` e ignora chave desconhecida.
 
@@ -31,6 +31,11 @@ Recusa de rota de funcionalidade desligada:
 
 ## 3. API de manutenção (GraphQL)
 
+**Código IBGE:** a fonte única é o `city_profile.ibge_code` que já existe no
+banco da cidade (gravado pelo operador no provisionamento, `POST /cities`, e
+exposto em `City.profile.ibgeCode`). **Não nasce** `cities.ibge_code` na
+plataforma; a importação do CNES lê o IBGE de cada cidade ativa no banco dela.
+
 ```graphql
 type CityFeature { key: String!, description: String!, enabled: Boolean!,
                    usable: Boolean!, missing: [String!]!,
@@ -38,11 +43,14 @@ type CityFeature { key: String!, description: String!, enabled: Boolean!,
 # em City:
 features: [CityFeature!]!
 recordMode: String!          # off | integrated | record (só leitura aqui)
-ibgeCode: String
-# mutation:
+# o IBGE continua em City.profile.ibgeCode (existente)
+# mutation (padrão das mutations existentes, BaseMutation#audited):
 setCityFeature(citySlug: String!, key: String!, enabled: Boolean!):
-  { ok: Boolean!, errors: [String!]!, feature: CityFeature }
+  { ok: Boolean!, errors: [UserError!]!, feature: CityFeature }
 ```
+`enabled`, `changedAt`, `changedBy` vêm da plataforma; `usable`/`missing` leem o
+banco da cidade e, se ela estiver inalcançável, degradam para `usable: false`,
+`missing: ["city_unreachable"]` — o liga/desliga continua funcionando.
 Erros: `unknown_city`, `unknown_feature`. Auditoria
 `city.feature_changed` (`city_id`, `key`, `enabled`, `maintainer_id`).
 
@@ -50,8 +58,10 @@ Erros: `unknown_city`, `unknown_feature`. Auditoria
 
 ### 4.1 `PATCH /cities/:id/record_settings`
 Corpo: `{ "record_mode", "ibge_code", "pec_url" }` (qualquer subconjunto).
+`ibge_code` grava no `city_profile` do banco da cidade (fonte única).
 - 422 `invalid_record_mode`, `invalid_ibge_code` (7 dígitos), `invalid_pec_url`
-  (só `https://`, sem credencial na URL), `ibge_code_taken`;
+  (só `https://`, sem credencial na URL); 503 `city_unreachable` se `ibge_code`
+  veio e o banco da cidade não responde;
 - 200 `{ "city": <cidade de GET /cities/:id, com record_mode, ibge_code, pec_url, features> }`.
 Auditoria `city.record_settings_changed` (`city_id`, campos mudados, nunca
 valores de URL).
