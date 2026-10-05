@@ -1,7 +1,7 @@
 # Módulo 16 — Modo de prontuário e exportação — design
 
 **Data:** 2026-10-05
-**Status:** aprovado em conversa (2026-10-05), aguardando revisão do texto
+**Status:** aprovado (2026-10-05)
 **Afeta:**
 - `contracts`: `session-v1.1.0` (`features` no contrato de sessão).
 - `apps/api`:

@@ -154,3 +154,11 @@ F-15.5,Catálogo do cidadão no wpda e início pelo protocolo escolhido,mod-15,a
 F-15.6,"Sugestões ao fim da triagem, pendentes no catálogo (nunca com resultado urgente)",mod-15,contracts|api|wpda,"0027,0009",feature
 F-15.7,"Construtor visual de condições, simulador de perfil e pré-visualização no visual do wpda",mod-15,dashboard,0027,feature
 F-15.8,"Contadores por protocolo: oferecida, iniciada, concluída, vinda de sugestão",mod-15,api|dashboard,"0027,0025",feature
+F-16.1,"Interruptores de funcionalidade por cidade, escritos pelo maintenance",mod-16,api|maintenance|contracts|dashboard|admin,0028,feature
+F-16.2,"Modo de prontuário, código IBGE e endereço do PEC por cidade",mod-16,api|admin,0028,feature
+F-16.3,"Credenciais de integração por cidade, cifradas, com teste de conexão",mod-16,api|dashboard,"0028,0007",feature
+F-16.4,"Terminologias CID-10, CIAP-2 e SIGTAP versionadas na plataforma",mod-16,api,0028,feature
+F-16.5,"Importação do CNES, equipes e casamento confirmado pela cidade",mod-16,api|dashboard,"0028,0021",feature
+F-16.6,"Exportador LEDI: prova técnica, layout versionado, fila e envio contínuo",mod-16,api,0028,feature
+F-16.7,Painel da competência e alertas de prazo,mod-16,api|dashboard|admin,0028,feature
+F-16.8,Consulta ao CADSUS na validação presencial,mod-16,api|dashboard,"0028,0027",feature
