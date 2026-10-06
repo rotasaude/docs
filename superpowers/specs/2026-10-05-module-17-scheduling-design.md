@@ -1,7 +1,7 @@
 # Módulo 17 — Agenda dos profissionais — design
 
 **Data:** 2026-10-05
-**Status:** aprovado em conversa (2026-10-05), aguardando revisão do texto
+**Status:** aprovado (2026-10-05)
 **Afeta:**
 - `contracts`: schema de protocolo `protocols-v1.5.0` (`scheduling`).
 - `apps/api`:

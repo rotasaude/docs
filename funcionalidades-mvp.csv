@@ -162,3 +162,12 @@ F-16.5,"Importação do CNES, equipes e casamento confirmado pela cidade",mod-16
 F-16.6,"Exportador LEDI: prova técnica, layout versionado, fila e envio contínuo",mod-16,api,0028,feature
 F-16.7,Painel da competência e alertas de prazo,mod-16,api|dashboard|admin,0028,feature
 F-16.8,Consulta ao CADSUS na validação presencial,mod-16,api|dashboard,"0028,0027",feature
+F-17.1,Tipos de atendimento: base da plataforma e da cidade,mod-17,api|dashboard,0029,feature
+F-17.2,Modelos de agenda e tipo padrão do vínculo,mod-17,api|dashboard,"0029,0021",feature
+F-17.3,"Vagas calculadas e marcação em vaga, com trava de sobreposição",mod-17,api|dashboard,0029,feature
+F-17.4,Encaixe com justificativa e limite,mod-17,api|dashboard,0029,feature
+F-17.5,Pedido de agendamento gerado pela triagem,mod-17,contracts|api|dashboard|wpda,"0029,0027",feature
+F-17.6,"Fila da recepção com prazo e prioridade, e fila ""sem unidade""",mod-17,api|dashboard,"0029,0023",feature
+F-17.7,"""Não posso nesse horário"" no wpda",mod-17,api|wpda|dashboard,"0029,0019",feature
+F-17.8,Lembrete do horário confirmado (aviso e SMS),mod-17,api|wpda,"0029,0024",feature
+F-17.9,Agendas da unidade e do profissional,mod-17,api|dashboard,0029,feature
