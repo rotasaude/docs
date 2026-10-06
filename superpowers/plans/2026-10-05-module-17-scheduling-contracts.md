@@ -119,3 +119,23 @@ turno); 422 `invalid_reason`, `type_not_served`, `outside_shift`.
 1. `contracts` `protocols-v1.5.0` (push com autorização).
 2. `api` (porta de dev sugerida 3034).
 3. `dashboard` e `wpda` depois do `api`.
+
+## 8. Acréscimos da escrita dos planos (2026-10-05)
+
+Valem sobre as seções acima e sobre os planos.
+
+**Cidadão (§5)**
+- `GET /citizen/appointments`: os pedidos listados ganham `kind` (`return`|`referral`|`triage`),
+  `target_unit_name: string|null`, `appointment_type_name`, `due_on`. O `api` não
+  pode quebrar com pedido sem unidade (`item_json` hoje faz `request.target_unit.name`).
+- Endereço da unidade (`unit.address` e `unit_address`) tem a mesma forma de
+  `reference_units`: `{ street, number, complement, zip }`.
+- `POST /citizen/appointments/:id/reschedule_request` responde
+  `{ "appointment": ... }`, como `confirm` e `cancel` (exceção à regra do objeto
+  puro, por consistência com as ações do cidadão que já existem).
+- Lembrete na caixa de avisos: `read: boolean` (não `read_at`), `cpf_masked`
+  quando o celular tem mais de uma pessoa; `unread_count` conta os lembretes com
+  a mesma regra de `notices_muted`. O id do aviso é opaco; `POST
+  /citizen/notices/:id/read` procura nas duas fontes.
+- `when` de `scheduling` aceita só a condição estruturada (o mapa legado é
+  recusado pelo schema).
