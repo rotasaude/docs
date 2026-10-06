@@ -139,3 +139,39 @@ Valem sobre as seções acima e sobre os planos.
   /citizen/notices/:id/read` procura nas duas fontes.
 - `when` de `scheduling` aceita só a condição estruturada (o mapa legado é
   recusado pelo schema).
+
+## 9. Acréscimos do plano do dashboard (2026-10-06)
+
+**Fila e pedido (§4.1)**
+- O número de prioridade da triagem que a fila já devolve passa a se chamar
+  `triage_priority`; `priority` é só `routine|priority`.
+- `origin_unit_name` é nulo em pedido `kind = triage` (o `api` não pode fazer
+  `r.origin_unit.name` sem guarda).
+- `GET /attendance/requests/:id` = o item da fila + `reschedule_note`.
+
+**Marcar (§4.3)**
+- `health_unit_id` vai nas três formas (a recusa `wrong_unit` de hoje continua).
+- Marcação livre mantém o comportamento atual: 409 `slot_taken` com `taken` e o
+  `allow_overlap` (api#26).
+- Resposta: 201 `{ "appointment": ... }`, como hoje.
+
+**Horário e agenda (§4.4, §4.5, §3)**
+- Em `legacy`: `ends_at`, `appointment_type_key/name`, `professional`, `shift_id` vêm `null`.
+- Turno na agenda e em Minha agenda: `starts_at`, `ends_at`, `cancelled_at`.
+- Faixas `bookable` trazem `appointment_type_name`.
+- Minha agenda: `unit: { id, name }`; sem cadastro profissional → 404
+  `no_profile`; `from`/`to` inclusivos (vale também para `availability`).
+
+**Profissionais (§3)**
+- Leitura de `GET /professionals/appointment_types` também para
+  `protocol_author` e `protocol_reviewer`.
+- `POST /professionals/shifts/:id/template` devolve o turno;
+  `POST /professionals/links/:id/default_type` devolve o vínculo;
+  `GET /professionals/:id` traz `default_appointment_type_key` em cada vínculo.
+- 422 a mais: `invalid_name` (tipo e modelo), `invalid_blocks` com `detail`
+  `empty`, `bad_slot_minutes` (fora de 5–240), `inactive_type`, `crosses_midnight`
+  (fim depois do início, sem `24:00`); `cbo_prefixes`: 1 a 20 itens, cada um com 1
+  a 6 dígitos.
+
+**Gate (§1)**
+- O aviso de tipo inexistente sai como no módulo 15: 200 com `warnings: [string]`.
