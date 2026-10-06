@@ -48,7 +48,7 @@
 | 14 | [Analytics](14--analytics.md) | Fechado | MVP | [0025](../adr/0025.md), [0023](../adr/0023.md), [0016](../adr/0016.md), [0020](../adr/0020.md) |
 | 15 | [Triagem por perfil](15--triagem-por-perfil.md) | Fechado | Ciclo 2 | [0027](../adr/0027.md), [0009](../adr/0009.md), [0017](../adr/0017.md) |
 | 16 | [Modo de prontuário e exportação](16--modo-de-prontuario.md) | Fechado | Ciclo 2 | [0028](../adr/0028.md), [0007](../adr/0007.md), [0020](../adr/0020.md) |
-| 17 | [Agenda dos profissionais](17--agenda.md) | Planejado | Ciclo 2 | [0029](../adr/0029.md), [0019](../adr/0019.md), [0021](../adr/0021.md) |
+| 17 | [Agenda dos profissionais](17--agenda.md) | Fechado | Ciclo 2 | [0029](../adr/0029.md), [0019](../adr/0019.md), [0021](../adr/0021.md) |
 | 18 | [Acolhimento](18--acolhimento.md) | Stub | Ciclo 2 | — |
 | 19 | [Consulta (prontuário da APS)](19--consulta.md) | Stub | Ciclo 2 | — |
 | 20 | [Linha do tempo do paciente](20--linha-do-tempo.md) | Stub | Ciclo 2 | — |

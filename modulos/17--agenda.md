@@ -1,6 +1,6 @@
 # Módulo 17 — Agenda dos profissionais
 
-- **Estado:** Planejado
+- **Estado:** Fechado
 - **Tipo:** Ciclo 2
 
 ## Escopo
@@ -10,7 +10,7 @@ triagem pode gerar pedido de agendamento com tipo, prioridade e prazo (ADR
 0029). Quem marca é sempre a recepção; o cidadão confirma, cancela, pede outro
 horário e recebe lembrete.
 
-**Planejado (F-17.1 a F-17.9):**
+**Entregue (F-17.1 a F-17.9):**
 - tipos de atendimento: base da plataforma copiada para a cidade, ajustável e
   ampliável, com os CBOs que atendem;
 - modelos de agenda no turno (demanda do dia, agendável, bloqueada) e tipo
@@ -52,7 +52,7 @@ coletiva, lista de espera por cancelamento, indicadores de absenteísmo.
 - Módulos 08 (pedido e horário), 10 (turnos), 11 (unidade de referência), 12
   (caixa de avisos e SMS) e 15 (construtor de condições).
 
-## Funcionalidades planejadas
+## Funcionalidades
 
 | ID | Funcionalidade | Superfície | ADRs |
 |---|---|---|---|
@@ -85,3 +85,38 @@ coletiva, lista de espera por cancelamento, indicadores de absenteísmo.
 - 2026-10-05 — Escopo decidido com o usuário; ADR 0029 e spec
   `superpowers/specs/2026-10-05-module-17-scheduling-design.md`. F-17.1 a
   F-17.9 criados (board #1, `Not Started`). Módulo passa a `Planejado`.
+- 2026-10-06 — Implementado e publicado em `main`:
+  - contracts `8298709` (tag `protocols-v1.5.0`);
+  - api `8cd8454` (36 commits sobre o módulo 16; suíte 3890/0);
+  - dashboard `ab00e4f` (1217 testes), wpda `20e5e85` (460 testes).
+
+  Migração de cidade `20261006210001` (renumerada para ficar depois da
+  `20261006200001` do módulo 16: `city:dev_up` marca como aplicada, sem rodar,
+  toda versão menor que a maior registrada). Suíte de invariante
+  `spec/invariants/scheduling_invariants_spec.rb`; runbook
+  [`operacao/agenda-recepcao.md`](../operacao/agenda-recepcao.md). Os bancos de
+  teste de cidade aceitam sufixo (`ROTA_TEST_DB_SUFFIX`) para sessões paralelas.
+
+  **Prova no navegador aprovada** (Curitiba, dev): modelo "Manhã" e
+  pré-visualização; triagem "Saúde do idoso" gerando pedido na fila "sem
+  unidade"; atribuição de unidade; marcação em vaga; dois encaixes e o terceiro
+  recusado (`409 fit_in_limit`, também direto na API); "Não posso nesse horário"
+  devolvendo o pedido à fila com o mesmo prazo; lembrete da véspera na caixa de
+  avisos; resultado da triagem com `status: "scheduled"`.
+
+  **Decisões (contrato §8–§11):** fusão com pedido marcado que encurta o prazo
+  vira `needs_reschedule`; exclusão cancela horários e fecha pedidos vivos
+  (conta como cancelamento do cidadão no analytics); ordem de travas unidade →
+  cidadão → horários → pedido → turno; prazo vencido escondido em "Seus
+  agendamentos".
+
+  F-17.1 a F-17.9 `Verified`; módulo `Fechado`.
+
+  **Em aberto:**
+  - rotasaude/api#45 (remarcação pedida em unidade desativada);
+  - rotasaude/api#46 (lembrete continua na caixa após cancelamento);
+  - rotasaude/api#47 (exclusão não limpa `cancel_reason`/`dismiss_reason`, anterior ao 17);
+  - provedor de SMS com timeout curto antes do go-live (o envio acontece com o horário travado);
+  - remover a chave antiga `appointments` da agenda da unidade depois do deploy do dashboard;
+  - pedido `needs_reschedule` em unidade sem turno não tem caminho de marcação livre;
+  - endereço da unidade no wpda sem o bairro (ciclo de interface).

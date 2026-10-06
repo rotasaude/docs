@@ -16,6 +16,7 @@ a história está no git.
 | `rollout-profissionais.md` | Ordem de deploy do módulo 10 em duas imagens do api (a regra da chamada só depois do cadastro) e o requisito de `btree_gist` | 0019, 0020, 0021 | Vigente |
 | `rollout-catalogo-de-triagens.md` | Ordem de deploy do módulo 15 (api e wpda na mesma janela), termo de consentimento novo antes da elegibilidade | 0016, 0020, 0027 | Vigente |
 | `rollout-modo-de-prontuario.md` | Ordem de deploy do módulo 16, terminologias e CNES, configuração de cidade e gates antes de ligar a exportação LEDI | 0028, 0007, 0020 | Vigente |
+| `agenda-recepcao.md` | Ordem de deploy do módulo 17 (migração irreversível, horários viram `legacy`), preparo da cidade (tipos, modelos, turnos), transição, balcão (vaga, encaixe, fila "sem unidade") e lembrete | 0019, 0020, 0021, 0029 | Vigente |
 | `pec-local-dev.md` | PEC local de treinamento para a prova técnica LEDI (dev) | 0028 | Vigente |
 | `rollout-agendamento.md` | Ordem de deploy e rollback do subprojeto 4 (migração irreversível de horários) | 0019, 0020 | Vigente |
 | `provisionar-canal-whatsapp.md` | Registrar, validar e rotacionar o canal WhatsApp de uma cidade | 0007, 0013, 0017, 0020 | Vigente |

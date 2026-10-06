@@ -202,3 +202,24 @@ Valem sobre as seções acima e sobre os planos.
 - `citizen` no horário (§4.4) sem `name` (o cadastro não tem nome).
 - Tipo do protocolo inexistente na cidade não impede o pedido: nasce com a
   chave, e o nome exibido é a própria chave.
+
+## 11. Acréscimos da onda pré-merge (2026-10-06)
+
+- `GET /citizen/triages/:id` → `scheduling_request` ganha `status` e
+  `scheduled_at`:
+  `{ unit_name: string|null, due_on: "YYYY-MM-DD", appointment_type_name: string, status: "open"|"scheduled", scheduled_at: string (ISO 8601 com fuso)|null } | null`.
+  `scheduled_at` é o horário vivo mais recente do pedido (`scheduled` ou
+  `confirmed`), ou `null`. Pedido encerrado continua `scheduling_request: null`.
+  Depois de uma fusão que encurtou o prazo, `scheduled_at` pode cair depois de
+  `due_on`: com `status: "scheduled"` o wpda não mostra prazo nem alerta de prazo.
+  Api anterior sem os campos: o wpda trata como `status: "open"`, `scheduled_at: null`.
+- Fusão de triagem em pedido `scheduled` cujo `due_on` passa a cair antes da data
+  local do horário vivo: o pedido vira `needs_reschedule` e entra na fila (o
+  horário não muda; a recepção decide). `overdue` também vale para pedido que
+  precisa remarcar com `due_on` vencido. A forma do item da fila não muda.
+- Exclusão do cadastro (`erase_pair`): cancela os horários vivos do par como
+  `cancelled_by_citizen` com a frase fixa `"Exclusão do cadastro pedida pelo
+  cidadão"` (evento `appointment.cancelled` com `by: "erasure"`, sem texto),
+  fecha os pedidos vivos como `consent_revoked` e anula `reschedule_note` de todos
+  os pedidos do par, inclusive encerrados (exceção mínima no guarda: só
+  `reschedule_note → NULL` com as demais colunas iguais).
