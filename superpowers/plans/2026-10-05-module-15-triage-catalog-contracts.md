@@ -193,14 +193,17 @@ Corpo: `{ "definition": <protocolo JSON>, "profile": { "age": 62, "sex": "female
 ```json
 { "eligible": true,
   "eligibility_text": "idade ≥ 60",
-  "suggestions": [ { "protocol": "saude-mental-aprofundada", "matches": true } ],
+  "suggestions": [ { "protocol": "saude-mental-aprofundada", "title": "Saúde mental — aprofundamento", "matches": true } ],
   "errors": [] }
 ```
 `errors` lista os erros do gate para `offer`/`suggestions`, no mesmo formato do
 `POST /protocols/:name/gate` de hoje. Definição inválida responde **200** com
 `eligible: false`, `suggestions: []` e os `errors` (nunca 422), para o editor
 mostrar o erro ao lado do construtor. `eligibility_text` é gerado no `api` só
-para conferência; a frase da tela é do construtor do dashboard.
+para conferência; a frase da tela é do construtor do dashboard. `title` (desde
+api `ce80b5b`, 2026-10-05) é o título da versão ativa do protocolo sugerido, como
+o cidadão o vê; sem título ou sem versão ativa, vem o nome. O dashboard mostra
+`title` e cai no `protocol` quando o campo falta.
 
 ### 4.4 Validação presencial (existente, muda)
 
