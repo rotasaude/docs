@@ -163,6 +163,7 @@ Papéis: quem lê protocolos hoje (`protocol_author`, `protocol_reviewer`,
   "configured": true,
   "enabled": true, "position": 2,
   "restriction": { "in": ["citizen.neighborhood_id", ["uuid", "uuid"]] },
+  "suggestion_only": false,
   "available_from": null, "available_until": "2026-12-31",
   "counters": { "offered": 120, "started": 40, "completed": 31, "from_suggestion": 6 }
 } ] }
@@ -176,10 +177,16 @@ ADR 0025).
 
 Só `municipal_admin`, com step-up (`MfaStepUp#require_step_up!`, 401
 `{ "error": "mfa_required" }` como nas outras rotas). Corpo:
-`{ "enabled", "position", "restriction", "available_from", "available_until" }`.
+`{ "enabled", "position", "restriction", "available_from", "available_until", "suggestion_only"? }`.
+`suggestion_only` (desde api 2026-10-05, migração `20261005300001`) é a única
+chave opcional: ausente mantém o valor gravado, para o dashboard anterior a ela
+não desligar a marca. Com `true`, o protocolo some de "Disponíveis" no wpda e
+só começa a partir de sugestão pendente (`POST /citizen/conversations` responde
+409 `not_offered` sem ela).
 - 404 `unknown_protocol` (nenhuma versão com esse `name`);
 - 422 `invalid_restriction` (variável fora de 1, árvore inválida),
-  `invalid_period`, `invalid_position` (`position` inteiro ≥ 1);
+  `invalid_period`, `invalid_position` (`position` inteiro ≥ 1),
+  `invalid_suggestion_only` (não booleano);
 - 200 `{ "offer": <item 4.1> }`. Evento `triage_offer.changed`
   `{ protocol_name, user_id }`.
 

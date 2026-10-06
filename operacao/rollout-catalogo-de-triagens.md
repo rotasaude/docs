@@ -1,6 +1,7 @@
 # Rollout — Catálogo de triagens (módulo 15, ADR 0027)
 
-A migração de cidade `20261005100001_add_triage_catalog` é **só de expansão**:
+As migrações de cidade `20261005100001_add_triage_catalog` e
+`20261005300001_add_suggestion_only_to_triage_offers` são **só de expansão**:
 colunas opcionais de perfil em `citizens` (cifradas), tabelas `triage_offers`,
 `triage_suggestions` e `triage_offer_daily_counts`, e o trigger de transição
 das sugestões. Cidadão antigo fica sem perfil e o wpda pede o perfil antes do
@@ -37,7 +38,9 @@ O sistema não confere se o texto cobre o perfil: isso é revisão humana. Depoi
 da publicação, cada cidadão aceita o termo novo na próxima entrada no wpda.
 
 Protocolo com elegibilidade só é oferecido se a cidade tiver a linha dele no
-catálogo (`triage_offers`, criada pela tela). Protocolo sem bloco `offer`
+catálogo (`triage_offers`, criada pela tela). Para um protocolo que só deve
+chegar pela sugestão de outro (um aprofundamento, por exemplo), marque "Só por
+sugestão" na linha: pausar a linha tiraria também a sugestão. Protocolo sem bloco `offer`
 continua "para todos" e aparece ao cidadão pelo nome técnico até ganhar título.
 
 ## Conferência depois do deploy
