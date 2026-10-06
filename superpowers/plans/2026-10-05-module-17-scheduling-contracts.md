@@ -175,3 +175,30 @@ Valem sobre as seções acima e sobre os planos.
 
 **Gate (§1)**
 - O aviso de tipo inexistente sai como no módulo 15: 200 com `warnings: [string]`.
+
+## 10. Acréscimos do plano do api (2026-10-06)
+
+- `invalid_blocks` ganha `detail: bad_block` (faixa malformada, chave ou `kind`
+  desconhecido, tipo/`slot_minutes` em faixa não `bookable`, mais de 24 faixas).
+- Códigos a mais: 422 `invalid_template` (turno com modelo inválido/inativo),
+  `invalid_kind` (marcação), `invalid` (`active` não booleano; amostra inválida
+  na pré-visualização); 409 `already_cancelled` (modelo de turno cancelado);
+  `already_ended`, `type_not_served`, `inactive_type` (tipo padrão do vínculo);
+  `invalid_unit`, `request_not_open` (`assign_unit`).
+- Eventos a mais (só ids): `appointment_request.unit_assigned`,
+  `professional.shift_template_set`, `professional.link_default_type_set`; a
+  remarcação pela recepção usa o `appointment.moved` existente.
+- Faixas devolvidas (agenda, pré-visualização) já recortadas pelo turno e pelo
+  dia; recorte que chega à meia-noite sai como `"24:00"` (só na saída). Turno
+  sem modelo = uma faixa `bookable` do tipo resolvido, ou nenhuma.
+- A agenda da unidade mantém também a chave antiga `appointments` até o
+  dashboard novo entrar.
+- Item da fila ganha `target_unit_id` e `appointment` (§4.4 ou `null`);
+  `reopened_reason` continua `expired|no_show|null`; a remarcação pedida aparece em
+  `reschedule_requested`.
+- `availability` com tipo inexistente/inativo: 200 `{ slots: [], legacy_days: [] }`;
+  sem `from`/`to`: hoje + 6 dias.
+- Leitura dos tipos também para `citizen_verifier` e `health_professional`.
+- `citizen` no horário (§4.4) sem `name` (o cadastro não tem nome).
+- Tipo do protocolo inexistente na cidade não impede o pedido: nasce com a
+  chave, e o nome exibido é a própria chave.
