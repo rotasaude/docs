@@ -1,6 +1,6 @@
 # Módulo 16 — Modo de prontuário e exportação
 
-- **Estado:** Planejado
+- **Estado:** Fechado
 - **Tipo:** Ciclo 2
 
 ## Escopo
@@ -10,7 +10,7 @@ e-SUS PEC dela, e entrega a produção da APS pelo caminho documentado para
 terceiros: fichas LEDI enviadas à instalação do PEC da cidade, que repassa ao
 SIAPS (ADR 0028).
 
-**Planejado (F-16.1 a F-16.8):**
+**Entregue (F-16.1 a F-16.8):**
 - interruptores de funcionalidade por cidade (`city_features`), escritos só
   pelo `maintenance` e lidos pela sessão;
 - modo de prontuário (`off`/`integrated`/`record`), código IBGE e endereço do
@@ -55,7 +55,7 @@ telas.
 - Por cidade: instalação do PEC com HTTPS e credencial de integração; base do
   CNES e SIGTAP importadas; autorização do DATASUS para o CADSUS.
 
-## Funcionalidades planejadas
+## Funcionalidades
 
 | ID | Funcionalidade | Superfície | ADRs |
 |---|---|---|---|
@@ -78,7 +78,9 @@ telas.
 ## Critério de fechamento do módulo
 
 - F-16.1 a F-16.8 verificadas.
-- Prova técnica registrada (ficha sintética aceita pelo PEC local).
+- Prova técnica registrada (ficha sintética aceita pelo PEC local). *Alterado pelo
+  usuário em 2026-10-06: vale a desserialização provada sem 2xx; o aceite virou
+  gate de go-live (rotasaude/api#41).*
 - Suíte de invariante (`spec/invariants/record_mode_invariants_spec.rb`) com os
   invariantes do ADR 0028.
 - Runbook do operador: importação de SIGTAP e CNES, configuração de cidade.
@@ -90,3 +92,38 @@ telas.
   `superpowers/specs/2026-10-05-module-16-record-mode-and-export-design.md`.
   F-16.1 a F-16.8 criados (board #1, `Not Started`). Módulo passa a
   `Planejado`.
+- 2026-10-06 — Implementado e publicado em `main`:
+  - contracts `401639c` (tag `session-v1.1.0`);
+  - api `6132b8d` (fundação) e `6a6cc45` (exportador; suíte 3636/0);
+  - maintenance `3f7a758`, admin `b1d8510`, dashboard `d9ea33c`.
+
+  Migrações de cidade `20261005200001` e `20261006200001`; de plataforma, as da fundação e `20261006200002`.
+
+  **Prova técnica contra o PEC 5.5.28 local** (treinamento, centralizadora; runbook [`operacao/pec-local-dev.md`](../operacao/pec-local-dev.md)):
+  - a serialização Thrift em Ruby foi aceita pelo PEC, que desserializou o transporte e a ficha;
+  - o login é por formulário em `/api/recebimento/login`;
+  - o envio vai para `/api/v1/recebimento/ficha`, sem compactação;
+  - nenhum 2xx foi observado, por falta do CNES importado (o XML só sai do e-Gestor APS). O usuário aceitou a prova assim, e o aceite virou gate (rotasaude/api#41).
+
+  Suíte de invariante `spec/invariants/record_mode_invariants_spec.rb`; runbook [`operacao/rollout-modo-de-prontuario.md`](../operacao/rollout-modo-de-prontuario.md).
+
+  **Provas no navegador aprovadas:**
+  - maintenance: interruptores e auditoria;
+  - admin: ficha da cidade e Produção das cidades;
+  - dashboard: Integrações com step-up, CNES, Produção e-SUS com reenvio, e CADSUS no balcão.
+
+  **Decisões:**
+  - `GET /cities/:id` sem envelope;
+  - `deadline_estimated_on` no contrato §4.3;
+  - `422 invalid_city`, `409 already_verified` e `422 invalid_competence`.
+
+  F-16.1 a F-16.8 `Verified`; módulo `Fechado`.
+
+  **Em aberto:**
+  - rotasaude/api#41 (2xx e duplicidade depois do aceite);
+  - rotasaude/api#42 (fichas `failed` sem saída);
+  - rotasaude/api#43 (LGPD da `ledi_outbox`, Crítica);
+  - rotasaude/api#44 (teto de tempo do envio);
+  - rotasaude/dashboard#10 (CNES e CPF nas telas de Unidades e Profissionais);
+  - rotasaude/dashboard#11 (avisos de interface).
+
