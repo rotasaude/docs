@@ -115,7 +115,7 @@ F-10.2,Vínculo do profissional com uma ou mais unidades,mod-10,api|dashboard,00
 F-10.3,Ocupação do profissional por vínculo (código CBO da saúde),mod-10,api|dashboard,0021,feature
 F-10.4,"Turnos com data por vínculo, base da agenda de vagas do módulo 08",mod-10,api|dashboard,0021,feature
 F-10.5,"Chamada e desfecho só por profissional vinculado à unidade do atendimento, com o profissional gravado no atendimento",mod-10,api|dashboard,"0021,0019",feature
-F-10.6,Importação e consulta do cadastro nacional de profissionais (CNES) (fora do Ciclo 1),mod-10,api|dashboard,—,feature
+F-10.6,Importação e consulta do cadastro nacional de profissionais (CNES) (substituída pela F-16.5),mod-10,api|dashboard,0028,feature
 F-10.7,Profissional como destino do escalonamento de alerta urgente (fora do Ciclo 1),mod-10,api,0006,feature
 F-11.1,Bairros da cidade: semente própria e edição pelo municipal_admin,mod-11,api|dashboard,0023,feature
 F-11.2,Cobertura: quais unidades atendem cada bairro,mod-11,api|dashboard,0023,feature

@@ -65,7 +65,7 @@ escalonamento do alerta urgente (em aberto no ADR 0021).
 | F-10.3 | Ocupação do profissional por vínculo (código CBO da saúde) | api, dashboard | 0021 |
 | F-10.4 | Turnos com data por vínculo, base da agenda de vagas do módulo 08 | api, dashboard | 0021 |
 | F-10.5 | Chamada e desfecho só por profissional vinculado à unidade do atendimento, com o profissional gravado no atendimento | api, dashboard | 0021, 0019 |
-| F-10.6 | Importação e consulta do cadastro nacional de profissionais (CNES) (fora do Ciclo 1) | api, dashboard | — |
+| F-10.6 | Importação e consulta do cadastro nacional de profissionais (CNES) (substituída pela F-16.5, Ciclo 2) | api, dashboard | 0028 |
 | F-10.7 | Profissional como destino do escalonamento de alerta urgente (fora do Ciclo 1) | api | 0006 |
 
 F-10.1 a F-10.5 entregues (ADR 0021).
@@ -94,8 +94,9 @@ fechamento do módulo neste ciclo.
 
 ## Critério de fechamento do módulo
 
-- F-10.1 a F-10.5 verificadas. F-10.6 e F-10.7 estão fora do Ciclo 1 e não
-  contam para este fechamento.
+- F-10.1 a F-10.5 verificadas. F-10.6 foi substituída pela F-16.5 (Ciclo 2)
+  e está `Verified` por isso; F-10.7 está fora do Ciclo 1. Nenhuma das duas
+  conta para este fechamento.
 - Suíte de invariante (`spec/invariants/professional_invariants_spec.rb`, com
   teste de mutação): perfil 1:1 com o usuário; vínculo e turno só por acréscimo;
   um vínculo ativo por (profissional, unidade, CBO); turnos sem sobreposição e
@@ -122,3 +123,8 @@ fechamento do módulo neste ciclo.
   (api 218 exemplos e dashboard 132 testes rodados na verificação, 0 falhas).
   Critério de fechamento do Ciclo 1 cumprido; módulo `Fechado`. F-10.6 e
   F-10.7 seguem `Not Started`, fora do Ciclo 1.
+- 2026-10-07 — F-10.6 (CNES) fechada como **substituída pela F-16.5**
+  (módulo 16, ADR 0028, Ciclo 2), por decisão do usuário: a importação do
+  CNES, com equipes e casamento confirmado pela cidade, foi entregue e
+  verificada lá. O card da F-10.6 foi para `Verified` com essa nota, e a
+  pendência docs#4 foi fechada. F-10.7 segue fora do Ciclo 1.
