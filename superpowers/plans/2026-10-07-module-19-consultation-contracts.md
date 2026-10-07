@@ -169,4 +169,6 @@ Valem sobre as seções acima e sobre os planos.
 **Achado da confirmação do layout:** o MIAI e as regras de CBO **não restringem
 CID-10 por CBO** (só limitam quais CBOs registram o MIAI). O YAML guarda
 `rule: miai_table`; restringir CID-10 a médicos, como o PEC faz, é uma linha no
-YAML — **decisão do usuário em aberto**.
+YAML. **Decidido pelo usuário (2026-10-07): CID-10 só para médicos (grupos
+2251–2253), como no PEC; os demais profissionais usam só CIAP-2.** O
+`consultation_mapping.yml` usa `rule: physicians_only`.
