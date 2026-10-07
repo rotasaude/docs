@@ -1,7 +1,7 @@
 # Módulo 18 — Acolhimento (escuta inicial) — design
 
 **Data:** 2026-10-07
-**Status:** aprovado em conversa (2026-10-07), aguardando revisão do texto
+**Status:** aprovado (2026-10-07)
 **Afeta:**
 - `contracts`: schema de protocolo `protocols-v1.6.0` (variante `kind: "screening"`, variáveis `vitals.*`, `complaint.ciap2`).
 - `apps/api`:
@@ -51,7 +51,7 @@
 - `Screenings::Abandon.call(screening:, by:)` → `abandoned`; volta à fila do acolhimento.
 - `Screenings::Complete.call(screening:, revision_params:, destination:, destination_params:, by:)` — §4.
 - `Screenings::Reassess.call(screening:, revision_params:, by:)`: só `completed`, destino `same_day`, atendimento `waiting`; nova revisão.
-- CBOs permitidos: nível superior da equipe (grupos 2251–2253, 2235, 2234, 2516, 2238, 2236, 2232) e técnico/auxiliar de enfermagem (3222); lista em `config/scheduling/screening_cbos.yml`.
+- CBOs permitidos: nível superior da equipe (grupos 2251–2253, 2235, 2234, 2516, 2237, 2236, 2232) e técnico/auxiliar de enfermagem (3222); lista em `config/scheduling/screening_cbos.yml`.
 
 ### 3.3 Classificação
 - Protocolo assinado `kind: "screening"`: `{ "name", "version", "kind": "screening", "risk_rules": [ { "when": <condição>, "color": "red"|"yellow"|"green"|"blue" } ] }` (até 50 regras). Mesmo ciclo de assinatura, editor e construtor; uma versão `active` por `name`; a cidade usa o nome reservado `acolhimento`.
