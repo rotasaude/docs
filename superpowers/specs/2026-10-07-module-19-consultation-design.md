@@ -1,7 +1,7 @@
 # Módulo 19 — Consulta (prontuário da APS), subprojeto 19a — design
 
 **Data:** 2026-10-07
-**Status:** aprovado em conversa (2026-10-07), aguardando revisão do texto
+**Status:** aprovado (2026-10-07)
 **Afeta:**
 - `apps/api`: cidade — `patients`, `patient_problems`, `patient_problem_events`, `consultations`, `consultation_problems`, `consultation_conducts`, `consultation_exam_requests`, `consultation_addenda`, `clinical_record_openings`, nome em `citizens`, `citizens.patient_id`; interruptor `clinical_record`; `Patients::*`, `Consultations::*`, `ClinicalRecord::Access`, `Ledi::Fichas::IndividualCare`; rotas em `/attendance` e `/clinical_record`.
 - `apps/dashboard`: painel do paciente e editor da consulta no atendimento, consulta finalizada (adendo, imprimir), prontuário fora de contexto, relatório de aberturas, nomes na validação presencial, correção pendente na Produção.
