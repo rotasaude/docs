@@ -108,3 +108,65 @@ Ficha `correction_pending` aparece em `GET /production` com
 1. `api` (porta de dev sugerida 3036).
 2. `dashboard` depois do `api`.
 3. Interruptor `clinical_record` ligado pelo maintenance só em dev/staging.
+
+## 9. Acréscimos da escrita dos planos (2026-10-07)
+
+Valem sobre as seções acima e sobre os planos.
+
+**Do plano do dashboard**
+- `POST /attendance/attendances/:id/consultation` 409 `already_exists` traz `consultation_id`.
+- Completar nomes de par já validado acontece no check-in: o `:id` de
+  `POST /attendance/verifications/:id/names` é a validação ativa;
+  `POST /attendance/check_ins/lookup` devolve `citizen.names`
+  (`{ full_name_set, display_name }`) e `citizen.verification_id`;
+  `POST /attendance/check_ins` devolve `verification_id` quando valida. A
+  resposta de `.../names` é `{ citizen: { id, cpf_masked, verification_level, names } }`.
+- Cada item de `GET /attendance/units/:id/queue` ganha `display_name`.
+- Adendo `changes`: `evaluated_problems` = eventos novos; `conducts` e
+  `exam_requests` = listas finais, só quando mudaram; `opening_id` aceito também
+  da autora.
+- `PATCH /attendance/consultations/:id` recebe todos os campos editáveis a cada
+  salvamento.
+- Compatibilidade de deploy: `POST /attendance/verifications` sem a chave
+  `full_name` (cliente antigo) é aceito e não grava nome; com a chave, o nome é
+  obrigatório (3–200). A consulta bloqueia com `patient_name_missing` até completar.
+- `<record>.consultations` só lista finalizadas; `cid10_justification` segue a
+  mesma regra de CBO dos problemas.
+- Impresso: `application/pdf` inline no sucesso; `{ error }` em JSON nas recusas.
+
+**Do plano do api**
+- `missing` do interruptor ganha `record_mode_not_record`.
+- 422 a mais (com `index` nos itens): `invalid_text` (com `field`),
+  `invalid_problem`, `invalid_onset`, `cid10_sex_incompatible`, `invalid_conduct`,
+  `invalid_exam`, `invalid_care_type`, `text_required`, `invalid_changes`,
+  `invalid_period`, `invalid_terminology`. Pressão incompleta no autosave =
+  `implausible_vital` com `field` do lado que falta.
+- `POST /attendance/attendances/:id/close` → 409 `consultation_in_progress` quando
+  há consulta em rascunho no atendimento.
+- Par validado sem paciente ainda: `patient.id: null`, listas vazias, sem trilha.
+- Consulta finalizada fora de contexto e sem abertura (inclusive impresso) → 403
+  `out_of_context`; rascunho de outro autor → 403 `not_author`;
+  `/clinical_record/patients/:id` mantém `opening_required`.
+- Iniciar consulta também responde 403 `missing_role`, `missing_link`.
+- Aberturas: `POST /clinical_record/openings` → 201; CPF inválido também 404
+  `patient_not_found` (sem enumeração); só profissional com vínculo de CBO
+  permitido abre; relatório com `from`/`to` no fuso da cidade, até 500 linhas,
+  mais novas primeiro.
+- Limites: exames só do grupo 02 da SIGTAP, até 100; até 50 problemas e 12
+  condutas; tipos de atendimento 1, 2, 5, 6; condutas 1, 2, 4–12 e 14 (rótulos no
+  `consultation_mapping.yml`).
+- `cid10_allowed_for_cbo` em `consultation_options` considera qualquer vínculo
+  permitido do usuário.
+- Campos opcionais (`onset_on`, `onset_precision`, `cid10_justification`) só
+  aparecem com valor; o problema da lista traz `resolved_on`.
+- Encaminhamento vai à ficha só como conduta (o campo `encaminhamentos` do MIAI
+  exige tabela de especialidades que o projeto não tem).
+- Produção: `correction_pending` aparece em `fichas` com `replaces_outbox_id`
+  apontando a aceita e fica fora de `counts`; "não geradas", "gerar de novo" e
+  "Reenviar" valem também para `source_type: "Consultation"`.
+- Impresso com a gem Prawn (Ruby puro); `pdf-reader` só no grupo de teste.
+
+**Achado da confirmação do layout:** o MIAI e as regras de CBO **não restringem
+CID-10 por CBO** (só limitam quais CBOs registram o MIAI). O YAML guarda
+`rule: miai_table`; restringir CID-10 a médicos, como o PEC faz, é uma linha no
+YAML — **decisão do usuário em aberto**.
