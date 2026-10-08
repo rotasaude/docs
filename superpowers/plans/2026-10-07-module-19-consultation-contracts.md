@@ -172,3 +172,19 @@ CID-10 por CBO** (só limitam quais CBOs registram o MIAI). O YAML guarda
 YAML. **Decidido pelo usuário (2026-10-07): CID-10 só para médicos (grupos
 2251–2253), como no PEC; os demais profissionais usam só CIAP-2.** O
 `consultation_mapping.yml` usa `rule: physicians_only`.
+
+**Decisões do usuário durante a execução (2026-10-08)**
+- Não médico (CBO fora de 2251–2253) pode avaliar ou resolver problema CID-10
+  já existente na lista; só não registra CID-10 novo nem acrescenta/troca
+  justificativa CID-10 de exame. A ficha LEDI da consulta de não médico
+  **omite** os problemas CID-10 e envia só os CIAP-2 (como no PEC).
+- Como o MIAI exige ao menos um problema avaliado, `POST /attendance/consultations/:id/finalize`
+  ganha 422 `ciap2_required_for_cbo` quando um não médico finaliza sem nenhum
+  problema CIAP-2 avaliado. Não se aplica ao adendo.
+- `cid10_allowed_for_cbo` = algum vínculo permitido do usuário com CBO de médico.
+- Chave desconhecida no `PATCH /attendance/consultations/:id` é ignorada (sem 422).
+- O varredor das 23h (`Ledi::ScreeningFichaSweepJob`, módulo 18) passa a cobrir
+  também a ficha de consulta de atendimentos fechados (competência atual ou
+  anterior).
+- Coluna `consultation_addenda.item_changes` (colisão com ActiveModel::Dirty);
+  a chave JSON continua `changes`.
