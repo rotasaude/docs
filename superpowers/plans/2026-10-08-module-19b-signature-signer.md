@@ -26,7 +26,7 @@
 - Repositório novo `rotasaude/signer`, local em `/Users/eduardovrocha/Development/ioit.solutions/rota-saude/apps/signer`. `git init` local é livre; **criar o repositório remoto, configurar o `origin` e dar push só com autorização explícita do usuário** (hard stop, Task 6).
 - Worktree `apps/signer/.claude/mod19b`, branch `feat/mod-19b-signature` (a partir do primeiro commit da `main` local, que só tem o `.gitignore`).
 - Java 21 (`maven.compiler.release` 21). Pacote raiz `rotasaude.signer`. Porta interna **8090**.
-- Contrato §9 literal: `Authorization: Bearer <SIGNER_TOKEN>` em toda rota; JSON; `POST /prepare { kind: "cades"|"pades", document_base64, certificate_der_base64, policy: "AD-RB" }` → `{ to_be_signed_sha256_base64, prepared_state }`; `POST /assemble { kind, prepared_state, signature_value_base64 }` → `{ signature_base64, validation_material_base64 }`; `POST /verify { kind, document_base64?, signature_base64 }` → `{ status, signer_cpf, signer_name, policy_oid, signed_at, reasons }`; `GET /health` → `{ version, crl_updated_at }`; erros `400 invalid_request`, `401 unauthorized`, `422 invalid_certificate`, `422 invalid_signature_value`, `500 internal`, sempre `{ "error": "<código>" }`.
+- Contrato §9 literal: `Authorization: Bearer <SIGNER_TOKEN>` em toda rota; JSON; `POST /prepare { kind: "cades"|"pades", document_base64, certificate_der_base64, policy: "AD-RB" }` → `{ to_be_signed_sha256_base64, prepared_state }`; `POST /assemble { kind, prepared_state, signature_value_base64 }` → `{ signature_base64, validation_material_base64 }`; `POST /verify { kind, document_base64?, signature_base64 }` → `{ status, signer_cpf, signer_name, policy_oid, signed_at, reasons }`; `GET /health` → `{ version, crl_updated_at }`; e, por decisão do usuário (2026-10-08, o vínculo já confere revogação), `POST /certificates/check { certificate_der_base64 }` → `{ status: "valid"|"invalid"|"indeterminate", signer_cpf, not_after, reasons }` com o vocabulário de `reasons` do `/verify`; erros `400 invalid_request`, `401 unauthorized`, `422 invalid_certificate`, `422 invalid_signature_value`, `500 internal`, sempre `{ "error": "<código>" }`.
 - Corpo nunca logado. Token, `code_verifier`, CPF, nome e texto clínico nunca em log, mensagem de erro ou resposta de erro. A mensagem de erro é só o código.
 - O `signer` nunca grava documento: nada em disco além do cache de LCR/LPA do Demoiselle em `/tmp`.
 - Segredos de sandbox (Task 0) só no arquivo `~/.config/rotasaude/vidaas-sandbox.env` do usuário (`chmod 600`, fora de qualquer repositório), passado ao container com `--env-file`. Nunca inventar credencial, nunca gravar segredo em arquivo versionado, nunca imprimir o arquivo.
@@ -50,7 +50,7 @@
 - **HTTP:** servidor real numa porta livre, cliente `java.net.http`, todos os erros do contrato e a higiene de log.
 - **Container:** `docker build`, subida com AC de dev, `/health` com e sem token, recusa de boot em produção; chamada a partir do container do `api` pela rede do compose.
 - **Prova manual (Task 0):** sandbox do VIDaaS + validar.iti.gov.br, antes de qualquer commit.
-- O código das Tasks 1–4 foi executado ao escrever o plano (36 testes verdes, 3 corridas seguidas) e a prova contra um PSC falso local deu `valid` nas duas assinaturas; o que só a Task 0 pode provar é o PSC real e o validador do ITI.
+- O código das Tasks 1–4 foi executado ao escrever o plano (43 testes verdes; a suíte sem `/certificates/check` rodou 3 vezes seguidas) e a prova contra um PSC falso local deu `valid` nas duas assinaturas; o que só a Task 0 pode provar é o PSC real e o validador do ITI.
 
 ## Ambiente de execução
 
@@ -73,7 +73,7 @@
 | `src/main/java/rotasaude/signer/trust/ConfiguredAnchorsProviderCA.java` + `META-INF/services/org.demoiselle.signer.core.ca.provider.ProviderCA` | âncoras extras por configuração | 2 |
 | `src/main/java/rotasaude/signer/engine/Chain.java` | cadeia até âncora confiável | 2 |
 | `src/test/java/rotasaude/signer/support/TestPki.java` | AC de teste + LCR local para os testes | 2 |
-| `src/main/java/rotasaude/signer/engine/{Policies,SignedAttributes,CmsAssembler,PdfPlaceholder,ValidationMaterial,TrackingCrlRepository,Verification,SignatureVerifier,SignatureEngine}.java` + `META-INF/services/org.demoiselle.signer.core.repository.CRLRepository` | motor CAdES/PAdES | 3 |
+| `src/main/java/rotasaude/signer/engine/{Policies,SignedAttributes,CmsAssembler,PdfPlaceholder,ValidationMaterial,TrackingCrlRepository,Verification,SignatureVerifier,CertificateCheck,SignatureEngine}.java` + `META-INF/services/org.demoiselle.signer.core.repository.CRLRepository` | motor CAdES/PAdES e conferência do certificado | 3 |
 | `src/main/java/rotasaude/signer/http/SignerServer.java`, `App.java`, `src/main/resources/log4j2.xml` | HTTP, boot, log | 4 |
 | `Dockerfile`, `README.md`, `.github/workflows/ci.yml` | imagem, documentação, CI | 5 |
 | `docker-compose.yml` (raiz do monorepo, fora de git) | serviço `signer`, env e volume do `api`/`worker` | 5 |
@@ -85,7 +85,7 @@
 Nada de repositório antes desta task passar. **Critério de parada:** qualquer um destes → pare, registre na pesquisa (Step 8) e reporte ao coordenador e ao usuário, sem seguir para a Task 1: (a) o PSC não aceita `multi_signature` com dois hashes RAW; (b) a RAW não confere como PKCS#1 v1.5 SHA-256 com DigestInfo sobre os atributos (o `Proof` diz o que ela é); (c) o validar.iti.gov.br não reconhece a política AD-RB ou acusa erro de estrutura em qualquer dos dois arquivos; (d) a cadeia do certificado de sandbox não é montada pelo Demoiselle.
 
 **Files:**
-- Create (fora de git): `.claude/signer-proof/pom.xml`, `.claude/signer-proof/src/main/java/rotasaude/signer/SignerFailure.java`, `.claude/signer-proof/src/main/java/rotasaude/signer/engine/{Kind,Policies,PreparedSignature,Chain,SignedAttributes,CmsAssembler,PdfPlaceholder,TrackingCrlRepository,ValidationMaterial,Verification,SignatureVerifier,SignatureEngine}.java`, `.claude/signer-proof/src/main/java/rotasaude/signer/proof/{PscClient,Proof}.java`, `.claude/signer-proof/src/main/resources/log4j2.xml`, `.claude/signer-proof/src/main/resources/META-INF/services/org.demoiselle.signer.core.repository.CRLRepository`
+- Create (fora de git): `.claude/signer-proof/pom.xml`, `.claude/signer-proof/src/main/java/rotasaude/signer/SignerFailure.java`, `.claude/signer-proof/src/main/java/rotasaude/signer/engine/{Kind,Policies,PreparedSignature,Chain,SignedAttributes,CmsAssembler,PdfPlaceholder,TrackingCrlRepository,ValidationMaterial,Verification,SignatureVerifier,CertificateCheck,SignatureEngine}.java`, `.claude/signer-proof/src/main/java/rotasaude/signer/proof/{PscClient,Proof}.java`, `.claude/signer-proof/src/main/resources/log4j2.xml`, `.claude/signer-proof/src/main/resources/META-INF/services/org.demoiselle.signer.core.repository.CRLRepository`
 - Create (repo `docs`): `pesquisa/<AAAA-MM-DD da execução>-prova-tecnica-signer.md`
 
 **Interfaces:**
@@ -830,7 +830,7 @@ import org.apache.pdfbox.pdmodel.interactive.digitalsignature.PDSignature;
  */
 public final class SignatureVerifier {
 
-    private static final Set<String> INDETERMINATE_REASONS = Set.of("revocation_unavailable", "certificate_revoked_after_signing");
+    static final Set<String> INDETERMINATE_REASONS = Set.of("revocation_unavailable", "certificate_revoked_after_signing");
 
     private SignatureVerifier() {}
 
@@ -908,9 +908,13 @@ public final class SignatureVerifier {
         if (revocation != null) reasons.add(revocation);
 
         List<String> unique = List.copyOf(new LinkedHashSet<>(reasons));
-        String status = unique.isEmpty() ? Verification.VALID
-                : unique.stream().allMatch(INDETERMINATE_REASONS::contains) ? Verification.INDETERMINATE : Verification.INVALID;
-        return new Verification(status, cpf(certificate), name(certificate), policyOid, signedAt, unique);
+        return new Verification(status(unique), cpf(certificate), name(certificate), policyOid, signedAt, unique);
+    }
+
+    /** Nenhum motivo → valid; só motivos de dúvida → indeterminate; qualquer outro → invalid. */
+    static String status(List<String> reasons) {
+        if (reasons.isEmpty()) return Verification.VALID;
+        return reasons.stream().allMatch(INDETERMINATE_REASONS::contains) ? Verification.INDETERMINATE : Verification.INVALID;
     }
 
     private static String reasonFor(ValidationMessageCode code) {
@@ -924,7 +928,7 @@ public final class SignatureVerifier {
     }
 
     /** NGS2.03.02: revogação conferida no instante da assinatura (sem carimbo, o signingTime). */
-    private static String revocation(X509Certificate certificate, Instant signedAt) {
+    static String revocation(X509Certificate certificate, Instant signedAt) {
         CRLValidator validator = new CRLValidator();
         try {
             validator.validate(certificate, null);
@@ -965,7 +969,7 @@ public final class SignatureVerifier {
         }
     }
 
-    private static String cpf(X509Certificate certificate) {
+    static String cpf(X509Certificate certificate) {
         try {
             BasicCertificate basic = new BasicCertificate(certificate);
             ICPBRCertificatePF pf = basic.hasCertificatePF() ? basic.getICPBRCertificatePF() : null;
@@ -998,6 +1002,54 @@ public final class SignatureVerifier {
             ASN1Primitive object = in.readObject();
             return ContentInfo.getInstance(object).getEncoded("DER");
         }
+    }
+}
+```
+
+`src/main/java/rotasaude/signer/engine/CertificateCheck.java`:
+
+```java
+package rotasaude.signer.engine;
+
+import java.security.cert.X509Certificate;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import rotasaude.signer.SignerFailure;
+
+/**
+ * Conferência do certificado no vínculo (POST /certificates/check): cadeia até âncora
+ * confiável, validade agora, keyUsage e LCR — o mesmo vocabulário de motivos do /verify.
+ * DER ilegível ou chave não RSA = 422 invalid_certificate; o resto vira status + motivos.
+ */
+public record CertificateCheck(String status, String signerCpf, Instant notAfter, List<String> reasons) {
+
+    public static CertificateCheck of(byte[] certificateDer, Instant now) {
+        X509Certificate certificate = SignatureEngine.certificate(certificateDer);
+        if (!"RSA".equals(certificate.getPublicKey().getAlgorithm())) {
+            throw new SignerFailure(SignerFailure.Code.INVALID_CERTIFICATE);
+        }
+        List<String> reasons = new ArrayList<>();
+        boolean trusted;
+        try {
+            Chain.of(certificate);
+            trusted = true;
+        } catch (SignerFailure untrusted) {
+            trusted = false;
+            reasons.add("untrusted_chain");
+        }
+        if (now.isBefore(certificate.getNotBefore().toInstant()) || now.isAfter(certificate.getNotAfter().toInstant())) {
+            reasons.add("certificate_expired");
+        }
+        boolean[] keyUsage = certificate.getKeyUsage();
+        if (keyUsage == null || !keyUsage[0] || !keyUsage[1]) reasons.add("key_usage");
+        if (trusted) { // LCR de AC desconhecida não diz nada: nem se consulta
+            String revocation = SignatureVerifier.revocation(certificate, null);
+            if (revocation != null) reasons.add(revocation);
+        }
+        List<String> fixed = List.copyOf(reasons);
+        return new CertificateCheck(SignatureVerifier.status(fixed), SignatureVerifier.cpf(certificate),
+                certificate.getNotAfter().toInstant(), fixed);
     }
 }
 ```
@@ -1054,6 +1106,10 @@ public final class SignatureEngine {
     public Verification verify(Kind kind, byte[] document, byte[] signature) {
         if (kind == Kind.CADES && document == null) throw new SignerFailure(SignerFailure.Code.INVALID_REQUEST);
         return SignatureVerifier.verify(kind, document, signature);
+    }
+
+    public CertificateCheck checkCertificate(byte[] certificateDer) {
+        return CertificateCheck.of(certificateDer, clock.instant());
     }
 
     static X509Certificate certificate(byte[] der) {
@@ -2519,16 +2575,17 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 
 ---
 
-### Task 3: Motor de assinatura — CAdES destacado e PAdES AD-RB, ida e volta e adulteração
+### Task 3: Motor de assinatura — CAdES destacado e PAdES AD-RB, ida e volta e adulteração; conferência do certificado
 
 **Files:**
-- Create (cópias da prova): `src/main/java/rotasaude/signer/engine/{Policies,SignedAttributes,CmsAssembler,PdfPlaceholder,TrackingCrlRepository,ValidationMaterial,Verification,SignatureVerifier,SignatureEngine}.java`, `src/main/resources/META-INF/services/org.demoiselle.signer.core.repository.CRLRepository`
-- Test: `src/test/java/rotasaude/signer/engine/CadesRoundTripTest.java`, `src/test/java/rotasaude/signer/engine/PadesRoundTripTest.java`
+- Create (cópias da prova): `src/main/java/rotasaude/signer/engine/{Policies,SignedAttributes,CmsAssembler,PdfPlaceholder,TrackingCrlRepository,ValidationMaterial,Verification,SignatureVerifier,CertificateCheck,SignatureEngine}.java`, `src/main/resources/META-INF/services/org.demoiselle.signer.core.repository.CRLRepository`
+- Test: `src/test/java/rotasaude/signer/engine/CadesRoundTripTest.java`, `src/test/java/rotasaude/signer/engine/PadesRoundTripTest.java`, `src/test/java/rotasaude/signer/engine/CertificateCheckTest.java`
 
 **Interfaces:**
 - Consumes: `Kind`, `PreparedSignature`, `SignerFailure` (Task 1); `Chain`, `DevPki`, `TestPki` (Task 2).
 - Produces:
-  - `rotasaude.signer.engine.SignatureEngine(Clock)`: `PreparedSignature prepare(Kind, byte[] document, byte[] certificateDer)` (422 certificado não RSA, fora da validade, sem cadeia ou revogado; 400 PDF ilegível; 500 política fora da vigência); `Assembled assemble(PreparedSignature, byte[] rawSignature)` → `record Assembled(byte[] signature, byte[] validationMaterial)` (422 `invalid_signature_value`); `Verification verify(Kind, byte[] document, byte[] signature)` (400 se CAdES sem documento).
+  - `rotasaude.signer.engine.SignatureEngine(Clock)`: `PreparedSignature prepare(Kind, byte[] document, byte[] certificateDer)` (422 certificado não RSA, fora da validade, sem cadeia ou revogado; 400 PDF ilegível; 500 política fora da vigência); `Assembled assemble(PreparedSignature, byte[] rawSignature)` → `record Assembled(byte[] signature, byte[] validationMaterial)` (422 `invalid_signature_value`); `Verification verify(Kind, byte[] document, byte[] signature)` (400 se CAdES sem documento); `CertificateCheck checkCertificate(byte[] certificateDer)` (422 `invalid_certificate` só para DER ilegível ou chave não RSA).
+  - `rotasaude.signer.engine.CertificateCheck(String status, String signerCpf, Instant notAfter, List<String> reasons)`: cadeia (`untrusted_chain`), validade agora (`certificate_expired`), keyUsage (`key_usage`) e LCR (`certificate_revoked`; `revocation_unavailable` → `indeterminate`); LCR não é consultada quando a cadeia é desconhecida. Status pela mesma regra do `/verify` (`SignatureVerifier.status(List<String>)`).
   - `rotasaude.signer.engine.Verification(String status, String signerCpf, String signerName, String policyOid, Instant signedAt, List<String> reasons)`; `VALID`, `INVALID`, `INDETERMINATE`.
   - Motivos: `malformed_signature`, `signature_mismatch`, `untrusted_chain`, `policy_mismatch`, `signing_time_missing`, `certificate_expired`, `key_usage`, `certificate_revoked`, `pdf_modified_after_signing` (→ `invalid`); `revocation_unavailable`, `certificate_revoked_after_signing` (sozinhos → `indeterminate`); demais `ValidationMessageCode` do Demoiselle em minúsculas (→ `invalid`).
   - `Policies.oid(Kind)`, `Policies.acceptedOids(Kind)`, `Policies.SIGNATURE_ALGORITHM = "SHA256withRSA"`; `PdfPlaceholder.SIGNATURE_SIZE = 24_576`; `TrackingCrlRepository.lastSuccess() -> Instant|null`.
@@ -2801,16 +2858,106 @@ class PadesRoundTripTest {
 }
 ```
 
+`src/test/java/rotasaude/signer/engine/CertificateCheckTest.java` (válido, revogado, vencido, cadeia desconhecida, LCR indisponível e DER ilegível):
+
+```java
+package rotasaude.signer.engine;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.nio.charset.StandardCharsets;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import rotasaude.signer.SignerFailure;
+import rotasaude.signer.devpki.DevPki;
+import rotasaude.signer.support.TestPki;
+
+class CertificateCheckTest {
+
+    private static final TestPki PKI = TestPki.get();
+
+    private final SignatureEngine engine = new SignatureEngine(Clock.systemUTC());
+
+    @AfterEach
+    void crlBack() {
+        PKI.crlAvailable(true);
+    }
+
+    @Test
+    void activeCertificateIsValid() throws Exception {
+        DevPki.Issued professional = PKI.professional();
+
+        CertificateCheck result = engine.checkCertificate(professional.certificate().getEncoded());
+
+        assertEquals(List.of(), result.reasons());
+        assertEquals("valid", result.status());
+        assertEquals(TestPki.CPF, result.signerCpf());
+        assertEquals(professional.certificate().getNotAfter().toInstant(), result.notAfter());
+    }
+
+    @Test
+    void revokedCertificateIsInvalid() throws Exception {
+        DevPki.Issued professional = PKI.professional();
+        PKI.pki.revoke(professional.certificate().getSerialNumber(), Instant.now().minus(Duration.ofMinutes(5)));
+
+        CertificateCheck result = engine.checkCertificate(professional.certificate().getEncoded());
+
+        assertEquals("invalid", result.status());
+        assertEquals(List.of("certificate_revoked"), result.reasons());
+    }
+
+    @Test
+    void expiredCertificateIsInvalid() throws Exception {
+        CertificateCheck result = engine.checkCertificate(PKI.expiredProfessional().certificate().getEncoded());
+
+        assertEquals("invalid", result.status());
+        assertEquals(List.of("certificate_expired"), result.reasons());
+    }
+
+    @Test
+    void certificateFromAnUnknownAuthorityIsInvalid() throws Exception {
+        CertificateCheck result = engine.checkCertificate(TestPki.untrustedProfessional().certificate().getEncoded());
+
+        assertEquals("invalid", result.status());
+        assertEquals(List.of("untrusted_chain"), result.reasons());
+        assertEquals(TestPki.CPF, result.signerCpf());
+    }
+
+    @Test
+    void unreachableCrlIsIndeterminate() throws Exception {
+        byte[] der = PKI.professional().certificate().getEncoded();
+        PKI.crlAvailable(false);
+
+        CertificateCheck result = engine.checkCertificate(der);
+
+        assertEquals("indeterminate", result.status());
+        assertEquals(List.of("revocation_unavailable"), result.reasons());
+    }
+
+    @Test
+    void unreadableDerIsAnInvalidCertificate() {
+        SignerFailure failure = assertThrows(SignerFailure.class,
+                () -> engine.checkCertificate("not a certificate".getBytes(StandardCharsets.UTF_8)));
+        assertEquals(SignerFailure.Code.INVALID_CERTIFICATE, failure.code);
+    }
+}
+```
+
 - [ ] **Step 2: Rode e veja falhar**
 
 Run: `(cd apps/signer/.claude/mod19b && bin/mvn -q test)`
-Expected: FAIL de compilação — `cannot find symbol ... SignatureEngine`, `Verification`, `Policies`.
+Expected: FAIL de compilação — `cannot find symbol ... SignatureEngine`, `Verification`, `Policies`, `CertificateCheck`.
 
 - [ ] **Step 3: Copie o motor da prova**
 
 ```bash
 PR=.claude/signer-proof/src/main; W=apps/signer/.claude/mod19b/src/main
-for f in Policies SignedAttributes CmsAssembler PdfPlaceholder TrackingCrlRepository ValidationMaterial Verification SignatureVerifier SignatureEngine; do
+for f in Policies SignedAttributes CmsAssembler PdfPlaceholder TrackingCrlRepository ValidationMaterial Verification SignatureVerifier CertificateCheck SignatureEngine; do
   cp $PR/java/rotasaude/signer/engine/$f.java $W/java/rotasaude/signer/engine/
 done
 mkdir -p $W/resources/META-INF/services
@@ -2824,7 +2971,7 @@ Expected: `igual` para os quatro (o que veio antes da prova não divergiu). O co
 - [ ] **Step 4: Rode e veja passar**
 
 Run: `(cd apps/signer/.claude/mod19b && bin/mvn test)`
-Expected: `Tests run: 29, Failures: 0, Errors: 0` (11 anteriores + 13 de `CadesRoundTripTest` + 5 de `PadesRoundTripTest`). `CadesRoundTripTest` leva ~6 s (a LCR indisponível espera o timeout de 2 s duas vezes).
+Expected: `Tests run: 35, Failures: 0, Errors: 0` (11 anteriores + 13 de `CadesRoundTripTest` + 5 de `PadesRoundTripTest` + 6 de `CertificateCheckTest`). `CadesRoundTripTest` leva ~6 s (a LCR indisponível espera o timeout de 2 s duas vezes).
 
 - [ ] **Step 5: Commit**
 
@@ -2834,9 +2981,10 @@ W=apps/signer/.claude/mod19b
   src/main/java/rotasaude/signer/engine/CmsAssembler.java src/main/java/rotasaude/signer/engine/PdfPlaceholder.java \
   src/main/java/rotasaude/signer/engine/TrackingCrlRepository.java src/main/java/rotasaude/signer/engine/ValidationMaterial.java \
   src/main/java/rotasaude/signer/engine/Verification.java src/main/java/rotasaude/signer/engine/SignatureVerifier.java \
-  src/main/java/rotasaude/signer/engine/SignatureEngine.java \
+  src/main/java/rotasaude/signer/engine/CertificateCheck.java src/main/java/rotasaude/signer/engine/SignatureEngine.java \
   src/main/resources/META-INF/services/org.demoiselle.signer.core.repository.CRLRepository \
-  src/test/java/rotasaude/signer/engine/CadesRoundTripTest.java src/test/java/rotasaude/signer/engine/PadesRoundTripTest.java
+  src/test/java/rotasaude/signer/engine/CadesRoundTripTest.java src/test/java/rotasaude/signer/engine/PadesRoundTripTest.java \
+  src/test/java/rotasaude/signer/engine/CertificateCheckTest.java
 /opt/homebrew/bin/git -C $W status --short
 /opt/homebrew/bin/git -C $W commit -m "feat: prepare, assemble and verify AD-RB CAdES and PAdES with an external signature
 
@@ -2845,30 +2993,31 @@ BouncyCastle wraps the RAW value returned by the PSC into the SignerInfo,
 and PDFBox reserves and fills the PDF signature. Verification checks
 policy, chain, signing time, key usage and revocation at signing time,
 with reasons; revocation after signing or an unreachable CRL is
-indeterminate, never valid.
+indeterminate, never valid. The same checks back the certificate check
+used when a professional links a certificate.
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ```
 
 ---
 
-### Task 4: HTTP do contrato §9, boot e higiene de log
+### Task 4: HTTP do contrato §9 (com `/certificates/check`), boot e higiene de log
 
 **Files:**
 - Create: `src/main/java/rotasaude/signer/http/SignerServer.java`, `src/main/java/rotasaude/signer/App.java`, `src/main/resources/log4j2.xml` (cópia da prova)
 - Test: `src/test/java/rotasaude/signer/http/SignerServerTest.java`
 
 **Interfaces:**
-- Consumes: `Config` (Task 1), `PreparedStateCodec` (Task 1), `SignatureEngine`, `Verification`, `TrackingCrlRepository` (Task 3), `TestPki` (Task 2).
+- Consumes: `Config` (Task 1), `PreparedStateCodec` (Task 1), `SignatureEngine` (inclusive `checkCertificate`), `Verification`, `CertificateCheck`, `TrackingCrlRepository` (Task 3), `TestPki` (Task 2).
 - Produces:
   - `rotasaude.signer.http.SignerServer.start(Config, SignatureEngine) -> com.sun.net.httpserver.HttpServer` (já iniciado).
-  - Rotas do contrato §9; rota desconhecida → 404 `{ "error": "not_found" }`; corpo acima de 48 MB, JSON inválido, campo ausente ou base64 inválido → 400 `invalid_request`; `signed_at` ISO 8601 UTC (`...Z`) ou `null`.
+  - Rotas do contrato §9 e `POST /certificates/check { certificate_der_base64 }` → 200 `{ "status", "signer_cpf", "not_after" (ISO 8601 UTC), "reasons": [] }`, token obrigatório, 422 `invalid_certificate` (DER ilegível/não RSA), 400 `invalid_request` (campo ausente/base64 inválido); rota desconhecida → 404 `{ "error": "not_found" }`; corpo acima de 48 MB, JSON inválido, campo ausente ou base64 inválido → 400 `invalid_request`; `signed_at` ISO 8601 UTC (`...Z`) ou `null`.
   - Com `SIGNER_DEV_PKI_DIR`: `GET /dev-pki/root.crl` e `/dev-pki/intermediate.crl` sem token, `application/pkix-crl`; qualquer outro nome → 404.
   - `rotasaude.signer.App.main` (sai com 1 e mensagem sem segredo se a configuração for recusada).
 
 - [ ] **Step 1: Escreva o teste que falha**
 
-`src/test/java/rotasaude/signer/http/SignerServerTest.java`:
+`src/test/java/rotasaude/signer/http/SignerServerTest.java` (`certificateCheckOverHttp` cobre a rota nova: sem token, válido, cadeia desconhecida, 422 e 400):
 
 ```java
 package rotasaude.signer.http;
@@ -3004,6 +3153,28 @@ class SignerServerTest {
     }
 
     @Test
+    void certificateCheckOverHttp() throws Exception {
+        DevPki.Issued professional = PKI.professional();
+        String body = JSON.createObjectNode().put("certificate_der_base64", B.e(professional.certificate().getEncoded())).toString();
+
+        assertEquals(401, call("POST", "/certificates/check", null, body).statusCode());
+        JsonNode valid = post("/certificates/check", (ObjectNode) JSON.readTree(body), 200);
+        assertEquals("valid", valid.get("status").asText(), valid.toString());
+        assertEquals(TestPki.CPF, valid.get("signer_cpf").asText());
+        assertEquals(professional.certificate().getNotAfter().toInstant().toString(), valid.get("not_after").asText());
+        assertEquals(0, valid.get("reasons").size());
+
+        JsonNode untrusted = post("/certificates/check", JSON.createObjectNode()
+                .put("certificate_der_base64", B.e(TestPki.untrustedProfessional().certificate().getEncoded())), 200);
+        assertEquals("invalid", untrusted.get("status").asText());
+        assertEquals("untrusted_chain", untrusted.get("reasons").get(0).asText());
+
+        assertEquals("invalid_certificate", post("/certificates/check", JSON.createObjectNode()
+                .put("certificate_der_base64", B.e("not a certificate".getBytes(StandardCharsets.UTF_8))), 422).get("error").asText());
+        assertEquals("invalid_request", post("/certificates/check", JSON.createObjectNode(), 400).get("error").asText());
+    }
+
+    @Test
     void contractErrors() throws Exception {
         DevPki.Issued professional = PKI.professional();
         byte[] json = "{}".getBytes(StandardCharsets.UTF_8);
@@ -3098,6 +3269,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import rotasaude.signer.Config;
 import rotasaude.signer.SignerFailure;
+import rotasaude.signer.engine.CertificateCheck;
 import rotasaude.signer.engine.Kind;
 import rotasaude.signer.engine.PreparedSignature;
 import rotasaude.signer.engine.PreparedStateCodec;
@@ -3148,6 +3320,7 @@ public final class SignerServer {
                 case "POST /prepare" -> prepare(read(exchange));
                 case "POST /assemble" -> assemble(read(exchange));
                 case "POST /verify" -> verify(read(exchange));
+                case "POST /certificates/check" -> checkCertificate(read(exchange));
                 case "GET /health" -> health();
                 default -> null;
             };
@@ -3202,6 +3375,17 @@ public final class SignerServer {
         out.put("signer_name", result.signerName());
         out.put("policy_oid", result.policyOid());
         out.put("signed_at", result.signedAt() == null ? null : result.signedAt().toString());
+        ArrayNode reasons = out.putArray("reasons");
+        result.reasons().forEach(reasons::add);
+        return out;
+    }
+
+    private ObjectNode checkCertificate(JsonNode request) {
+        CertificateCheck result = engine.checkCertificate(base64(request, "certificate_der_base64"));
+        ObjectNode out = JSON.createObjectNode();
+        out.put("status", result.status());
+        out.put("signer_cpf", result.signerCpf());
+        out.put("not_after", result.notAfter().toString());
         ArrayNode reasons = out.putArray("reasons");
         result.reasons().forEach(reasons::add);
         return out;
@@ -3321,7 +3505,7 @@ cp .claude/signer-proof/src/main/resources/log4j2.xml apps/signer/.claude/mod19b
 - [ ] **Step 4: Rode e veja passar**
 
 Run: `(cd apps/signer/.claude/mod19b && bin/mvn test)`
-Expected: `Tests run: 36, Failures: 0, Errors: 0`, `BUILD SUCCESS`.
+Expected: `Tests run: 43, Failures: 0, Errors: 0` (35 anteriores + 8 de `SignerServerTest`), `BUILD SUCCESS`.
 
 - [ ] **Step 5: Prove que o teste de higiene morde**
 
@@ -3344,7 +3528,8 @@ W=apps/signer/.claude/mod19b
 /opt/homebrew/bin/git -C $W commit -m "feat: expose prepare, assemble, verify and health over internal HTTP
 
 JDK HTTP server with a shared bearer token on every route, contract error
-codes only, an access log without bodies, and Demoiselle logging switched
+codes only, POST /certificates/check for the link step, an access log
+without bodies, and Demoiselle logging switched
 off because it writes the holder's name and CPF. The dev PKI CRLs are
 served without a token only when SIGNER_DEV_PKI_DIR is set.
 
@@ -3417,6 +3602,7 @@ infraestrutura e o `signer` nunca grava documento.
 | `POST /prepare` | Monta os atributos assinados da política (Demoiselle, sem chave privada) e devolve o SHA-256 que vai ao PSC e um `prepared_state` opaco (selado com HMAC). Em PAdES, reserva a assinatura no PDF e grava a hora (entrada `M`). |
 | `POST /assemble` | Confere a RAW contra o certificado (PKCS#1 v1.5 SHA-256 sobre os atributos), monta o CMS (BouncyCastle) e devolve o `.p7s` ou o PDF assinado, mais o material de validação (cadeia + LCRs do ato, CMS certs-only). |
 | `POST /verify` | Valida no servidor (NGS2.03): criptografia e atributos (checker do Demoiselle), política AD-RB, cadeia até âncora confiável, hora da assinatura dentro da validade, keyUsage e revogação no instante da assinatura. `valid`, `invalid` ou `indeterminate`, com motivos. |
+| `POST /certificates/check` | Confere o certificado no vínculo: cadeia até âncora confiável, validade agora, keyUsage e LCR, com os mesmos motivos do `/verify`; devolve `status`, `signer_cpf`, `not_after`, `reasons`. DER ilegível ou chave não RSA → 422 `invalid_certificate`. |
 | `GET /health` | Versão e hora do último download de LCR bem-sucedido. |
 
 Formas e erros: `docs/superpowers/plans/2026-10-08-module-19b-signature-contracts.md` §9
@@ -3628,7 +3814,7 @@ W=apps/signer/.claude/mod19b
 (cd $W && bin/mvn verify) 2>&1 | grep -E "Tests run: [0-9]+, F.*$|BUILD"
 /opt/homebrew/bin/git -C $W grep -n -i "client_secret\|BEGIN PRIVATE KEY\|vidaas-sandbox.env" -- . ':!README.md' ':!src/main/java/rotasaude/signer/devpki' || echo "sem-segredo"
 ```
-Expected: 5 commits; `Tests run: 36, Failures: 0, Errors: 0` e `BUILD SUCCESS`; `sem-segredo` (nenhuma credencial nem chave versionada; o `DevPki` só gera chave em tempo de execução).
+Expected: 5 commits; `Tests run: 43, Failures: 0, Errors: 0` e `BUILD SUCCESS`; `sem-segredo` (nenhuma credencial nem chave versionada; o `DevPki` só gera chave em tempo de execução).
 
 - [ ] **Step 2: Peça a revisão final**
 
@@ -3636,7 +3822,7 @@ Use superpowers:requesting-code-review sobre `main..feat/mod-19b-signature` com 
 
 - [ ] **Step 3: Pare e peça autorização — uma etapa de cada vez**
 
-Reporte ao usuário: resultado da prova (link da pesquisa), os 5 commits, 36 testes verdes e o compose de dev funcionando. Pergunte, separadamente:
+Reporte ao usuário: resultado da prova (link da pesquisa), os 5 commits, 43 testes verdes e o compose de dev funcionando. Pergunte, separadamente:
 1. merge `--ff-only` de `feat/mod-19b-signature` na `main` local de `apps/signer`;
 2. **criação do repositório remoto `rotasaude/signer`** (público, como os outros da organização) e o `origin`;
 3. push da `main`;
@@ -3691,4 +3877,5 @@ Mova o card F-19.15 ("Serviço `signer`") do board #1 para Done (o coordenador m
 - **S7 — limites e recusas.** Corpo acima de 48 MB → 400; certificado não RSA → 422 `invalid_certificate`; PDF ilegível no `/prepare` → 400; política fora do período de assinatura → 500 `internal`.
 - **S8 — PAdES invisível.** O `signer` não desenha nada no PDF: o rodapé NGS2 (nome, CPF mascarado, data/hora, política, "verifique em validar.iti.gov.br") tem de vir no PDF que o `api` manda ao `/prepare`.
 - **S9 — ambiente de dev para o `api`.** `SIGNER_URL`, `SIGNER_TOKEN` e `SIGNER_DEV_PKI_DIR=/signer-dev-pki` em `x-api-env`; volume `signer-dev-pki` no `api`/`worker`; formato do e-CPF de teste na Task 2 (Produces). O plano do `api` deve usar esses nomes para o PSC falso e para o `signer` real no compose de teste (spec §11).
+- **S11 — `POST /certificates/check`** (decisão do usuário em 2026-10-08: o vínculo já confere revogação). Não está no §9: `{ certificate_der_base64 }` → `{ status, signer_cpf, not_after, reasons }`, mesmo vocabulário de `reasons` do `/verify` (`untrusted_chain`, `certificate_expired`, `key_usage`, `certificate_revoked`, `revocation_unavailable`), token obrigatório, 422 `invalid_certificate` para DER ilegível ou chave não RSA. Cadeia desconhecida é `200 invalid` (não 422), para o `api` mostrar o motivo; o plano do `api` usa esta rota no `link` (contrato §4, erros `certificate_expired`/`certificate_revoked`).
 - **S10 — caminho dos esquemas canônicos.** O `signer` não lê os esquemas; ver a divergência C1 do plano do `contracts` (`clinical/…` em vez de `schemas/clinical/…`).

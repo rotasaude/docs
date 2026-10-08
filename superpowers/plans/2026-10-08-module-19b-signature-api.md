@@ -14,7 +14,7 @@
 
 ## Desvios da spec (e precisões)
 
-1. **`previous_sha256` do adendo** segue o esquema do `contracts`: o `canonical_sha256` do documento **assinado** anterior da mesma consulta (consulta ou adendo, na ordem do documento); sem nenhum assinado, o sha256 do JSON canônico da consulta. Precisão: no lote, os documentos são preparados em ordem e um adendo cujo anterior está no **mesmo** lote ainda não o vê assinado (usa o assinado antes dele ou a consulta) — o valor fica gravado no próprio JSON assinado, então a cadeia continua verificável (Decisões em aberto, 1).
+1. **`previous_sha256` do adendo** segue o esquema do `contracts`: o `canonical_sha256` do documento **assinado** anterior da mesma consulta (consulta ou adendo, na ordem de criação); sem nenhum assinado, o sha256 do JSON canônico da consulta. **No lote** (decisão do usuário): os documentos são assinados em ordem cronológica de criação e os já preparados no mesmo lote contam como assinados — o segundo adendo leva o hash canônico do primeiro, já conhecido antes de assinar; se o primeiro falha no lote, o segundo não é assinado e fica `pending` com o mesmo motivo (Task 11 `Signing`, teste na Task 13).
 2. **Status `failed` não é produzido pelo 19b.** Toda falha deixa o pedido `pending` com `reason_code` (o profissional assina em lote ou devolve ao papel). O valor continua no CHECK e no contrato, reservado.
 3. **`signer_certificates.certificate_alias`** (coluna a mais): a API do ITI assina por `certificate_alias` (devolvido pela recuperação de certificado); sem ele não há chamada de assinatura.
 4. **`signature_oauth_states.provider`, `.request_ids` (uuid[]) e `.return_to`** (colunas a mais): o lote precisa lembrar quais pedidos a aprovação cobre, e o retorno precisa do caminho do dashboard.
@@ -22,8 +22,8 @@
 6. **Binários cifrados como texto base64.** `cades`, `signed_pdf`, `validation_material` e `certificate_der` são `text` com base64 cifrado pelo Active Record Encryption (a spec diz `bytea`; o `encrypts` do projeto trabalha com texto e o `CityEncryption`/`ReencryptionJob` só re-cifram texto). `validation_material` e `certificate_der` também são cifrados: a cadeia carrega o certificado do profissional, com CPF e nome. `validation_material` guarda `{"cades": <b64 do .p7c>, "pades": <b64 do .p7c>}` (o `signer` devolve um CMS `.p7c` com a cadeia e as LCRs por montagem).
 7. **Trigger de `signatures`** aceita UPDATE só de `last_verification`, `last_verification_at`, `last_verification_reasons` e, sob a marca `rota.reencrypting` (a mesma do 19a), só das colunas cifradas. `signature_requests` recusa DELETE, recusa mudar identidade (`document_type`, `document_id`, `consultation_id`, `author_user_id`) e recusa sair de `signed`/`returned_to_paper` (exceto a re-cifra de `return_note`).
 8. **Desligar o interruptor** (`digital_signature`, ou o `clinical_record` de que ele depende, ou o `record_mode`) devolve ao papel os pedidos `pending` com `feature_disabled` em até 10 minutos (`Signatures::SweepJob`, recorrente por cidade) — e na hora, se um job ou lote tocar o pedido antes. O interruptor é gravado na plataforma; a fila mora na cidade; a varredura evita enfileirar job de cidade a partir do maintenance.
-9. **Retorno do PSC.** A `redirect_uri` padrão é a rota do dashboard da cidade, `<host da cidade>/dashboard/signature/callback` (o que os planos do dashboard e do contrato fixam). Como cada cidade tem host próprio e a credencial do PSC é da plataforma, o plano oferece também um retorno **único** por ambiente no host `auth.*` (`GET /signature/psc/callback`, como o callback do gov.br): com `SIGNATURE_REDIRECT_URI` definida, é ela que vai ao PSC, e o salto lê a cidade do `state` assinado e devolve o navegador (302) para a mesma rota do dashboard. Sem a variável, nada muda para o dashboard (Divergência D2).
-10. **Revogação.** O `signer` não tem rota para conferir certificado sem assinar; o vínculo confere CPF, validade e uso de chave no api, e a revogação (cadeia e LCR) é conferida pelo `/verify` em toda assinatura e revalidação (revogado → `pending` com `certificate_revoked`; revogado depois do `signingTime` → `indeterminate`, regra do `signer`). Uma rota `POST /certificates/check` no `signer` fica como Divergência D1 (melhoria, não bloqueia).
+9. **Retorno do PSC: um por cidade** (decisão do usuário). A `redirect_uri` de cada pedido é `https://<host do dashboard da cidade>/dashboard/signature/callback`, montada de `CityPublicUrl.dashboard(city)`; o dashboard chama `POST /signature/oauth/callback`. Não há retorno único no `auth.*`. Cadastrar o endereço de cada cidade em cada PSC é passo de go-live por cidade (Task 19).
+10. **Revogação no vínculo** (decisão do usuário): o `signer` ganha `POST /certificates/check { certificate_der_base64 }` → `{ status: valid|invalid|indeterminate, signer_cpf, not_after, reasons }` (cadeia + LCR; contrato D1, obrigatória). O vínculo (e a renovação na abertura de sessão) recusa `invalid` com 422 `certificate_revoked` / `certificate_expired` / `certificate_untrusted` (`untrusted_chain`, código novo); `indeterminate` (`revocation_unavailable`) aceita e grava o motivo em `signer_certificates.link_check_status`/`link_check_reasons` — a revogação volta a ser conferida no `/verify` da primeira assinatura; 422 `invalid_certificate` ou `signer` fora do ar → 503 `signer_unavailable`.
 11. **Certificado renovado no PSC.** A abertura de sessão relê o certificado; serial diferente do vinculado (o profissional renovou) → passa pelas mesmas conferências do vínculo e vira o `active` (o anterior, `replaced`). A cada assinatura o CPF do certificado é conferido de novo contra o CPF do profissional (NGS2.01.02); diferente → `pending` com `certificate_cpf_mismatch` (Divergência D4).
 12. **`signer_name` do bloco `signature`** = nome do profissional autor (o mesmo de `author.name` no 19a); o rodapé do PDF usa o nome do certificado (o que foi assinado).
 13. **Impresso com adendos.** `GET /attendance/consultations/:id/print` devolve o PDF assinado (PAdES da consulta) quando a consulta é `digital` **e não tem adendo**; nos demais casos, o impresso do 19a ganha a seção "Assinaturas" (modo e validação de cada parte) e só mantém o espaço de assinatura à mão quando alguma parte é `manual` ou `pending`.
@@ -115,7 +115,7 @@ Se o 19a ainda receber correções depois do merge, rebase sobre `origin/main` e
 | `db/city_migrate/20261008500001_add_digital_signatures.rb`, `db/city_schema.rb`, `db/city_triggers.sql`, `app/models/{signer_certificate,signature_session,signature_oauth_state,signature_request,signature}.rb`, `app/services/signatures/document_types.rb`, `app/services/city_encryption.rb`, `config/initializers/{domain_events,filter_parameter_logging}.rb`, `spec/support/signature_helpers.rb` | dados, triggers, cifra, eventos, helpers | 3 |
 | `db/platform_migrate/20261008500001_create_signature_provider_checks.rb`, `db/platform_schema.rb`, `app/models/signature_provider_check.rb`, `app/services/signatures/providers.rb`, `app/services/signatures/psc.rb`, `app/services/signatures/psc/client.rb`, `lib/fake_psc/app.rb` | prestadores e cliente da API v0 do ITI; PSC falso | 4 |
 | `app/services/signatures/signer.rb`, `app/services/signatures/signer/client.rb`, `spec/support/fake_signer.rb` | cliente do `signer` (contrato §9) | 5 |
-| `app/services/signatures/oauth_states.rb`, `app/controllers/signatures/psc_callbacks_controller.rb`, `config/routes.rb` | `state` de uso único e o retorno opcional no `auth.*` | 6 |
+| `app/services/signatures/oauth_states.rb` | `state` de uso único do OAuth | 6 |
 | `app/commands/signatures/{discover,start_link,accept_certificate,unlink,complete_oauth}.rb`, `app/services/signatures/json.rb`, `app/controllers/signatures/{base,certificates,oauth}_controller.rb` | vínculo do certificado e o callback | 7 |
 | `app/commands/signatures/{start_session,open_session,close_session}.rb`, `app/controllers/signatures/sessions_controller.rb` | sessão do turno | 8 |
 | `app/services/signatures/{jcs,canonical}.rb`, `config/clinical/{consultation-v1,consultation-addendum-v1}.json`, `spec/fixtures/clinical/**` | JSON canônico RFC 8785 (provado contra o vetor do `contracts`) e a cadeia | 9 |
@@ -165,10 +165,10 @@ Expected: todos `ok`; `record_mode:record` no catálogo; os dois `bind` com `to:
 /opt/homebrew/bin/git -C contracts tag -l clinical-v1.0.0
 /opt/homebrew/bin/git -C contracts ls-tree -r --name-only clinical-v1.0.0 clinical/ | grep -v "examples/consultation"
 ls apps/signer && /opt/homebrew/bin/git -C apps/signer log --oneline -3 origin/main
-/opt/homebrew/bin/git -C apps/signer grep -n '"/prepare"\|"/assemble"\|"/verify"\|"/health"\|SIGNER_DEV_PKI_DIR\|/dev-pki/' origin/main -- src
+/opt/homebrew/bin/git -C apps/signer grep -n '"/prepare"\|"/assemble"\|"/verify"\|"/health"\|"/certificates/check"\|SIGNER_DEV_PKI_DIR\|/dev-pki/' origin/main -- src
 grep -n "signer-dev-pki\|SIGNER_DEV_PKI_DIR" docker-compose.yml
 ```
-Expected: a tag existe com `clinical/consultation-v1.json`, `clinical/consultation-addendum-v1.json` e `clinical/examples/canonical/{consultation-full.jcs,addendum-structured.jcs,SHA256SUMS}`; `apps/signer` existe com as quatro rotas do contrato §9 e o `DevPki` (`SIGNER_DEV_PKI_DIR`, LCRs em `/dev-pki/`); o compose tem o volume `signer-dev-pki` (o plano do `signer` o cria; o api o monta na Task 18). Se algo faltar, **pare** e reporte ao coordenador. Confira também, no registro da Task 0 do plano do `signer`, que a prova técnica (sandbox VIDaaS → validar.iti.gov.br) foi aprovada; sem ela, **pare** (spec §12).
+Expected: a tag existe com `clinical/consultation-v1.json`, `clinical/consultation-addendum-v1.json` e `clinical/examples/canonical/{consultation-full.jcs,addendum-structured.jcs,SHA256SUMS}`; `apps/signer` existe com as rotas do contrato §9, `POST /certificates/check` (D1) e o `DevPki` (`SIGNER_DEV_PKI_DIR`, LCRs em `/dev-pki/`); o compose tem o volume `signer-dev-pki` (o plano do `signer` o cria; o api o monta na Task 18). Se algo faltar, **pare** e reporte ao coordenador. Confira também, no registro da Task 0 do plano do `signer`, que a prova técnica (sandbox VIDaaS → validar.iti.gov.br) foi aprovada; sem ela, **pare** (spec §12).
 
 - [ ] **Step 3: Confira os nomes da API v0 do ITI (WebFetch, só leitura)**
 
@@ -659,6 +659,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 - Consumes: `CityEncryption.allowing_reencryption` (19a), `rota_append_only()` (função existente em `db/city_triggers.sql`), `FakePsc::Pki` (Task 2), `doctor!`/`clinical_city!` (19a).
 - Produces:
   - Tabelas `signer_certificates`, `signature_sessions`, `signature_oauth_states`, `signature_requests`, `signatures` (colunas no Step 3); índices `idx_signer_certificates_one_active`, `idx_signature_sessions_one_active`, `idx_signature_requests_document` (único), `idx_signature_requests_queue`, `idx_signatures_document` (único), `index_signatures_on_signature_request_id` (único); triggers `signatures_guard`, `signatures_append_only_truncate`, `signature_requests_guard`, `signature_requests_append_only_truncate`.
+  - `signer_certificates.link_check_status` (`valid`|`indeterminate`) e `.link_check_reasons` (string[]): o resultado do `POST /certificates/check` no vínculo.
   - Modelos: `SignerCertificate` (`PROVIDERS`, `STATUSES`, `EXPIRING_WITHIN == 30.days`, `scope :active`, `#der`, `#info -> Signatures::CertificateInfo`, `#expires_in_days(now)`, `#expiring?(now)`); `SignatureSession` (`STATUSES`, `SCOPE == "signature_session"`, `MAX_LIFETIME == 12.hours`, `.usable_for(user_id, now:)`, `.lapsed?(user_id, now:)`); `SignatureOauthState` (`PURPOSES`, `TTL == 10.minutes`); `SignatureRequest` (`STATUSES`, `REASONS`, `TRANSIENT_REASONS`, `MIN_RETURN_NOTE == 10`, `MAX_RETURN_NOTE == 500`, `scope :pending`, `#pending?`, `#document`, `has_one :signature`); `Signature` (`POLICIES`, `VERIFICATIONS`, `#cades_bytes`, `#signed_pdf_bytes`, `#material -> Hash`).
   - `Signatures::DocumentTypes::MODELS`, `.api(db_type) -> "consultation"|"consultation_addendum"`, `.db(document) -> "Consultation"|"ConsultationAddendum"`, `.find(db_type, id)`, `.consultation_id(document)`.
   - Eventos declarados (`to: []`): `signature.certificate_linked`, `signature.certificate_unlinked`, `signature.session_opened`, `signature.signed`, `signature.failed`, `signature.returned_to_paper`, `signature.verified`.
@@ -880,6 +881,10 @@ class AddDigitalSignatures < ActiveRecord::Migration[8.1]
       t.datetime :not_after, null: false
       t.string :status, null: false, default: "active"
       t.text :certificate_der, null: false
+      # Resultado do POST /certificates/check do signer no vínculo (indeterminate =
+      # LCR fora do ar; a revogação volta a ser conferida na primeira assinatura).
+      t.string :link_check_status, null: false, default: "valid"
+      t.string :link_check_reasons, array: true, null: false, default: []
       t.timestamps
     end
     add_index :signer_certificates, :user_id, unique: true, where: "((status)::text = 'active'::text)",
@@ -889,7 +894,8 @@ class AddDigitalSignatures < ActiveRecord::Migration[8.1]
     checks(:signer_certificates,
            "ck_signer_certificates_provider" => text_in("provider", PROVIDERS),
            "ck_signer_certificates_status" => text_in("status", %w[active replaced unlinked revoked expired]),
-           "ck_signer_certificates_validity" => "not_after > not_before")
+           "ck_signer_certificates_validity" => "not_after > not_before",
+           "ck_signer_certificates_link_check" => text_in("link_check_status", %w[valid indeterminate]))
 
     create_table :signature_sessions, id: :uuid do |t|
       t.uuid :user_id, null: false
@@ -1168,6 +1174,8 @@ Troque `define(version: 2026_10_07_400003)` por `define(version: 2026_10_08_5000
     t.text "certificate_der", null: false
     t.datetime "created_at", null: false
     t.text "issuer_dn", null: false
+    t.string "link_check_reasons", default: [], null: false, array: true
+    t.string "link_check_status", default: "valid", null: false
     t.datetime "not_after", null: false
     t.datetime "not_before", null: false
     t.string "provider", null: false
@@ -1179,6 +1187,7 @@ Troque `define(version: 2026_10_07_400003)` por `define(version: 2026_10_08_5000
     t.index ["user_id"], name: "idx_signer_certificates_one_active", unique: true, where: "((status)::text = 'active'::text)"
     t.index ["user_id"], name: "index_signer_certificates_on_user_id"
     t.check_constraint "not_after > not_before", name: "ck_signer_certificates_validity"
+    t.check_constraint "link_check_status::text = ANY (ARRAY['valid'::text, 'indeterminate'::text])", name: "ck_signer_certificates_link_check"
     t.check_constraint "provider::text = ANY (ARRAY['vidaas'::text, 'birdid'::text, 'safeid'::text, 'neoid'::text, 'remoteid'::text])", name: "ck_signer_certificates_provider"
     t.check_constraint "status::text = ANY (ARRAY['active'::text, 'replaced'::text, 'unlinked'::text, 'revoked'::text, 'expired'::text])", name: "ck_signer_certificates_status"
   end
@@ -1405,7 +1414,7 @@ Em `config/initializers/filter_parameter_logging.rb`, depois da última entrada 
 e, no fim do arquivo:
 
 ```ruby
-# ADR 0032: o retorno do PSC traz code e state na URL (salto do auth.* para o dashboard).
+# ADR 0032: o retorno do PSC traz code e state na URL do dashboard.
 Rails.application.config.filter_redirect += [ /code=/ ]
 ```
 
@@ -1439,7 +1448,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 - Consumes: `FakePsc::Pki` (Task 2), `SignerCertificate::PROVIDERS` (Task 3), `CityPublicUrl.dashboard(city)`, `Rota.deployed?` (existentes).
 - Produces:
   - `SignatureProviderCheck` (plataforma; `provider` único, `last_check_at`, `last_check_ok`), `.record!(provider, ok:, at: Time.current)` (nunca levanta).
-  - `Signatures::Providers::CATALOG`, `::LABELS`, `::Provider = Data(:key, :client_id, :client_secret, :base_url, :authorize_base_url)`; `.credentials -> Hash{String => Hash}` (credenciais cifradas `signature.providers.<key>`; em development, sobre `config.x.signature_dev_providers`), `.find(key) -> Provider|nil` (nil sem as três chaves), `.configured -> Array<Provider>`, `.configured?(key)`, `.redirect_uri(city) -> String` (`SIGNATURE_REDIRECT_URI` ou `<dashboard da cidade>signature/callback` = `/dashboard/signature/callback`), `.record_check!(key, ok:)`, `.checks -> Hash{key => SignatureProviderCheck}`.
+  - `Signatures::Providers::CATALOG`, `::LABELS`, `::Provider = Data(:key, :client_id, :client_secret, :base_url, :authorize_base_url)`; `.credentials -> Hash{String => Hash}` (credenciais cifradas `signature.providers.<key>`; em development, sobre `config.x.signature_dev_providers`), `.find(key) -> Provider|nil` (nil sem as três chaves), `.configured -> Array<Provider>`, `.configured?(key)`, `.redirect_uri(city) -> String` (`https://<host do dashboard da cidade>/dashboard/signature/callback`, de `CityPublicUrl.dashboard(city)`; um por cidade, Desvio 9), `.record_check!(key, ok:)`, `.checks -> Hash{key => SignatureProviderCheck}`.
   - `Signatures::Psc::{Error,Unavailable,Rejected(code),Unauthorized(code)}`, `::Token = Data(:access_token, :expires_in, :scope)` (`inspect` sem o token), `::CertificateEntry = Data(:certificate_alias, :der)`, `::SCOPES`.
   - `Signatures::Psc::Client.for(key) -> Client` (levanta `Unavailable` se o PSC não está configurado), `::PATHS`, `::SHA256_OID`; `#discover(cpf) -> bool`, `#authorize_url(state:, challenge:, scope:, login_hint:, redirect_uri:, lifetime: nil) -> String`, `#exchange(code:, verifier:, redirect_uri:) -> Token`, `#certificates(access_token) -> Array<CertificateEntry>`, `#sign(access_token:, certificate_alias:, digests: Hash{String => 32 bytes}) -> Hash{String => bytes}`. Toda chamada registra `Providers.record_check!` (ok = não foi `Unavailable`).
   - `FakePsc::App.new(pki:)` (Rack; `CLIENT_ID`, `CLIENT_SECRET`); ganchos: `#decide!(state, approve: true) -> url de retorno`, `#approve!(state) -> code`, `#leaf(cpf)`, `#token_for!(cpf:, scope: "signature_session", ttl: 3600) -> access_token`, `#expire_tokens!`, `#issued_tokens -> Array<String>`, `#reset!`, acessores `absent_cpfs`, `failures` (fila de `Integer` status ou `:refused`), `max_lifetime`, `forced_lifetime`, `before_sign` (proc), `certificate_overrides` (Hash{cpf => Leaf}), `log`.
@@ -1789,12 +1798,11 @@ RSpec.describe Signatures::Providers do
     expect(described_class.find("vidaas").inspect).not_to include("SEGREDO-X")
   end
 
-  it "redirect_uri: a variável do ambiente; sem ela, a rota do dashboard da cidade" do
+  it "redirect_uri: uma por cidade, a rota de retorno do dashboard dela" do
     city = clinical_city!
     expect(described_class.redirect_uri(city)).to eq("#{CityPublicUrl.dashboard(city)}signature/callback")
-    allow(ENV).to receive(:[]).and_call_original
-    allow(ENV).to receive(:[]).with("SIGNATURE_REDIRECT_URI").and_return("https://auth.rotasaude.test/signature/psc/callback")
-    expect(described_class.redirect_uri(city)).to eq("https://auth.rotasaude.test/signature/psc/callback")
+    expect(described_class.redirect_uri(city)).to end_with("/dashboard/signature/callback")
+    expect(described_class.redirect_uri(city)).to start_with(CityPublicUrl.base(city))
   end
 
   it "a checagem fica na plataforma e nunca levanta" do
@@ -1970,12 +1978,10 @@ module Signatures
     def configured = CATALOG.filter_map { |key| find(key) }
     def configured?(key) = !find(key).nil?
 
-    # Desvio 9: a rota do dashboard da cidade (/dashboard/signature/callback);
-    # com SIGNATURE_REDIRECT_URI, o retorno único do auth.*
-    # (Signatures::PscCallbacksController), que devolve à mesma rota.
-    def redirect_uri(city)
-      ENV["SIGNATURE_REDIRECT_URI"].presence || "#{CityPublicUrl.dashboard(city)}signature/callback"
-    end
+    # Desvio 9: um retorno por cidade, montado do host público do dashboard dela
+    # (https://<host da cidade>/dashboard/signature/callback). Cada endereço é
+    # cadastrado em cada PSC no go-live da cidade (Task 19).
+    def redirect_uri(city) = "#{CityPublicUrl.dashboard(city)}signature/callback"
 
     def record_check!(key, ok:) = SignatureProviderCheck.record!(key, ok: ok)
     def checks = SignatureProviderCheck.where(provider: CATALOG).index_by(&:provider)
@@ -2187,9 +2193,9 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 **Interfaces:**
 - Consumes: `Signatures::CertificateInfo` (Task 2), `test_pki` (Task 3).
 - Produces:
-  - `Signatures::Signer::{Error,Unavailable,Rejected(code)}`, `::KINDS == %w[cades pades]`, `::Prepared = Data(:digest, :state)` (`digest` = 32 bytes), `::Assembled = Data(:signature, :validation_material)` (bytes), `::Verification = Data(:status, :signer_cpf, :signer_name, :policy_oid, :signed_at, :reasons)` (`inspect` sem CPF/nome); `Signatures::Signer.client -> Client` (de `SIGNER_URL`/`SIGNER_TOKEN`).
-  - `Signatures::Signer::Client#prepare(kind:, document:, certificate_der:) -> Prepared`, `#assemble(kind:, state:, signature_value:) -> Assembled`, `#verify(kind:, signature:, document: nil) -> Verification` (`document` obrigatório no CAdES, omitido no PAdES), `#health -> { version:, crl_updated_at: }`. 400/422 → `Rejected(code)`; 401, 5xx, rede, `SIGNER_URL` ausente → `Unavailable`.
-  - `FakeSigner` (spec/support): mesma interface; `#unavailable=`, `#revoked_serials`, `#calls`; `FakeSigner::POLICY_OID`.
+  - `Signatures::Signer::{Error,Unavailable,Rejected(code)}`, `::KINDS == %w[cades pades]`, `::Prepared = Data(:digest, :state)` (`digest` = 32 bytes), `::Assembled = Data(:signature, :validation_material)` (bytes), `::Verification = Data(:status, :signer_cpf, :signer_name, :policy_oid, :signed_at, :reasons)` (`inspect` sem CPF/nome), `::CertificateCheck = Data(:status, :signer_cpf, :not_after, :reasons)` (`inspect` sem CPF); `Signatures::Signer.client -> Client` (de `SIGNER_URL`/`SIGNER_TOKEN`).
+  - `Signatures::Signer::Client#prepare(kind:, document:, certificate_der:) -> Prepared`, `#assemble(kind:, state:, signature_value:) -> Assembled`, `#verify(kind:, signature:, document: nil) -> Verification` (`document` obrigatório no CAdES, omitido no PAdES), `#check_certificate(certificate_der:) -> CertificateCheck` (`POST /certificates/check`, contrato D1: cadeia + LCR; `status` `valid`|`invalid`|`indeterminate`), `#health -> { version:, crl_updated_at: }`. 400/422 → `Rejected(code)`; 401, 5xx, rede, `SIGNER_URL` ausente → `Unavailable`.
+  - `FakeSigner` (spec/support): mesma interface; `#unavailable=`, `#revoked_serials`, `#untrusted_serials`, `#revocation_unavailable=`, `#calls`; `FakeSigner::POLICY_OID`.
   - Helpers: `stub_signer!(fake = FakeSigner.new) -> FakeSigner`; specs `:signer` só rodam com `SIGNER_URL` (aviso no início da corrida quando ficam de fora) e liberam no WebMock só o host do `signer`.
 
 - [ ] **Step 1: O `signer` falso e os helpers**
@@ -2204,12 +2210,14 @@ class FakeSigner
   POLICY_OID = "2.16.76.1.7.1.1.2.3".freeze
   MARKER = "\n%FAKE-PADES ".b.freeze
 
-  attr_accessor :unavailable, :revoked_serials
+  attr_accessor :unavailable, :revoked_serials, :untrusted_serials, :revocation_unavailable
   attr_reader :calls
 
   def initialize
     @unavailable = false
     @revoked_serials = []
+    @untrusted_serials = []
+    @revocation_unavailable = false
     @calls = []
   end
 
@@ -2252,6 +2260,24 @@ class FakeSigner
   rescue JSON::ParserError, ArgumentError, Signatures::CertificateInfo::Invalid
     Signatures::Signer::Verification.new(status: "invalid", signer_cpf: nil, signer_name: nil, policy_oid: nil,
                                          signed_at: nil, reasons: [ "malformed" ])
+  end
+
+  # Contrato D1: cadeia + LCR do certificado, sem assinar.
+  def check_certificate(certificate_der:)
+    touch!(:check)
+    info = Signatures::CertificateInfo.parse(certificate_der)
+    reasons = []
+    reasons << "untrusted_chain" if @untrusted_serials.include?(info.serial_number)
+    reasons << "certificate_expired" if info.expired?
+    reasons << "certificate_revoked" if @revoked_serials.include?(info.serial_number)
+    status = reasons.any? ? "invalid" : "valid"
+    if status == "valid" && @revocation_unavailable
+      status = "indeterminate"
+      reasons << "revocation_unavailable"
+    end
+    Signatures::Signer::CertificateCheck.new(status: status, signer_cpf: info.cpf, not_after: info.not_after, reasons: reasons)
+  rescue Signatures::CertificateInfo::Invalid
+    raise Signatures::Signer::Rejected, "invalid_certificate"
   end
 
   def health
@@ -2338,7 +2364,7 @@ RSpec.describe Signatures::Signer::Client do
       .to have_attributes(signature: "P7S", validation_material: "LCR")
   end
 
-  it "verify e health (o /health também leva o token)" do
+  it "verify, check do certificado e health (o /health também leva o token)" do
     stub_request(:post, "#{base}/verify").with(body: hash_including("kind" => "pades", "signature_base64" => Base64.strict_encode64("PDF")))
       .to_return(reply(status: "valid", signer_cpf: "52998224725", signer_name: "MARIA", policy_oid: "2.16.76.1.7.1.11.1.1",
                        signed_at: "2026-10-08T12:00:00Z", reasons: []))
@@ -2347,6 +2373,12 @@ RSpec.describe Signatures::Signer::Client do
                                       signed_at: Time.utc(2026, 10, 8, 12))
     expect(result.inspect).not_to include("52998224725", "MARIA")
 
+    stub_request(:post, "#{base}/certificates/check").with(headers: auth, body: { certificate_der_base64: Base64.strict_encode64("der") })
+      .to_return(reply(status: "invalid", signer_cpf: "52998224725", not_after: "2027-10-08T12:00:00Z", reasons: [ "certificate_revoked" ]))
+    check = client.check_certificate(certificate_der: "der")
+    expect(check).to have_attributes(status: "invalid", signer_cpf: "52998224725", not_after: Time.utc(2027, 10, 8, 12),
+                                     reasons: [ "certificate_revoked" ])
+    expect(check.inspect).not_to include("52998224725")
     stub_request(:get, "#{base}/health").with(headers: auth).to_return(reply(version: "1.0.0", crl_updated_at: "2026-10-08T03:00:00Z"))
     expect(client.health).to eq(version: "1.0.0", crl_updated_at: Time.utc(2026, 10, 8, 3))
   end
@@ -2407,10 +2439,12 @@ RSpec.describe "Serviço signer (real)", :signer do
     expect(client.verify(kind: "pades", signature: assembled.signature).status).to eq("valid")
   end
 
-  it "valor de assinatura que não confere é recusado; health responde" do
+  it "valor de assinatura que não confere é recusado; o certificado de teste confere; health responde" do
     prepared = client.prepare(kind: "cades", document: "{}", certificate_der: leaf.der)
     expect { client.assemble(kind: "cades", state: prepared.state, signature_value: "x" * 256) }
       .to raise_error(Signatures::Signer::Rejected)
+    check = client.check_certificate(certificate_der: leaf.der)
+    expect([ check.status, check.signer_cpf ]).to eq([ "valid", SignatureHelpers::DOCTOR_CPF ])
     expect(client.health[:version]).to be_present
   end
 end
@@ -2454,6 +2488,9 @@ module Signatures
     Verification = Data.define(:status, :signer_cpf, :signer_name, :policy_oid, :signed_at, :reasons) do
       def valid? = status == "valid"
       def inspect = "#<Signatures::Signer::Verification #{status} #{reasons.join(',')}>"
+    end
+    CertificateCheck = Data.define(:status, :signer_cpf, :not_after, :reasons) do
+      def inspect = "#<Signatures::Signer::CertificateCheck #{status} #{reasons.join(',')}>"
     end
 
     module_function
@@ -2502,6 +2539,15 @@ module Signatures
         Verification.new(status: body["status"], signer_cpf: body["signer_cpf"].presence, signer_name: body["signer_name"].presence,
                          policy_oid: body["policy_oid"].presence, signed_at: time(body["signed_at"]),
                          reasons: Array(body["reasons"]).map(&:to_s))
+      end
+
+      # Contrato D1: cadeia + LCR do certificado, sem assinar (vínculo e renovação).
+      def check_certificate(certificate_der:)
+        body = post("/certificates/check", certificate_der_base64: b64(certificate_der))
+        bad! unless STATUSES.include?(body["status"])
+
+        CertificateCheck.new(status: body["status"], signer_cpf: body["signer_cpf"].presence, not_after: time(body["not_after"]),
+                             reasons: Array(body["reasons"]).map(&:to_s))
       end
 
       def health
@@ -2595,18 +2641,16 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ---
 ## Fatia 2 — Vínculo e sessão do turno (F-19.9, F-19.10)
 
-### Task 6: `state` de uso único e o salto do `auth.*`
+### Task 6: `state` de uso único do OAuth
 
 **Files:**
-- Create: `app/services/signatures/oauth_states.rb`, `app/controllers/signatures/psc_callbacks_controller.rb`
-- Modify: `config/routes.rb`
-- Test: `spec/services/signatures/oauth_states_spec.rb`, `spec/requests/signature_psc_callback_spec.rb`
+- Create: `app/services/signatures/oauth_states.rb`
+- Test: `spec/services/signatures/oauth_states_spec.rb`
 
 **Interfaces:**
-- Consumes: `SignatureOauthState` (Task 3), `CityCatalog.auth_host?`, `CityPublicUrl.dashboard` (existentes).
+- Consumes: `SignatureOauthState` (Task 3).
 - Produces:
-  - `Signatures::OauthStates::Issued = Data(:state, :verifier, :challenge, :row)`; `.issue!(user:, purpose:, provider:, return_to: nil, request_ids: [], city: Current.city, now: Time.current) -> Issued` (o `state` é um token assinado `{ c: slug, s: id }`; a linha guarda o `code_verifier` cifrado e vale 10 min); `.challenge(verifier) -> String` (S256, base64url sem `=`); `.safe_return_to(value) -> String` (`/^\/([^\/]\S{0,198})?$/`, senão `"/"`); `.city_slug(state) -> String|nil` (sem banco); `.consume(state, user:, now:) -> Result` (ok `{ state: SignatureOauthState }`; falhas `:invalid_state` (assinatura, cidade, usuário, já usado) e `:authorization_expired` (vencido — e fica consumido)). Chame `consume` numa transação própria: o consumo vale mesmo que o passo seguinte falhe.
-  - `GET /signature/psc/callback?state=&code=|error=` no host `auth.*` → 302 para `<dashboard da cidade>signature/callback?state=&code=` (ou `error=`); 400 `invalid_state`; 404 fora do `auth.*`.
+  - `Signatures::OauthStates::Issued = Data(:state, :verifier, :challenge, :row)`; `.issue!(user:, purpose:, provider:, return_to: nil, request_ids: [], city: Current.city, now: Time.current) -> Issued` (o `state` é um token assinado `{ c: slug, s: id }`; a linha guarda o `code_verifier` cifrado e vale 10 min); `.challenge(verifier) -> String` (S256, base64url sem `=`); `.safe_return_to(value) -> String` (`/^\/([^\/]\S{0,198})?$/`, senão `"/"`); `.consume(state, user:, now:) -> Result` (ok `{ state: SignatureOauthState }`; falhas `:invalid_state` (assinatura, cidade, usuário, já usado) e `:authorization_expired` (vencido — e fica consumido)). Chame `consume` numa transação própria: o consumo vale mesmo que o passo seguinte falhe.
 
 - [ ] **Step 1: Escreva as specs que falham**
 
@@ -2628,7 +2672,6 @@ RSpec.describe Signatures::OauthStates do
     issued = issue
     expect(issued.challenge).to eq(Base64.urlsafe_encode64(Digest::SHA256.digest(issued.verifier), padding: false))
     expect(issued.verifier.size).to be >= 43
-    expect(described_class.city_slug(issued.state)).to eq(Current.city.slug)
     raw = ApplicationRecord.connection.select_value("SELECT code_verifier FROM signature_oauth_states WHERE id = #{ApplicationRecord.connection.quote(issued.row.id)}")
     expect(raw).not_to include(issued.verifier)
     expect(issued.state).not_to include(issued.verifier)
@@ -2667,50 +2710,18 @@ RSpec.describe Signatures::OauthStates do
 end
 ```
 
-```ruby
-# spec/requests/signature_psc_callback_spec.rb
-require "rails_helper"
-
-# Desvio 9 (opcional, com SIGNATURE_REDIRECT_URI): retorno único por ambiente no
-# auth.*; devolve o navegador para /dashboard/signature/callback da cidade do state.
-RSpec.describe "Retorno do PSC no auth.*", type: :request do
-  let(:city) { signature_city! }
-  let(:auth) { { "HOST" => "auth.rotasaude.app" } }
-
-  it "redireciona para o dashboard da cidade do state, com code ou error" do
-    issued = CityConnection.with(city) do
-      Signatures::OauthStates.issue!(user: signer_doctor!(create_unit), purpose: "link", provider: "vidaas", city: city)
-    end
-    get "/signature/psc/callback", params: { state: issued.state, code: "abc" }, headers: auth
-    expect(response).to have_http_status(:found)
-    expect(response.location).to start_with("#{CityPublicUrl.dashboard(city)}signature/callback?")
-    expect(URI.decode_www_form(URI(response.location).query).to_h).to eq("state" => issued.state, "code" => "abc")
-
-    get "/signature/psc/callback", params: { state: issued.state, error: "access_denied" }, headers: auth
-    expect(URI.decode_www_form(URI(response.location).query).to_h).to include("error" => "access_denied")
-  end
-
-  it "state adulterado: 400; fora do auth.*: 404" do
-    get "/signature/psc/callback", params: { state: "forjado", code: "abc" }, headers: auth
-    expect([ response.status, JSON.parse(response.body)["error"] ]).to eq([ 400, "invalid_state" ])
-    get "/signature/psc/callback", params: { state: "forjado", code: "abc" }
-    expect(response).to have_http_status(:not_found)
-  end
-end
-```
-
 - [ ] **Step 2: Rode e veja falhar**
 
-Run: `docker compose exec -T -w /rails/.claude/mod19b api bundle exec rspec spec/services/signatures/oauth_states_spec.rb spec/requests/signature_psc_callback_spec.rb`
-Expected: FAIL (`uninitialized constant Signatures::OauthStates`; `No route matches`).
+Run: `docker compose exec -T -w /rails/.claude/mod19b api bundle exec rspec spec/services/signatures/oauth_states_spec.rb`
+Expected: FAIL (`uninitialized constant Signatures::OauthStates`).
 
 - [ ] **Step 3: Implemente**
 
 ```ruby
 # app/services/signatures/oauth_states.rb
 # State do OAuth com o PSC (ADR 0032; spec §10). O valor que viaja é um token
-# assinado { c: cidade, s: id da linha } — o salto do auth.* acha a cidade sem
-# abrir banco; a linha, no banco da cidade, guarda o code_verifier (PKCE)
+# assinado { c: cidade, s: id da linha } — a cidade do token tem de ser a do
+# host que recebe o callback; a linha, no banco da cidade, guarda o code_verifier (PKCE)
 # cifrado, o usuário, o propósito e o uso único. O token não leva o verifier.
 module Signatures
   module OauthStates
@@ -2737,11 +2748,6 @@ module Signatures
     def challenge(verifier) = Base64.urlsafe_encode64(Digest::SHA256.digest(verifier), padding: false)
 
     def safe_return_to(value) = value.is_a?(String) && value.match?(RETURN_TO) ? value : "/"
-
-    def city_slug(state)
-      slug = decode(state)&.dig("c")
-      slug.is_a?(String) ? slug : nil
-    end
 
     def consume(state, user:, now: Time.current)
       payload = decode(state)
@@ -2770,60 +2776,16 @@ module Signatures
 end
 ```
 
-```ruby
-# app/controllers/signatures/psc_callbacks_controller.rb
-# Retorno ÚNICO dos PSC, no host auth.* (Desvio 9; mesmo desenho do gov.br,
-# Plano 3B): a redirect_uri cadastrada em cada PSC é uma por ambiente. A cidade
-# vem do state assinado; nada é trocado aqui — o navegador volta para o
-# dashboard da cidade, que chama POST /signature/oauth/callback na sessão dela.
-module Signatures
-  class PscCallbacksController < ActionController::API
-    TOKEN = /\A[A-Za-z0-9._~\-]{1,2048}\z/
-    ERROR = /\A[a-z_]{1,64}\z/
-
-    before_action :require_auth_host
-
-    rate_limit to: 30, within: 1.minute,
-               with: -> { render json: { error: "too_many_requests" }, status: :too_many_requests }
-
-    def show
-      state = params[:state]
-      slug = Signatures::OauthStates.city_slug(state)
-      city = slug && City.find_by(slug: slug)
-      return render(json: { error: "invalid_state" }, status: :bad_request) unless city&.servable?
-
-      query = { state: state, code: string(params[:code], TOKEN), error: string(params[:error], ERROR) }.compact
-      redirect_to "#{CityPublicUrl.dashboard(city)}signature/callback?#{query.to_query}", allow_other_host: true, status: :found
-    end
-
-    private
-
-    def require_auth_host
-      head :not_found unless CityCatalog.auth_host?(request.host)
-    end
-
-    def string(value, pattern) = value.is_a?(String) && value.match?(pattern) ? value : nil
-  end
-end
-```
-
-Em `config/routes.rb`, no bloco `constraints(PlatformAuthHost) do`, depois do callback do gov.br:
-
-```ruby
-    # Retorno único dos PSC de assinatura (ADR 0032; Desvio 9). A cidade vem do state.
-    get "/signature/psc/callback", to: "signatures/psc_callbacks#show"
-```
-
 - [ ] **Step 4: Rode e veja passar**
 
-Run: `docker compose exec -T -w /rails/.claude/mod19b api bundle exec rspec spec/services/signatures/oauth_states_spec.rb spec/requests/signature_psc_callback_spec.rb spec/requests/govbr_login_spec.rb`
+Run: `docker compose exec -T -w /rails/.claude/mod19b api bundle exec rspec spec/services/signatures/oauth_states_spec.rb`
 Expected: PASS.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-/opt/homebrew/bin/git -C apps/api/.claude/mod19b add app/services/signatures/oauth_states.rb app/controllers/signatures/psc_callbacks_controller.rb config/routes.rb spec/services/signatures/oauth_states_spec.rb spec/requests/signature_psc_callback_spec.rb
-/opt/homebrew/bin/git -C apps/api/.claude/mod19b commit -m "feat: add single-use PKCE states and the provider return on the auth host
+/opt/homebrew/bin/git -C apps/api/.claude/mod19b add app/services/signatures/oauth_states.rb spec/services/signatures/oauth_states_spec.rb
+/opt/homebrew/bin/git -C apps/api/.claude/mod19b commit -m "feat: add single-use PKCE states for the provider authorization
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ```
@@ -2838,11 +2800,11 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 - Test: `spec/requests/signature_certificates_spec.rb`
 
 **Interfaces:**
-- Consumes: Tasks 1–6 (`Signatures::Gate`, `DigitalSignatureGate`, `SignerCertificate`, `SignatureSession`, `Providers`, `Psc::Client`, `OauthStates`, `CertificateInfo`); `MfaStepUp`, `AttendanceAccess#require_professional`/`render_failure` (existentes).
+- Consumes: Tasks 1–6 (`Signatures::Gate`, `DigitalSignatureGate`, `SignerCertificate`, `SignatureSession`, `Providers`, `Psc::Client`, `Signer.client#check_certificate`, `OauthStates`, `CertificateInfo`); `MfaStepUp`, `AttendanceAccess#require_professional`/`render_failure` (existentes).
 - Produces:
   - `Signatures::Discover.call(user:) -> Result` (ok `{ providers: [{ provider:, found: }], unavailable: [key] }`; falha `:professional_cpf_missing`).
   - `Signatures::StartLink.call(user:, provider:, return_to:) -> Result` (ok `{ authorize_url: }`, escopo `single_signature`; falhas `:invalid_provider`, `:professional_cpf_missing`).
-  - `Signatures::AcceptCertificate.call(user:, provider:, entries:, now: Time.current) -> Result` (ok `{ certificate: SignerCertificate, changed: bool }`; falhas `:professional_cpf_missing`, `:certificate_not_found`, `:certificate_cpf_mismatch`, `:certificate_expired`; a revogação é do `/verify` na primeira assinatura — Desvio 10). Troca o `active` só quando o serial (ou o PSC) muda; o anterior vira `replaced` e a sessão ativa é revogada; evento `signature.certificate_linked { certificate_id, user_id, provider }`.
+  - `Signatures::AcceptCertificate.call(user:, provider:, entries:, now: Time.current, signer: Signer.client) -> Result` (ok `{ certificate: SignerCertificate, changed: bool }`; falhas `:professional_cpf_missing`, `:certificate_not_found`, `:certificate_cpf_mismatch`, `:certificate_expired`, `:certificate_revoked`, `:certificate_untrusted` (o `POST /certificates/check` do `signer` diz `invalid` com `certificate_revoked` / `certificate_expired` / `untrusted_chain`), `:signer_unavailable` (`signer` fora do ar ou 422 `invalid_certificate`)); `indeterminate` aceita e grava `link_check_status`/`link_check_reasons`. Troca o `active` só quando o serial (ou o PSC) muda; o anterior vira `replaced` e a sessão ativa é revogada; evento `signature.certificate_linked { certificate_id, user_id, provider }`.
   - `Signatures::Unlink.call(user:) -> Result` (ok `{ certificate: }`; falha `:certificate_not_linked`); evento `signature.certificate_unlinked`.
   - `Signatures::CompleteOauth.call(user:, state:, code:, error: nil, now: Time.current) -> Result` (ok `{ purpose: "link"|"session"|"batch", record:, return_to: }`; falhas `:invalid_state`, `:authorization_expired`, `:authorization_denied`, `:provider_unavailable` e as do propósito). Nesta task só `link`; `session` entra na Task 8 e `batch` na Task 13.
   - `Signatures::Json.certificate(certificate, now: Time.current) -> Hash` (contrato §3).
@@ -2856,8 +2818,8 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 require "rails_helper"
 
 # Contrato §3–§4 (spec §5, vínculo; NGS2.01.02/02.02): localizar por CPF em
-# cada PSC habilitado, vincular com step-up e PKCE, conferir CPF, validade e
-# uso; desvincular com step-up. Review Focus 4: callback nas bordas.
+# cada PSC habilitado, vincular com step-up e PKCE, conferir CPF, validade, uso
+# e revogação (signer, contrato D1); desvincular com step-up. Review Focus 4: callback nas bordas.
 RSpec.describe "Vínculo do certificado", type: :request do
   before do
     signature_city!
@@ -2956,7 +2918,7 @@ RSpec.describe "Vínculo do certificado", type: :request do
     expect([ response.status, body["error"] ]).to eq([ 409, "authorization_expired" ])
   end
 
-  it "certificado de outro CPF, vencido ou sem não repúdio não é vinculado" do
+  it "certificado de outro CPF, vencido, sem não repúdio, revogado ou de cadeia desconhecida não é vinculado" do
     stepped_in
     {
       test_pki.issue(cpf: SignatureHelpers::OTHER_CPF, name: "OUTRA PESSOA") => "certificate_cpf_mismatch",
@@ -2968,7 +2930,36 @@ RSpec.describe "Vínculo do certificado", type: :request do
       callback(state_of(url), code: authorize_and_approve!(url))
       expect([ response.status, body["error"] ]).to eq([ 422, error ]), error
     end
+    leaf = test_pki.issue(cpf: cpf, name: "REVOGADO")
+    fake_psc.certificate_overrides[cpf] = leaf
+    @signer.revoked_serials << leaf.serial_hex # o check do signer diz invalid/certificate_revoked
+    url = start_link
+    callback(state_of(url), code: authorize_and_approve!(url))
+    expect([ response.status, body["error"] ]).to eq([ 422, "certificate_revoked" ])
     expect(SignerCertificate.where(user_id: doctor.id)).to be_empty
+    expect(@signer.calls).to include(:check)
+
+    leaf = test_pki.issue(cpf: cpf, name: "CADEIA DESCONHECIDA")
+    fake_psc.certificate_overrides[cpf] = leaf
+    @signer.untrusted_serials << leaf.serial_hex
+    url = start_link
+    callback(state_of(url), code: authorize_and_approve!(url))
+    expect([ response.status, body["error"] ]).to eq([ 422, "certificate_untrusted" ])
+  end
+
+  it "LCR fora do ar no vínculo: aceita e guarda o motivo; signer fora do ar: 503 signer_unavailable" do
+    stepped_in
+    @signer.unavailable = true
+    url = start_link
+    callback(state_of(url), code: authorize_and_approve!(url))
+    expect([ response.status, body["error"] ]).to eq([ 503, "signer_unavailable" ])
+    @signer.unavailable = false
+    @signer.revocation_unavailable = true
+    url = start_link
+    callback(state_of(url), code: authorize_and_approve!(url))
+    expect(response).to have_http_status(:ok)
+    expect(SignerCertificate.active.find_by(user_id: doctor.id))
+      .to have_attributes(link_check_status: "indeterminate", link_check_reasons: [ "revocation_unavailable" ])
   end
 
   it "PSC fora do ar na troca do código: 503 provider_unavailable" do
@@ -3072,14 +3063,15 @@ end
 # app/commands/signatures/accept_certificate.rb
 # Aceita o certificado lido do PSC (ADR 0032; spec §5; NGS2.01.02, 01.03,
 # 02.02): do CPF do profissional, dentro da validade, com digitalSignature +
-# nonRepudiation (a revogação é conferida pelo signer na primeira assinatura —
-# Desvio 10). Mesmo serial do active: nada muda. Outro: o anterior vira
-# replaced e a sessão ativa cai.
+# nonRepudiation e, no signer (contrato D1: cadeia + LCR), de cadeia conhecida e
+# não revogado (indeterminate aceita e guarda o motivo). Mesmo serial do active:
+# nada muda. Outro: o anterior vira replaced e a sessão
+# ativa cai.
 module Signatures
   module AcceptCertificate
     module_function
 
-    def call(user:, provider:, entries:, now: Time.current)
+    def call(user:, provider:, entries:, now: Time.current, signer: Signer.client)
       cpf = user.professional&.cpf
       return Result.fail(:professional_cpf_missing) if cpf.blank?
 
@@ -3096,7 +3088,20 @@ module Signatures
       return Result.fail(:certificate_expired) if current.empty?
 
       entry, info = current.max_by { |_entry, candidate| candidate.not_after }
-      store(user, provider, entry, info, now)
+      check = signer.check_certificate(certificate_der: info.der)
+      return Result.fail(:certificate_cpf_mismatch) if check.signer_cpf.present? && check.signer_cpf != cpf
+      if check.status == "invalid"
+        return Result.fail(:certificate_revoked) if check.reasons.include?("certificate_revoked")
+        return Result.fail(:certificate_expired) if check.reasons.include?("certificate_expired")
+
+        return Result.fail(:certificate_untrusted) # untrusted_chain (e qualquer outra recusa da cadeia)
+      end
+
+      # indeterminate (LCR fora do ar): aceita e guarda o motivo; a revogação
+      # volta a ser conferida no /verify da primeira assinatura.
+      store(user, provider, entry, info, now, check)
+    rescue Signer::Unavailable, Signer::Rejected # 422 invalid_certificate do signer também
+      Result.fail(:signer_unavailable)
     end
 
     def parse(entry)
@@ -3105,7 +3110,7 @@ module Signatures
       nil
     end
 
-    def store(user, provider, entry, info, now)
+    def store(user, provider, entry, info, now, check)
       ApplicationRecord.transaction do
         active = SignerCertificate.active.lock.find_by(user_id: user.id)
         next Result.ok(certificate: active, changed: false) if active && active.serial_number == info.serial_number && active.provider == provider
@@ -3115,7 +3120,8 @@ module Signatures
         certificate = SignerCertificate.create!(
           user: user, provider: provider, certificate_alias: entry.certificate_alias, serial_number: info.serial_number,
           issuer_dn: info.issuer_dn, subject_cpf: info.cpf, not_before: info.not_before, not_after: info.not_after,
-          status: "active", certificate_der: Base64.strict_encode64(info.der)
+          status: "active", certificate_der: Base64.strict_encode64(info.der),
+          link_check_status: check.status, link_check_reasons: check.reasons
         )
         DomainEvents.publish("signature.certificate_linked", certificate_id: certificate.id, user_id: user.id, provider: provider)
         Result.ok(certificate: certificate, changed: true)
@@ -3236,10 +3242,10 @@ module Signatures
       invalid_provider: :unprocessable_entity, invalid_state: :unprocessable_entity, invalid_reason: :unprocessable_entity,
       invalid_period: :unprocessable_entity, certificate_cpf_mismatch: :unprocessable_entity,
       certificate_expired: :unprocessable_entity, certificate_revoked: :unprocessable_entity,
-      certificate_not_found: :unprocessable_entity,
+      certificate_not_found: :unprocessable_entity, certificate_untrusted: :unprocessable_entity,
       authorization_expired: :conflict, certificate_not_linked: :conflict, nothing_pending: :conflict,
       not_pending: :conflict, professional_cpf_missing: :conflict,
-      provider_unavailable: :service_unavailable
+      provider_unavailable: :service_unavailable, signer_unavailable: :service_unavailable
     }.freeze
 
     before_action :require_digital_signature!
@@ -3629,7 +3635,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 - Consumes: `Consultation`, `ConsultationAddendum`, `Patient`, `TerminologyRelease`, `CityProfile`, `HealthUnit`, `ClinicalTerms.label`, `ClinicalTerms::SigtapExams.{label,release}`, `Screenings::VitalSigns.{json,bmi}`, `Consultations::Authorization.any_allowed_link` (19a e anteriores); `Signature` (Task 3); `json_schemer` (Gemfile).
 - Produces:
   - `Signatures::Jcs.dump(value) -> String` (RFC 8785: chaves ordenadas por unidades UTF-16, números na forma do ECMAScript, só os escapes obrigatórios); `Signatures::Jcs::Unsupported` (NaN/Infinity, inteiro fora de ±2^53−1, tipo fora do JSON, chave repetida, UTF-8 inválido).
-  - `Signatures::Canonical::CONSULTATION_SCHEMA == "rotasaude.consultation.v1"`, `::ADDENDUM_SCHEMA == "rotasaude.consultation_addendum.v1"`, `::Built = Data(:document, :json, :sha256)` (`document` Hash de chaves string; `json` String RFC 8785; `sha256` hex), `::Invalid` (mensagem só com ponteiros do esquema, nunca valores); `.consultation(consultation) -> Built` (levanta `Invalid` se não finalizada), `.addendum(addendum) -> Built` (com `previous_sha256`, Desvio 1: depende das assinaturas já gravadas), `.previous_sha256(addendum) -> String`, `.for(document) -> Built`, `.validate!(schema_name, document)`.
+  - `Signatures::Canonical::CONSULTATION_SCHEMA == "rotasaude.consultation.v1"`, `::ADDENDUM_SCHEMA == "rotasaude.consultation_addendum.v1"`, `::Built = Data(:document, :json, :sha256)` (`document` Hash de chaves string; `json` String RFC 8785; `sha256` hex), `::Invalid` (mensagem só com ponteiros do esquema, nunca valores); `.consultation(consultation) -> Built` (levanta `Invalid` se não finalizada), `.addendum(addendum, chain: {}) -> Built` (com `previous_sha256`, Desvio 1: depende das assinaturas já gravadas e, no lote, dos documentos já preparados — `chain` = `Hash{[document_type, document_id] => sha256}`), `.previous_sha256(addendum, chain: {}) -> String`, `.for(document) -> Built`, `.validate!(schema_name, document)`.
 
 - [ ] **Step 1: Copie os esquemas e o vetor do `contracts`**
 
@@ -3762,6 +3768,17 @@ RSpec.describe Signatures::Canonical do
     expect(changes["conducts"]).to eq([ 1, 2 ])
     expect(changes["exam_requests"].map(&:keys).flatten.uniq).to match_array(%w[sigtap_code label])
     expect(described_class.addendum(two).sha256).to eq(built_two.sha256)
+  end
+
+  it "no lote: o adendo seguinte leva o hash do anterior já preparado (chain), mesmo sem assinatura gravada" do
+    consultation = finalized_consultation!(unit: unit, doctor: doctor, citizen: citizen)
+    one = Consultations::AddAddendum.call(consultation: consultation, by: doctor, reason: "primeiro adendo aqui", text: "UM").payload[:addendum]
+    two = Consultations::AddAddendum.call(consultation: consultation, by: doctor, reason: "segundo adendo aqui", text: "DOIS").payload[:addendum]
+    built_one = described_class.addendum(one)
+    expect(described_class.addendum(two).document.dig("addendum", "previous_sha256"))
+      .to eq(described_class.consultation(consultation).sha256) # sem chain: nada assinado
+    chain = { [ "ConsultationAddendum", one.id ] => built_one.sha256 }
+    expect(described_class.addendum(two, chain: chain).document.dig("addendum", "previous_sha256")).to eq(built_one.sha256)
   end
 
   it "rascunho não tem JSON canônico; documento fora do esquema levanta só com ponteiros" do
@@ -3971,28 +3988,32 @@ module Signatures
                                    .merge("schema" => CONSULTATION_SCHEMA, "consultation" => body))
     end
 
-    def addendum(addendum)
+    def addendum(addendum, chain: {})
       consultation = addendum.consultation
       body = { "consultation_id" => consultation.id, "id" => addendum.id, "created_at" => time(addendum.created_at),
                "reason" => addendum.reason, "text" => addendum.text, "changes" => changes(addendum),
-               "previous_sha256" => previous_sha256(addendum) }
+               "previous_sha256" => previous_sha256(addendum, chain: chain) }
       built(ADDENDUM_SCHEMA, header(consultation, addendum.author_user, addendum_cbo(addendum))
                                .merge("schema" => ADDENDUM_SCHEMA, "addendum" => body))
     end
 
     # Desvio 1 (esquema do contracts): o canonical_sha256 do documento ASSINADO
-    # anterior da mesma consulta, na ordem do documento; nenhum assinado → o
-    # sha256 do JSON canônico da consulta.
-    def previous_sha256(addendum)
+    # anterior da mesma consulta, na ordem de criação; os já preparados no MESMO
+    # lote (chain) contam como assinados (se um falhar, os seguintes da consulta
+    # não são assinados — Signing); nenhum → o sha256 do JSON canônico da consulta.
+    def previous_sha256(addendum, chain: {})
       consultation = addendum.consultation
       earlier = consultation.addenda
                             .where("(consultation_addenda.created_at, consultation_addenda.id) < (?, ?)", addendum.created_at, addendum.id)
-      signed = Signature.where(document_type: "ConsultationAddendum", document_id: earlier.select(:id))
-                        .pluck(:document_id, :canonical_sha256).to_h
-      previous = consultation.addenda.where(id: signed.keys).order(created_at: :desc, id: :desc).first
-      return signed[previous.id] if previous
+                            .order(created_at: :desc, id: :desc).pluck(:id)
+      signed = Signature.where(document_type: "ConsultationAddendum", document_id: earlier).pluck(:document_id, :canonical_sha256).to_h
+      earlier.each do |id|
+        sha = chain[[ "ConsultationAddendum", id ]] || signed[id]
+        return sha if sha
+      end
 
-      Signature.where(document_type: "Consultation", document_id: consultation.id).pick(:canonical_sha256) ||
+      chain[[ "Consultation", consultation.id ]] ||
+        Signature.where(document_type: "Consultation", document_id: consultation.id).pick(:canonical_sha256) ||
         consultation(consultation).sha256
     end
 
@@ -4303,8 +4324,8 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 **Interfaces:**
 - Consumes: `Canonical` (Task 9), `Consultations::Print.call(..., footer:, addenda: false)`/`.addendum` e `PdfFooter` (Task 10), `Psc::Client#sign` (Task 4), `Signer.client` (Task 5), `SignerCertificate#info`, `SignatureSession.usable_for/.lapsed?` (Task 3), `Signatures::Gate` (Task 1).
 - Produces:
-  - `Signatures::Documents::Prepared = Data(:request, :canonical, :pdf)`, `.for(request, info:, signed_at:) -> Prepared` (levanta `Canonical::Invalid` sem documento).
-  - `Signatures::Signing::Outcome = Data(:signed, :failed)` (`signed`: `Array<Signature>`; `failed`: `Array<[SignatureRequest, reason]>`); `.call(requests:, access_token:, certificate:, now: Time.current, signer: Signer.client) -> Outcome` — chame dentro da transação da cidade com os pedidos travados; prepara CAdES (JSON canônico) e PAdES (PDF com rodapé) de cada pedido, pede ao PSC **uma** assinatura RAW de todos os hashes (`"<request_id>:cades"`, `"<request_id>:pades"`), monta, verifica e grava cada um num savepoint (assinatura + pedido `signed` + evento `signature.signed { signature_id, request_id, document_type, document_id }`). Levanta `Psc::Error`/`Signer::Unavailable` (este só **antes** da chamada ao PSC) para quem chama; motivos por pedido: `verification_failed`, `signer_unavailable` (depois do PSC), `certificate_revoked`, `certificate_cpf_mismatch`.
+  - `Signatures::Documents::Prepared = Data(:request, :canonical, :pdf)`, `.for(request, info:, signed_at:, chain: {}) -> Prepared` (levanta `Canonical::Invalid` sem documento).
+  - `Signatures::Signing::Outcome = Data(:signed, :failed)` (`signed`: `Array<Signature>`; `failed`: `Array<[SignatureRequest, reason]>`); `.call(requests:, access_token:, certificate:, now: Time.current, signer: Signer.client) -> Outcome` — chame dentro da transação da cidade com os pedidos travados; em ordem cronológica de criação dos documentos (consulta pela finalização, adendo pela criação), prepara CAdES (JSON canônico, com a cadeia dos já preparados no lote) e PAdES (PDF com rodapé) de cada pedido — se um documento falha, os seguintes da mesma consulta ficam em `failed` com o mesmo motivo e não são assinados —, pede ao PSC **uma** assinatura RAW de todos os hashes (`"<request_id>:cades"`, `"<request_id>:pades"`), monta, verifica e grava cada um num savepoint (assinatura + pedido `signed` + evento `signature.signed { signature_id, request_id, document_type, document_id }`). Levanta `Psc::Error`/`Signer::Unavailable` (este só **antes** da chamada ao PSC) para quem chama; motivos por pedido: `verification_failed`, `signer_unavailable` (depois do PSC), `certificate_revoked`, `certificate_cpf_mismatch`.
   - `Signatures::CertificateRules.reason(certificate, now:) -> String|nil` (`certificate_expired` — e marca o certificado `expired` —, `certificate_revoked`, `certificate_cpf_mismatch`).
   - `Signatures::Park.call(request, reason, transient: false, now:)` (grava o motivo; `transient` soma uma tentativa; evento `signature.failed { request_id, reason_code }`).
   - `Signatures::ToPaper.call(request, reason_code:, note: nil, now:)` (`returned_to_paper` + evento `signature.returned_to_paper { request_id, reason_code }`).
@@ -4529,7 +4550,9 @@ module Signatures
 
     module_function
 
-    def for(request, info:, signed_at:)
+    # chain: os hashes canônicos dos documentos já preparados NESTE lote
+    # (Canonical.previous_sha256 os conta como assinados).
+    def for(request, info:, signed_at:, chain: {})
       document = request.document
       raise Canonical::Invalid, "documento não encontrado" unless document
 
@@ -4539,7 +4562,7 @@ module Signatures
         Prepared.new(request: request, canonical: Canonical.consultation(document),
                      pdf: Consultations::Print.call(document, footer: footer, addenda: false))
       when ConsultationAddendum
-        Prepared.new(request: request, canonical: Canonical.addendum(document),
+        Prepared.new(request: request, canonical: Canonical.addendum(document, chain: chain),
                      pdf: Consultations::Print.addendum(document, footer: footer))
       end
     end
@@ -4591,13 +4614,20 @@ module Signatures
       info = certificate.info
       ready = []
       failed = []
-      requests.each do |request|
-        docs = Documents.for(request, info: info, signed_at: now)
+      chain = {}   # [document_type, document_id] => canonical_sha256 dos já preparados neste lote
+      blocked = {} # consultation_id => motivo da primeira falha (os seguintes da mesma consulta não assinam)
+      # Ordem cronológica de criação dos documentos: a consulta, depois os adendos.
+      chronological(requests).each do |request|
+        next failed << [ request, blocked[request.consultation_id] ] if blocked.key?(request.consultation_id)
+
+        docs = Documents.for(request, info: info, signed_at: now, chain: chain)
         prepared = KINDS.to_h do |kind|
           [ kind, signer.prepare(kind: kind, document: kind == "cades" ? docs.canonical.json : docs.pdf, certificate_der: certificate.der) ]
         end
+        chain[[ request.document_type, request.document_id ]] = docs.canonical.sha256
         ready << [ request, docs, prepared ]
       rescue Canonical::Invalid, Consultations::Print::NotPrintable, Signer::Rejected
+        blocked[request.consultation_id] ||= "verification_failed"
         failed << [ request, "verification_failed" ]
       end
       return Outcome.new(signed: [], failed: failed) if ready.empty?
@@ -4609,10 +4639,29 @@ module Signatures
                                                        digests: digests)
       signed = []
       ready.each do |request, docs, prepared|
+        next failed << [ request, blocked[request.consultation_id] ] if blocked.key?(request.consultation_id)
+
         result = store(request, docs, prepared, raw, certificate, info, signer, now)
-        result.is_a?(Signature) ? signed << result : failed << [ request, result ]
+        if result.is_a?(Signature)
+          signed << result
+        else
+          blocked[request.consultation_id] ||= result
+          failed << [ request, result ]
+        end
       end
       Outcome.new(signed: signed, failed: failed)
+    end
+
+    # Consulta pela finalização, adendo pela criação; desempate pelo id do pedido.
+    def chronological(requests)
+      requests.sort_by do |request|
+        document = request.document
+        time = case document
+               when Consultation then document.finalized_at
+               when ConsultationAddendum then document.created_at
+               end
+        [ time || request.created_at, request.id ]
+      end
     end
 
     def store(request, docs, prepared, raw, certificate, info, signer, now)
@@ -4652,7 +4701,7 @@ module Signatures
 
       nil
     end
-    private_class_method :store, :rejection
+    private_class_method :store, :rejection, :chronological
   end
 end
 ```
@@ -4999,7 +5048,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 **Files:**
 - Create: `app/commands/signatures/{return_to_paper,start_batch,run_batch}.rb`, `app/jobs/signatures/sweep_job.rb`, `app/controllers/signatures/{requests,batches}_controller.rb`
 - Modify: `app/commands/signatures/complete_oauth.rb`, `app/services/signatures/json.rb`, `config/routes.rb`, `config/recurring.yml`
-- Test: `spec/requests/signature_queue_spec.rb`, `spec/jobs/signatures/sweep_job_spec.rb`, `spec/commands/signatures/sign_race_spec.rb`
+- Test: `spec/requests/signature_queue_spec.rb`, `spec/jobs/signatures/sweep_job_spec.rb`, `spec/commands/signatures/sign_race_spec.rb`, `spec/commands/signatures/run_batch_chain_spec.rb`
 
 **Interfaces:**
 - Consumes: `Signing`, `SignPending`, `Park`, `ToPaper`, `CertificateRules` (Task 11), `OauthStates`, `CompleteOauth` (Tasks 6–8), `EachCityJob`.
@@ -5174,6 +5223,94 @@ end
 ```
 
 ```ruby
+# spec/commands/signatures/run_batch_chain_spec.rb
+require "rails_helper"
+
+# Decisão do usuário (cadeia no lote): assinar em ordem cronológica de criação;
+# o adendo seguinte leva o hash canônico do anterior do MESMO lote; se o
+# anterior falha, o seguinte não é assinado e fica pending com o mesmo motivo.
+RSpec.describe "Cadeia no lote" do
+  before do
+    Current.city = signature_city!
+    ciap2_release!; cid10_release!; sigtap_release!
+    stub_psc!
+    @signer = stub_signer!
+    linked_certificate!(doctor, leaf: fake_psc.leaf(cpf))
+  end
+  after { Current.reset }
+
+  let(:unit) { create_unit }
+  let(:doctor) { signer_doctor!(unit) }
+  let(:cpf) { SignatureHelpers::DOCTOR_CPF }
+  let(:consultation) { finalized_consultation!(unit: unit, doctor: doctor, citizen: verified_citizen!(1)) }
+
+  def addendum!(text)
+    Consultations::AddAddendum.call(consultation: consultation, by: doctor, reason: "adendo #{text} aqui", text: text).payload[:addendum]
+  end
+
+  def token
+    Signatures::Psc::Token.new(access_token: fake_psc.token_for!(cpf: cpf, scope: "multi_signature"), expires_in: 300,
+                               scope: "multi_signature")
+  end
+
+  it "dois adendos no mesmo lote (pedidos criados fora de ordem): o segundo leva o hash do primeiro" do
+    one = addendum!("um")
+    two = addendum!("dois")
+    second_request = signature_request!(two, author: doctor) # o pedido do segundo nasce antes
+    first_request = signature_request!(one, author: doctor)
+    result = Signatures::RunBatch.call(user: doctor, request_ids: [ second_request.id, first_request.id ], token: token)
+    expect(result.payload[:record]).to eq(signed: 2, failed: [])
+    first = first_request.reload.signature
+    second = second_request.reload.signature
+    expect(JSON.parse(first.canonical_json).dig("addendum", "previous_sha256"))
+      .to eq(Signatures::Canonical.consultation(consultation).sha256)
+    expect(JSON.parse(second.canonical_json).dig("addendum", "previous_sha256")).to eq(first.canonical_sha256)
+  end
+
+  it "consulta e adendo no mesmo lote: o adendo aponta para a consulta" do
+    addendum = addendum!("um")
+    requests = [ signature_request!(addendum, author: doctor), signature_request!(consultation, author: doctor) ]
+    Signatures::RunBatch.call(user: doctor, request_ids: requests.map(&:id), token: token)
+    signed = requests.map { |request| request.reload.signature }
+    expect(JSON.parse(signed.first.canonical_json).dig("addendum", "previous_sha256")).to eq(signed.last.canonical_sha256)
+  end
+
+  it "o primeiro falha: o segundo não é assinado e fica pending com o mesmo motivo" do
+    one = addendum!("um")
+    two = addendum!("dois")
+    first_request = signature_request!(one, author: doctor)
+    second_request = signature_request!(two, author: doctor)
+    allow(Consultations::Print).to receive(:addendum).and_wrap_original do |original, addendum, **options|
+      raise Consultations::Print::NotPrintable, "teste" if addendum.id == one.id
+
+      original.call(addendum, **options)
+    end
+    result = Signatures::RunBatch.call(user: doctor, request_ids: [ first_request.id, second_request.id ], token: token)
+    expect(result.payload[:record]).to eq(signed: 0, failed: [ { request_id: first_request.id, reason_code: "verification_failed" },
+                                                               { request_id: second_request.id, reason_code: "verification_failed" } ])
+    expect([ first_request, second_request ].map { |r| r.reload.slice(:status, :reason_code).values }).to all(eq(%w[pending verification_failed]))
+    expect(Signature.count).to eq(0)
+  end
+
+  it "o primeiro falha depois do PSC (verificação): o segundo também não é gravado" do
+    one = addendum!("um")
+    two = addendum!("dois")
+    first_request = signature_request!(one, author: doctor)
+    second_request = signature_request!(two, author: doctor)
+    first_json = Signatures::Canonical.addendum(one).json
+    allow(@signer).to receive(:verify).and_wrap_original do |original, **options|
+      result = original.call(**options)
+      options[:document] == first_json ? result.with(status: "invalid", reasons: [ "signature_mismatch" ]) : result
+    end
+    result = Signatures::RunBatch.call(user: doctor, request_ids: [ first_request.id, second_request.id ], token: token)
+    expect(result.payload[:record][:signed]).to eq(0)
+    expect(result.payload[:record][:failed].map { |item| item[:reason_code] }.uniq).to eq([ "verification_failed" ])
+    expect(Signature.count).to eq(0)
+  end
+end
+```
+
+```ruby
 # spec/commands/signatures/sign_race_spec.rb
 require "rails_helper"
 
@@ -5256,7 +5393,7 @@ end
 
 - [ ] **Step 2: Rode e veja falhar**
 
-Run: `docker compose exec -T -w /rails/.claude/mod19b api bundle exec rspec spec/requests/signature_queue_spec.rb spec/jobs/signatures/sweep_job_spec.rb spec/commands/signatures/sign_race_spec.rb`
+Run: `docker compose exec -T -w /rails/.claude/mod19b api bundle exec rspec spec/requests/signature_queue_spec.rb spec/jobs/signatures/sweep_job_spec.rb spec/commands/signatures/sign_race_spec.rb spec/commands/signatures/run_batch_chain_spec.rb`
 Expected: FAIL (`No route matches`, `uninitialized constant Signatures::SweepJob`, `Signatures::RunBatch`).
 
 - [ ] **Step 3: Implemente**
@@ -5494,7 +5631,7 @@ Expected: PASS. Se alguma spec do projeto confere `config/recurring.yml` (classe
 - [ ] **Step 5: Commit**
 
 ```bash
-/opt/homebrew/bin/git -C apps/api/.claude/mod19b add app/commands/signatures/return_to_paper.rb app/commands/signatures/start_batch.rb app/commands/signatures/run_batch.rb app/commands/signatures/complete_oauth.rb app/jobs/signatures/sweep_job.rb app/controllers/signatures/requests_controller.rb app/controllers/signatures/batches_controller.rb app/services/signatures/json.rb config/routes.rb config/recurring.yml spec/requests/signature_queue_spec.rb spec/jobs/signatures/sweep_job_spec.rb spec/commands/signatures/sign_race_spec.rb
+/opt/homebrew/bin/git -C apps/api/.claude/mod19b add spec/commands/signatures/run_batch_chain_spec.rb app/commands/signatures/return_to_paper.rb app/commands/signatures/start_batch.rb app/commands/signatures/run_batch.rb app/commands/signatures/complete_oauth.rb app/jobs/signatures/sweep_job.rb app/controllers/signatures/requests_controller.rb app/controllers/signatures/batches_controller.rb app/services/signatures/json.rb config/routes.rb config/recurring.yml spec/requests/signature_queue_spec.rb spec/jobs/signatures/sweep_job_spec.rb spec/commands/signatures/sign_race_spec.rb
 /opt/homebrew/bin/git -C apps/api/.claude/mod19b commit -m "feat: add the pending signature queue, batch signing and return to paper
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
@@ -6723,8 +6860,9 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
   6. O admin (`admin@curitiba.demo`) abre o painel de assinatura: médica com certificado e 0 pendentes, enfermeira "sem certificado", documentos por modo.
   7. No maintenance (`maintenance.localhost:5177`, `dev@local`): o interruptor `digital_signature` aparece ligado; `signatureProviders` mostra `vidaas` configurado com a última checagem; `signerStatus` alcançável. Desligar o interruptor: a pendente que sobrou volta ao papel em até 10 min (`feature_disabled`); as assinadas continuam visíveis e baixáveis.
   8. Conferência independente do `.zip`: `openssl cms -verify -binary -inform DER -in document.json.p7s -content document.json -CAfile <(docker compose exec -T signer cat /signer-dev-pki/anchors.pem) -purpose any -noout` → `Verification successful` (o validar.iti.gov.br não conhece a AC de dev; a prova no ITI é a do sandbox VIDaaS, Task 0 do `signer`).
-- [ ] **Step 6: Pare.** Merge, push, board e docs (página de status do módulo no padrão do módulo 01) só com autorização explícita do usuário, uma etapa de cada vez. Ordem: `contracts` (tag) → `signer` → **api** → dashboard → maintenance. Rollout por cidade: publicar a imagem nova e rodar `city:migrate:all` dela (e a migração de plataforma) **antes** de cortar tráfego — a migração de cidade é irreversível; o `signer` sobe antes do api (`SIGNER_URL`/`SIGNER_TOKEN` no api e no worker; **nunca** `SIGNER_DEV_PKI_DIR` nem `SIGNER_EXTRA_TRUST_ANCHORS` fora de dev — o `signer` recusa o boot com `SIGNER_ENV=production`); credenciais `signature.providers.<key>` só depois da homologação em cada PSC; `SIGNATURE_REDIRECT_URI` só se o retorno único do `auth.*` for o cadastrado (Desvio 9); o interruptor nasce desligado e é ligado por cidade pelo maintenance (a dispensa do papel é decisão da cidade, spec §14). Ao voltar o checkout para a main: `DROP DATABASE` dos dois bancos de teste e `city:test_databases`; derrube o servidor da 3037 (`kill $(cat tmp/pids/server-mod19b.pid)` no container) e volte o `working_dir` do `fake-psc` para `/rails` depois do merge.
-- [ ] **Step 7: Pendências para o board de pendências de ciclo** (cards só com autorização): CI do api com o `signer` como serviço (hoje as specs `:signer` só rodam no compose de dev); homologação do Rota Saúde em cada PSC e escolha do segundo PSC (NGS2.01.05); contrato de carimbo do tempo (AD-RT); revogação no vínculo (Divergência D1); volume do PDF assinado no banco da cidade.
+- [ ] **Step 6: Pare.** Merge, push, board e docs (página de status do módulo no padrão do módulo 01) só com autorização explícita do usuário, uma etapa de cada vez. Ordem: `contracts` (tag) → `signer` → **api** → dashboard → maintenance. Rollout por cidade: publicar a imagem nova e rodar `city:migrate:all` dela (e a migração de plataforma) **antes** de cortar tráfego — a migração de cidade é irreversível; o `signer` sobe antes do api (`SIGNER_URL`/`SIGNER_TOKEN` no api e no worker; **nunca** `SIGNER_DEV_PKI_DIR` nem `SIGNER_EXTRA_TRUST_ANCHORS` fora de dev — o `signer` recusa o boot com `SIGNER_ENV=production`); credenciais `signature.providers.<key>` só depois da homologação em cada PSC; o interruptor nasce desligado e é ligado por cidade pelo maintenance (a dispensa do papel é decisão da cidade, spec §14). Ao voltar o checkout para a main: `DROP DATABASE` dos dois bancos de teste e `city:test_databases`; derrube o servidor da 3037 (`kill $(cat tmp/pids/server-mod19b.pid)` no container) e volte o `working_dir` do `fake-psc` para `/rails` depois do merge.
+- [ ] **Step 7: Go-live por cidade (antes de ligar `digital_signature` nela).** Para cada PSC configurado no ambiente, cadastrar na aplicação do Rota Saúde no PSC a `redirect_uri` da cidade, `https://<host do dashboard da cidade>/dashboard/signature/callback` — o valor exato sai de `bin/rails runner 'puts Signatures::Providers.redirect_uri(City.find_by!(slug: "<slug>"))'` no ambiente publicado (Desvio 9). Conferir com um vínculo de teste por PSC (o PSC recusa `redirect_uri` não cadastrada) e só então ligar o interruptor pelo maintenance. Cidade nova = repetir este passo em todo PSC; registre-o no checklist de provisionamento.
+- [ ] **Step 8: Pendências para o board de pendências de ciclo** (cards só com autorização): CI do api com o `signer` como serviço (hoje as specs `:signer` só rodam no compose de dev); homologação do Rota Saúde em cada PSC e escolha do segundo PSC (NGS2.01.05); contrato de carimbo do tempo (AD-RT); volume do PDF assinado no banco da cidade.
 
 ---
 
@@ -6745,16 +6883,16 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 
 **Review Focus:** as cinco linhas têm teste na task dona (Tasks 13, 3, 11/17, 6/7, 9/10).
 
-## Decisões em aberto (para o usuário)
+## Decisões do usuário (incorporadas)
 
-1. **Cadeia dentro do lote.** O `previous_sha256` segue o esquema do `contracts` (o documento **assinado** anterior). Num lote com a consulta e o adendo dela, o adendo é preparado antes de a consulta ser gravada como assinada e aponta para o hash da consulta pelo caminho "nenhum assinado" — que é o mesmo valor (JSON canônico determinístico). Só muda quando há dois adendos no mesmo lote: o segundo aponta para o último assinado **antes** do lote. Alternativa: preparar em sequência dentro do lote, contando os anteriores do próprio lote como assinados (mais código, e o valor fica errado se o lote falhar no meio).
-2. **Revogação no vínculo.** Sem rota no `signer` para conferir certificado sem assinar, o vínculo não vê revogação (a primeira assinatura vê). Aceitar, ou pedir a rota (D1).
-3. **Retorno do PSC em produção.** Com hosts por cidade, cadastrar `/dashboard/signature/callback` de cada cidade em cada PSC dá trabalho por prefeitura; o retorno único no `auth.*` (Desvio 9, `SIGNATURE_REDIRECT_URI`) evita isso sem mudar o dashboard.
+1. **Cadeia no lote:** ordem cronológica de criação; o seguinte leva o hash do anterior do mesmo lote; anterior que falha segura os seguintes da consulta (Desvio 1; Tasks 9, 11, 13).
+2. **Revogação no vínculo:** `POST /certificates/check` no `signer` (D1, obrigatória); `indeterminate` aceita e registra (Desvio 10; Tasks 3, 5, 7).
+3. **Retorno do PSC:** um por cidade, no dashboard dela; cadastro por cidade em cada PSC no go-live (Desvio 9; Tasks 4, 6, 19).
 
 ## Divergências propostas ao contrato
 
-- **D1 — `signer`: `POST /certificates/check { certificate_der_base64 }` → `{ status: "valid"|"revoked"|"expired"|"invalid"|"indeterminate", reasons }`** (cadeia, validade e revogação sem assinar), para o vínculo e a renovação conferirem revogação (spec §5). Não bloqueia: sem ela, a revogação é conferida na primeira assinatura (Desvio 10).
-- **D2 — Retorno único opcional no `auth.*`:** `GET https://auth.<domínio>/signature/psc/callback?state=&code=|error=` → 302 para `/dashboard/signature/callback` da cidade do `state`; usado como `redirect_uri` quando `SIGNATURE_REDIRECT_URI` está definida. O `state` passa a ser um token assinado opaco (o dashboard só repassa).
+- **D1 — `signer`: `POST /certificates/check { certificate_der_base64 }` → 200 `{ "status": "valid"|"invalid"|"indeterminate", "signer_cpf", "not_after", "reasons": [] }`** (cadeia + LCR, sem assinar; `invalid` com `certificate_revoked`/`certificate_expired`/`untrusted_chain`, `indeterminate` com `revocation_unavailable`; 422 `invalid_certificate` e os demais códigos do §9). Obrigatória (decisão do usuário). No vínculo: 422 `certificate_revoked`, `certificate_expired` e o código novo **`certificate_untrusted`** em `POST /signature/oauth/callback` (§4); `indeterminate` vincula e registra o motivo; `signer` fora do ar ou 422 → **503 `signer_unavailable`** (código novo no §4).
+- **D2 — `redirect_uri` por cidade:** `https://<host do dashboard da cidade>/dashboard/signature/callback` (o que o §4 e o plano do dashboard já usam); o `state` é um token assinado opaco (cidade + id), que o dashboard só repassa.
 - **D3 — `POST /signature/oauth/callback`** aceita `{ state, error }` (recusa no celular → 403 `authorization_denied`, e o `state` fica consumido) e devolve `return_to` (o guardado com o `state`) junto de `{ purpose, result }` — já combinado com o plano do dashboard.
 - **D4 — Motivo `certificate_cpf_mismatch`** na lista de `reason_code` do §1 (NGS2.01.02: o CPF do profissional mudou depois do vínculo).
 - **D5 — 409 `professional_cpf_missing`** em `discover`, `link`, `sessions` e `batches` quando o perfil do profissional não tem CPF.

@@ -169,8 +169,11 @@ Valem sobre as seções acima e sobre os planos.
 - Interruptor: pré-requisito genérico `feature:<key>` → `<key>_disabled`.
 - Callback aceita `{ state, error }` → 403 `authorization_denied` (consome o
   state) e devolve `return_to` (guardado com o state) em todos os casos.
-- Rota de retorno do dashboard: `/dashboard/signature/callback` (é a
-  `redirect_uri` registrada nos PSC); `return_to` = `/<id do módulo>` do dashboard.
+- Rota de retorno do dashboard: `/dashboard/signature/callback`; a
+  `redirect_uri` de cada pedido é `https://<host do dashboard da cidade>/dashboard/signature/callback`.
+  **Decidido pelo usuário (2026-10-08): um endereço por cidade** (sem retorno
+  único no `auth.*`); registrar o endereço de cada cidade em cada PSC é passo de
+  go-live por cidade. `return_to` = `/<id do módulo>` do dashboard.
 - `reason_code` ganha `certificate_cpf_mismatch`. `failed` fica reservado (não
   é produzido nesta entrega).
 - 409 `professional_cpf_missing` em discover, link, sessions e batches; 422
@@ -188,8 +191,19 @@ Valem sobre as seções acima e sobre os planos.
   rodapé do PDF e no conteúdo.
 - `expires_in_days` = dias inteiros no fuso da cidade, negativo depois do
   vencimento; `patient_display_name` pode ser nulo.
-- Vínculo confere CPF, validade e uso da chave; revogação é pega na primeira
-  assinatura (sem rota de checagem no `signer`).
+- **Decidido pelo usuário (2026-10-08):** o vínculo confere CPF, validade, uso
+  da chave **e revogação**, pela rota nova do `signer`
+  `POST /certificates/check { certificate_der_base64 }` →
+  `{ "status": "valid"|"invalid"|"indeterminate", "signer_cpf", "not_after", "reasons": [] }`
+  (mesmos erros do §9; cadeia desconhecida = 200 `invalid` com `untrusted_chain`;
+  LCR indisponível = `indeterminate` com `revocation_unavailable`). No vínculo:
+  revogado/vencido → 422 `certificate_revoked`/`certificate_expired`;
+  `untrusted_chain` → 422 `certificate_untrusted`; `indeterminate` aceita e a
+  revogação volta a ser conferida na primeira assinatura.
+- **Decidido pelo usuário (2026-10-08):** lote assina em ordem cronológica; dois
+  adendos da mesma consulta no mesmo lote formam cadeia (o segundo leva o hash
+  canônico do primeiro); se o primeiro falhar, o segundo fica `pending` com o
+  mesmo motivo.
 
 **maintenance**
 - Na raiz `Query`: `signatureProviders: [SignatureProvider!]!`
