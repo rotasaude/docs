@@ -67,14 +67,17 @@
 - `referred`: `referral_unit_id` ou `referral_note` (fluxo existente); fecha `referred`; unidade da cidade gera pedido como hoje.
 - Trava: `ck_attendances_closing` passa a aceitar `closed` vindo de `waiting` com `outcome` ∈ (`scheduled_from_screening`, `oriented`, `referred`) — a existência de escuta `completed` com o mesmo destino é garantida por trigger (`attendances_screening_close_guard`).
 - Fila do profissional: com escuta (`same_day`) por cor (red, yellow, green, blue) e chegada; depois sem escuta (fora do escopo) por horário marcado/chegada. Prioridade da triagem digital só informativa.
+  *Alterado em 2026-10-07 (contrato §9 e decisão do usuário): três faixas — com escuta `same_day` por cor e chegada; quem não precisa de escuta; quem ainda aguarda acolhimento, por último e marcado (`awaiting_screening`). A terceira faixa só vale quando a cidade tem protocolo `acolhimento` ativo; sem ele, a fila segue a ordem do módulo 13 (quem tem escuta `same_day` concluída continua primeiro).*
 - Fila do acolhimento: atendimentos `waiting` que exigem escuta e não têm escuta `completed`, por chegada, com o sinal da prioridade digital.
 
 ## 5. Ficha LEDI
 
 - **Tarefa 1 — confirmação do layout:** nos IDLs 8.7.0 (`vendor/ledi/8.7.0`) e na documentação oficial: código de tipo de atendimento da escuta inicial no MIAI; campos de medição; se o MIAI aceita CBO 3222; códigos SIGTAP das aferições (PA, glicemia capilar, antropometria). Resultado em `config/ledi/screening_mapping.yml` com fonte; contradição com este desenho → parar e reportar.
 - `Ledi::Fichas::InitialListening` (CBO nível superior) e `Ledi::Fichas::ScreeningProcedures` (CBO 3222, só com aferição); `source_type = "Screening"`.
+  *Alterado pelo usuário em 2026-10-07 (D10): o técnico (CBO 3222) que faz a escuta sem nenhuma aferição também gera a Ficha de Procedimentos, só com `statusEscutaInicialOrientacao = true` (o LEDI aceita; conferido no dicionário da ficha).*
 - Identificação: CNES da unidade, INE da equipe do profissional, CNS/CPF/CBO do profissional, CPF (e CNS) do cidadão, nascimento e sexo do perfil, horário de início/fim, local UBS.
 - `Ledi::ScreeningFichaJob`: no fechamento do atendimento e num varredor diário (23h, fuso da cidade) para escutas `completed` de atendimentos ainda abertos; usa a revisão corrente; só enfileira com `usable?(:ledi_export)` e `record_mode != off`.
+  *Alterado pelo usuário em 2026-10-07: se a exportação estava inutilizável no fechamento, o varredor das 23h gera depois a ficha de atendimentos já fechados que ficaram sem ficha e sem "não gerada", limitado às escutas concluídas na competência atual ou na anterior (fuso da cidade). Antes, esses atendimentos ficavam sem ficha.*
 - Sem identificação: grava `ledi_generation_failures` (`source_type`, `source_id`, `reason_codes`, `created_at`, `resolved_at`) — motivos `unit_without_cnes`, `professional_without_team`, `professional_without_cns`, `citizen_without_birth_date`, `citizen_without_sex`, `unknown_ciap2`; "gerar de novo" (`POST /production/generation_failures/:id/retry`) tenta de novo e resolve.
 - Regenerar ficha recusada (corrigida na origem): a linha antiga fica; a nova recebe outro `uuid` e o vínculo `replaces_outbox_id` (o índice único passa a considerar só linhas não `rejected`).
 - Modo `integrated`: envia (ADR 0028); runbook alerta para não registrar a escuta também no PEC.

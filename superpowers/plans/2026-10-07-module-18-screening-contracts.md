@@ -10,7 +10,11 @@ unidade é editada em `POST /attendance/units/:id` (rota existente), não em
 
 ## 1. Schema de protocolo `protocols-v1.6.0` (MINOR)
 
-Nova variante na raiz (via `oneOf` com a definição de triagem existente):
+Nova variante na raiz, escolhida por `kind` (`if`/`then`/`else`: com `kind`,
+`$defs/screening`; sem `kind`, `$defs/triage`). *Corrigido em 2026-10-07: o
+texto original dizia "via `oneOf`"; a tag publicada (contracts `0c6c753`) usa
+`if`/`then`/`else`, para que só a forma escolhida reporte erros. A validade dos
+documentos é a mesma.*
 
 ```json
 { "name": "acolhimento", "version": 1, "schema_version": 6,
@@ -131,7 +135,8 @@ acolhimento na fila do módulo 17 (`kind: "screening"`, `origin: "attendance"`).
 **Schema (§1):** `schema_version` é inteiro, com a mesma regra da triagem (o
 valor do exemplo é ilustrativo). A variante `screening` também proíbe
 `start_step_id`, `recommendations` e `priority_when`. O `api` deduplica erros
-repetidos do `oneOf` (`.uniq` na validação).
+repetidos (`.uniq` na validação; com o `if`/`then`/`else` de §1 a repetição
+deixou de acontecer, e o `.uniq` ficou como defesa).
 
 **Rotas novas:**
 - `POST /attendance/ciap2/search { q }` → `{ items: [{ code, label }] }`; 503
@@ -169,4 +174,45 @@ aferições: PA 0301100039, glicemia 0214010015, temperatura 0301100250, peso
 
 **Decisão em aberto para o usuário:** técnico que faz escuta **sem nenhuma
 aferição** fica sem ficha (como a spec manda), embora o LEDI aceite a Ficha de
-Procedimentos só com a marca de escuta.
+Procedimentos só com a marca de escuta. *Decidida em 2026-10-07: gera a ficha
+só com a marca (§10).*
+
+## 10. Decisões da execução (2026-10-07/08)
+
+Valem sobre as seções acima, a spec e os planos. Publicadas em api `eb732e8` e
+dashboard `4bf895b`.
+
+- **Ficha do técnico sem aferição (D10, decisão do usuário):** o técnico (CBO
+  3222) que faz a escuta sem nenhuma aferição gera a Ficha de Procedimentos só
+  com `statusEscutaInicialOrientacao = true`, sem procedimento nem medição.
+- **Ficha perdida (decisão do usuário):** se a exportação estava inutilizável
+  no fechamento, o varredor das 23h (fuso da cidade) gera depois a ficha de
+  atendimentos já fechados sem ficha e sem "não gerada". Só alcança escutas
+  concluídas na competência atual ou na anterior. Escuta com "não gerada" segue
+  pelo "gerar de novo".
+- **Fila do profissional (decisão do usuário):** a faixa "aguardando
+  acolhimento" (por último) só vale quando a cidade tem protocolo `acolhimento`
+  ativo. Sem ele, a ordem é a do módulo 13; quem tem escuta `same_day` concluída
+  continua primeiro. "Chamar próximo" segue a mesma ordem.
+- **Marcador da fila:** cada item de `GET /attendance/units/:id/queue` (em
+  `waiting` e `in_care`) ganha `awaiting_screening: true|false`, coerente com a
+  faixa acima. Não é dado clínico: a recepção também recebe. Não vai no objeto
+  da chamada (quem foi chamado nunca está aguardando).
+- **Escuta na chamada:** `call` e `call_next` devolvem a escuta aninhada no
+  atendimento — `{ "attendance": { ..., "screening": <screening>|null } }` —,
+  só quando concluída e só com a revisão corrente; as revisões anteriores
+  aparecem em `GET /attendance/screenings/:id`.
+- **`simulate_screening`** devolve `{ suggested_color, matched_rules, errors,
+  warnings }`, sem `alerts` nem `bmi`; o editor destaca os sinais pela regra
+  local.
+- **`GET /production`:** cada ficha traz `last_error_codes` e
+  `replaces_outbox_id`; `rejections` é `[{ field, code, count }]`; contagens,
+  recusas e alerta ignoram a ficha recusada que já foi regerada. Formato novo:
+  o `dashboard` sobe logo depois do `api`.
+- **Desfechos novos fora do formulário:** `scheduled_from_screening` ("agendado
+  pelo acolhimento") e `oriented` ("orientado no acolhimento") aparecem nas
+  campanhas (`/campaigns/options`) e nos rótulos do dashboard, mas não no
+  formulário de encerramento. O Analytics continua com os quatro desfechos
+  antigos (rotasaude/api#49).
+- **Pedido de acolhimento na fila do módulo 17:** `kind: "screening"`,
+  `origin: "attendance"` (o `origin` não ganha valor novo).
