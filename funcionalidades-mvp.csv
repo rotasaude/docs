@@ -186,3 +186,11 @@ F-19.4,Adendos e impresso para assinatura manual,mod-19,api|dashboard,0031,featu
 F-19.5,"Leitura em contexto, abertura justificada com step-up e relatório",mod-19,api|dashboard,"0031,0016",feature
 F-19.6,"Ficha LEDI de atendimento individual, com confirmação do layout e correção pendente após aceite",mod-19,api|dashboard,"0031,0028",feature
 F-19.7,Interruptor clinical_record e pré-condições,mod-19,api|maintenance,"0031,0028",feature
+F-19.8,Interruptor digital_signature e prestadores no maintenance,mod-19,api|maintenance,"0032,0028",feature
+F-19.9,Vínculo de certificado ICP em nuvem por CPF,mod-19,api|dashboard,"0032,0016",feature
+F-19.10,Sessão de assinatura por turno,mod-19,api|dashboard,0032,feature
+F-19.11,Assinatura automática da consulta e do adendo (CAdES + PAdES AD-RB),mod-19,api|signer,"0032,0031",feature
+F-19.12,"Fila de pendentes, lote e volta ao papel",mod-19,api|dashboard,0032,feature
+F-19.13,"Validação, conteúdo assinado e exportação",mod-19,api|dashboard,0032,feature
+F-19.14,Painel de assinatura do admin,mod-19,api|dashboard,0032,feature
+F-19.15,Serviço signer,mod-19,signer,0032,feature
