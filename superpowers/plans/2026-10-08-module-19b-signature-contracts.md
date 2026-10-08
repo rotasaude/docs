@@ -131,3 +131,69 @@ Forma `<request>`: `{ "id", "document_type", "document_id", "consultation_id", "
 2. `signer` (repositório novo, com autorização).
 3. `api` (porta de dev sugerida 3037; migrações de cidade acima das do 19a).
 4. `dashboard`. 5. `maintenance`.
+
+## 13. Acréscimos da escrita dos planos (2026-10-08)
+
+Valem sobre as seções acima e sobre os planos.
+
+**contracts**
+- Caminhos: `clinical/consultation-v1.json`, `clinical/consultation-addendum-v1.json`
+  e vetor de canonicalização em `clinical/examples/canonical/` (o api prova o
+  gerador RFC 8785 byte a byte contra ele). Não há prefixo `schemas/`.
+- O adendo leva o mesmo cabeçalho da consulta (profissional = autor do adendo)
+  e o conteúdo num objeto `addendum`. `label` de problemas e exames entram no
+  JSON. `council { name, state, registration_number }`;
+  `outcome { code: discharged|referred|return, referral_unit_cnes?, referral_note? }`;
+  texto vazio = `null`; horários UTC com `Z`; CPF só dígitos; `ibge_code`,
+  `cnes` e `birth_date` anuláveis.
+- `previous_sha256` = hash canônico do documento **assinado** anterior da mesma
+  consulta (consulta ou adendo); sem nenhum assinado, o hash canônico da consulta.
+
+**signer**
+- `/verify`: `document_base64` obrigatório em CAdES e ignorado em PAdES;
+  `reasons` de vocabulário fechado (plano do signer); revogado depois do
+  `signingTime` = `indeterminate`, antes = `invalid`.
+- `validation_material` = CMS `.p7c` com a cadeia e as LCRs; `crl_updated_at` =
+  último download bem-sucedido de LCR.
+- `/health` também exige o token; rota desconhecida 404 `not_found`; corpo > 48 MB
+  400; certificado não-RSA 422; PDF ilegível 400; `/dev-pki/*` só em dev.
+- PAdES invisível: o rodapé NGS2 é desenhado pelo api no PDF antes do `/prepare`.
+- Implementação: Demoiselle 4.6.2 `CAdESSigner#prepareSignedAttributes` +
+  BouncyCastle para o `SignerInfo` com o RAW do PSC; PDFBox para o PAdES.
+  Políticas CAdES AD-RB v2.4 (`2.16.76.1.7.1.1.2.4`) e PAdES AD-RB v1.3
+  (`2.16.76.1.7.1.11.1.3`). Log do Demoiselle (CPF/nome do titular) desligado.
+- Env de dev do api: `SIGNER_URL`, `SIGNER_TOKEN`, `SIGNER_DEV_PKI_DIR=/signer-dev-pki`
+  (volume `signer-dev-pki`, e-CPF de teste no formato `DevPki`).
+
+**api**
+- Interruptor: pré-requisito genérico `feature:<key>` → `<key>_disabled`.
+- Callback aceita `{ state, error }` → 403 `authorization_denied` (consome o
+  state) e devolve `return_to` (guardado com o state) em todos os casos.
+- Rota de retorno do dashboard: `/dashboard/signature/callback` (é a
+  `redirect_uri` registrada nos PSC); `return_to` = `/<id do módulo>` do dashboard.
+- `reason_code` ganha `certificate_cpf_mismatch`. `failed` fica reservado (não
+  é produzido nesta entrega).
+- 409 `professional_cpf_missing` em discover, link, sessions e batches; 422
+  `invalid_provider` em sessions e batches quando o PSC do certificado deixou de
+  estar configurado.
+- Leitura de assinatura guardada é regida por `clinical_record` (não por
+  `digital_signature`): fora de contexto 403 `opening_required`; id inexistente
+  404 `not_found`.
+- Lote: falha do PSC/`signer` durante a assinatura vira item em `failed` com 200;
+  só a troca do código falhada dá 503; pedido travado pelo job fica fora do
+  resultado. `GET /signature/requests` lista sempre as pendentes;
+  `return_to_paper` com id inexistente 404.
+- Overview: 403 `missing_role`, 422 `invalid_period`, padrão 30 dias.
+- `signer_name` do bloco = nome cadastrado do autor; o nome do certificado só no
+  rodapé do PDF e no conteúdo.
+- `expires_in_days` = dias inteiros no fuso da cidade, negativo depois do
+  vencimento; `patient_display_name` pode ser nulo.
+- Vínculo confere CPF, validade e uso da chave; revogação é pega na primeira
+  assinatura (sem rota de checagem no `signer`).
+
+**maintenance**
+- Na raiz `Query`: `signatureProviders: [SignatureProvider!]!`
+  (`key: String!, configured: Boolean!, lastCheckAt: ISO8601DateTime, lastCheckOk: Boolean`)
+  e `signerStatus: SignerStatus!` (`reachable: Boolean!, version: String, crlUpdatedAt: ISO8601DateTime`),
+  sem levantar erro. "Última checagem" = última chamada real do api ao PSC.
+- Rótulos `clinical_record_disabled` e `record_mode_not_record` entram no app.
