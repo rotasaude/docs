@@ -203,3 +203,27 @@ YAML. **Decidido pelo usuário (2026-10-07): CID-10 só para médicos (grupos
      `not_author`); some o adendo de terceiro com `opening_id`.
   4. `access` passa a `in_context` | `justified` | `author` | `administrative`.
   Rotas finais: no balanço da Task 21 do api (sessão "MVP Module 19").
+- **Rotas da revisão de leitura (Task 21 do api, 282cc1b):**
+  - `GET /attendance/consultations/mine?from=&to=` (`health_professional`;
+    datas AAAA-MM-DD no fuso da cidade) → `{ "consultations": [ <item> ] }`,
+    finalizadas da autora, mais novas primeiro, até 500, sem conteúdo e sem
+    trilha; 422 `invalid_period`. `<item>` = `{ id, finalized_at, patient: { id,
+    display_name }, care_type, care_type_label, health_unit: { id, name } }`.
+  - `GET /attendance/consultations/:id` e `/print`: a autora da finalizada
+    sempre (grant `author`); demais em contexto ou abertura, senão 403
+    `out_of_context`; impresso de não autor 403 `not_author` (finalizada ou rascunho).
+  - `POST /attendance/consultations/:id/addenda`: só a autora (403 `not_author`);
+    `opening_id` aceito e ignorado; saem `opening_required`, `missing_link` e
+    `cbo_not_allowed` de não autor.
+  - `GET /clinical_record/professionals/:user_id/consultations?from=&to=`
+    (`municipal_admin`, step-up) → `{ "professional": { id, name }, "consultations": [ <item> ] }`,
+    sem conteúdo e sem trilha; 404 `not_found`, 422 `invalid_period`, 403 `missing_role`.
+  - `GET /clinical_record/consultations/:id` (`municipal_admin`, step-up) →
+    `<consultation>` completa só da finalizada (rascunho/inexistente 404
+    `not_found`); trilha `access: "administrative"` com `consultation_id`.
+  - `GET /clinical_record/openings`: itens ganham `kind`
+    (`justified_opening` | `administrative_read`) e `consultation_id`; na
+    administrativa `reason_code` e `expires_at` são null; até 500 no total.
+  - Em aberto (usuário): retenção das leituras administrativas — hoje vêm de
+    `domain_events`, purgados em 12 meses (somem do relatório); proposta da
+    sessão: tabela própria como `clinical_record_openings`.
