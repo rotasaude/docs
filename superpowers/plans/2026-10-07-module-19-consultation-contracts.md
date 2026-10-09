@@ -227,3 +227,6 @@ YAML. **Decidido pelo usuário (2026-10-07): CID-10 só para médicos (grupos
   - Em aberto (usuário): retenção das leituras administrativas — hoje vêm de
     `domain_events`, purgados em 12 meses (somem do relatório); proposta da
     sessão: tabela própria como `clinical_record_openings`.
+- `GET /attendance/consultation_options` aceita também `municipal_admin` (Task 22
+  do api, 8a25378); para quem não é profissional, `cid10_allowed_for_cbo: false`.
+  A recepção segue com 403 `missing_role`.
