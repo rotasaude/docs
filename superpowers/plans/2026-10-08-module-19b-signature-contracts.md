@@ -247,3 +247,11 @@ Valem sobre as seções acima e sobre os planos.
     responde mais como `vidaas` em development).
 - Ordem: contracts-repo (tag `clinical-v1.0.0`) → `signer` sem a Task 0 → api →
   dashboard → maintenance.
+- **JSON canônico (decidido pelo usuário, 2026-10-09, antes da tag
+  `clinical-v1.0.0`):** cada item de `exam_requests` (consulta) e de
+  `changes.exam_requests` (adendo) leva `competence` (AAAAMM, obrigatório),
+  vindo de `consultation_exam_requests.sigtap_competence`.
+- Construtor do api: lê `addendum.item_changes` (a coluna do 19a); emite
+  `changes.exam_requests` quando a lista mudou, inclusive vazia (`[]` = todos
+  cancelados); omite `bmi` quando nulo; `care_type`, condutas e `height_cm` como
+  inteiros.
