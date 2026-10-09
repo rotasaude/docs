@@ -50,7 +50,7 @@
 | 16 | [Modo de prontuário e exportação](16--modo-de-prontuario.md) | Fechado | Ciclo 2 | [0028](../adr/0028.md), [0007](../adr/0007.md), [0020](../adr/0020.md) |
 | 17 | [Agenda dos profissionais](17--agenda.md) | Fechado | Ciclo 2 | [0029](../adr/0029.md), [0019](../adr/0019.md), [0021](../adr/0021.md) |
 | 18 | [Acolhimento](18--acolhimento.md) | Fechado | Ciclo 2 | [0030](../adr/0030.md), [0019](../adr/0019.md), [0028](../adr/0028.md) |
-| 19 | [Consulta (prontuário da APS)](19--consulta.md) | Em andamento | Ciclo 2 | [0031](../adr/0031.md), [0032](../adr/0032.md), [0028](../adr/0028.md), [0030](../adr/0030.md) |
+| 19 | [Consulta (prontuário da APS)](19--consulta.md) | Entregue | Ciclo 2 | [0031](../adr/0031.md), [0032](../adr/0032.md), [0028](../adr/0028.md), [0030](../adr/0030.md) |
 | 20 | [Linha do tempo do paciente](20--linha-do-tempo.md) | Stub | Ciclo 2 | — |
 | 21 | [Exames e laboratório](21--exames.md) | Stub | Ciclo 2 | — |
 | 22 | [Procedimentos e faturamento](22--procedimentos.md) | Stub | Ciclo 2 | — |

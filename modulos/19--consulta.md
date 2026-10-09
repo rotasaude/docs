@@ -1,6 +1,6 @@
 # Módulo 19 — Consulta (prontuário da APS)
 
-- **Estado:** Em andamento (19a Fechado; 19b Planejado)
+- **Estado:** Entregue (19a Fechado; 19b Entregue — gate api#53 aberto)
 - **Tipo:** Ciclo 2
 
 ## Escopo
@@ -95,7 +95,8 @@ pedido de exame) e CATMAT; 19d receita de controlado (SNCR).
 
 - F-19.8 a F-19.15 verificadas.
 - Gate de go-live api#53: assinatura real aprovada no validar.iti.gov.br (até lá o 19b fica `Entregue`).
-- Runbook da assinatura (ligar, vincular, sessão, pendentes, revalidação).
+- Runbook da assinatura (ligar, vincular, sessão, pendentes, revalidação):
+  [`operacao/rollout-assinatura.md`](../operacao/rollout-assinatura.md).
 
 ## Histórico
 
@@ -151,3 +152,46 @@ pedido de exame) e CATMAT; 19d receita de controlado (SNCR).
   - rotasaude/dashboard#12 (lista de problemas no adendo de "Minhas
     consultas"; Baixa);
   - a SIGTAP da semente de dev tem só 5 procedimentos (1 do grupo 02).
+- 2026-10-09 — **19b implementado, publicado e Entregue** (o gate rotasaude/api#53
+  continua aberto):
+  - contracts `ff7df1d` (tag `clinical-v1.0.0`; `competence` AAAAMM nos exames);
+  - signer — repositório novo `rotasaude/signer`, `70475f7` (63 testes);
+  - api `c9ccd88` (31 commits sobre `2a3ec97`; suíte 4675/0);
+  - dashboard `8a0c0de` (16 commits sobre `c4f7d5a`; 1735 testes);
+  - maintenance `0f0a779` (3 commits; 217 testes).
+
+  Migrações `20261008500001`, de plataforma e de cidade (esta **irreversível**).
+  Fila `signatures` com worker próprio por cidade. Runbook
+  [`operacao/rollout-assinatura.md`](../operacao/rollout-assinatura.md).
+
+  **Decisões do usuário durante a execução** (contrato do 19b, §13; revisão do
+  ADR 0032 de 2026-10-09):
+  - o 19b foi verificado contra o **PSC simulado** e a AC de teste do `signer`;
+    a prova com prestador real virou o gate de go-live api#53;
+  - interruptor `signature_psc_mock` no maintenance, só fora de produção, com
+    o aviso "simulada — sem validade jurídica" em toda tela, PDF e pacote;
+  - competência da SIGTAP no JSON canônico dos exames;
+  - o pedido de assinatura nasce na finalização e no adendo, quando há
+    certificado ativo, com fila própria `signatures` e worker dedicado.
+
+  **Prova no navegador aprovada** (Curitiba, 2026-10-09, PSC simulado):
+  - vínculo do certificado e sessão do turno;
+  - consulta finalizada já pendente e assinada sozinha;
+  - detalhe, PDF, pacote e Revalidar (`valid`, AD-RB);
+  - pendentes, volta ao papel e "Assinar todas" (`multi_signature`);
+  - desvincular;
+  - painel e leitura do admin;
+  - aviso, interruptor, prestadores e estado do `signer` no maintenance.
+
+  A prova achou os DELETE de sessão e de certificado sem `Content-Type` JSON
+  (415, guarda CSRF), corrigido no dashboard `8a0c0de`.
+
+  F-19.8 a F-19.15 `Verified`.
+
+  **Em aberto:**
+  - rotasaude/api#53 (prova real no validar.iti; Crítica, bloqueia o go-live);
+  - rotasaude/signer#1 (endurecimento do `signer`; Alta);
+  - rotasaude/dashboard#14 (marcador "assinando…" sem sessão; Baixa);
+  - conexões do worker `signatures` no `max_connections`;
+  - chamadas ao PSC e ao `signer` dentro da transação com lock;
+  - sessão de usuário desativado vale até 12 h.

@@ -287,3 +287,9 @@ Valem sobre as seções acima e sobre os planos.
   `max_connections` do go-live.
 - Texto do aviso no maintenance: "Esta cidade assina com o PSC SIMULADO —
   assinaturas sem validade jurídica (fora de produção)."
+- **Fechamento (2026-10-09), achado da prova no navegador:** toda escrita
+  autenticada por cookie, inclusive `DELETE /signature/sessions/current` e
+  `DELETE /signature/certificates/current`, exige `Content-Type:
+  application/json` (corpo `{}`). Sem isso o api responde 415 `json_required`
+  (guarda CSRF de `Authentication#require_json_for_cookie_writes`). O
+  dashboard `8a0c0de` manda o cabeçalho nas duas.
