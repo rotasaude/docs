@@ -1,6 +1,6 @@
 # Módulo 19 — Consulta (prontuário da APS)
 
-- **Estado:** Entregue (19a Fechado; 19b Entregue — gate api#53 aberto)
+- **Estado:** Em andamento (19a Fechado; 19b Entregue — gate api#53 aberto; 19c Planejado)
 - **Tipo:** Ciclo 2
 
 ## Escopo
@@ -26,8 +26,13 @@ atrás do interruptor `digital_signature`; sessão por turno com fila de
 pendentes e lote; adoção por profissional (sem certificado segue no papel);
 CAdES do JSON canônico + PAdES do PDF; serviço interno `signer`.
 
-**Próximos subprojetos:** 19c documentos clínicos (atestado, receita comum,
-pedido de exame) e CATMAT; 19d receita de controlado (SNCR).
+**Planejado no 19c (F-19.16 a F-19.23, ADR 0033):** atestado, declaração de
+comparecimento (também pela recepção), receita comum com catálogo do CATMAT,
+REMUME e protocolos de enfermagem (antimicrobiano em papel), requisição de
+exames; lista de medicamentos em uso por eventos; página pública de conferência
+por QR code e cancelamento, atrás do interruptor `clinical_documents`.
+
+**Próximo subprojeto:** 19d receita de controlado e antimicrobiano digital (SNCR).
 
 **Fora, por enquanto:** prontuário visível ao cidadão (20), odontologia (28).
 
@@ -37,6 +42,7 @@ pedido de exame) e CATMAT; 19d receita de controlado (SNCR).
 |---|---|
 | 0031 | Paciente, nome, lista de problemas, consulta, adendos, leitura, ficha |
 | 0032 | Assinatura digital (19b): PSC em nuvem, sessão, fila, formatos, `signer` |
+| 0033 | Documentos clínicos (19c): cabeçalho comum, receita estruturada, medicamentos em uso, conferência |
 | 0028 | Modo `record`, interruptores, exportação, terminologias |
 | 0030 | Escuta inicial, trilha de leitura, fichas não geradas |
 | 0017, 0027 | Par e validação presencial, perfil |
@@ -76,6 +82,14 @@ pedido de exame) e CATMAT; 19d receita de controlado (SNCR).
 | F-19.13 | Validação, conteúdo assinado e exportação | api, dashboard | 0032 |
 | F-19.14 | Painel de assinatura do admin | api, dashboard | 0032 |
 | F-19.15 | Serviço `signer` | signer | 0032 |
+| F-19.16 | Interruptor `clinical_documents` e importação do catálogo de medicamentos | api, maintenance | 0033, 0028 |
+| F-19.17 | REMUME e protocolos de enfermagem | api, dashboard | 0033 |
+| F-19.18 | Lista de medicamentos em uso por eventos | api, dashboard | 0033 |
+| F-19.19 | Receita comum (enfermagem por protocolo; antimicrobiano em papel) | api, dashboard | 0033, 0032 |
+| F-19.20 | Atestado | api, dashboard | 0033, 0032 |
+| F-19.21 | Declaração de comparecimento (consulta e recepção) | api, dashboard | 0033 |
+| F-19.22 | Requisição de exames em PDF | api, dashboard | 0033, 0031 |
+| F-19.23 | Página pública de conferência e cancelamento | api, dashboard | 0033 |
 
 ## Riscos herdados
 
@@ -97,6 +111,13 @@ pedido de exame) e CATMAT; 19d receita de controlado (SNCR).
 - Gate de go-live api#53: assinatura real aprovada no validar.iti.gov.br (até lá o 19b fica `Entregue`).
 - Runbook da assinatura (ligar, vincular, sessão, pendentes, revalidação):
   [`operacao/rollout-assinatura.md`](../operacao/rollout-assinatura.md).
+
+## Critério de fechamento do 19c
+
+- F-19.16 a F-19.23 verificadas.
+- Prova no navegador (atestado e receita assinados, receita de enfermagem no
+  protocolo, declaração da recepção, conferência pelo QR, cancelamento).
+- Runbook dos documentos (catálogo, REMUME, protocolos, conferência).
 
 ## Histórico
 
@@ -195,3 +216,6 @@ pedido de exame) e CATMAT; 19d receita de controlado (SNCR).
   - conexões do worker `signatures` no `max_connections`;
   - chamadas ao PSC e ao `signer` dentro da transação com lock;
   - sessão de usuário desativado vale até 12 h.
+- 2026-10-09 — Escopo do 19c decidido com o usuário; ADR 0033 e spec
+  `superpowers/specs/2026-10-09-module-19c-clinical-documents-design.md`.
+  F-19.16 a F-19.23 criados (board #1, `Not Started`).

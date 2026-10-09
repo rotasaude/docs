@@ -194,3 +194,11 @@ F-19.12,"Fila de pendentes, lote e volta ao papel",mod-19,api|dashboard,0032,fea
 F-19.13,"Validação, conteúdo assinado e exportação",mod-19,api|dashboard,0032,feature
 F-19.14,Painel de assinatura do admin,mod-19,api|dashboard,0032,feature
 F-19.15,Serviço signer,mod-19,signer,0032,feature
+F-19.16,Interruptor clinical_documents e importação do catálogo de medicamentos,mod-19,api|maintenance,"0033,0028",feature
+F-19.17,REMUME e protocolos de enfermagem,mod-19,api|dashboard,0033,feature
+F-19.18,Lista de medicamentos em uso por eventos,mod-19,api|dashboard,0033,feature
+F-19.19,Receita comum (enfermagem por protocolo; antimicrobiano em papel),mod-19,api|dashboard,"0033,0032",feature
+F-19.20,Atestado,mod-19,api|dashboard,"0033,0032",feature
+F-19.21,Declaração de comparecimento (consulta e recepção),mod-19,api|dashboard,0033,feature
+F-19.22,Requisição de exames em PDF,mod-19,api|dashboard,"0033,0031",feature
+F-19.23,Página pública de conferência e cancelamento,mod-19,api|dashboard,0033,feature
