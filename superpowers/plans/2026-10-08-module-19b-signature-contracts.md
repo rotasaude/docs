@@ -49,7 +49,7 @@ Forma `<certificate>`: `{ "id", "provider", "issuer", "serial_number", "not_afte
   422 `invalid_state`; 409 `authorization_expired`; 403 `authorization_denied`;
   422 `certificate_cpf_mismatch`, `certificate_expired`, `certificate_revoked`;
   503 `provider_unavailable`.
-- `return_to` é caminho relativo do dashboard (`/^\/[^\/]/`); a rota de retorno
+- `return_to` é caminho relativo do dashboard (`/^\/[^\/\\]/`, recusa `//` e `/\` — redirecionamento aberto); a rota de retorno
   do dashboard é `/signature/callback?state=&code=` (ou `error=`).
 
 ## 5. Pendentes e lote
@@ -267,3 +267,10 @@ Valem sobre as seções acima e sobre os planos.
   trazem sempre `simulated: true|false` e `provider`. `POST .../verify` exige
   `Content-Type: application/json` (corpo `{}`). O `municipal_admin` só lê o
   conteúdo; fora de contexto → 403 `opening_required`.
+- **api do 19b concluído (7beafed, revisão final):** `simulated` sempre booleano
+  e `provider` nos payloads do §6; `expires_in_days` em dias de calendário,
+  no máximo -1 depois de vencer, também no painel do admin; `return_to` recusa
+  barra invertida; volta ao papel → 409 `not_pending` se a assinatura estiver em
+  andamento há até 5 s; lote com certificado de outro PSC → 403
+  `authorization_denied`; logo depois de finalizar, o bloco mostra `mode:
+  "manual"` até o job criar o pedido (o dashboard relê).
