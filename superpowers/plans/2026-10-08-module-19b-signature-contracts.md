@@ -63,7 +63,7 @@ Forma `<request>`: `{ "id", "document_type", "document_id", "consultation_id", "
 ## 6. Assinatura
 
 - `GET /signature/signatures/:id` → `{ "id", "document_type", "document_id", "signed_at", "signer_name", "signer_cpf_masked", "policy": "AD-RB", "verification", "verification_reasons": [], "verified_at", "content": <JSON canônico legível> }`;
-  trilha `clinical_record.viewed`; 403 `out_of_context` como no 19a.
+  trilha `clinical_record.viewed`; fora de contexto 403 `opening_required` (ver §13).
 - `GET /signature/signatures/:id/pdf` → `application/pdf` (PAdES).
 - `GET /signature/signatures/:id/package` → `application/zip` (`document.json` + `document.json.p7s`).
 - `POST /signature/signatures/:id/verify` → mesma forma do GET, revalidada.
@@ -262,3 +262,8 @@ Valem sobre as seções acima e sobre os planos.
   novo); certificado revogado → 422; PDF cujo estado passaria de 32 MiB → 400.
   A conferência de revogação autentica a LCR e cobre cada elo da cadeia
   (falha → `indeterminate` com `revocation_unavailable`).
+- **Bloco e leitura da assinatura (Task 14 do api):** o bloco `signature` no modo
+  `digital` e as respostas de `GET`/`POST .../verify` de `/signature/signatures/:id`
+  trazem sempre `simulated: true|false` e `provider`. `POST .../verify` exige
+  `Content-Type: application/json` (corpo `{}`). O `municipal_admin` só lê o
+  conteúdo; fora de contexto → 403 `opening_required`.
