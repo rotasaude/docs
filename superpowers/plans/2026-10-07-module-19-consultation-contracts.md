@@ -224,9 +224,11 @@ YAML. **Decidido pelo usuário (2026-10-07): CID-10 só para médicos (grupos
   - `GET /clinical_record/openings`: itens ganham `kind`
     (`justified_opening` | `administrative_read`) e `consultation_id`; na
     administrativa `reason_code` e `expires_at` são null; até 500 no total.
-  - Em aberto (usuário): retenção das leituras administrativas — hoje vêm de
-    `domain_events`, purgados em 12 meses (somem do relatório); proposta da
-    sessão: tabela própria como `clinical_record_openings`.
-- `GET /attendance/consultation_options` aceita também `municipal_admin` (Task 22
+  - **Decidido pelo usuário (2026-10-09):** leituras administrativas guardadas
+    para sempre em tabela própria (como `clinical_record_openings`), com guarda
+    de imutabilidade — migração de cidade **20261007400004** (irreversível; o 19a
+    passa a ter 4 migrações). O relatório lê da tabela; a forma não muda, o `id`
+    do `administrative_read` é o id da linha.
+- `GET /attendance/consultation_options` aceita também `municipal_admin`, sem trilha (decisão técnica da Task 22
   do api, 8a25378); para quem não é profissional, `cid10_allowed_for_cbo: false`.
   A recepção segue com 403 `missing_role`.
