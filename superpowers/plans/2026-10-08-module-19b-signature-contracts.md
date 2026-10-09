@@ -255,3 +255,10 @@ Valem sobre as seções acima e sobre os planos.
   `changes.exam_requests` quando a lista mudou, inclusive vazia (`[]` = todos
   cancelados); omite `bmi` quando nulo; `care_type`, condutas e `height_cm` como
   inteiros.
+- **`signer` entregue (revisão final, head 8b5410b):** `SIGNER_ENV` obrigatório
+  (`development` | `staging` | `production`; `prod` recusado); em produção
+  também recusa `-Dsigner.extraTrustAnchors`. `/prepare`: LCR indisponível →
+  500 `internal` (transitório — o api trata como `signer_unavailable` e tenta de
+  novo); certificado revogado → 422; PDF cujo estado passaria de 32 MiB → 400.
+  A conferência de revogação autentica a LCR e cobre cada elo da cadeia
+  (falha → `indeterminate` com `revocation_unavailable`).
