@@ -221,3 +221,29 @@ Valem sobre as seções acima e sobre os planos.
   Task 21 do api do 19a, não a regra antiga.
 - Adendo é só da autora (sem `opening_id` de terceiro): o assinante do adendo é
   sempre a autora da consulta.
+
+**Decisões do usuário durante a execução (2026-10-09)**
+- **PSC simulado primeiro.** O 19b é implementado e verificado inteiro contra o
+  PSC simulado (API v0 do ITI) e a DevPki do `signer`. A Task 0 do plano do
+  `signer` (sandbox VIDaaS → validar.iti.gov.br) deixa de ser o início e vira
+  **gate de go-live** (rotasaude/api#53, Crítica). Enquanto o gate não passar,
+  o 19b termina como `Entregue`, não `Fechado`; o critério "assinatura real
+  aprovada no validar.iti.gov.br" passa para o gate.
+- Autorizados: criar o repositório `rotasaude/signer` já; editar o
+  `docker-compose.yml` da raiz (`signer` e `fake-psc`).
+- **Escopo novo — interruptor `signature_psc_mock`** (cidade, mecanismo
+  genérico, escrito só pelo maintenance; `requires: ["feature:digital_signature"]`,
+  missing `digital_signature_disabled`):
+  - só existe fora de produção: em produção o catálogo não o oferece e o api
+    recusa ligar;
+  - ligado: a cidade usa só o PSC simulado; desligado: só os PSC reais
+    configurados no ambiente;
+  - `provider` ganha o valor `simulated`; toda tela e exportação que mostra a
+    assinatura diz "simulada — sem validade jurídica";
+  - aviso visível no maintenance (aba Funcionalidades), no dashboard (telas de
+    assinatura e selo) e na tela do PSC simulado ("PSC SIMULADO — desenvolvimento");
+  - a semente de dev liga o interruptor em Curitiba;
+  - substitui o `config.x.signature_dev_providers` do plano do api (o falso não
+    responde mais como `vidaas` em development).
+- Ordem: contracts-repo (tag `clinical-v1.0.0`) → `signer` sem a Task 0 → api →
+  dashboard → maintenance.

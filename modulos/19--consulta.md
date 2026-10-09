@@ -94,7 +94,7 @@ pedido de exame) e CATMAT; 19d receita de controlado (SNCR).
 ## Critério de fechamento do 19b
 
 - F-19.8 a F-19.15 verificadas.
-- Assinatura real aprovada no validar.iti.gov.br.
+- Gate de go-live api#53: assinatura real aprovada no validar.iti.gov.br (até lá o 19b fica `Entregue`).
 - Runbook da assinatura (ligar, vincular, sessão, pendentes, revalidação).
 
 ## Histórico
