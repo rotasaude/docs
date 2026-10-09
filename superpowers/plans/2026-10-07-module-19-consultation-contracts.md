@@ -232,3 +232,12 @@ YAML. **Decidido pelo usuário (2026-10-07): CID-10 só para médicos (grupos
 - `GET /attendance/consultation_options` aceita também `municipal_admin`, sem trilha (decisão técnica da Task 22
   do api, 8a25378); para quem não é profissional, `cid10_allowed_for_cbo: false`.
   A recepção segue com 403 `missing_role`.
+- **Formas fixadas no fechamento do 19a (2026-10-09; api `2a3ec97`):**
+  - `care_type` e os códigos de `conducts` entram como string ou inteiro e
+    saem sempre como string (§4). Por dentro e na ficha LEDI continuam
+    inteiros.
+  - `addenda[].changes` tem a mesma forma dos itens da consulta
+    (`evaluated_problems`, `conducts`, `exam_requests`).
+  - Campos opcionais sem valor (`onset_on`, `onset_precision`,
+    `cid10_justification`, `resolved_on`) são omitidos também em
+    `<record>.problems[]`; o cliente trata a chave ausente como nula.

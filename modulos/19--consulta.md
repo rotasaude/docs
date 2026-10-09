@@ -1,6 +1,6 @@
 # Módulo 19 — Consulta (prontuário da APS)
 
-- **Estado:** Planejado
+- **Estado:** Em andamento (19a Fechado; 19b Planejado)
 - **Tipo:** Ciclo 2
 
 ## Escopo
@@ -88,7 +88,8 @@ pedido de exame) e CATMAT; 19d receita de controlado (SNCR).
 
 - F-19.1 a F-19.7 verificadas.
 - Suíte de invariante (`spec/invariants/clinical_record_invariants_spec.rb`).
-- Runbook do prontuário (ligar, validação com nome, abertura justificada).
+- Runbook do prontuário (ligar, validação com nome, abertura justificada):
+  [`operacao/rollout-prontuario.md`](../operacao/rollout-prontuario.md).
 
 ## Critério de fechamento do 19b
 
@@ -105,3 +106,48 @@ pedido de exame) e CATMAT; 19d receita de controlado (SNCR).
 - 2026-10-08 — Escopo do 19b decidido com o usuário; ADR 0032 e spec
   `superpowers/specs/2026-10-08-module-19b-digital-signature-design.md`.
   F-19.8 a F-19.15 criados (board #1, `Not Started`).
+- 2026-10-09 — **19a implementado, publicado e fechado:**
+  - api `2a3ec97` (36 commits sobre `eb732e8`; suíte 4396/0);
+  - dashboard `c4f7d5a` (31 commits sobre `4bf895b`; 1570 testes).
+
+  Migrações de cidade `20261007400001` (paciente, nomes, lista de problemas),
+  `20261007400002` (consulta, itens, adendos, aberturas), `20261007400003`
+  (`correction_pending`) e `20261007400004` (leituras administrativas), todas
+  **irreversíveis**. O impresso usa a gem Prawn, então a imagem do api precisa
+  ser reconstruída. Suíte de invariante
+  `spec/invariants/clinical_record_invariants_spec.rb`; runbook
+  [`operacao/rollout-prontuario.md`](../operacao/rollout-prontuario.md).
+
+  **Prova no navegador aprovada** (Curitiba, UBS Jardim das Flores, 2026-10-09):
+  - "Minhas consultas" e impresso da autora fora do atendimento;
+  - consulta nova de ponta a ponta (texto com "≥" e emoji, PA, K86 incluído,
+    T90 avaliado, conduta);
+  - impresso logo depois de finalizar;
+  - ficha registrada como "não gerada" (`unit_without_cnes`,
+    `professional_without_team`), como na prova do 18;
+  - leitura administrativa com step-up, sem impresso nem adendo, e registrada
+    no relatório de aberturas.
+
+  **Decisões do usuário durante a execução** (contrato, bloco do mesmo nome;
+  revisão do ADR 0031 de 2026-10-09):
+  - CID-10 só para médicos (`2251`–`2253`); o não médico avalia ou resolve o
+    CID-10 que já está na lista, mas a ficha dele sai sem CID-10. Ele precisa
+    avaliar ao menos um problema em CIAP-2 para finalizar
+    (`ciap2_required_for_cbo`);
+  - chave desconhecida no salvamento automático é ignorada;
+  - o varredor das 23h passa a gerar também a ficha atrasada da consulta;
+  - a autora lê e imprime a própria consulta a qualquer momento ("Minhas
+    consultas"); o `municipal_admin` lê o conteúdo completo de cada
+    profissional, só leitura e com step-up; o outro profissional só lê.
+    Impresso e adendo passam a ser só da autora;
+  - leituras administrativas guardadas para sempre em tabela própria.
+
+  F-19.1 a F-19.7 `Verified`. O 19b segue `Planejado` (F-19.8 a F-19.15).
+
+  **Em aberto:**
+  - rotasaude/api#51 (atendimento preso com rascunho órfão; Alta, antes do
+    go-live);
+  - rotasaude/api#52 (adendo que não chega à ficha em corrida rara; Média);
+  - rotasaude/dashboard#12 (lista de problemas no adendo de "Minhas
+    consultas"; Baixa);
+  - a SIGTAP da semente de dev tem só 5 procedimentos (1 do grupo 02).

@@ -18,6 +18,7 @@ a história está no git.
 | `rollout-modo-de-prontuario.md` | Ordem de deploy do módulo 16, terminologias e CNES, configuração de cidade e gates antes de ligar a exportação LEDI | 0028, 0007, 0020 | Vigente |
 | `agenda-recepcao.md` | Ordem de deploy do módulo 17 (migração irreversível, horários viram `legacy`), preparo da cidade (tipos, modelos, turnos), transição, balcão (vaga, encaixe, fila "sem unidade") e lembrete | 0019, 0020, 0021, 0029 | Vigente |
 | `rollout-acolhimento.md` | Ordem de deploy do módulo 18 (migração irreversível da fila LEDI, dashboard logo depois do api), ligar o acolhimento (CIAP-2, protocolo `acolhimento`, escopo, CBO), fichas da escuta, varredor e gates | 0016, 0028, 0030 | Vigente |
+| `rollout-prontuario.md` | Ordem de deploy do módulo 19a (quatro migrações irreversíveis, imagem nova por causa do Prawn, dashboard depois do api), ligar o prontuário (modo `record`, terminologias, `clinical_record`, CID-10 só para médicos), validação com nome, quem lê o quê, abertura justificada e gates | 0028, 0031 | Vigente |
 | `pec-local-dev.md` | PEC local de treinamento para a prova técnica LEDI (dev) | 0028 | Vigente |
 | `rollout-agendamento.md` | Ordem de deploy e rollback do subprojeto 4 (migração irreversível de horários) | 0019, 0020 | Vigente |
 | `provisionar-canal-whatsapp.md` | Registrar, validar e rotacionar o canal WhatsApp de uma cidade | 0007, 0013, 0017, 0020 | Vigente |
