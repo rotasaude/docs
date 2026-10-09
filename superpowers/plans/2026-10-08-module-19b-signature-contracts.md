@@ -211,3 +211,13 @@ Valem sobre as seções acima e sobre os planos.
   e `signerStatus: SignerStatus!` (`reachable: Boolean!, version: String, crlUpdatedAt: ISO8601DateTime`),
   sem levantar erro. "Última checagem" = última chamada real do api ao PSC.
 - Rótulos `clinical_record_disabled` e `record_mode_not_record` entram no app.
+
+**Ajuste vindo do 19a (2026-10-09; ADR 0031, Revisão)**
+- A leitura do conteúdo assinado, do PDF e do pacote segue as regras novas do
+  19a: a **autora** sempre (trilha `author`); o `municipal_admin` só lê o
+  conteúdo (sem PDF nem pacote), com step-up e trilha `administrative`; outro
+  profissional em contexto ou por abertura (`opening_required` fora disso).
+  O plano do api do 19b deve usar o `ClinicalRecord::Access` revisado pela
+  Task 21 do api do 19a, não a regra antiga.
+- Adendo é só da autora (sem `opening_id` de terceiro): o assinante do adendo é
+  sempre a autora da consulta.
