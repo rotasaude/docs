@@ -272,5 +272,10 @@ Valem sobre as seções acima e sobre os planos.
   no máximo -1 depois de vencer, também no painel do admin; `return_to` recusa
   barra invertida; volta ao papel → 409 `not_pending` se a assinatura estiver em
   andamento há até 5 s; lote com certificado de outro PSC → 403
-  `authorization_denied`; logo depois de finalizar, o bloco mostra `mode:
-  "manual"` até o job criar o pedido (o dashboard relê).
+  `authorization_denied`.
+- **Pedido nasce na finalização (Task 20 do api, c9ccd88):** com certificado
+  ativo e `digital_signature` utilizável, o pedido é criado na mesma transação;
+  a resposta de `finalize` e do `POST .../addenda` já traz
+  `signature: { mode: "pending", request_id }` (sem janela "manual"). O
+  `SignJob` roda na fila nova `signatures`, com worker dedicado por cidade
+  (rollout: subir esse worker).
