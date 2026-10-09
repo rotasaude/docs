@@ -188,3 +188,18 @@ YAML. **Decidido pelo usuário (2026-10-07): CID-10 só para médicos (grupos
   anterior).
 - Coluna `consultation_addenda.item_changes` (colisão com ActiveModel::Dirty);
   a chave JSON continua `changes`.
+- **Leitura da consulta finalizada (2026-10-09, corrige o 403 da autora após a
+  finalização):**
+  1. **Autora** lê e imprime a própria consulta finalizada a qualquer momento,
+     sem atendimento aberto nem abertura; lista nova "Minhas consultas" no
+     dashboard. Trilha `clinical_record.viewed` com `access: "author"`, fora do
+     relatório de aberturas.
+  2. **Administrador da cidade** (`municipal_admin`): consultas por profissional
+     com conteúdo completo (SOAP, itens, adendos), **só leitura** (sem imprimir,
+     sem adendo), com step-up; trilha `access: "administrative"`, listada no
+     relatório de aberturas. Decisão tomada pelo usuário ciente do risco CFM/LGPD.
+  3. **Outro profissional**: lê em contexto ou por abertura justificada, como
+     antes, mas só visualiza. Imprimir e adendo passam a ser só da autora (403
+     `not_author`); some o adendo de terceiro com `opening_id`.
+  4. `access` passa a `in_context` | `justified` | `author` | `administrative`.
+  Rotas finais: no balanço da Task 21 do api (sessão "MVP Module 19").
