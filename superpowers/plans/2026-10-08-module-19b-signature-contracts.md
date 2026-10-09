@@ -279,3 +279,11 @@ Valem sobre as seções acima e sobre os planos.
   `signature: { mode: "pending", request_id }` (sem janela "manual"). O
   `SignJob` roda na fila nova `signatures`, com worker dedicado por cidade
   (rollout: subir esse worker).
+- **Decidido pelo usuário (2026-10-09):** o pedido nascer na finalização e no
+  adendo é decisão dele (R24); o `SignJob` é enfileirado depois do commit, e
+  finalizar continua sem falar com o PSC nem com o `signer`. A fila `signatures`
+  tem worker **próprio por cidade em todos os ambientes** (`config/queue.yml`);
+  custo de cerca de 5 conexões por cidade em produção, que entra no gate de
+  `max_connections` do go-live.
+- Texto do aviso no maintenance: "Esta cidade assina com o PSC SIMULADO —
+  assinaturas sem validade jurídica (fora de produção)."
