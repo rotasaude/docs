@@ -234,3 +234,16 @@ Valem sobre as seções acima e sobre os planos.
   cidade inteira (restringir à unidade vira pendência no board #2); QR code no
   fim de cada via do documento; o nome impresso do item é o rótulo do catálogo
   (substitui "descrição original" da decisão sobre `dosage_form`).
+- **Depois da prova no navegador (api 248ecbf, ba80ae9, db8f04a; dashboard 74791e0; maintenance bc51914):**
+  - `protocol.current_version.items[].catalog_item` volta como o item completo do
+    catálogo (`id, catmat_code, label, active_ingredient, strength, dosage_form,
+    antimicrobial, controlled`, sem `in_network`); o aviso de antimicrobiano sai
+    antes de emitir, inclusive para a enfermagem. Deploy: api antes do dashboard.
+  - `Maintenance::Timeout` dá 300 s só a uma mutation cujo topo tenha apenas
+    `importMedicationCatalog` e/ou `importAnvisaLists`; mutation mista ou com
+    fragmento segue em 10 s.
+  - PDF: item não contínuo não imprime nada sobre uso contínuo; sem ponto duplo
+    depois de pontuação; declaração sem saída diz "a partir das HH:MM".
+  - Requisição de exames bloqueada com a consulta em rascunho: usa só
+    `consultation_exam_requests`, que nascem na finalização.
+  - Antimicrobianos rotulados "IN 360/2025" no maintenance.
