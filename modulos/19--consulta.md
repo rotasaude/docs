@@ -1,6 +1,6 @@
 # Módulo 19 — Consulta (prontuário da APS)
 
-- **Estado:** Em andamento (19a Fechado; 19b Entregue — gate api#53 aberto; 19c Em andamento; 19d Planejado)
+- **Estado:** Em andamento (19a Fechado; 19b Entregue — gate api#53 aberto; 19c Entregue — gates api#56/#57 antes de cidade real; 19d Planejado)
 - **Tipo:** Ciclo 2
 
 ## Escopo
@@ -60,7 +60,7 @@ SNCR simulado primeiro (`sncr_mock`), atrás do interruptor
 | `api` | `patients`, lista de problemas, consultas, adendos, aberturas, nomes, `Ledi::Fichas::IndividualCare` |
 | `admin` | — |
 | `dashboard` | Painel do paciente, editor da consulta, adendo, impresso, prontuário fora de contexto, relatório, nomes na validação |
-| `maintenance` | Interruptores `clinical_record` e `digital_signature`; prestadores e estado do `signer` (19b) |
+| `maintenance` | Interruptores `clinical_record`, `digital_signature` e `clinical_documents`; prestadores e estado do `signer` (19b); tela Medicamentos (CATMAT e listas Anvisa, 19c) |
 | `signer` | Serviço interno de assinatura (19b) |
 | `wpda` | — |
 
@@ -128,7 +128,8 @@ SNCR simulado primeiro (`sncr_mock`), atrás do interruptor
 - F-19.16 a F-19.23 verificadas.
 - Prova no navegador (atestado e receita assinados, receita de enfermagem no
   protocolo, declaração da recepção, conferência pelo QR, cancelamento).
-- Runbook dos documentos (catálogo, REMUME, protocolos, conferência).
+- Runbook dos documentos (catálogo, REMUME, protocolos, conferência):
+  [`operacao/rollout-documentos-clinicos.md`](../operacao/rollout-documentos-clinicos.md).
 
 ## Critério de fechamento do 19d
 
@@ -236,6 +237,48 @@ SNCR simulado primeiro (`sncr_mock`), atrás do interruptor
 - 2026-10-09 — Escopo do 19c decidido com o usuário; ADR 0033 e spec
   `superpowers/specs/2026-10-09-module-19c-clinical-documents-design.md`.
   F-19.16 a F-19.23 criados (board #1, `Not Started`).
+- 2026-10-10 — **19c implementado, publicado e Entregue:**
+  - contracts `ea08b05` (tag `clinical-v1.1.0`; `dosage_form` nulo aceito);
+  - api `db8f04a` (sobre `c9ccd88`; revisão final em `cff6539` com suíte
+    4968/0, mais `248ecbf`, `ba80ae9` e `db8f04a` depois da prova);
+  - dashboard `74791e0`;
+  - maintenance `bc51914`.
+
+  Migrações `20261009600001` de plataforma (catálogo de medicamentos e listas
+  Anvisa, por `bin/rails db:migrate`) e de cidade (documentos, receita,
+  medicamentos em uso, REMUME, protocolos, conferência; **irreversível**). O
+  QR code usa a gem `rqrcode_core`, então a imagem do api precisa ser
+  reconstruída. Carga do catálogo por `medications:import_anvisa` e depois
+  `medications:import_catmat`; proxy da cidade encaminhando `/v`. Runbook
+  [`operacao/rollout-documentos-clinicos.md`](../operacao/rollout-documentos-clinicos.md).
+
+  **Decisões do usuário durante a execução** (contrato do 19c, §12):
+  - `catalog_item.dosage_form` pode ser nulo já na `clinical-v1.1.0`; o nome
+    impresso do item é o rótulo do catálogo;
+  - declaração pela recepção vale para a cidade inteira (restringir à unidade
+    é api#59);
+  - QR code no fim de cada via do documento;
+  - atestado de acompanhante com início opcional e sem dias; renovação só em
+    contexto; `/v` sem interruptor e com token mascarado no log;
+  - requisição de exames só depois de finalizar a consulta.
+
+  **Prova no navegador feita** (Curitiba, 2026-10-10). Ela levou a corrigir o
+  item completo do catálogo no protocolo (com o aviso de antimicrobiano antes
+  de emitir, inclusive para a enfermagem), o timeout de 300 s das importações
+  do maintenance, o texto do PDF e a requisição de exames em rascunho.
+
+  F-19.16 a F-19.23 `Verified`.
+
+  **Em aberto:**
+  - rotasaude/api#56 (conferência farmacêutica das listas Anvisa; Crítica,
+    bloqueia cidade real);
+  - rotasaude/api#57 (curadoria do CATMAT; Alta, bloqueia cidade real);
+  - rotasaude/api#62 (access log do proxy sem o token de `/v` e `/r`, e
+    `trusted_proxies`; bloqueia cidade real);
+  - norma da cidade para a declaração pela recepção (bloqueia cidade real);
+  - rotasaude/api#58 (RNDS e OBM), api#59 (declarações da recepção e
+    restrição à unidade), api#60 (REMUME e protocolos antes do interruptor),
+    api#61 (histórico de versões dos protocolos).
 - 2026-10-10 — Escopo do 19d decidido com o usuário; ADR 0034 e spec
   `superpowers/specs/2026-10-10-module-19d-controlled-prescriptions-design.md`.
   F-19.24 a F-19.29 criados (board #1, `Not Started`).
