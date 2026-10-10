@@ -103,3 +103,64 @@ canônico). Vetor JCS com uma RCE e uma RET.
 1. `contracts` `clinical-v1.2.0`.
 2. `api` (porta de dev sugerida 3039; migrações a partir de 20261010700001; `fake-sncr` no compose, porta 8092).
 3. `dashboard` (Vite 5189). 4. `maintenance`.
+
+## 12. Acréscimos da escrita dos planos (2026-10-10)
+
+Valem sobre as seções acima e sobre os planos.
+
+**SNCR (manuais oficiais: Manual da API 3ª ed., Instruções de Integração v1.0)**
+- A Anvisa faz o OAuth com o gov.br no servidor dela e devolve ao `client_url`
+  só `?session_id` (uso único, 30 s, preso ao `Origin` de quem iniciou). Sem
+  `code`, sem PKCE do nosso lado, sem `client_id`/`client_secret`.
+- Callback: `POST /sncr/oauth/callback { state, session_id }` (ou `{ state, error }`).
+  `POST /sncr/requests` devolve `{ authorize_url, state }`; o dashboard guarda o
+  `state` em `sessionStorage` (ou no `client_url`, se a prova técnica permitir).
+- Credenciais `sncr.{base_url, auth_url, maintainer_cnpj}`.
+- **Task 0 do api = sonda real na homologação**, com o usuário fazendo o login
+  gov.br. Se a troca do `session_id` pelo servidor dentro de 30 s não for
+  confirmada (ou sem acesso à homologação), a execução para e o usuário escolhe:
+  seguir com o SNCR simulado (troca real vira gate) ou o plano B (navegador chama
+  o SNCR).
+- A mensagem real de "faixa esgotada" não é documentada; o cliente a reconhece
+  por `/esgot/` (gate de go-live).
+- Formato do número: `^\d{4}\.\d-\d{2}\.\d{7}$` (`AAMM.T-UF.NNNNNNN`).
+
+**Decididos pelo usuário (2026-10-10)**
+- Tag `clinical-v1.2.0` é MINOR da v1; o README do contracts passa a dizer que
+  campo opcional compatível é MINOR e só mudança incompatível pede v2.
+- **Sem "não possui CPF":** `patient_identification = { cpf, address }`; a
+  entrada envia só `{ address }` e o api preenche o `cpf` com o do cadastro (que
+  existe por regra do 19a). Sem `no_cpf` e sem `passport`.
+
+**Formas e erros**
+- Formatos (entrada já normalizada, sem máscara): CEP `^[0-9]{8}$`, UF
+  `^[A-Z]{2}$`, telefone `^[0-9]{10,11}$`; fora disso 422 com `field`.
+- Rota `GET /attendance/consultations/:id/patient_identification` (reaproveitar
+  a última identificação).
+- `paper_reason` **gravado** no documento (coluna, só no papel, imutável) e
+  devolvido em toda leitura.
+- Pedido de números: 403 `registration_mismatch`; sem perfil ou conselho fora de
+  CRM/CRO → 403 `cbo_not_allowed` (também em `GET /sncr/stock`); sai o 409
+  `professional_cpf_missing`; `kind` inválido → 422 `invalid_content`.
+- Lista C4 → `not_supported` (como C2/C3); controlado em texto livre segue recusado.
+- `duration_days` obrigatório em todo item da RCE. RET sem contato do prescritor só é recusada quando sairia digital.
+- Registro da Notificação: `short_code` e `verification_url` nulos; 404 no impresso e na página pública.
+- Volta ao papel também anula o número (`voided`).
+- Título do PDF: "RECEITA DE CONTROLE ESPECIAL" (norma da Anvisa).
+- Contato: `PUT` devolve `{ address, phone }`; sem endereço → `{ address: null, phone }`; telefone é o `professionals.phone` do módulo 10; 404 sem perfil.
+- Saldo e painel são do modo corrente (simulado ou real); `received` conta só números novos; `low` = menos de 50 livres em um dos tipos.
+- `controlled_list` e `anticonvulsant` em todo `catalog_item` HTTP (busca, REMUME, renovação, itens). `clinical_document.cancelled` leva `category`.
+- Página pública: `sncr.simulated`, aviso de "não dispense" na cancelada, `category` em toda receita.
+- Nenhuma escrita do 19d pede step-up.
+
+**JSON canônico (`clinical-v1.2.0`)**
+- Receita comum sem `category` e sem chaves nulas (vetores da 1.1.0 seguem byte a
+  byte); `sncr`, `patient_identification` e `complement` ausentes quando não se
+  aplicam.
+- Vetores novos: `prescription-special-control.jcs` (1617 bytes, SHA-256
+  `25538e7f…2e0a`) e `prescription-ret.jcs` (1390 bytes, `e4397d40…0464`), no
+  `SHA256SUMS` existente; manifesto de 51 para 82 casos.
+
+**Limitação conhecida**
+- Dentista não emite no 19c nem no 19d enquanto a consulta do 19a recusar o CBO
+  2232 (odontologia é o módulo 28).
