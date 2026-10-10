@@ -1,6 +1,6 @@
 # Módulo 19 — Consulta (prontuário da APS)
 
-- **Estado:** Em andamento (19a Fechado; 19b Entregue — gate api#53 aberto; 19c Planejado)
+- **Estado:** Em andamento (19a Fechado; 19b Entregue — gate api#53 aberto; 19c Em andamento; 19d Planejado)
 - **Tipo:** Ciclo 2
 
 ## Escopo
@@ -32,7 +32,11 @@ REMUME e protocolos de enfermagem (antimicrobiano em papel), requisição de
 exames; lista de medicamentos em uso por eventos; página pública de conferência
 por QR code e cancelamento, atrás do interruptor `clinical_documents`.
 
-**Próximo subprojeto:** 19d receita de controlado e antimicrobiano digital (SNCR).
+**Planejado no 19d (F-19.24 a F-19.29, ADR 0034):** receita de controle
+especial (C1/C5) e de antimicrobiano digitais com número do SNCR (estoque por
+prescritor via gov.br), Notificação A/B/B2 em papel registrada na consulta,
+SNCR simulado primeiro (`sncr_mock`), atrás do interruptor
+`controlled_prescriptions`.
 
 **Fora, por enquanto:** prontuário visível ao cidadão (20), odontologia (28).
 
@@ -43,6 +47,7 @@ por QR code e cancelamento, atrás do interruptor `clinical_documents`.
 | 0031 | Paciente, nome, lista de problemas, consulta, adendos, leitura, ficha |
 | 0032 | Assinatura digital (19b): PSC em nuvem, sessão, fila, formatos, `signer` |
 | 0033 | Documentos clínicos (19c): cabeçalho comum, receita estruturada, medicamentos em uso, conferência |
+| 0034 | Controlado e antimicrobiano (19d): categoria, estoque SNCR, Notificação registrada |
 | 0028 | Modo `record`, interruptores, exportação, terminologias |
 | 0030 | Escuta inicial, trilha de leitura, fichas não geradas |
 | 0017, 0027 | Par e validação presencial, perfil |
@@ -90,6 +95,12 @@ por QR code e cancelamento, atrás do interruptor `clinical_documents`.
 | F-19.21 | Declaração de comparecimento (consulta e recepção) | api, dashboard | 0033 |
 | F-19.22 | Requisição de exames em PDF | api, dashboard | 0033, 0031 |
 | F-19.23 | Página pública de conferência e cancelamento | api, dashboard | 0033 |
+| F-19.24 | Interruptores `controlled_prescriptions` e `sncr_mock` e configuração do SNCR | api, maintenance | 0034, 0028 |
+| F-19.25 | Estoque de números SNCR por prescritor | api, dashboard | 0034 |
+| F-19.26 | Receita de controle especial digital | api, dashboard | 0034, 0032 |
+| F-19.27 | Receita de antimicrobiano digital | api, dashboard | 0034, 0032 |
+| F-19.28 | Registro da Notificação de papel | api, dashboard | 0034 |
+| F-19.29 | Painel do SNCR do admin | api, dashboard | 0034 |
 
 ## Riscos herdados
 
@@ -118,6 +129,12 @@ por QR code e cancelamento, atrás do interruptor `clinical_documents`.
 - Prova no navegador (atestado e receita assinados, receita de enfermagem no
   protocolo, declaração da recepção, conferência pelo QR, cancelamento).
 - Runbook dos documentos (catálogo, REMUME, protocolos, conferência).
+
+## Critério de fechamento do 19d
+
+- F-19.24 a F-19.29 verificadas.
+- Prova no navegador com SNCR e PSC simulados.
+- Gate de go-live: prova com o SNCR real (até lá o 19d fica `Entregue`).
 
 ## Histórico
 
@@ -219,3 +236,6 @@ por QR code e cancelamento, atrás do interruptor `clinical_documents`.
 - 2026-10-09 — Escopo do 19c decidido com o usuário; ADR 0033 e spec
   `superpowers/specs/2026-10-09-module-19c-clinical-documents-design.md`.
   F-19.16 a F-19.23 criados (board #1, `Not Started`).
+- 2026-10-10 — Escopo do 19d decidido com o usuário; ADR 0034 e spec
+  `superpowers/specs/2026-10-10-module-19d-controlled-prescriptions-design.md`.
+  F-19.24 a F-19.29 criados (board #1, `Not Started`).

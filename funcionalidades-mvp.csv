@@ -202,3 +202,9 @@ F-19.20,Atestado,mod-19,api|dashboard,"0033,0032",feature
 F-19.21,Declaração de comparecimento (consulta e recepção),mod-19,api|dashboard,0033,feature
 F-19.22,Requisição de exames em PDF,mod-19,api|dashboard,"0033,0031",feature
 F-19.23,Página pública de conferência e cancelamento,mod-19,api|dashboard,0033,feature
+F-19.24,Interruptores controlled_prescriptions e sncr_mock e configuração do SNCR,mod-19,api|maintenance,"0034,0028",feature
+F-19.25,Estoque de números SNCR por prescritor,mod-19,api|dashboard,0034,feature
+F-19.26,Receita de controle especial digital,mod-19,api|dashboard,"0034,0032",feature
+F-19.27,Receita de antimicrobiano digital,mod-19,api|dashboard,"0034,0032",feature
+F-19.28,Registro da Notificação de papel,mod-19,api|dashboard,0034,feature
+F-19.29,Painel do SNCR do admin,mod-19,api|dashboard,0034,feature
