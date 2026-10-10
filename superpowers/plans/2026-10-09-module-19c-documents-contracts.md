@@ -205,3 +205,28 @@ Valem sobre as seções acima e sobre os planos.
   hashes fixados no plano do api); `catalog_release` segue string livre (o api
   grava o uuid da release; exemplos usam "2026-10-09"); atestado de
   acompanhante proíbe `days`; 51 exemplos (12 válidos, 39 inválidos).
+- **api do 19c concluído (cff6539, revisão final):**
+  - atestado de acompanhante com `start_on` opcional;
+  - renovação só em contexto (403 `out_of_context`, com trilha);
+  - declaração pela recepção vale para a cidade inteira (restringir à unidade é
+    decisão de produto pendente);
+  - `max_dose`: unidade diferente ou ausente → `above_protocol_max_dose`; mais de 2
+    casas decimais → `invalid_item`;
+  - impresso de documento digital devolve o PAdES gravado, sem revalidar;
+  - `/v` não depende de interruptor; `professional` pode vir `null`; `birth_year`
+    com 4 dígitos; resposta `Cache-Control: no-store`; token de `/v` e `/r`
+    mascarado no log;
+  - leitura administrativa sem papel → 403 `forbidden`;
+  - SIGTAP sem rótulo e substituição concorrente → 422;
+  - declaração não atesta saída em outro dia; a da recepção imprime "Emitido pela
+    recepção" + matrícula (nunca e-mail); só FORMA FARMACÊUTICA/APRESENTAÇÃO viram
+    `dosage_form`;
+  - conteúdo canônico reproduz os 3 vetores JCS byte a byte; `catalog_release` =
+    uuid da release em string;
+  - listas Anvisa: IN 360/2025 (131 + 10 DCB) e Portaria 344 atualização 101,
+    sem C4;
+  - migração de plataforma roda por `db:migrate` (não há `db:migrate:platform`);
+    CATMAT aceita `tamanhoPagina` ≥ 10.
+  - Gates de go-live novos: access log do proxy sem o token de `/v` e `/r`;
+    `trusted_proxies`; norma da cidade para a declaração pela recepção (além de
+    api#56 e api#57).
