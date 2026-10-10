@@ -126,3 +126,77 @@ onde for código). Vetor de canonicalização em `clinical/examples/canonical/`.
 1. `contracts` `clinical-v1.1.0`.
 2. `api` (porta de dev sugerida 3038; migração de cidade a partir de 20261009600001; plataforma idem).
 3. `dashboard` (Vite 5188). 4. `maintenance`.
+
+## 12. Acréscimos da escrita dos planos (2026-10-10)
+
+Valem sobre as seções acima e sobre os planos.
+
+**Entrada e formas**
+- Entrada do `content` = forma de saída do §2 sem os campos calculados: item com
+  `catalog_item: { id }` ou `free_text`; `nursing_protocol: { version_id }`;
+  `cid10: { code }`. A declaração não recebe dia nem unidade (vêm do
+  atendimento). Horas `HH:MM` locais.
+- A receita gravada e devolvida pela API traz `catalog_release` (id da release
+  do catálogo na emissão; `null` só com texto livre), uma vez por receita.
+- `max_dose` = `{ quantity, unit }` por item; unidade diferente da do protocolo →
+  `above_protocol_max_dose`. Protocolo entra com `items: [{ catalog_item_id, max_dose? }]`;
+  `current_version` ganha `version`.
+- `short_code` formatado `XXXXX-XXXXX`; a entrada aceita minúsculas, espaço e
+  hífen; `birth_year` com 4 dígitos.
+- Declaração pela rota do atendimento sai sempre em papel; `signature: null` no
+  papel puro; `author.cbo_code` nulo quando quem emite é a recepção. A recepção
+  emite pela fila do dia (rota de atendimentos encerrados fica para depois).
+
+**Rotas**
+- CNPJ em `GET/PUT /clinical_documents/city_profile` → `{ name, cnpj }` (o
+  `/admin` é só leitura); CNPJ numérico ou alfanumérico (IN RFB 2.229/2024),
+  com DV.
+- `POST /attendance/medications/search` aceita também `municipal_admin` (REMUME e
+  protocolos). A enfermagem lê `GET /clinical_documents/nursing_protocols`.
+- Leitura administrativa em `GET /clinical_record/consultations/:id/documents`.
+- Página pública: `GET /v` (formulário), HTML sem `Accept: application/json`,
+  `signed_pdf_url` só quando assinado e não cancelado; limites de tentativas
+  10/60/30 por 10 min por IP.
+- Com o interruptor desligado, cancelar continua permitido; REMUME, protocolos e
+  CNPJ ficam só atrás do `clinical_record`.
+
+**Erros novos**
+- 503 `catalog_unavailable` também na emissão de receita; 409
+  `awaiting_signature` e `already_cancelled` no impresso; 422
+  `invalid_catalog_item` e `invalid_unit` na REMUME; 422 `invalid_medication` e
+  409 `not_draft` nos medicamentos (consulta finalizada); `invalid_item` com
+  `field` além de `index`; 409 `already_exists` para protocolo com número e ano
+  repetidos; `invalid_content` com `field: "replaces_document_id"`.
+- 19b: `reason_code` novo `document_cancelled` (pedido de documento cancelado
+  sai da fila); a volta ao papel passa o documento a `paper`.
+
+**Maintenance**
+- Tipos `MedicationCatalog`, `MedicationCatalogRelease`, `MedicationCatalogItem`,
+  `reviewItems(first: Int = 50)`; revisão só leitura. Importações síncronas, com
+  `import_in_progress` (release `importing` presa há mais de 1 h vira `failed`).
+  Em produção (sem maintenance), carga pelos rakes `medications:import_anvisa`
+  e `medications:import_catmat`.
+- Eventos novos: `anvisa_lists.imported`, `maintenance.medication_catalog.imported`,
+  `maintenance.anvisa_lists.imported`; `patient_medication.changed` aceita
+  também `addendum_id`.
+
+**JSON canônico (`clinical-v1.1.0`)**
+- Caminho `clinical/clinical-document-v1.json`; `patient` e `council`
+  obrigatórios; campo que não se aplica fica ausente; `note` sempre (`null`
+  vazio); `catmat_code` inteiro; `free_text` string; `nursing_protocol { id,
+  title, number, year, version_id }`; declaração da recepção não é assinada nem
+  tem canônico; vetor JCS com dois arquivos novos em `clinical/examples/canonical/`.
+- **Decidido pelo usuário (2026-10-10):** `catalog_item.dosage_form` aceita
+  `null` já na `clinical-v1.1.0` (o CATMAT não traz a forma em boa parte dos
+  itens); a chave continua presente; a receita assina normalmente e o impresso
+  usa a descrição original.
+
+**Base e go-live**
+- CATMAT conferido em chamada real: envelope `{ resultado, totalRegistros,
+  totalPaginas, paginasRestantes }`, `tamanhoPagina=500`, 6.778 itens; o
+  analisador entende ~4.100 e manda ~2.680 para revisão.
+- QR code com `rqrcode_core` (Ruby puro, desenhado em vetor no Prawn).
+- As listas Anvisa (antimicrobianos e controlados) não têm API aberta: entram
+  como arquivos transcritos da fonte oficial e precisam de conferência por
+  farmacêutico antes de ligar o interruptor (controlado faltando na lista passa
+  na receita).
