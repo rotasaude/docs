@@ -200,3 +200,8 @@ Valem sobre as seções acima e sobre os planos.
   como arquivos transcritos da fonte oficial e precisam de conferência por
   farmacêutico antes de ligar o interruptor (controlado faltando na lista passa
   na receita).
+- **contracts entregue (ea08b05, antes da tag):** vetor JCS com **três**
+  arquivos novos (o terceiro, `prescription-dosage-form-null.jcs`, mantém os
+  hashes fixados no plano do api); `catalog_release` segue string livre (o api
+  grava o uuid da release; exemplos usam "2026-10-09"); atestado de
+  acompanhante proíbe `days`; 51 exemplos (12 válidos, 39 inválidos).
