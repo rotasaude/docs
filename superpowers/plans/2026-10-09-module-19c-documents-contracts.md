@@ -230,3 +230,7 @@ Valem sobre as seções acima e sobre os planos.
   - Gates de go-live novos: access log do proxy sem o token de `/v` e `/r`;
     `trusted_proxies`; norma da cidade para a declaração pela recepção (além de
     api#56 e api#57).
+- **Decididos pelo usuário (2026-10-10):** declaração pela recepção vale para a
+  cidade inteira (restringir à unidade vira pendência no board #2); QR code no
+  fim de cada via do documento; o nome impresso do item é o rótulo do catálogo
+  (substitui "descrição original" da decisão sobre `dosage_form`).
