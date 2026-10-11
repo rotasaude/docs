@@ -190,3 +190,19 @@ Valem sobre as seções acima e sobre os planos.
   (34 do 19d: 3 válidos, 31 inválidos); 7 vetores iguais byte a byte; sha256 do
   `clinical/clinical-document-v1.json`:
   `e195e85fcf4468ff2a071ed8e05bb1afc3d0490420a92557b0561fbd292c6c29`.
+- **Pre-flight do api do 19d (rulings, 2026-10-10):**
+  - Categoria dominante RCE > RET > comum; 422 `mixed_categories` com `index` no
+    primeiro item que não serve (RCE: comum, antimicrobiano ou texto livre; RET:
+    comum ou texto livre). Item C1/C5 que também é antimicrobiano é recusado.
+    Interruptor desligado deixa o 19c igual. (O ruling P1 — aceitar texto livre
+    marcado como antimicrobiano na RET — foi **revogado**: contraria o item 4
+    dos apertos; RET exige `catalog_item.antimicrobial = true`.)
+  - `controlled_list` e `anticonvulsant` em todo `catalog_item` HTTP, inclusive
+    renovação e `Json.medication`.
+  - `prescriber_address` fora dos campos que o próprio profissional edita pelo
+    perfil genérico (só pela rota de contato).
+  - A Task 16 troca só o ramo da receita no `Canonical.content` do 19c; a cópia
+    do esquema 1.2.0 e o canônico entram no fim da Task 11.
+  - Lista de anticonvulsivantes (limite de 180 dias) pelo ATC N03A, incluindo
+    canabidiol. **Gate de go-live:** cruzar com a RENAME e com as grafias reais
+    do CATMAT antes de valer o limite.
