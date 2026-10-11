@@ -206,3 +206,8 @@ Valem sobre as seções acima e sobre os planos.
   - Lista de anticonvulsivantes (limite de 180 dias) pelo ATC N03A, incluindo
     canabidiol. **Gate de go-live:** cruzar com a RENAME e com as grafias reais
     do CATMAT antes de valer o limite.
+- **`paper_reason` e volta ao papel (Task 4 do api):** a volta ao papel do 19b
+  (`ToPaper`) não grava `paper_reason`, porque o gatilho de imutabilidade do 19c
+  compara a linha inteira; `paper_reason` existe só nos documentos emitidos em
+  papel desde o início. O documento que voltou ao papel aparece com
+  `issue_mode: "paper"` e `paper_reason: null`.
