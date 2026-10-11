@@ -164,3 +164,12 @@ Valem sobre as seções acima e sobre os planos.
 **Limitação conhecida**
 - Dentista não emite no 19c nem no 19d enquanto a consulta do 19a recusar o CBO
   2232 (odontologia é o módulo 28).
+
+**Decidido pelo usuário durante a execução (2026-10-10)**
+- A sonda real na homologação do SNCR (Task 0 do api) **não foi feita**. O
+  usuário escolheu seguir com o SNCR simulado: a troca do `session_id` pelo
+  servidor dentro de 30 s vira **gate de go-live**, junto da prova com o SNCR
+  real. Risco registrado: se a troca no servidor não funcionar (o `session_id`
+  é preso ao `Origin` do navegador), o plano B (navegador chama o SNCR e repassa
+  os números ao api) obriga a refazer `Sncr::Client`, o callback e a tela de
+  Conta → SNCR. Registro em `pesquisa/2026-10-10-sncr-token-no-servidor.md`.
