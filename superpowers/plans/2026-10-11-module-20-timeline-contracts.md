@@ -145,3 +145,8 @@ Valem sobre as seções acima e sobre os planos.
   `user_id` nulo no acesso do cidadão e o motivo no acesso justificado.
 - Migração de cidade `20261011800002` (a `20261011800001` já existe — api#51);
   sem migração de plataforma.
+- **Rota do profissional (Task 8 do api, de5a552):** `kinds[]` escalar ou vazio
+  → 422 `invalid_kinds`; os 422 de parâmetro (`invalid_kinds`, `invalid_cursor`,
+  `invalid_period`) saem antes da resolução do alvo; pessoa vazia → 404
+  `not_found` sem trilha. `occurred_at` sai sem fração de segundo: as telas
+  paginam só por `next_before`, sem reconstruir o cursor.
