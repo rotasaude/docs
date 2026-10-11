@@ -173,3 +173,16 @@ Valem sobre as seções acima e sobre os planos.
   é preso ao `Origin` do navegador), o plano B (navegador chama o SNCR e repassa
   os números ao api) obriga a refazer `Sncr::Client`, o callback e a tela de
   Conta → SNCR. Registro em `pesquisa/2026-10-10-sncr-token-no-servidor.md`.
+- **Esquema apertado antes da tag `clinical-v1.2.0` (decidido pelo usuário, 2026-10-10):**
+  1. RCE: todo item exige `catalog_item` (sem texto livre).
+  2. RCE: todo item exige `duration_days`.
+  3. `$defs.sncr` não fixa o dígito de tipo (T) do número — depende da homologação.
+  4. RET: todo item exige `catalog_item.antimicrobial = true`.
+  5. Descrição de `prescription`: "Antimicrobiano ou controle especial: 2 vias e validade; senão 1 via".
+  6. Doc: `address.number` usa "s/n" quando não houver número; quem garante `category` é o api.
+  **Consequência para api e dashboard:** item comum não acompanha mais a
+  categoria. Receita com antimicrobiano + item comum (ex.: amoxicilina +
+  paracetamol) vira **duas receitas** (RET + comum); RCE só com itens do
+  catálogo. O api recusa com 422 `mixed_categories` (item comum em RET/RCE ou
+  texto livre em RCE, com `index`) e o dashboard orienta a separar. Revoga a D5
+  do plano do dashboard ("item comum acompanha a categoria").
