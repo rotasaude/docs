@@ -76,3 +76,72 @@ Nunca no cidadão: texto clínico livre, CID sem nome, número SNCR, dado de out
 0. Conferir na documentação oficial dos "sistemas externos" do PEC o formato exato da chamada e da assinatura.
 1. `api` (porta de dev sugerida 3040; migrações a partir de 20261011800001).
 2. `dashboard` (Vite 5190) e `wpda` (Vite 5191). 3. `maintenance`.
+
+## 9. Acréscimos da escrita dos planos (2026-10-11)
+
+Valem sobre as seções acima e sobre os planos.
+
+**PEC ("sistemas externos", documentação oficial lida)**
+- Parâmetros reais: `documento-profissional`, `documento-cidadao`, `cnes` (hífen,
+  minúsculas); o PEC acrescenta `pec_timestamp` (segundos Unix) e `pec_sign` =
+  HMAC-SHA256 em hexadecimal minúsculo da URL completa (protocolo, host, caminho
+  e query) até antes de `&pec_sign=`. A chave é gerada pelo PEC ao cadastrar o
+  integrador e não é recuperável. `documento-cidadao` só vem quando o sistema
+  externo é cadastrado no Atendimento (não no menu).
+- Sessão curta: token cifrado de 15 min no cabeçalho `X-Pec-View-Session` (não
+  cookie — navegadores bloqueiam cookie de terceiro em iframe); "carregar mais"
+  devolve fragmento HTML e o cursor em `X-Next-Before`; sessão inválida → 401.
+- Códigos novos: `pec_citizen_missing` (acesso pelo menu), `pec_session_expired`;
+  cidadão identificado só por CNS cai em `pec_citizen_not_verified`. Página de
+  recusa 403; "carregar mais" 401.
+- `pec_external_view` exige também `pec_origin` e `pec_hmac_key` (missing
+  `pec_origin_missing`, `pec_hmac_key_missing`).
+- Maintenance: `cityPecConfig` anulável com recusa em `errors`;
+  `setCityPecOrigin(citySlug, pecOrigin)` aceita `null`; origem
+  `scheme://host[:porta]`, `https` (http só fora de produção);
+  `rotateCityPecHmacKey(citySlug, key, code)` **exige TOTP**; chave de 16–512
+  caracteres ASCII visíveis; recusas `invalid_origin`, `invalid_key`,
+  `unknown_city`, `city_unreachable`. Evento `city.pec_config_changed` com
+  `maintainer_id`; auditoria `maintenance.city.pec_config_changed`.
+- Gates de go-live: o proxy de produção encaminha `/pec/*` ao api preservando
+  `Host` e `X-Forwarded-Proto` (a URL assinada é `request.base_url +
+  original_fullpath`) — provar em staging; em produção, sem maintenance, origem e
+  chave só pelo console.
+
+**Profissional**
+- Alvo por prioridade `opening_id` > `patient_id` > `attendance_id`; 409
+  `citizen_not_verified` (atendimento de par declarado); 422 `invalid_kinds`; 404
+  `not_found` sem alvo ou alvo inexistente; 403 `opening_required` para abertura
+  vencida ou de outro usuário.
+- Abertura justificada vale com `patient_timeline` ligado mesmo sem prontuário:
+  sem paciente, é feita por um par validado (`citizen_id` na abertura) e responde
+  `patient_id: null`; `clinical_record.opened` ganha `citizen_id`. Desligado, o
+  19a segue igual.
+- Fora de contexto, o detalhe só abre a consulta; documento, escuta e pedido
+  ficam no resumo da própria entrada.
+- `detail_ref`: agendamento → `appointment_request` (o pedido); Notificação →
+  `clinical_document`; campanha → `campaign`. `cbo_code` nulo em atendimento e
+  agendamento. `title`/`summary` em português; `status` é código fixado por kind
+  (a tela traduz).
+
+**Cidadão**
+- Rotas por par: `GET /citizen/history?citizen_id=`, `GET /citizen/health_summary?citizen_id=`
+  (a sessão do wpda é por telefone e cobre vários pares); PDF
+  `/citizen/documents/:id/pdf` conferido contra os pares validados da sessão.
+- `kinds[]` e `limit` 1–100 no histórico; `document` sempre presente (`null`
+  fora de documento; `downloadable: false` sem PDF); escuta e consulta com
+  `status: null`.
+- `GET`/`POST /citizen/session` devolvem `features: string[]` (interruptores
+  utilizáveis da cidade).
+- PDF: 404 para documento digital não assinado, cancelado, de outra pessoa ou
+  com `clinical_documents` desligado; sai como anexo; limite 30 por 10 min.
+- Resumo: ordem 404 `not_found` > 403 `feature_disabled` > 403 `not_verified` >
+  404 `not_available`; problema sem nome não aparece; exame sem nome sai como
+  "Procedimento <código>"; sinais vitais da consulta ou escuta mais recente. No
+  wpda, `not_available` aparece como "sem resumo", sem erro.
+
+**Trilha e migração**
+- `clinical_record.viewed` leva `person_ref` (`patient:<id>` | `citizen:<id>`),
+  `user_id` nulo no acesso do cidadão e o motivo no acesso justificado.
+- Migração de cidade `20261011800002` (a `20261011800001` já existe — api#51);
+  sem migração de plataforma.
