@@ -217,3 +217,11 @@ Valem sobre as seções acima e sobre os planos.
   de 10 dias, sem número SNCR e sem `category`). Misturada com item do catálogo
   (antimicrobiano ou não) continua 422 `mixed_categories` com `index`. Cumpre o
   combinado de que o texto livre antimicrobiano segue possível só em papel.
+- **Emissão (Task 12 do api, 70d4a9e):** `paper_reason` é gravado em todo
+  documento da consulta emitido em papel (receita, atestado, requisição), não só
+  na receita — coerente com "devolvido em toda leitura". Papel nunca prepara
+  assinatura: a RET em papel grava `category: "antimicrobial"` sem `sncr` e não
+  assina. O SNCR simulado existe onde `sncr_mock` existe (staging sim, produção
+  não). Até a Task 13, o tipo `controlled_notification_record` dá 403
+  `cbo_not_allowed`. Gate de go-live: `log_statement` do Postgres de produção
+  não pode gravar números SNCR em claro (comentado em api#62).
