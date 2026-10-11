@@ -241,3 +241,21 @@ Valem sobre as seções acima e sobre os planos.
   do tipo (não gasta os 3 pedidos do mês a cada `db:seed`); a RET digital sem
   `patient_identification` omite a linha de endereço no PDF (no papel ela
   continua). Suíte completa 5170/0.
+- **Mais desvios do relatório final do api do 19d (123b8b7):**
+  - `GET /attendance/consultations/:id/patient_identification` devolve o CPF do
+    cadastro e o endereço da última receita com identificação, procurando nas 50
+    receitas mais recentes do paciente.
+  - Pedido de números: 503 `sncr_unavailable` tem precedência sobre 409
+    `monthly_limit_reached`. A cota mensal (3 pedidos por tipo) é contada
+    separadamente por modo (simulado e real).
+  - Caracteres de controle no endereço: 422 `invalid_address` com `field` na rota
+    de contato; 422 `invalid_content` com `field: "patient_identification.address.<campo>"`
+    na receita.
+  - `sncr` é `null` no JSON de toda receita em papel, inclusive depois da volta
+    ao papel.
+  - O CNPJ do rodapé Anvisa no PDF vem do próprio documento (gravado na
+    emissão), não do modo atual da cidade.
+  - Gates de go-live (além de api#63): `SEND_ORIGIN`, host do `/auth` e as
+    expressões das mensagens do SNCR (limite, `/esgot/`, inscrição);
+    `log_statement` do Postgres (api#62); lista de anticonvulsivantes × RENAME
+    conferida por farmacêutico; credenciais do SNCR em `production.yml.enc`.
