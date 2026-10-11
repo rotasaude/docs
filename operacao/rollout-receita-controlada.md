@@ -188,7 +188,9 @@ step-up no 19d.
 | CNPJ da mantenedora confirmado com a Anvisa (SaaS municipal) | **Sim** |
 | Credenciais `sncr.*` em `production.yml.enc` | **Sim** |
 | Lista de anticonvulsivantes (ATC N03A, 52 linhas, com canabidiol, gabapentina e pregabalina) conferida por farmacêutico contra a RENAME, junto com rotasaude/api#56 | **Sim** |
-| rotasaude/api#62 — `log_statement` do Postgres de produção sem números do SNCR em claro | **Sim** |
+| rotasaude/api#62 — `log_statement` do Postgres de produção (e staging) em `'none'` ou `'ddl'`, conferido com `SHOW log_statement;`. Com `'all'` ou `'mod'`, INSERT/UPDATE gravam em claro os números do SNCR e outros valores | **Sim** |
+| rotasaude/api#62 — proxy de borda de cada cidade a partir de `apps/api/config/edge-proxy/nginx-city.conf.example` (access log sem o token de `/v` e `/r`), com a evidência colhida no proxy real de staging | **Sim** |
+| rotasaude/api#62 — `TRUSTED_PROXIES` no deploy do api com os CIDRs dos proxies de borda (sem ele o api avisa no log e o limite por IP vê só o IP do proxy; valor inválido derruba o boot) | **Sim** |
 | Regra da VISA local para a Notificação de papel | **Sim** |
 | Contato (endereço e telefone) preenchido por cada prescritor antes de ligar | **Sim** |
 | Gates do 19b e do 19c (api#53, api#56, api#57, api#62) | **Sim** |

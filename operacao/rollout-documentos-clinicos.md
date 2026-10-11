@@ -172,8 +172,9 @@ jurídica" (§5 do runbook do 19b).
 |---|---|
 | rotasaude/api#56 — conferência farmacêutica das listas Anvisa (o nº 42 falta na fonte; benzilpenicilina não casa com penicilina G). Controlado fora da lista passa na receita | **Sim** (Crítica) |
 | rotasaude/api#57 — curadoria do catálogo CATMAT (itens ocultos para revisão) | **Sim** (Alta) |
-| rotasaude/api#62 — access log do proxy sem o token de `/v` e `/r` (o token abre o `signed.pdf`) | **Sim** |
-| rotasaude/api#62 — `trusted_proxies` configurado, senão o limite por IP vê só o IP do proxy | **Sim** |
+| rotasaude/api#62 — proxy de borda de cada cidade configurado a partir de `apps/api/config/edge-proxy/nginx-city.conf.example` (access log sem o token de `/v`, `/v/<token>/signed.pdf` e `/r`, que abre o `signed.pdf`), com a evidência colhida no proxy real de staging (`apps/api/config/edge-proxy/prove.sh` prova em container descartável). Limite conhecido: URL que o Rails normaliza mas o nginx grava crua (`/v//TOKEN`, `/%76/TOKEN`) não é mascarada | **Sim** |
+| rotasaude/api#62 — `TRUSTED_PROXIES` no deploy do api com os CIDRs/IPs dos proxies de borda (cada salto precisa ANEXAR ao `X-Forwarded-For`, `$proxy_add_x_forwarded_for`). Sem ele o api só avisa no boot e o limite por IP vê o IP do proxy (todos os cidadãos no mesmo balde); valor inválido derruba o boot | **Sim** |
+| rotasaude/api#62 — `log_statement` do Postgres de produção (e staging) em `'none'` ou `'ddl'`, conferido com `SHOW log_statement;`. Com `'all'` ou `'mod'`, INSERT/UPDATE gravam em claro números do SNCR e outros valores | **Sim** |
 | Norma da cidade para a declaração emitida pela recepção | **Sim** |
 | `max_connections` com o worker `signatures` de cada cidade (já do 19b) | **Sim** |
 | rotasaude/api#58 — RNDS e OBM | Não |
