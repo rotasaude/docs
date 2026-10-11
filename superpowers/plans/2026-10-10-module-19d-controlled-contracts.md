@@ -37,7 +37,7 @@ convenções: `{ "error": "<reason>" }` (com `field`/`index`), step-up 401
   `prescriber_address_missing`; 403 `cbo_not_allowed` (enfermeiro em
   `special_control`).
 - Resposta da emissão traz `issue_mode` e, quando caiu para papel, `paper_reason`:
-  `no_certificate` | `signature_unavailable` | `no_sncr_number` | `nurse_antimicrobial` | `feature_disabled`.
+  `no_certificate` | `signature_unavailable` | `no_sncr_number` | `nurse_antimicrobial` | `feature_disabled` | `free_text_items`.
 
 ## 3. Registro da Notificação
 
@@ -213,8 +213,12 @@ Valem sobre as seções acima e sobre os planos.
   `issue_mode: "paper"` e `paper_reason: null`.
 - **Texto livre antimicrobiano com `controlled_prescriptions` ligado (Task 11 do
   api):** receita só com itens em texto livre marcados como antimicrobianos não
-  vira RET: sai como a receita antimicrobiana em papel do 19c (2 vias, validade
-  de 10 dias, sem número SNCR e sem `category`). Misturada com item do catálogo
+  vira RET digital: sai em papel como a RET em papel (2 vias, validade de 10
+  dias), com `category: "antimicrobial"` e `sncr`, `patient_identification` e
+  `prescriber_contact` nulos — igual à RET que cai para papel na Task 12 — e
+  `paper_reason: "free_text_items"` (valor novo, na migração do 19d ainda não
+  publicada). Vale também para texto livre antimicrobiano junto de texto livre
+  comum, sem item do catálogo. Misturada com item do catálogo
   (antimicrobiano ou não) continua 422 `mixed_categories` com `index`. Cumpre o
   combinado de que o texto livre antimicrobiano segue possível só em papel.
 - **Emissão (Task 12 do api, 70d4a9e):** `paper_reason` é gravado em todo
