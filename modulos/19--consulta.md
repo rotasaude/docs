@@ -1,6 +1,6 @@
 # Módulo 19 — Consulta (prontuário da APS)
 
-- **Estado:** Em andamento (19a Fechado; 19b Entregue — gate api#53 aberto; 19c Entregue — gates api#56/#57 antes de cidade real; 19d Planejado)
+- **Estado:** Entregue (19a Fechado; 19b Entregue — gate api#53 aberto; 19c Entregue — gates api#56/#57 antes de cidade real; 19d Entregue — gate do SNCR real, api#63, aberto). O módulo fica `Fechado` só depois dos gates api#53 e do SNCR real.
 - **Tipo:** Ciclo 2
 
 ## Escopo
@@ -57,10 +57,10 @@ SNCR simulado primeiro (`sncr_mock`), atrás do interruptor
 
 | Superfície | O que aparece |
 |---|---|
-| `api` | `patients`, lista de problemas, consultas, adendos, aberturas, nomes, `Ledi::Fichas::IndividualCare` |
+| `api` | `patients`, lista de problemas, consultas, adendos, aberturas, nomes, `Ledi::Fichas::IndividualCare`; estoque SNCR e `Sncr::Client` (19d) |
 | `admin` | — |
-| `dashboard` | Painel do paciente, editor da consulta, adendo, impresso, prontuário fora de contexto, relatório, nomes na validação |
-| `maintenance` | Interruptores `clinical_record`, `digital_signature` e `clinical_documents`; prestadores e estado do `signer` (19b); tela Medicamentos (CATMAT e listas Anvisa, 19c) |
+| `dashboard` | Painel do paciente, editor da consulta, adendo, impresso, prontuário fora de contexto, relatório, nomes na validação; Conta → SNCR, contato do prescritor, RCE/RET, registro da Notificação e painel do SNCR do admin (19d) |
+| `maintenance` | Interruptores `clinical_record`, `digital_signature` e `clinical_documents`; prestadores e estado do `signer` (19b); tela Medicamentos (CATMAT e listas Anvisa, 19c); interruptores `controlled_prescriptions` e `sncr_mock` e quadro do SNCR (19d) |
 | `signer` | Serviço interno de assinatura (19b) |
 | `wpda` | — |
 
@@ -135,7 +135,16 @@ SNCR simulado primeiro (`sncr_mock`), atrás do interruptor
 
 - F-19.24 a F-19.29 verificadas.
 - Prova no navegador com SNCR e PSC simulados.
-- Gate de go-live: prova com o SNCR real (até lá o 19d fica `Entregue`).
+- Gate de go-live rotasaude/api#63: prova com o SNCR real, incluindo a troca do
+  token no servidor (até lá o 19d fica `Entregue`).
+- Runbook da receita controlada (publicação, ligar, números do SNCR, regras,
+  gates): [`operacao/rollout-receita-controlada.md`](../operacao/rollout-receita-controlada.md).
+
+## Critério de fechamento do módulo 19
+
+- 19a a 19d entregues (cumprido em 2026-10-11: o módulo passa a `Entregue`).
+- Gates api#53 (assinatura real) e api#63 (SNCR real) fechados; só então o
+  módulo passa a `Fechado`.
 
 ## Histórico
 
@@ -282,3 +291,59 @@ SNCR simulado primeiro (`sncr_mock`), atrás do interruptor
 - 2026-10-10 — Escopo do 19d decidido com o usuário; ADR 0034 e spec
   `superpowers/specs/2026-10-10-module-19d-controlled-prescriptions-design.md`.
   F-19.24 a F-19.29 criados (board #1, `Not Started`).
+- 2026-10-11 — **19d implementado, publicado e Entregue** (o gate do SNCR real,
+  rotasaude/api#63, continua aberto):
+  - contracts `3adc39a` (tag `clinical-v1.2.0`; `category`, `sncr`,
+    `patient_identification` e `prescriber_contact` na receita);
+  - api `123b8b7` (32 commits sobre `db8f04a`; suíte 5170/0);
+  - dashboard `daafeee` (13 commits sobre `74791e0`);
+  - maintenance `7db3311` (2 commits sobre `bc51914`).
+
+  Migrações `20261010700001` de plataforma (marca de anticonvulsivante, kind
+  `anticonvulsant` nas listas Anvisa, `sncr_checks`; por `bin/rails
+  db:migrate`) e de cidade (estoque de números, `prescriber_address` cifrado,
+  `controlled_notification_record`, `paper_reason`; **irreversível**). Depois
+  delas, `medications:import_anvisa` marca a lista 344 de cada item e os
+  anticonvulsivantes. Serviço `fake-sncr` no compose de dev (porta 8092).
+  Runbook
+  [`operacao/rollout-receita-controlada.md`](../operacao/rollout-receita-controlada.md).
+
+  **Decisões do usuário durante a execução** (contrato do 19d, §12; pesquisa
+  `pesquisa/2026-10-10-sncr-token-no-servidor.md`):
+  - a sonda na homologação do SNCR não foi feita: o 19d seguiu com o **SNCR
+    simulado** (`sncr_mock`, só fora de produção, com a faixa "numeração
+    simulada — sem validade");
+  - a **troca do token no servidor** e a prova com o SNCR real viraram gate de
+    go-live (api#63); se a troca falhar, vale o plano B do ADR 0034 (o
+    navegador chama o SNCR);
+  - **apertos do esquema** antes da tag `clinical-v1.2.0`: RCE só com itens do
+    catálogo e todos com duração; RET só com antimicrobiano do catálogo; o
+    número não fixa o dígito de tipo; sem "não possui CPF" (o CPF vem do
+    cadastro). Item comum não acompanha a categoria: a mistura dá 422
+    `mixed_categories` e vira duas receitas;
+  - **texto livre antimicrobiano** só em papel: receita só com texto livre sai
+    em papel com `paper_reason: free_text_items`.
+
+  **Prova no navegador aprovada** (Curitiba, 2026-10-11, SNCR e PSC
+  simulados):
+  - pedido de números em Conta → SNCR (RCE e RET);
+  - RCE e RET emitidas e assinadas, com número do SNCR e faixa de simulado;
+  - registro da Notificação de papel na consulta;
+  - cancelamento anulando o número (`voided`) e o aviso de não dispensar na
+    página pública;
+  - painel do SNCR do admin;
+  - interruptores, aviso de simulado e quadro do SNCR no maintenance.
+
+  F-19.24 a F-19.29 `Verified` (2026-10-11). Com 19a a 19d entregues, o módulo
+  19 passa a `Entregue`; `Fechado` só depois dos gates api#53 e api#63.
+
+  **Em aberto:**
+  - rotasaude/api#63 (SNCR real: troca do token no servidor, `SEND_ORIGIN`,
+    host do `/auth`, mensagens de erro, domínio `.br` das cidades, CNPJ da
+    mantenedora, credenciais em `production.yml.enc`; bloqueia o go-live);
+  - lista de anticonvulsivantes conferida por farmacêutico contra a RENAME,
+    junto com api#56 (bloqueia cidade real);
+  - `log_statement` do Postgres sem números do SNCR (api#62);
+  - regra da VISA local para a Notificação de papel;
+  - minors sem efeito em produção: rodapé Anvisa que pode passar de página
+    numa RCE longa; busca da última identificação só nas 50 últimas receitas.
