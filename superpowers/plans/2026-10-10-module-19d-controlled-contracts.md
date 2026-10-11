@@ -211,3 +211,9 @@ Valem sobre as seções acima e sobre os planos.
   compara a linha inteira; `paper_reason` existe só nos documentos emitidos em
   papel desde o início. O documento que voltou ao papel aparece com
   `issue_mode: "paper"` e `paper_reason: null`.
+- **Texto livre antimicrobiano com `controlled_prescriptions` ligado (Task 11 do
+  api):** receita só com itens em texto livre marcados como antimicrobianos não
+  vira RET: sai como a receita antimicrobiana em papel do 19c (2 vias, validade
+  de 10 dias, sem número SNCR e sem `category`). Misturada com item do catálogo
+  (antimicrobiano ou não) continua 422 `mixed_categories` com `index`. Cumpre o
+  combinado de que o texto livre antimicrobiano segue possível só em papel.
