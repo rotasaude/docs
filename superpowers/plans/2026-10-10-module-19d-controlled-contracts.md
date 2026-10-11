@@ -235,3 +235,9 @@ Valem sobre as seções acima e sobre os planos.
 - **Painel do SNCR (Task 18 do api, 346896c/5f87c02):** sem limite de linhas (o
   corte silencioso esconderia quem está com saldo baixo); `last_request_at` é do
   modo corrente (simulado ou real).
+- **api do 19d concluído (123b8b7, revisão final):** o índice único de
+  `sncr_numbers` é (`kind`, `number`, `simulated`) — um número simulado nunca
+  colide com um real; a semente de dev só pede bloco quando não há estoque livre
+  do tipo (não gasta os 3 pedidos do mês a cada `db:seed`); a RET digital sem
+  `patient_identification` omite a linha de endereço no PDF (no papel ela
+  continua). Suíte completa 5170/0.
