@@ -232,3 +232,6 @@ Valem sobre as seções acima e sobre os planos.
 - **Registro da Notificação (Task 13 do api, 4a56179):** o `content` também leva
   `printed_description` (o rótulo do item do catálogo), além dos campos do §3.
   O registro não é assinado.
+- **Painel do SNCR (Task 18 do api, 346896c/5f87c02):** sem limite de linhas (o
+  corte silencioso esconderia quem está com saldo baixo); `last_request_at` é do
+  modo corrente (simulado ou real).
