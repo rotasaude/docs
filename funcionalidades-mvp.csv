@@ -208,3 +208,9 @@ F-19.26,Receita de controle especial digital,mod-19,api|dashboard,"0034,0032",fe
 F-19.27,Receita de antimicrobiano digital,mod-19,api|dashboard,"0034,0032",feature
 F-19.28,Registro da Notificação de papel,mod-19,api|dashboard,0034,feature
 F-19.29,Painel do SNCR do admin,mod-19,api|dashboard,0034,feature
+F-20.1,Interruptores e configuração do PEC,mod-20,api|maintenance,"0035,0028",feature
+F-20.2,Fornecedores e linha do tempo da pessoa,mod-20,api,0035,feature
+F-20.3,Linha do tempo do profissional,mod-20,api|dashboard,"0035,0031",feature
+F-20.4,Histórico do cidadão (linha do tempo e documentos),mod-20,api|wpda,"0035,0017",feature
+F-20.5,Resumo clínico do cidadão,mod-20,api|wpda,0035,feature
+F-20.6,Página para os sistemas externos do PEC,mod-20,api,0035,feature
