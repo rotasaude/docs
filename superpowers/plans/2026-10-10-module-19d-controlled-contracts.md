@@ -229,3 +229,6 @@ Valem sobre as seções acima e sobre os planos.
   não). Até a Task 13, o tipo `controlled_notification_record` dá 403
   `cbo_not_allowed`. Gate de go-live: `log_statement` do Postgres de produção
   não pode gravar números SNCR em claro (comentado em api#62).
+- **Registro da Notificação (Task 13 do api, 4a56179):** o `content` também leva
+  `printed_description` (o rótulo do item do catálogo), além dos campos do §3.
+  O registro não é assinado.
