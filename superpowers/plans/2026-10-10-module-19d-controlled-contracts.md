@@ -186,3 +186,7 @@ Valem sobre as seções acima e sobre os planos.
   catálogo. O api recusa com 422 `mixed_categories` (item comum em RET/RCE ou
   texto livre em RCE, com `index`) e o dashboard orienta a separar. Revoga a D5
   do plano do dashboard ("item comum acompanha a categoria").
+- **contracts do 19d pronto (3adc39a sobre e94846f, antes da tag):** 85 exemplos
+  (34 do 19d: 3 válidos, 31 inválidos); 7 vetores iguais byte a byte; sha256 do
+  `clinical/clinical-document-v1.json`:
+  `e195e85fcf4468ff2a071ed8e05bb1afc3d0490420a92557b0561fbd292c6c29`.
