@@ -160,3 +160,10 @@ Valem sobre as seções acima e sobre os planos.
   qualquer escrita (código errado ou reutilizado → nada gravado, auditado como
   rejeitado). Substitui `unknown_city`/`city_unreachable` em `errors` (M1): a tela
   do maintenance trata como as outras telas de cidade.
+- **Página do PEC (Tasks 12–13 do api, dadc76d/6e0f009):** ordem de conferência
+  interruptor → HMAC → janela → uso único → CNES → vínculo → cidadão; uma recusa
+  por unidade, vínculo ou pessoa já gasta a URL (impede usar URL capturada como
+  oráculo; o PEC gera URL nova a cada clique). Assinatura inválida ou vencida não
+  gasta. A sessão curta (MessageEncryptor, 15 min) amarra a cidade no conteúdo
+  autenticado e não carrega CPF, CNS nem a chave; o "carregar mais" relê os pares
+  validados e não excluídos a cada página (exclusão LGPD some da sessão).
