@@ -179,3 +179,9 @@ Valem sobre as seções acima e sobre os planos.
   - Gate de go-live (com api#62): o access log do proxy/ingress filtra a query de
     `/pec/*` (CPF e CNS vão na URL) e nenhum proxy injeta `X-Frame-Options` em
     `/pec/*`; somado ao repasse de `Host` e `X-Forwarded-Proto`.
+- **api do módulo 20 concluído (main local 9c7cec8, suíte 5402/0):** na prática do
+  graphql-ruby 2.6, omitir `pecOrigin` responde `setCityPecOrigin: null` com erro
+  (a falta do argumento só é rejeitada na execução) — a tela do maintenance manda
+  sempre o argumento, com `null` para apagar. O simulador do PEC (só dev) abre por
+  padrão a cidadã da semente. Gate de go-live adicional: rever os tetos do limite
+  de `/pec/*` com o uso real.
