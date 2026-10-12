@@ -151,3 +151,12 @@ Valem sobre as seções acima e sobre os planos.
   `invalid_period`) saem antes da resolução do alvo; pessoa vazia → 404
   `not_found` sem trilha. `occurred_at` sai sem fração de segundo: as telas
   paginam só por `next_before`, sem reconstruir o cursor.
+- **Configuração do PEC no GraphQL (Task 11 do api, 59035fa):** segue o padrão
+  das outras mutations de cidade do maintenance: cidade inexistente →
+  `{ ok: false, errors: [{ path: "citySlug", message: "cidade inexistente" }] }`;
+  cidade inalcançável → erro GraphQL com `extensions.code = "CITY_UNREACHABLE"`
+  (fora de `errors`); `cityPecConfig` devolve `null` para cidade inexistente.
+  `invalid_origin` e `invalid_key` como no contrato. O TOTP é conferido antes de
+  qualquer escrita (código errado ou reutilizado → nada gravado, auditado como
+  rejeitado). Substitui `unknown_city`/`city_unreachable` em `errors` (M1): a tela
+  do maintenance trata como as outras telas de cidade.
