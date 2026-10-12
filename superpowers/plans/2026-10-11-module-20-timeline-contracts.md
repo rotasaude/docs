@@ -185,3 +185,10 @@ Valem sobre as seções acima e sobre os planos.
   sempre o argumento, com `null` para apagar. O simulador do PEC (só dev) abre por
   padrão a cidadã da semente. Gate de go-live adicional: rever os tetos do limite
   de `/pec/*` com o uso real.
+- **Prova no navegador e revisão final das telas:**
+  - PDF do cidadão: `GET /citizen/documents/:id/pdf?citizen_id=<par>`; o par
+    precisa ser do celular da sessão e validado; sem `citizen_id` → 404
+    `not_found`. (O wpda passa a enviar o parâmetro; o api não muda.)
+  - No dashboard, o `detail_ref` `appointment_request` só abre para quem tem o
+    papel `citizen_verifier` (a tela do pedido exige esse papel); sem ele, fica
+    só o resumo da entrada.
