@@ -192,3 +192,8 @@ Valem sobre as seções acima e sobre os planos.
   - No dashboard, o `detail_ref` `appointment_request` só abre para quem tem o
     papel `citizen_verifier` (a tela do pedido exige esse papel); sem ele, fica
     só o resumo da entrada.
+- **Relatório de aberturas no modo integrado (decidido pelo usuário,
+  2026-10-12):** o relatório das aberturas (`GET /clinical_record/openings`) e o
+  item de menu aparecem ao `municipal_admin` quando `clinical_record` **ou**
+  `patient_timeline` estiver utilizável — a abertura justificada existe no modo
+  integrado desde o módulo 20, e a auditoria dela precisa ser visível.
