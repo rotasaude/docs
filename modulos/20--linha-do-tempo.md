@@ -1,6 +1,6 @@
 # Módulo 20 — Linha do tempo do paciente
 
-- **Estado:** Entregue (F-20.1 a F-20.6 implementadas e provadas no navegador em 2026-10-12; aguardam o `Verified` do usuário). O módulo fica `Fechado` só depois do `Verified` e do gate do PEC real, rotasaude/api#64.
+- **Estado:** Entregue (F-20.1 a F-20.6 implementadas, provadas no navegador e `Verified` pelo usuário em 2026-10-12). O módulo fica `Fechado` depois do gate do PEC real, rotasaude/api#64.
 - **Tipo:** Ciclo 2
 
 ## Escopo
@@ -152,3 +152,5 @@ Board #2 (`mod-20`, `ciclo:02`):
   dashboard nos dois modos, wpda validado e declarado, maintenance); três
   defeitos achados e corrigidos (ver acima); pendências api#64 a #71 no board #2.
   Runbook [`operacao/rollout-linha-do-tempo.md`](../operacao/rollout-linha-do-tempo.md).
+- 2026-10-12 — F-20.1 a F-20.6 em `Verified` no board #1, com aprovação do
+  usuário. Falta só o gate do PEC real (rotasaude/api#64) para `Fechado`.
