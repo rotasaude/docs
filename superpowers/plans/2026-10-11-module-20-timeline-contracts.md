@@ -135,8 +135,9 @@ Valem sobre as seções acima e sobre os planos.
   utilizáveis da cidade).
 - PDF: 404 para documento digital não assinado, cancelado, de outra pessoa ou
   com `clinical_documents` desligado; sai como anexo; limite 30 por 10 min.
-- Resumo: ordem 404 `not_found` > 403 `feature_disabled` > 403 `not_verified` >
-  404 `not_available`; problema sem nome não aparece; exame sem nome sai como
+- Resumo e histórico: ordem 403 `feature_disabled` > 404 `not_found` > 403
+  `not_verified` > 404 `not_available` (o interruptor é da cidade e não depende
+  do `citizen_id`; corrigido na Task 10 do api, ee3eb4e); problema sem nome não aparece; exame sem nome sai como
   "Procedimento <código>"; sinais vitais da consulta ou escuta mais recente. No
   wpda, `not_available` aparece como "sem resumo", sem erro.
 
