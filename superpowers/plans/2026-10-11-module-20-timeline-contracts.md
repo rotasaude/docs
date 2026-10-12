@@ -167,3 +167,15 @@ Valem sobre as seções acima e sobre os planos.
   gasta. A sessão curta (MessageEncryptor, 15 min) amarra a cidade no conteúdo
   autenticado e não carrega CPF, CNS nem a chave; o "carregar mais" relê os pares
   validados e não excluídos a cada página (exclusão LGPD some da sessão).
+- **Revisão final do api (onda de correções):**
+  - Limite por IP nas rotas públicas do PEC, generoso por causa do NAT das UBS:
+    120/min em `/pec/timeline` e 300/min em `/pec/timeline/more`. Excedido: a
+    página mostra a recusa com o código `too_many_requests` (429) e o "mais"
+    responde 429; a recusa por limite não grava `pec.external_view_denied`.
+  - `setCityPecOrigin`: `pecOrigin` é obrigatório e anulável — `null` apaga;
+    omitir o argumento é erro de validação do GraphQL (antes apagava em
+    silêncio). A tela do maintenance sempre envia o argumento.
+  - O "carregar mais" do PEC exige ao menos um par validado relido.
+  - Gate de go-live (com api#62): o access log do proxy/ingress filtra a query de
+    `/pec/*` (CPF e CNS vão na URL) e nenhum proxy injeta `X-Frame-Options` em
+    `/pec/*`; somado ao repasse de `Host` e `X-Forwarded-Proto`.
