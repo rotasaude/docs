@@ -82,11 +82,15 @@ Origem (`pec_origin`) e chave HMAC (`pec_hmac_key`) são por cidade.
     PecExternal::Configure.set_origin(origin: "https://pec.<cidade>.gov.br")
     PecExternal::Configure.rotate_key(key: "<chave>")
   end
-  PecExternal::Configure.audit!
+  # maintainer_id é nulo quando a mudança vem do console
+  PecExternal::Configure.audit!(city_slug: city.slug, field: "pec_origin", maintainer_id: nil)
+  PecExternal::Configure.audit!(city_slug: city.slug, field: "hmac_key", maintainer_id: nil)
   ```
 
-  O `audit!` registra a troca (`maintenance.city.pec_config_changed`, só com o
-  campo alterado, nunca o valor) e emite o evento `city.pec_config_changed`.
+  Chame o `audit!` uma vez por campo alterado. Pelo console fica só o evento de
+  plataforma `city.pec_config_changed` (`city_id`, `field`, `maintainer_id`),
+  sem valor. A trilha `maintenance.city.pec_config_changed` só existe quando a
+  mudança passa pelo maintenance.
 - A mesma chave vai no cadastro do PEC (§5). Combine a entrega por canal fora
   de chat e de ticket; para a custódia, veja
   [`custodia-de-chave.md`](custodia-de-chave.md).
