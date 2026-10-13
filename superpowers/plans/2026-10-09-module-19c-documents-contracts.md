@@ -266,7 +266,8 @@ Decisões do usuário na spec `2026-10-13-module-19-special-round-design.md`.
   sem unidade → 422 `attendance_outside_unit`.
 - `<declaration_row>` = `{ id, status, issued_at, cancelled_at, short_code,
   attendance_id, author: { id, name }, patient: { display_name } }` — só
-  metadados; as listas **não** gravam trilha.
+  metadados; a listagem registra leitura (spec §7): um `clinical_record.viewed`
+  por declaração com paciente, com `access: "declaration_list"`.
 - `GET /attendance/documents/:id` e `/print` aceitam `?health_unit_id=`: a
   `citizen_verifier` da unidade do atendimento lê e imprime declarações de
   colegas com o grant `unit_reception` (trilha `clinical_record.viewed` com
