@@ -176,7 +176,7 @@ jurídica" (§5 do runbook do 19b).
 | rotasaude/api#62 — `TRUSTED_PROXIES` no deploy do api com os CIDRs/IPs dos proxies de borda (cada salto precisa ANEXAR ao `X-Forwarded-For`, `$proxy_add_x_forwarded_for`). Sem ele o api só avisa no boot e o limite por IP vê o IP do proxy (todos os cidadãos no mesmo balde); valor inválido derruba o boot, inclusive CIDR de prefixo 0 (`0.0.0.0/0`, `::/0`), pois confiar em tudo anula o limite por IP. Exige também `forward_headers: true` no `proxy:` do kamal-proxy (Kamal 2 com `ssl: true` o desliga por padrão e descarta o `X-Forwarded-For` da borda); confirmar a chave na versão real do Kamal. | **Sim** |
 | rotasaude/api#62 — `log_statement` do Postgres de produção (e staging) em `'none'` ou `'ddl'`, conferido com `SHOW log_statement;`. Com `'all'` ou `'mod'`, INSERT/UPDATE gravam em claro números do SNCR e outros valores | **Sim** |
 | Norma da cidade para a declaração emitida pela recepção | **Sim** |
-| `max_connections` com o worker `signatures` de cada cidade (já do 19b) | **Sim** |
+| `max_connections` com o worker `signatures` de cada cidade (já do 19b): conta e configuração feitas (`conexoes-postgres.md`); falta a prova com carga em staging | **Sim** |
 | rotasaude/api#58 — RNDS e OBM | Não |
 | rotasaude/api#59 — recepção listar, reimprimir e cancelar declarações, e restringir à unidade do atendimento | Não |
 | rotasaude/api#60 — preparar REMUME e protocolos antes de ligar o interruptor | Não |

@@ -36,8 +36,8 @@ Ordem obrigatória:
    6. religue o worker.
 
    O `config/queue.yml` ganha um worker de cidade dedicado à fila `signatures`.
-   Ele é um processo a mais por cidade, com cerca de 5 conexões em produção, e
-   entra na conta do `max_connections` (§7).
+   Ele é um processo a mais por cidade e entra na conta do `max_connections`
+   (§7). A conta completa está em `conexoes-postgres.md`.
    Variáveis do api: `SIGNER_URL` e `SIGNER_TOKEN`.
 4. `dashboard` (`8a0c0de` ou posterior), depois do api.
 5. `maintenance` (`0f0a779` ou posterior), depois do dashboard.
@@ -137,7 +137,7 @@ Em dev, a semente liga `digital_signature` e `signature_psc_mock` em Curitiba.
 | rotasaude/api#53 — assinatura com PSC real (VIDaaS de homologação ou outro) aprovada no validar.iti.gov.br | **Sim** (Crítica) |
 | rotasaude/signer#1 — endurecimento do `signer` (hora futura, SSRF de LCR, concorrência, ByteRange, imagem etc.) | **Sim** (Alta) |
 | Cadastro da aplicação em cada PSC, com o SSL ICP-Brasil da plataforma | **Sim** |
-| `max_connections` com o worker `signatures` de cada cidade | **Sim** |
+| `max_connections` com o worker `signatures` de cada cidade: conta e configuração para 5 cidades feitas (`conexoes-postgres.md`, rotasaude/api#74); falta a prova com carga em staging e confirmar a chave `cmd:` do Kamal | **Sim** |
 | Chamadas ao PSC e ao `signer` dentro da transação com lock: no pior caso um lote prende linhas por minutos | Não; acompanhar |
 | Usuário desativado mantém a sessão de assinatura por até 12 h | Não; acompanhar |
 | rotasaude/dashboard#14 — marcador do adendo fica "assinando…" até reabrir quando não há sessão | Não (Baixa) |
