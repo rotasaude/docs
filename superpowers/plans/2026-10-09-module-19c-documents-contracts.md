@@ -247,3 +247,42 @@ Valem sobre as seções acima e sobre os planos.
   - Requisição de exames bloqueada com a consulta em rascunho: usa só
     `consultation_exam_requests`, que nascem na finalização.
   - Antimicrobianos rotulados "IN 360/2025" no maintenance.
+
+## 13. Rodada especial do módulo 19 — R3 (2026-10-13)
+
+Decisões do usuário na spec `2026-10-13-module-19-special-round-design.md`.
+
+**Declaração da recepção restrita à unidade (api#59)**
+- A unidade vem do seletor da tela (`health_unit_id`); não há vínculo de
+  recepção com unidade. É guarda contra engano, não trava de segurança.
+- `POST /attendance/attendances/:id/declarations { content, health_unit_id }`:
+  sem unidade ou com unidade diferente da do atendimento → 422
+  `attendance_outside_unit` (checado no controller).
+- `GET /attendance/attendances/:id/declarations?health_unit_id=` → `{ "items":
+  [<declaration_row>] }` (as da autora e das colegas); unidade errada → 422
+  `attendance_outside_unit`.
+- `GET /attendance/declarations?health_unit_id=&date=` → as do dia (fuso da
+  cidade; `date` ISO, ausente ou inválida = hoje) nos atendimentos da unidade;
+  sem unidade → 422 `attendance_outside_unit`.
+- `<declaration_row>` = `{ id, status, issued_at, cancelled_at, short_code,
+  attendance_id, author: { id, name }, patient: { display_name } }` — só
+  metadados; as listas **não** gravam trilha.
+- `GET /attendance/documents/:id` e `/print` aceitam `?health_unit_id=`: a
+  `citizen_verifier` da unidade do atendimento lê e imprime declarações de
+  colegas com o grant `unit_reception` (trilha `clinical_record.viewed` com
+  `access: "unit_reception"`); outra unidade → 403.
+- `POST /attendance/documents/:id/cancel { reason, health_unit_id }`: quem não é
+  a autora cancela só declaração de comparecimento, sendo `citizen_verifier`
+  e com a unidade do atendimento (step-up); unidade errada → 422
+  `attendance_outside_unit`; outro tipo → 403 `not_author`.
+
+**Histórico de versões do protocolo (api#61)**
+- `GET /clinical_documents/nursing_protocols/:id/versions` → `{ "items": [ {
+  id, version, valid_from, valid_until, items, situation } ] }`, da mais nova
+  para a mais antiga; `situation` ∈ `vigente` (a que vale hoje), `agendada`
+  (início no futuro), `encerrada`.
+
+**Busca de medicamentos do admin (api#60)**
+- `POST /attendance/medications/search` exige só `clinical_record` para o
+  `municipal_admin` (REMUME e protocolos); para os profissionais segue
+  exigindo também `clinical_documents`.
