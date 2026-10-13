@@ -60,7 +60,7 @@ Fechar as pendências do módulo 19 que podem ser resolvidas só com código, co
    - Com isso, o `indeterminate` (cadeia boa, LCR fora do ar) continua trazendo o CPF.
    - O api continua forçando `invalid` quando o CPF não bate.
 3. **SSRF da LCR.**
-   - A checagem de confiança (`Chain.of`) roda antes do `CAdESChecker`/`PAdESChecker` do Demoiselle. Sem cadeia confiável, o resultado é `invalid` sem nenhuma requisição de rede.
+   - A checagem de confiança (`Chain.of`) roda antes do `CAdESChecker`/`PAdESChecker` do Demoiselle. Sem cadeia confiável, o resultado é `invalid` sem nenhum download de LCR nem acesso a destino tirado do certificado. (A atualização das âncoras da ICP-Brasil pelo próprio Demoiselle vai a destinos fixos do ITI e do Serpro e fica fora desta regra; ver o README do signer.)
    - O download de LCR aceita só `http`/`https` e recusa destino que resolva para endereço privado, loopback ou link-local.
 4. **Auto-verificação.**
    - Na partida, o serviço confere que as âncoras de confiança carregaram (em produção, ICP-Brasil); se não, não sobe.
