@@ -52,7 +52,7 @@
 | 18 | [Acolhimento](18--acolhimento.md) | Fechado | Ciclo 2 | [0030](../adr/0030.md), [0019](../adr/0019.md), [0028](../adr/0028.md) |
 | 19 | [Consulta (prontuário da APS)](19--consulta.md) | Entregue | Ciclo 2 | [0031](../adr/0031.md), [0032](../adr/0032.md), [0033](../adr/0033.md), [0034](../adr/0034.md), [0028](../adr/0028.md), [0030](../adr/0030.md) |
 | 20 | [Linha do tempo do paciente](20--linha-do-tempo.md) | Entregue | Ciclo 2 | [0035](../adr/0035.md), [0031](../adr/0031.md) |
-| 21 | [Exames e laboratório](21--exames.md) | Stub | Ciclo 2 | — |
+| 21 | [Exames e laboratório](21--exames.md) | Planejado (21a) | Ciclo 2 | [0036](../adr/0036.md), [0031](../adr/0031.md) |
 | 22 | [Procedimentos e faturamento](22--procedimentos.md) | Stub | Ciclo 2 | — |
 | 23 | [Linhas de cuidado](23--linhas-de-cuidado.md) | Stub | Ciclo 2 | — |
 | 24 | [Atendimento domiciliar e coletivo](24--domiciliar-e-coletivo.md) | Stub | Ciclo 2 | — |

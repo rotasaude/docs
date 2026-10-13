@@ -214,3 +214,16 @@ F-20.3,Linha do tempo do profissional,mod-20,api|dashboard,"0035,0031",feature
 F-20.4,Histórico do cidadão (linha do tempo e documentos),mod-20,api|wpda,"0035,0017",feature
 F-20.5,Resumo clínico do cidadão,mod-20,api|wpda,0035,feature
 F-20.6,Página para os sistemas externos do PEC,mod-20,api,0035,feature
+F-21.1,Interruptores e configuração dos exames,mod-21,api|maintenance,"0036,0028",feature
+F-21.2,Catálogo de exames e prestadores da cidade,mod-21,api|dashboard,0036,feature
+F-21.3,Exame com ciclo de vida (consulta e guia da recepção),mod-21,api|dashboard,"0036,0031",feature
+F-21.4,Fila de regulação de exames,mod-21,api|dashboard,0036,feature
+F-21.5,Prazos e painel de exames atrasados,mod-21,api|dashboard,0036,feature
+F-21.6,Portal do prestador,mod-21,api|dashboard,0036,feature
+F-21.7,Entrada FHIR de resultados e laboratório simulado,mod-21,api|contracts,0036,feature
+F-21.8,"Resultado, ciência e fila da equipe",mod-21,api|dashboard,0036,feature
+F-21.9,Resultado externo,mod-21,api|dashboard,0036,feature
+F-21.10,Exames do cidadão no wpda,mod-21,api|wpda,"0036,0017",feature
+F-21.11,Solicitar exames pelo PEC,mod-21,api|dashboard,"0036,0035",feature
+F-21.12,Relatório de conferência por prestador,mod-21,api|dashboard,0036,feature
+F-21.13,Exames na linha do tempo,mod-21,api,"0036,0035",feature
