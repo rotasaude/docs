@@ -36,13 +36,14 @@
 | 9 | Portal do prestador dentro do dashboard, papel `prestador`, um usuário por cidade. |
 | 10 | Resultado sem pedido entra como "resultado externo". |
 | 11 | Abordagem 1: exame com ciclo de vida em tabelas da cidade, trilha só de acréscimo, FHIR só na borda. |
+| 12 | Revisão dos planos (2026-10-14): `exam_tracking` nos dois modos de prontuário; equipe de referência = equipes ativas da unidade do exame; botão no PEC dentro da página da linha do tempo; `fake_lab` em dev e staging. |
 
 ## 3. Interruptores
 
-- `exam_tracking` (`requires: ["feature:clinical_record"]`): liga o 21a. Desligado: o pedido do 19a segue como hoje (só requisição).
+- `exam_tracking` (`requires: ["record_mode"]` — modo `record` **ou** `integrated`): liga o 21a. No modo `record` os pedidos também nascem da consulta; no `integrated`, pela guia da recepção e pelo botão no PEC. Desligado: o pedido do 19a segue como hoje (só requisição).
 - `exam_fhir_inbound` (`requires: ["feature:exam_tracking"]`): liga `POST /fhir/DiagnosticReport`.
 - `exam_pec_bridge` (`requires: ["feature:exam_tracking", "feature:pec_external_view"]`): liga "Solicitar exames" pela ponte do PEC.
-- `fake_lab` (`requires: ["feature:exam_fhir_inbound"]`, só fora de produção; em produção não aparece no catálogo e o api recusa ligar): o laboratório simulado responde às guias agendadas dele.
+- `fake_lab` (`requires: ["feature:exam_fhir_inbound"]`, `environments: SIMULATION_ENVS` — dev e staging, como o PSC e o SNCR simulados; em produção não aparece no catálogo e o api recusa ligar): o laboratório simulado responde às guias agendadas dele.
 
 ## 4. Dados (banco da cidade)
 
@@ -67,7 +68,7 @@
 3. `agendado` — unidade ou prestador informam data e local. Exame sem autorização chega aqui direto; o prestador é escolhido pela unidade.
 4. `coletado` — prestador ou unidade.
 5. `resultado_registrado` — unidade, portal do prestador ou FHIR.
-6. `ciencia` — quem pediu. Se o prazo de ciência estourar, ou o resultado vier `critical`, evento `escalado_equipe` e o exame entra na fila da equipe de referência do paciente; qualquer médico ou enfermeiro da equipe dá ciência com motivo. Solicitante digitado sem vínculo: escalado já no resultado.
+6. `ciencia` — quem pediu. Se o prazo de ciência estourar, ou o resultado vier `critical`, evento `escalado_equipe` e o exame entra na fila da equipe de referência — as equipes ativas da unidade do exame (o código não liga paciente a equipe); qualquer médico ou enfermeiro dessas equipes dá ciência com motivo. Solicitante digitado sem vínculo: escalado já no resultado.
 
 **Prazos.** Cada etapa tem prazo resolvido nesta ordem: `exam_provider_items` → `exam_catalog_items` → padrão da plataforma (autorizar 15, agendar 15, coletar 30, resultado 30, ciência 15 dias). `urgente` usa a metade, arredondada para cima. Contagem em dias corridos desde o evento anterior.
 
@@ -94,7 +95,7 @@ Sem SMS ou e-mail.
 
 **Laboratório simulado (`fake-lab`).** Serviço do compose de dev com o token de um prestador da semente; com `fake_lab` ligado, consulta as guias agendadas dele e envia um `DiagnosticReport` de exemplo (hemograma, HbA1c) para prova no navegador e CI.
 
-**Botão no PEC (`exam_pec_bridge`).** A mesma chamada assinada do módulo 20 (`documento-profissional`, `documento-cidadao`, `cnes`, `pec_timestamp`, `pec_sign`) abre "Solicitar exames" no Rota Saúde dentro do atendimento do PEC; profissional e paciente vêm da chamada; o pedido nasce com origem `pec`. Depende da prova técnica (§10).
+**Botão no PEC (`exam_pec_bridge`).** Dentro da página da linha do tempo do PEC (módulo 20, aberta pela chamada assinada), um botão "Solicitar exames" abre um formulário que usa a sessão curta da página (cada cadastro no PEC tem chave própria e a cidade guarda uma só, por isso não há chamada assinada nova); profissional e paciente vêm da sessão; o pedido nasce com origem `pec`. Depende da prova técnica (§10).
 
 **Guia da recepção.** A recepção cadastra paciente, exame, prioridade, solicitante (profissional com vínculo, ou nome e CNS digitados) e a foto ou PDF da guia; origem `guia_recepcao`.
 

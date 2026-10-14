@@ -90,8 +90,8 @@ Prazo da etapa conta desde o evento que a abriu (`requested`/`authorized`/`sched
 
 ## 8. Ponte do PEC (`exam_pec_bridge`)
 
-- `GET /pec/exams/new?<mesmos parâmetros assinados da ponte do módulo 20>` → HTML "Solicitar exames" (sessão curta própria, cookie isolado, 15 min); `POST /pec/exams` (form, token CSRF da sessão curta) cria `exam_order` com `origin: pec`. Erros: os `pec_*` do módulo 20 + `pec_exam_bridge_disabled`.
-- Só se a prova técnica (plano do api, Task 0) confirmar envio de formulário dentro da tela de sistemas externos.
+- Na página `/pec/timeline` do módulo 20 (aberta pela chamada assinada), botão "Solicitar exames": `POST /pec/exams/form` (token da sessão curta) → HTML do formulário; `POST /pec/exams` (form, token CSRF da sessão curta) cria `exam_order` com `origin: pec`. Sem chamada assinada nova (cada cadastro no PEC tem chave própria; a cidade guarda uma). Erros: os `pec_*` do módulo 20 + `pec_exam_bridge_disabled`.
+- Só se a prova técnica (plano do api, Task 0a) confirmar envio de formulário dentro da tela de sistemas externos; falhou → esta seção sai.
 
 ## 9. Cidadão (sessão do wpda, só par validado)
 
@@ -105,7 +105,7 @@ Prazo da etapa conta desde o evento que a abriu (`requested`/`authorized`/`sched
 
 ## 11. Maintenance (GraphQL, token humano)
 
-- Interruptores `exam_tracking` (`requires: ["feature:clinical_record"]`), `exam_fhir_inbound` (`["feature:exam_tracking"]`), `exam_pec_bridge` (`["feature:exam_tracking", "feature:pec_external_view"]`), `fake_lab` (`["feature:exam_fhir_inbound"]`, `non_production: true`). Mensagens de `missing` pelo mecanismo genérico.
+- Interruptores `exam_tracking` (`requires: ["record_mode"]`, missing `record_mode_off`), `exam_fhir_inbound` (`["feature:exam_tracking"]`), `exam_pec_bridge` (`["feature:exam_tracking", "feature:pec_external_view"]`), `fake_lab` (`["feature:exam_fhir_inbound"]`, `environments: SIMULATION_ENVS`). Mensagens de `missing` pelo mecanismo genérico: `record_mode_off`, `exam_tracking_disabled`, `exam_fhir_inbound_disabled`, `pec_external_view_disabled`.
 
 ## 12. Eventos (só ids)
 
@@ -130,3 +130,38 @@ Lê `FAKE_LAB_TOKEN` (token FHIR do prestador "Laboratório Simulado" da semente
 1. `contracts` — `exams/exam-order-v1.json` e `exams/fhir-diagnostic-report-inbound.json`, tag `exams-v1.0.0`.
 2. `api` (porta de dev 3041; migrações de cidade e plataforma a partir de 20261013900001; worktree `.claude/mod21`, branch `feat/mod-21a-exams`, bancos `_mod21`).
 3. `dashboard` (Vite 5192) e `wpda` (Vite 5193), worktrees em `rota-saude/.worktrees/`. 4. `maintenance`. 5. catálogo público.
+
+## 15. Acréscimos (revisão dos planos, 2026-10-14)
+
+Aprovados pelo usuário: A1 (D1 do api), A8 (D8), A10 (D10), A15 (D15). Os demais são detalhe dos planos, aceitos pelo coordenador. Prevalecem sobre as seções acima.
+
+**Decisões**
+- **A1 — `exam_tracking` nos dois modos.** `requires: ["record_mode"]` (record ou integrated). No `record` o pedido também nasce da consulta; no `integrated`, pela guia e pelo PEC.
+- **A8 — Botão no PEC na página do módulo 20** (§8 reescrito).
+- **A10 — Equipe de referência** = equipes ativas (`health_teams`) da unidade do exame; dá ciência médico ou enfermeiro dessas equipes (`not_in_team`).
+- **A15 — `fake_lab` em `SIMULATION_ENVS`** (dev e staging). `exam_providers.simulated`: prestador simulado só recebe com `fake_lab` ligado.
+
+**api**
+- **A2 — Guia:** aceita `citizen_id` (via `Patients::Resolve`) ou `patient_id`; exige `unit_id`; erros `not_unit_staff`, `invalid_requester`, `invalid_cid10`.
+- **A3 — Upload em JSON:** `POST /exams/uploads { "content_type", "data" (base64) }` → `{ "upload_id" }`; sem nome de arquivo; 422 `invalid_file`. Multipart não existe (a guarda de escrita por cookie só aceita JSON).
+- **A4 — Arquivos:** `pdf_url`/`guide_url` = `/exams/files/<token>`, 5 min, presos ao usuário; vencido → 410 `link_expired`.
+- **A5 — Duas visões do exame:** clínica (com resultado) e administrativa (sem `values`, `critical` e PDF) conforme quem lê.
+- **A6 — Listas com recorte obrigatório:** `consultation_id`, `patient_id`, `requester=me`, `unit_id`, ou `overdue=true` sozinho (só admin/regulador, cidade inteira); 422 `filter_required`, `invalid_filter`.
+- **A7 — FHIR:** sistemas de identificador da RNDS `http://rnds.saude.gov.br/fhir/r4/NamingSystem/cpf` e `.../cns` (substituem os do §7); `code` obrigatório; cada `Observation` contida referenciada em `result` (dom-3); só `application/fhir+json` (415); corpo até 15 MB (413); `details` só com caminhos; `ServiceRequest` exige `status=active`.
+- **A11 — Papéis:** `exam_regulator` e `exam_provider` em `PRIVILEGED_ROLES`; convite do prestador `POST /exams/admin/providers/:id/users { "email" }` → `<invitation>`; relatório também para `exam_regulator`.
+- **A12 — Transições:** reagendar permitido; resultado só de `scheduled` ou `collected`; 422 `provider_not_enabled_for_exam`, `invalid_schedule`.
+- **A14 — fake-lab:** `FAKE_LAB_API_URL`, `FAKE_LAB_CITY_HOST`, `FAKE_LAB_TOKEN`, `FAKE_LAB_INTERVAL`.
+- **A16 — Ator `system`** nos eventos do job; `reason` do escalonamento é código (`overdue` | `critical` | `unlinked_requester`).
+- **A17 — Resultado:** 422 `missing_pdf`, `invalid_values`, `invalid_released_on`, `invalid_laboratory`; crítico ou solicitante digitado nasce escalado.
+- **A18 — Migrações** a partir de 20261013900001; recorte SIGTAP de dev com hemograma `0202020380`, HbA1c `0202010503`, anti-HIV `0202030300`, anatomopatológico `0203020030`.
+- **A19 — Rotas de apoio:** `POST /exams/patient_lookup { "cpf" }`; `GET /exams/catalog` (itens ativos com `label` e `result_fields`); `GET /exams/providers?sigtap_code=`; `GET /exams/requesters?unit_id=`; `GET /exams/external_results?patient_id=`. Evento `exam.patient_looked_up`.
+- **A20 — Formas:** `<exam_order>` + `consultation_id` (filtro em `/exams/orders`) e `result_fields` no detalhe; `<provider_order>` + `result_fields`; lista do portal com `overdue_count` no corpo; `acknowledgements/pending` → `{ "orders", "denied" }`, `team` → `{ "orders" }`; prestador com `has_fhir_token`; no portal, agendar sem `provider_id`; `exam_requests[].priority` no corpo da consulta.
+- **A21 — Exame aberto pela linha do tempo:** só em contexto ou com abertura justificada válida (regra do 19a); nada novo no api.
+
+**wpda**
+- **A22 — `citizen_id`** em `GET /citizen/exams` e `/citizen/exams/:id/pdf` (celular com várias pessoas; molde do módulo 20); `exam_tracking` em `features` da sessão do cidadão.
+- **A23 — `result` por política:** `null` antes de o cidadão poder saber; `never_citizen` → `pickup_at_unit: true`, sem PDF; `requested_at`/`scheduled_at` ISO com fuso, `released_on` `AAAA-MM-DD`. Par declarado: 200 com `verified: false` e `exams: []`. `status_label` pronto, sem motivo; em `after_acknowledgement`, antes da ciência mostra a etapa anterior ao resultado. Resultado externo entra na lista com `kind`.
+- **A24 — Linha do tempo do cidadão:** `status_label` opcional em `<citizen_entry>`; para exame, `document` = `{ "id": <exam_order id>, "short_code": null, "verification_url": null, "downloadable": true }`, PDF por `/citizen/exams/:id/pdf`, mesmo 429 dos documentos.
+
+**maintenance**
+- **A25 — Aviso de laboratório simulado** na aba de interruptores, no padrão do PSC e do SNCR simulados.
