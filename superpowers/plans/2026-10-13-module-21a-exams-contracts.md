@@ -185,3 +185,6 @@ Aprovados pelo usuário: A1 (D1 do api), A8 (D8), A10 (D10), A15 (D15). Os demai
   - `missing_pdf` cobre também PDF acima de 10 MB.
 - **A37 — `never_citizen` só depois da ciência:** o cidadão vê "Retire o resultado na sua unidade" (`pickup_at_unit: true`) só a partir de `acknowledged`; antes, o rótulo da etapa anterior, como em `after_acknowledgement`. Resultado externo `never_citizen` nasce com ciência e mostra o aviso.
 - **A38 — Resultado externo sem unidade:** qualquer unidade da cidade pode registrar (o corpo do §3 não traz `unit_id`); o paciente é da cidade, não da unidade.
+- **A39 — `document.id` do resultado externo:** na linha do tempo do cidadão, o resultado externo leva `document.id` = id do `exam_result` (não há pedido); `/citizen/exams/:id/pdf` aceita id de pedido ou de resultado externo (complementa A24).
+- **A40 — Status do cidadão:** valores de status do exame no wpda incluem `external`, `scheduled`, `collected` e `acknowledged` (com `status_label` pronto do `Exams::Release`); o wpda trata valor desconhecido mostrando só o `status_label`.
+- **A41 — Deduplicação no PEC:** `POST /pec/exams` com mesmo paciente, SIGTAP e solicitante de um pedido `pec` dos últimos 15 minutos devolve o pedido existente com o aviso "já registrado" (proteção contra duplo envio do formulário; lock por CPF).
