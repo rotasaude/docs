@@ -195,3 +195,6 @@ Aprovados pelo usuário: A1 (D1 do api), A8 (D8), A10 (D10), A15 (D15). Os demai
 - **A46 — Contador sem trilha:** `GET /exams/acknowledgements/pending/count` → `{ "pending", "has_more", "denied" }`, sem dado clínico e sem `clinical_record.viewed` (spec prova). O contador do Início usa essa rota; a lista completa (`/pending`, com trilha) só quando a tela de ciência é aberta.
 - **A47 — Motivo na lista de negados:** os itens de `denied` em `/exams/acknowledgements/pending` trazem `denied_reason` (é o pedido do próprio solicitante; regra da A32); nunca para o cidadão. `exam-order-v1` acompanha antes da tag.
 - **A48 — Negados só na primeira página:** `/exams/acknowledgements/pending` traz `denied` só sem `before`; nas páginas seguintes, `denied: []` e nenhuma trilha dos negados (evita regravar a trilha a cada "Carregar mais").
+
+**Pós-entrega (2026-10-14)**
+- **A49 — Exame na exclusão LGPD (decisão do usuário):** `exam_orders`, `exam_order_events`, `exam_results`, laudos e guias contam como documento clínico no `RequestErasure` (ADR 0026): pedido de exclusão de quem tem exame fica retido, como nos documentos do 19c. Gate antes de ligar `exam_tracking` numa cidade real.
