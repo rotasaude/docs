@@ -165,3 +165,9 @@ Aprovados pelo usuário: A1 (D1 do api), A8 (D8), A10 (D10), A15 (D15). Os demai
 
 **maintenance**
 - **A25 — Aviso de laboratório simulado** na aba de interruptores, no padrão do PSC e do SNCR simulados.
+
+**Execução (pré-voo do api, 2026-10-14)**
+- **A26 — `priority` na leitura da consulta:** `Consultations::Json` devolve `exam_requests[].priority` no rascunho e na consulta finalizada (complementa A20).
+- **A27 — Trilha do laudo:** o download por `/exams/files/<token>` de um PDF de resultado grava `clinical_record.viewed` com `access: exam_result` (§12); a guia da recepção não grava.
+- **A28 — Ator do evento:** `<exam_event>.actor` = `{ "type": "user" | "provider" | "system", "name": string | null }`; `system` (job diário) vem com `name: null` (complementa A16). O dashboard aceita os três.
+- **A29 — `result` do cidadão:** a A23 vale para a lista e para a linha do tempo (A24); a D9 do plano do api fica superada.
