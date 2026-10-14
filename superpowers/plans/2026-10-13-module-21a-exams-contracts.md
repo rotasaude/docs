@@ -177,3 +177,9 @@ Aprovados pelo usuário: A1 (D1 do api), A8 (D8), A10 (D10), A15 (D15). Os demai
 - **A33 — Prioridade fixa:** a `priority` do exame não muda depois de criado o pedido; adendo que só troca a prioridade não altera o exame (para trocar: remover o exame e incluir de novo). O dashboard não oferece troca de prioridade no adendo.
 - **A34 — Prestador simulado e reagendamento:** prestador `simulated` com `fake_lab` desligado → 422 `provider_not_enabled_for_exam` (agendar, autorizar). A unidade pode trocar o prestador ao reagendar; no portal, o prestador não troca (A12).
 - **A35 — Quem agiu no portal fica na trilha:** evento feito pelo portal grava `actor_provider_id` **e** `actor_user_id` (o funcionário do laboratório); o check passa a ser "pelo menos um ator, ou nenhum para `system`". Pela entrada FHIR, só `actor_provider_id`. `<exam_event>.actor` continua `{ "type": "provider", "name": <prestador> }` para quem lê na unidade; a pessoa aparece só na trilha (consulta administrativa), nunca para o cidadão. Sem `Platform.audit` (dado da cidade fica no banco da cidade).
+- **A36 — Reenvio, correção e código na entrada FHIR (§7):**
+  - `identifier` repetido do mesmo prestador, mesma guia e `status: final` → 200 com o mesmo `result_id` (idempotência).
+  - `identifier` repetido para outra guia → 409 `identifier_conflict`.
+  - `status: amended` → 422 `amendment_not_supported` (sem fluxo de retificação no 21a; o laboratório fala com a unidade). Primeiro envio só com `final`.
+  - `code` com coding SIGTAP diferente do SIGTAP da guia → 422 `invalid_resource` com `details: ["/code"]`.
+  - `missing_pdf` cobre também PDF acima de 10 MB.
