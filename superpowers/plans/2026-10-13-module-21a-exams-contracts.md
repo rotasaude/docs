@@ -171,3 +171,4 @@ Aprovados pelo usuário: A1 (D1 do api), A8 (D8), A10 (D10), A15 (D15). Os demai
 - **A27 — Trilha do laudo:** o download por `/exams/files/<token>` de um PDF de resultado grava `clinical_record.viewed` com `access: exam_result` (§12); a guia da recepção não grava.
 - **A28 — Ator do evento:** `<exam_event>.actor` = `{ "type": "user" | "provider" | "system", "name": string | null }`; `system` (job diário) vem com `name: null` (complementa A16). O dashboard aceita os três.
 - **A29 — `result` do cidadão:** a A23 vale para a lista e para a linha do tempo (A24); a D9 do plano do api fica superada.
+- **A30 — Erros do catálogo (§5):** além de `sigtap_unknown`, `duplicate_sigtap` e `invalid_deadline`, 422 `invalid_policy`, `invalid_result_fields`, `invalid_active` e `invalid_requires_authorization`.
