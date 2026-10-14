@@ -172,3 +172,5 @@ Aprovados pelo usuário: A1 (D1 do api), A8 (D8), A10 (D10), A15 (D15). Os demai
 - **A28 — Ator do evento:** `<exam_event>.actor` = `{ "type": "user" | "provider" | "system", "name": string | null }`; `system` (job diário) vem com `name: null` (complementa A16). O dashboard aceita os três.
 - **A29 — `result` do cidadão:** a A23 vale para a lista e para a linha do tempo (A24); a D9 do plano do api fica superada.
 - **A30 — Erros do catálogo (§5):** além de `sigtap_unknown`, `duplicate_sigtap` e `invalid_deadline`, 422 `invalid_policy`, `invalid_result_fields`, `invalid_active` e `invalid_requires_authorization`.
+- **A31 — Escalonamento por motivo:** no máximo um `escalated` por motivo e por pedido. Exame já escalado por `overdue` que recebe resultado crítico ganha também `escalated` com `reason: critical`; a fila da equipe mostra o crítico. `escalated_at` guarda o primeiro.
+- **A32 — Motivo na visão administrativa:** o `reason` de `denied` e `cancelled` aparece na visão administrativa (regulador, recepção, unidade) e na clínica; o motivo de `escalated` e o da ciência pela equipe só na clínica. O cidadão continua sem motivo algum.
