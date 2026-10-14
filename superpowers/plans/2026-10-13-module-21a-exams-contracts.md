@@ -183,3 +183,5 @@ Aprovados pelo usuário: A1 (D1 do api), A8 (D8), A10 (D10), A15 (D15). Os demai
   - `status: amended` → 422 `amendment_not_supported` (sem fluxo de retificação no 21a; o laboratório fala com a unidade). Primeiro envio só com `final`.
   - `code` com coding SIGTAP diferente do SIGTAP da guia → 422 `invalid_resource` com `details: ["/code"]`.
   - `missing_pdf` cobre também PDF acima de 10 MB.
+- **A37 — `never_citizen` só depois da ciência:** o cidadão vê "Retire o resultado na sua unidade" (`pickup_at_unit: true`) só a partir de `acknowledged`; antes, o rótulo da etapa anterior, como em `after_acknowledgement`. Resultado externo `never_citizen` nasce com ciência e mostra o aviso.
+- **A38 — Resultado externo sem unidade:** qualquer unidade da cidade pode registrar (o corpo do §3 não traz `unit_id`); o paciente é da cidade, não da unidade.
