@@ -153,4 +153,6 @@ Aceitos pelo coordenador; prevalecem sobre as seções acima. Detalhe nas seçõ
 - **B22 — HL7, detalhes do perfil:** `SPM-4` (tipo do espécime, obrigatório na v2.5.1) vem do `material` da versão do exame (código e texto); `ERR` é repetível no `ACK` e no `RSP^K11` (um por recusa); o `RSP^K11` usa o grupo `ORC`/`OBR` definido no perfil `lab/hl7-v2-profile.md` (não `RDF`/`RDT`).
 - **B23 — Etiqueta:** nome que não cabe é cortado com reticências; o código de barras e o número nunca são cortados.
 - **B24 — `exam-order-v1` continua MINOR:** os campos novos da v1.1 (`gal_requisition` e os da substituição) entram **opcionais** no esquema (fora de `required`, aceitando `null`), o que mantém a tag `exams-v1.1.0` sem quebrar documento antigo; o api sempre envia as chaves. Mesmo critério do `clinical-v1.1.0` (19c).
-- **B25 — `SPM-4` na leitura:** o Rota Saúde escreve `material^material^99RSL` e não recusa `OUL^R22` sem `SPM-4` (a amostra é identificada por `SPM-2`).
+- **B25 — `SPM-4` na leitura:** o Rota Saúde escreve `material_key^rótulo^99RSL` (código local; sem a tabela HL7 0487) e não recusa `OUL^R22` sem `SPM-4` (a amostra é identificada por `SPM-2`).
+- **B26 — Todas as recusas:** a leitura de `OUL^R22` confere a mensagem inteira e devolve um `ERR` por recusa (não para na primeira); a mensagem continua entrando inteira ou nada (B10).
+- **B27 — Limite crítico inclusivo:** valor igual a `critical_low` ou `critical_high` é crítico (`<=`/`>=`). O mesmo vale para a faixa de referência: valor igual a `low`/`high` é normal (limites da faixa pertencem a ela).
