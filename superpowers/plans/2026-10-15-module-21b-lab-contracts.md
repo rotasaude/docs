@@ -152,3 +152,5 @@ Aceitos pelo coordenador; prevalecem sobre as seções acima. Detalhe nas seçõ
 **Execução (provas técnicas, 2026-10-15)**
 - **B22 — HL7, detalhes do perfil:** `SPM-4` (tipo do espécime, obrigatório na v2.5.1) vem do `material` da versão do exame (código e texto); `ERR` é repetível no `ACK` e no `RSP^K11` (um por recusa); o `RSP^K11` usa o grupo `ORC`/`OBR` definido no perfil `lab/hl7-v2-profile.md` (não `RDF`/`RDT`).
 - **B23 — Etiqueta:** nome que não cabe é cortado com reticências; o código de barras e o número nunca são cortados.
+- **B24 — `exam-order-v1` continua MINOR:** os campos novos da v1.1 (`gal_requisition` e os da substituição) entram **opcionais** no esquema (fora de `required`, aceitando `null`), o que mantém a tag `exams-v1.1.0` sem quebrar documento antigo; o api sempre envia as chaves. Mesmo critério do `clinical-v1.1.0` (19c).
+- **B25 — `SPM-4` na leitura:** o Rota Saúde escreve `material^material^99RSL` e não recusa `OUL^R22` sem `SPM-4` (a amostra é identificada por `SPM-2`).
