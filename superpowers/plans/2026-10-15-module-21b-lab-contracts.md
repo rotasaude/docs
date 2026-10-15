@@ -148,3 +148,7 @@ Aceitos pelo coordenador; prevalecem sobre as seções acima. Detalhe nas seçõ
 - **B19 — Eventos a mais:** `lab_sample.label_printed`, `lab_requisition.delivered`, `lab_report.withdrawn`, `lab_exam.version_created`, `lab_releaser.assigned`/`.ended`, `lab_middleware.token_rotated`/`.token_revoked`, `exam_order.gal_registered`; plataforma `lab.template_changed` e `maintenance.lab_template.changed` (R18).
 - **B20 — `contracts`:** além de `lab-v1.0.0`, `exams/exam-order-v1.json` v1.1 (`lab_reception`, `lab`, substituição) com tag `exams-v1.1.0`.
 - **B21 — Dev:** api `api-dev` com servidor do worktree na 3042 (`exec -d -w /rails/.claude/mod21b`); contas `tecnica-lab@curitiba.demo` (`lab_staff`), `biomedica@curitiba.demo` (RT, CRBM), `patologista@curitiba.demo` (CRM, substituto, só ICP — certificado do PSC simulado vinculado no navegador), senha `dev-password` e TOTP fixo; "Laboratório Municipal Central"; UBS Jardim das Flores coleta, UBS Vila Esperança não.
+
+**Execução (provas técnicas, 2026-10-15)**
+- **B22 — HL7, detalhes do perfil:** `SPM-4` (tipo do espécime, obrigatório na v2.5.1) vem do `material` da versão do exame (código e texto); `ERR` é repetível no `ACK` e no `RSP^K11` (um por recusa); o `RSP^K11` usa o grupo `ORC`/`OBR` definido no perfil `lab/hl7-v2-profile.md` (não `RDF`/`RDT`).
+- **B23 — Etiqueta:** nome que não cabe é cortado com reticências; o código de barras e o número nunca são cortados.
