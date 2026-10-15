@@ -1,6 +1,6 @@
 # Módulo 21 — Exames e laboratório
 
-- **Estado:** 21a Entregue (F-21.1 a F-21.13 provadas no navegador e `Verified` em 2026-10-14; `Fechado` depois dos gates de go-live: primeiro laboratório real na entrada FHIR e botão no PEC real, rotasaude/api#64); 21b Stub
+- **Estado:** 21a Entregue (F-21.1 a F-21.13 provadas no navegador e `Verified` em 2026-10-14; `Fechado` depois dos gates de go-live: primeiro laboratório real na entrada FHIR e botão no PEC real, rotasaude/api#64); 21b Planejado (ADR 0037); 21c Stub
 - **Tipo:** Ciclo 2
 
 ## Escopo
@@ -14,9 +14,15 @@ Dois subprojetos:
   catálogo, padrão) e alerta de atraso; resultado externo; "Meus exames" no
   wpda com laudo por política do exame; relatório de conferência por
   prestador; exames na linha do tempo.
-- **21b — laboratório municipal** (coleta com etiqueta, mapa de trabalho,
-  digitação e liberação de laudo), lacuna dos editais. Brainstorm próprio depois
-  do 21a.
+- **21b — laboratório municipal, fluxo analítico** (ADR 0037): o 21a é a fonte
+  única do exame; catálogo-base da plataforma com versões por laboratório;
+  requisição, etiqueta Code 128, coleta na UBS (com remessa) ou no laboratório,
+  recebimento com rejeição e recoleta; mapa de trabalho; digitação e entrada HL7
+  v2.5.1 do middleware do fornecedor do reagente; liberação por `lab_releaser`
+  com ICP ou assinatura avançada (médico só ICP); laudo da RDC 978; valores
+  críticos; retificação; produção; registro do GAL.
+- **21c — qualidade e insumos** (controle de qualidade interno e estoque de
+  reagentes). Brainstorm próprio depois do 21b.
 
 **Fora, por enquanto:** regulação completa (módulo 26); BPA-I; HL7 v2; REL/RELC
 na RNDS; GAL; DICOM; aviso por SMS ou e-mail.
@@ -25,6 +31,7 @@ na RNDS; GAL; DICOM; aviso por SMS ou e-mail.
 
 | ADR | Papel no módulo |
 |---|---|
+| 0037 | Laboratório municipal: catálogo com versões, amostras, HL7, liberação e laudo |
 | 0036 | Exame com ciclo de vida, regulação simples, prestador, FHIR na borda, prazos, ciência, política de liberação |
 | 0031 | Regras de leitura e trilha |
 | 0035 | Linha do tempo e ponte com o PEC |
@@ -47,6 +54,17 @@ na RNDS; GAL; DICOM; aviso por SMS ou e-mail.
 | F-21.11 | Solicitar exames pelo PEC | api, dashboard | 0036, 0035 |
 | F-21.12 | Relatório de conferência por prestador | api, dashboard | 0036 |
 | F-21.13 | Exames na linha do tempo (fecha api#71 para exames) | api | 0036, 0035 |
+| F-21.14 | Interruptores e catálogo-base do laboratório | api, maintenance | 0037, 0028 |
+| F-21.15 | Catálogo do laboratório com versões | api, dashboard | 0037 |
+| F-21.16 | Requisição, etiqueta e coleta | api, dashboard | 0037, 0036 |
+| F-21.17 | Remessa da UBS e recebimento com rejeição | api, dashboard | 0037 |
+| F-21.18 | Mapa de trabalho e digitação | api, dashboard | 0037 |
+| F-21.19 | Entrada HL7 e middleware simulado | api, contracts | 0037 |
+| F-21.20 | Liberação com assinatura e laudo | api, dashboard | 0037, 0032, 0033 |
+| F-21.21 | Valores críticos | api, dashboard | 0037 |
+| F-21.22 | Retificação de laudo do laboratório municipal (parte de api#85) | api, dashboard | 0037, 0036 |
+| F-21.23 | Relatórios de produção, rejeição e prazo | api, dashboard | 0037 |
+| F-21.24 | Registro do GAL | api, dashboard | 0037, 0036 |
 
 ## Critério de fechamento (21a)
 
@@ -131,3 +149,8 @@ Módulos 19 (pedido de exame) e 20 (linha do tempo, ponte com o PEC).
 - 2026-10-14 — rotasaude/api#84 resolvido (api `0e81173`): exame conta como
   documento clínico na exclusão LGPD; a reconferência também passou a olhar
   documentos do 19c.
+- 2026-10-15 — Brainstorm do 21b (pesquisas `pesquisa/2026-10-15-laboratorio-municipal-21b.md`
+  e `pesquisa/2026-10-15-laboratorio-analisadores.md`): objetivo prova de conceito
+  dos editais; dividido em 21b (fluxo analítico, `Planejado`, ADR 0037, spec
+  `superpowers/specs/2026-10-15-module-21b-municipal-lab-design.md`) e 21c
+  (controle de qualidade e estoque, `Stub`).

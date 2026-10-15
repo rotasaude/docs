@@ -227,3 +227,14 @@ F-21.10,Exames do cidadão no wpda,mod-21,api|wpda,"0036,0017",feature
 F-21.11,Solicitar exames pelo PEC,mod-21,api|dashboard,"0036,0035",feature
 F-21.12,Relatório de conferência por prestador,mod-21,api|dashboard,0036,feature
 F-21.13,Exames na linha do tempo,mod-21,api,"0036,0035",feature
+F-21.14,Interruptores e catálogo-base do laboratório,mod-21,api|maintenance,"0037,0028",feature
+F-21.15,Catálogo do laboratório com versões,mod-21,api|dashboard,0037,feature
+F-21.16,"Requisição, etiqueta e coleta",mod-21,api|dashboard,"0037,0036",feature
+F-21.17,Remessa da UBS e recebimento com rejeição,mod-21,api|dashboard,0037,feature
+F-21.18,Mapa de trabalho e digitação,mod-21,api|dashboard,0037,feature
+F-21.19,Entrada HL7 e middleware simulado,mod-21,api|contracts,0037,feature
+F-21.20,Liberação com assinatura e laudo,mod-21,api|dashboard,"0037,0032,0033",feature
+F-21.21,Valores críticos,mod-21,api|dashboard,0037,feature
+F-21.22,Retificação de laudo do laboratório municipal,mod-21,api|dashboard,"0037,0036",feature
+F-21.23,"Relatórios de produção, rejeição e prazo",mod-21,api|dashboard,0037,feature
+F-21.24,Registro do GAL,mod-21,api|dashboard,"0037,0036",feature
