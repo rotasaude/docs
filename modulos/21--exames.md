@@ -95,9 +95,9 @@ do prestador na trilha; regulador vê o CID; `never_citizen` só após a ciênci
 laudo de correção (`amended`) recusado; contador de ciência sem trilha.
 
 **Gates de go-live:** primeiro laboratório real na entrada FHIR (contrato,
-SIGTAP↔LOINC, identificação do paciente); botão no PEC real (rotasaude/api#64);
-LGPD — exames na exclusão (ADR 0026) antes de ligar `exam_tracking` numa cidade
-real.
+SIGTAP↔LOINC, identificação do paciente); botão no PEC real (rotasaude/api#64).
+LGPD — exames na exclusão (ADR 0026, rotasaude/api#84): resolvido em api
+`0e81173` (exame retém a exclusão; reconferência na confirmação com a mesma regra).
 
 ## Integrações externas
 
@@ -128,3 +128,6 @@ Módulos 19 (pedido de exame) e 20 (linha do tempo, ponte com o PEC).
   `superpowers/specs/2026-10-13-module-21a-exam-tracking-design.md`, ADR 0036).
 - 2026-10-14 — **21a implementado, publicado e Entregue** (13 cards `Verified`;
   ver "Entrega do 21a"). `Fechado` depois dos gates de go-live.
+- 2026-10-14 — rotasaude/api#84 resolvido (api `0e81173`): exame conta como
+  documento clínico na exclusão LGPD; a reconferência também passou a olhar
+  documentos do 19c.
