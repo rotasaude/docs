@@ -117,3 +117,34 @@ JSON canônico assinado/com hash: laboratório (`name`, `cnes`, `address`, `phon
 1. `contracts` — `lab/hl7-v2-profile.md`, `lab/lab-report-v1.json`, exemplos; tag `lab-v1.0.0`.
 2. `api` (porta de dev 3042; migrações de cidade e plataforma a partir de 20261015900001; worktree `.claude/mod21b`, branch `feat/mod-21b-lab`, bancos `_mod21b`).
 3. `dashboard` (Vite 5194; worktree em `rota-saude/.worktrees/dashboard-mod21b`). 4. `maintenance`. 5. catálogo público. O wpda não muda.
+
+## 14. Acréscimos (revisão dos planos, 2026-10-15)
+
+Aceitos pelo coordenador; prevalecem sobre as seções acima. Detalhe nas seções finais de cada plano (`2026-10-15-module-21b-lab-{api,dashboard,maintenance}.md`).
+
+**maintenance (M1–M7)**
+- **B1 — SDL do catálogo-base:** tipos `LabExamTemplate`, `LabAnalyteTemplate`, `LabReferenceRange`, `LabReferenceRangeInput`; `upsertLabExamTemplate` / `upsertLabAnalyteTemplate` com `id` nulo para criar; payload `{ ok, errors }`; sem step-up; sem exclusão (`active: false`). O texto exato está no plano do maintenance e o api o reproduz (teste de comparação).
+- **B2 — Códigos:** `missing` `municipal_lab_disabled`, `lab_hl7_inbound_disabled`; setores `biochemistry` | `hematology` | `immunology` | `urinalysis` | `parasitology` | `microbiology`; `UserError` `sigtap_unknown`, `duplicate_sigtap`, `invalid_sector`, `blank`, `duplicate_analyte_key`, `invalid_analyte_key`, `invalid_value_type`, `choices_required`, `invalid_reference_ranges`, `invalid_loinc`, `invalid_decimals`, `not_found`.
+- **B3 — Faixas:** `age_min_days`/`age_max_days` obrigatórios (0 a 43800 = sem limite); `low`/`high` nulos = sem limite daquele lado. Vale também para as versões da cidade (o dashboard não aceita idade nula).
+- **B4 — Aviso de middleware simulado** na aba de interruptores (como A25 do 21a).
+
+**dashboard (D1–D20) — adotadas pelo api**
+- **B5 — Rotas de apoio:** `GET /lab/context`; `GET /lab/exams?provider_id=`; `GET /lab/shipments` e `<lab_shipment>`; `GET /lab/entry?item_id=|barcode=&sigtap_code=` (com faixa resolvida; grava trilha); `GET /lab/releases/:id`; `GET /lab/criticals/unnotified/count` (sem trilha, molde da A46); `PATCH /lab/admin/exams/:id`; CSV nos três relatórios; `GET /lab/rejection_reasons` (com `provider_id`) para `lab_staff`; `POST /exams/orders/:id/gal_requisition` (409 `gal_already_registered`; `lab_staff` também registra).
+- **B6 — Formas e regras:** `candidate_orders`, `{ sample, recollection }` no recebimento, `recollections` + `not_received`, mapa em `groups`, fila de liberação e críticos (sem valor no contador), relatórios (`sigtap_value_cents` = quantidade × valor unitário; 0 sem valor na SIGTAP) como no plano do dashboard; `patient_lookup` aceita `lab_staff`; adotar cria a v1 copiada do template; `POST /lab/results` aceita item já liberado (valor para retificação); erros de remessa com `barcode`; `reason_required`, `restriction_note_required`, `unit_does_not_collect`.
+- **B7 — Conselho do módulo 10:** usa `council`, `council_state`, `registration_number` do perfil profissional (no lugar de `council_uf`/`council_number`); `lab_releaser` pode ter perfil sem `health_professional`.
+- **B8 — Substituição no 21a:** `exam_result.replaces_result_id`; vigente = o não substituído; `superseded_results`/`superseded_at` só na visão clínica; evento `exam_order.result_rectified`. Sem UPDATE.
+- **B9 — Prestadores:** `uses_municipal_lab` e `has_middleware_token` em `/exams/admin/providers`; `collects_samples` na rota real de unidades (`POST`).
+
+**api (P1–P21)**
+- **B10 — HL7:** nosso código de erro em `ERR-5` (`ERR-3` é a tabela 0357); `OBX-3` = `analyte_key^nome^99RSL`, exame em `OBR-4`; `RSP^K11` sem `PID`, `QAK-2` `NF` sem pendência; `OML^O33` fora desta entrega. Bruto uma vez por mensagem aceita (`lab_hl7_receipts`, cifrado); mensagem entra inteira ou nada. HTTP 401 sem token ou desconhecido; `AR` token revogado; 403 `lab_hl7_inbound` desligado; `AR feature_disabled` token simulado com `fake_middleware` desligado; 413 acima de 1 MB.
+- **B11 — Quem atua:** `lab_staff` vale para todo laboratório municipal da cidade; `lab_releaser` só no laboratório da ligação.
+- **B12 — Recoleta e cancelamento:** o 21a aceita `scheduled` a partir de `collected` só pelo laboratório; pedido em papel de exame que exige autorização → `order_not_eligible`; cancelar exame cancela item pendente; item digitado → 409; unidade e portal recusam resultado de prestador `uses_municipal_lab`.
+- **B13 — Laudo:** itens em `lab_report_items`; PDF em `exam_files` (cópia por `exam_result`); conteúdo congelado e cifrado; situação nova `withdrawn` (o sistema devolve pedido ICP quando `digital_signature` é desligado — o dashboard trata `withdrawn`); `lab-report-v1` com `key` e `support_laboratory`; endereço e telefone do prestador obrigatórios (art. 167, II).
+- **B14 — Erros da liberação:** `invalid_signature`, `laboratory_incomplete`, `technical_lead_missing`, `signature_unavailable` (médico em cidade sem `digital_signature` utilizável).
+- **B15 — Pendências de assinatura:** laudo ICP aparece em `GET /signature/requests` (rota real, não `/signature/pending`) como `lab_report`; `canSign` vale para `lab_releaser`; "voltar ao papel" → 422 `not_applicable`.
+- **B16 — Números:** requisição com 8 dígitos; código de barras = número + 2 dígitos; digitação pela etiqueta exige `sigtap_code`; lista de requisições pela UBS exige `origin_unit_id` (422 `filter_required`).
+- **B17 — Valor SIGTAP:** `sigtap_procedures.amount_sa_cents` (plataforma); significado de `VL_SA` a conferir no layout oficial (Task 3).
+- **B18 — `/v` do laudo:** `kind: "lab_report"`, `pdf_sha256`, nenhum PDF público.
+- **B19 — Eventos a mais:** `lab_sample.label_printed`, `lab_requisition.delivered`, `lab_report.withdrawn`, `lab_exam.version_created`, `lab_releaser.assigned`/`.ended`, `lab_middleware.token_rotated`/`.token_revoked`, `exam_order.gal_registered`; plataforma `lab.template_changed` e `maintenance.lab_template.changed` (R18).
+- **B20 — `contracts`:** além de `lab-v1.0.0`, `exams/exam-order-v1.json` v1.1 (`lab_reception`, `lab`, substituição) com tag `exams-v1.1.0`.
+- **B21 — Dev:** api `api-dev` com servidor do worktree na 3042 (`exec -d -w /rails/.claude/mod21b`); contas `tecnica-lab@curitiba.demo` (`lab_staff`), `biomedica@curitiba.demo` (RT, CRBM), `patologista@curitiba.demo` (CRM, substituto, só ICP — certificado do PSC simulado vinculado no navegador), senha `dev-password` e TOTP fixo; "Laboratório Municipal Central"; UBS Jardim das Flores coleta, UBS Vila Esperança não.
