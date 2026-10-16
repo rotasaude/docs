@@ -172,3 +172,4 @@ Aceitos pelo coordenador; prevalecem sobre as seções acima. Detalhe nas seçõ
 - **B41 — Gem nova:** `barby` 0.7.0 no `Gemfile` do api; a imagem do api precisa ser reconstruída no deploy (runbook).
 - **B42 — Itens do laudo:** `<lab_report_summary>` ganha `item_ids` (itens da requisição cobertos pelo laudo, de `lab_report_items`); a retificação usa esses itens como padrão.
 - **B43 — Recoletas:** `/lab/recollections` só para a UBS de origem, `lab_staff` e admin (não para `lab_releaser`, pois traz o nome do paciente); lista só o que falta coletar; rejeitar amostra sem item pendente não cria recoleta.
+- **B44 — Guarda da mensagem HL7 bruta (decisão do usuário):** `lab_hl7_receipts.raw` é guardado por 5 anos a partir da mensagem aceita e depois purgado para `NULL` por job diário (`EachCityJob`); o recibo permanece. O job é pendência própria (board #2), fora desta entrega.
