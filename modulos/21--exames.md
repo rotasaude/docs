@@ -1,6 +1,6 @@
 # Módulo 21 — Exames e laboratório
 
-- **Estado:** 21a Entregue (F-21.1 a F-21.13 provadas no navegador e `Verified` em 2026-10-14; `Fechado` depois dos gates de go-live: primeiro laboratório real na entrada FHIR e botão no PEC real, rotasaude/api#64); 21b Planejado (ADR 0037); 21c Stub
+- **Estado:** 21a Entregue (F-21.1 a F-21.13 provadas no navegador e `Verified` em 2026-10-14; `Fechado` depois dos gates de go-live: primeiro laboratório real na entrada FHIR e botão no PEC real, rotasaude/api#64); 21b Entregue (F-21.14 a F-21.24 provadas no navegador em 2026-10-16; `Fechado` depois dos gates: primeiro middleware real, dossiê do art. 106 da RDC 978, certificados ICP dos liberadores médicos); 21c Stub
 - **Tipo:** Ciclo 2
 
 ## Escopo
@@ -117,6 +117,53 @@ SIGTAP↔LOINC, identificação do paciente); botão no PEC real (rotasaude/api#
 LGPD — exames na exclusão (ADR 0026, rotasaude/api#84): resolvido em api
 `0e81173` (exame retém a exclusão; reconferência na confirmação com a mesma regra).
 
+## Entrega do 21b (2026-10-16)
+
+| Repo | Commit | Observação |
+|---|---|---|
+| `contracts` | `a595d5d` | tags `lab-v1.0.0` (perfil HL7, `lab-report-v1`) e `exams-v1.1.0` (`exam-order-v1` com campos opcionais novos) |
+| `api` | `2deea81` | 55 commits sobre `0e81173`; suíte 5982/0 |
+| `dashboard` | `31e24f6` | 48 commits sobre `c56e16e`; 290 arquivos / 3042 testes |
+| `maintenance` | `c3a534d` | 8 commits sobre `068b4a1` |
+| `docs` | `b99c840`, `b43c92d` | provas técnicas e runbook |
+
+Migrações `20261015900001` (plataforma: catálogo-base e valor SIGTAP) e
+`20261015900002` (cidade: tabelas do laboratório, irreversível). Gem nova
+`barby` (imagem do api reconstruída no deploy). Contrato com acréscimos B1–B64
+(`superpowers/plans/2026-10-15-module-21b-lab-contracts.md` §14).
+Runbook [`operacao/rollout-laboratorio-municipal.md`](../operacao/rollout-laboratorio-municipal.md).
+
+**Provas técnicas** ([`pesquisa/2026-10-15-laboratorio-provas-tecnicas.md`](../pesquisa/2026-10-15-laboratorio-provas-tecnicas.md)):
+perfil HL7 v2.5.1 (`QBP^Q11`, `RSP^K11`, `OUL^R22`, `ACK`) conferido contra a
+norma; etiqueta Code 128 de 50 × 25 mm lida pelo `zbarimg` a 203 e 300 dpi.
+
+**Provas no navegador (2026-10-16)**, com o middleware e o PSC simulados:
+requisição e etiqueta; coleta por leitura; remessa com temperatura; recebimento
+com rejeição e recoleta automática; resultados pela HL7 (com crítico e
+repetição) e digitação do hemograma com faixas por sexo; liberação parcial com
+assinatura avançada e com ICP (patologista); crítico sem aviso e registro do
+aviso; retificação; laudo no 21a e no wpda nas três políticas (PDF entregue =
+laudo vigente); conferência pública sem valores; relatórios e CSV; entrega;
+GAL só na visão profissional e administrativa; catálogo-base e interruptores no
+maintenance. Defeitos achados e corrigidos na prova: leitor deslocando botões,
+decimal com ponto, componentes sem nome visível, "Pendentes de assinatura"
+inalcançável para o liberador, lista de pendentes sem atualizar, motivo do
+escalonamento deduzido em vez de gravado.
+
+**Decisões tomadas na execução** (contrato §14): código do espécime local
+derivado do material; todas as recusas HL7 de uma vez, estrutura sempre `AR`;
+limite crítico inclusivo; valor efetivo por linha; marca do prestador vale
+independentemente do interruptor; candidatos entre unidades só por paciente e
+com trilha; crítico liberado nunca sai da fila sem aviso; laudo ICP congelado
+até assinar; liberador encerrado não assina; retificação substitui o laudo
+inteiro; mensagem HL7 bruta guardada 5 anos (rotasaude/api#86); ponto recusado
+em número digitado.
+
+**Gates de go-live:** primeiro middleware real ligado à HL7; dossiê de
+validação do sistema (art. 106 da RDC 978) e aceite da assinatura avançada pela
+VISA; certificados ICP dos liberadores médicos; REL/RELC à RNDS quando o Rota
+Saúde for o LIS (fora do módulo).
+
 ## Integrações externas
 
 v1 (21a) sem integração obrigatória: portal do prestador e entrada FHIR
@@ -154,3 +201,7 @@ Módulos 19 (pedido de exame) e 20 (linha do tempo, ponte com o PEC).
   dos editais; dividido em 21b (fluxo analítico, `Planejado`, ADR 0037, spec
   `superpowers/specs/2026-10-15-module-21b-municipal-lab-design.md`) e 21c
   (controle de qualidade e estoque, `Stub`).
+- 2026-10-16 — **21b implementado, publicado e Entregue** (ver "Entrega do
+  21b"). `Fechado` depois dos gates de go-live. A retificação de laudo do
+  laboratório municipal saiu no 21b; a de prestador externo segue em
+  rotasaude/api#85.
