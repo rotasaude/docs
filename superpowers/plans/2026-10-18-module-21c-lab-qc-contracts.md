@@ -136,3 +136,4 @@ Aceitos pelo coordenador; prevalecem sobre as seções acima. Detalhe nas seçõ
 - **C-E7 — Identificador HL7 do aparelho:** até 50 caracteres, no api e no dashboard.
 - **C-E8 — Consumo sem rendimento:** `tests_opened` pode ser null (item sem `tests_per_package`); a tela mostra "—" e não calcula desvio.
 - **C-E9 — Formato do decimal no api:** `^-?\d{1,9}(\.\d{1,4})?$`; vírgula ou formato malformado → 422 `invalid_value` (substitui a Q15 e o `TYPED` do plano do api).
+- **C-E10 — Código de barras de controle:** `^[A-Za-z0-9._-]{3,30}$`, nunca só 10 dígitos (espaço das amostras, C-Q8); formato inválido → `invalid_barcode`. O perfil HL7 registra esta regra, o limite de C-E7 e o formato de C-E9 antes da tag `lab-v1.1.0`.
