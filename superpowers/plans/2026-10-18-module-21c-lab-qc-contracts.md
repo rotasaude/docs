@@ -125,3 +125,14 @@ Aceitos pelo coordenador; prevalecem sobre as seções acima. Detalhe nas seçõ
 - **C-Q15:** ver "Números" acima.
 
 **Dev:** sem contas novas — `tecnica-lab@`, `biomedica@` (RT), `patologista@` (substituto) e o admin de Curitiba; semente `lib/lab_qc_crew.rb`: aparelhos `BIO-01` (Mindray BS-240) e `HEM-01` (Sysmex XN-350), controle de dois níveis (lote `CQB-2611`, códigos `CQB2611N1`/`CQB2611N2`), 20 corridas aprovadas de glicose e creatinina, estoque com um lote vencendo e um item abaixo do mínimo; `fake-middleware` com uma corrida aprovada por dia e a reprovada 2-2s sob demanda (`run.rb qc reject_2_2s`).
+
+**Execução (pré-voo do api, 2026-10-18)**
+- **C-E1 — Relatório anual do CEQ:** o JSON da rodada sempre traz `annual_report_upload_id` (null sem relatório).
+- **C-E2 — Justificativa das regras (corrige C-16):** `justification_required` só quando a mudança desliga uma regra que estava ligada; religar ou manter não pede.
+- **C-E3 — Ação corretiva:** texto em branco → 422 `invalid_text`; `corrective_action_required` é só o `notice` do 201 do valor (C-Q3), que o dashboard lê e mostra como aviso.
+- **C-E4 — Quem registra a ação corretiva:** qualquer membro do laboratório (`lab_staff`, `lab_releaser`, C-14); o fechamento do bloqueio é automático (C-Q3). Exceção, revisão, regras e aceite de referência continuam só do RT ou substituto.
+- **C-E5 — Período do Levey-Jennings (corrige C-17):** `from`/`to` opcionais, padrão últimos 31 dias; máximo 366 (`invalid_period`).
+- **C-E6 — Lote em uso repetido:** marcar o lote que já está em uso → 200 com o registro atual (nada é criado).
+- **C-E7 — Identificador HL7 do aparelho:** até 50 caracteres, no api e no dashboard.
+- **C-E8 — Consumo sem rendimento:** `tests_opened` pode ser null (item sem `tests_per_package`); a tela mostra "—" e não calcula desvio.
+- **C-E9 — Formato do decimal no api:** `^-?\d{1,9}(\.\d{1,4})?$`; vírgula ou formato malformado → 422 `invalid_value` (substitui a Q15 e o `TYPED` do plano do api).
