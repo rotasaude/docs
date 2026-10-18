@@ -12,7 +12,7 @@
    (`city:migrate:all` — 20261018900001, **irreversível**). A migração:
    - cria as tabelas novas (aparelhos, CIQ, CEQ, estoque, relatório anual do CEQ);
    - acrescenta `lab_exam_versions.lab_instrument_id` e `lab_results.reagent_lot_id`;
-   - acrescenta a coluna nula `purpose` na tabela `exam_files` do 21a (C-E25);
+   - acrescenta a coluna nula `purpose` na tabela `exam_files` do 21a (C-E26);
    - o deploy relê `db/city_triggers.sql` (triggers novos de só-acréscimo e de saldo).
 3. dashboard → 4. maintenance → 5. catálogo público. O wpda não muda.
 
@@ -85,15 +85,20 @@ do go-live** se algum fluxo de paciente manda `Q`.
 ## CEQ
 - Rodada: programa, código, data (não futura) e um item por analito, com ação obrigatória para item inadequado.
 - Relatório anual: um por laboratório, programa e ano, só de acréscimo (repetido → 409 `already_recorded`).
-- O PDF entra **só** por `POST /lab/eqa/uploads` (C-E24/C-E25). Upload de outra origem (laudo, guia) → 422
+- O PDF entra **só** por `POST /lab/eqa/uploads` (C-E24; propósito do arquivo em C-E25/C-E26). Upload de outra origem (laudo, guia) → 422
   `invalid_file`. Depois `POST /lab/eqa/annual_reports`; leitura em `GET /lab/eqa/annual_reports/:id/pdf`, sem trilha.
 - Rodada ou relatório de outro laboratório → 404.
 
 ## Estoque
-- Movimentos só de acréscimo (entrada, abertura, ajuste, baixa). O saldo nunca fica negativo
-  (422 `insufficient_balance`). Não há exclusão.
+- Movimentos só de acréscimo, com estes tipos: `receipt` (entrada, só pela entrada de lote), `opening` (abertura
+  de kit), `loss` (perda), `expiry` (vencido descartado) e `adjustment` (ajuste, com sinal, só admin). Fora `opening`,
+  todo movimento pede motivo (`reason_required`; acima de 1000 → `invalid_reason`). O saldo nunca fica negativo
+  (`insufficient_balance`). Não há exclusão.
 - Entrada com mesmo número e mesma validade soma no lote existente; outra validade → `duplicate_lot`.
-- Alertas: vencendo, vencido, abaixo do mínimo (conta só lotes **não vencidos**, C-E28) e resultado sem rastreio.
+- Alertas (`GET /lab/inventory/alerts`), três chaves: `expiring` (lotes com saldo que vencem dentro do
+  `expiry_alert_days` do item, ou já vencidos), `below_minimum` (itens ativos abaixo do mínimo; conta só lotes
+  **não vencidos**, C-E28) e `untraced_results` (contagem de resultados medidos dos últimos 30 dias, de exame com
+  aparelho, sem lote de reagente).
   O contador `GET /lab/inventory/alerts` não grava trilha.
 - Lote em uso: um por aparelho e exame. Marcar de novo o mesmo lote → 200, nada criado. O lote em uso é lido uma
   vez por chamada e anotado no resultado (valor calculado herda o lote só se as medidas têm o mesmo lote, C-E30).
@@ -120,11 +125,14 @@ do go-live** se algum fluxo de paciente manda `Q`.
 - Nenhum valor de controle nem justificativa no log do dia (`grep` do valor de teste).
 
 ## Conhecido (Ciclo 1)
-- Listas do CIQ e do estoque cortam sem paginação (ex.: exceções em 500, listas em 200); acompanhe em cidade grande.
+- Listas cortam sem paginação: bloqueios 200, rodadas do CEQ 200, relatórios anuais do CEQ 200, exceções 500,
+  revisões 500; o gráfico de Levey-Jennings traz os últimos 200 pontos. Lotes, materiais e corridas não têm corte.
+  Acompanhe em cidade grande.
 - Todas as listas do 21c exigem `provider_id`; não há laboratório único implícito.
 - A semente de dev, ao rodar de novo, re-seleciona o lote em uso da semente; não use re-run para testar troca de lote.
   A semente não cria CEQ, exceção, bloqueio nem consumo.
-- CSV truncado do rastreio traz duas linhas finais `results_truncated` e `qc_values_truncated` (fora do contrato).
+- CSV do rastreio traz duas linhas finais `results_truncated` e `qc_values_truncated` (`true`/`false`). Esse formato
+  não está no texto do contrato (C-E37 só fala dos booleanos).
 - `last_qc_on` do simulado vive em memória: reiniciar o simulado no mesmo dia soma corridas do mesmo sinal
   (cerca de 10 disparam 10x).
 
