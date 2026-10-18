@@ -165,3 +165,10 @@ Aceitos pelo coordenador; prevalecem sobre as seções acima. Detalhe nas seçõ
 - **C-E36 — 404 em todo o CIQ por id:** leituras e ações por id de registro de outro laboratório no CIQ → 404 (C-E26); lista e criação com `provider_id` de outro laboratório → 403.
 - **C-E37 — Rastreio truncado:** o rastreio por lote limita a 5000 linhas por lista e informa `results_truncated` e `qc_values_truncated` (booleanos) no JSON e no CSV; a tela avisa quando houver corte.
 - **C-E38 — `Q` sem CIQ:** `SPM-11 = Q` com código de paciente → `AE unknown_barcode` mesmo com `lab_quality_control` desligado (o controle nunca vira paciente); abrir corrida em aparelho inativo é recusado.
+
+**Execução (pré-voo do dashboard, 2026-10-19)**
+- **C-E39 — Step-up nas escritas sensíveis:** exigem step-up (TOTP) as escritas de material de controle, lote de controle, referência (criar e aceitar sugestão), regras, exceção, revisão, CEQ (rodada, upload e relatório anual), item de estoque e ajuste de inventário. Entradas de lote de reagente, aberturas, perdas, lote em uso, valores de controle e ação corretiva não exigem.
+- **C-E40 — `year` nas leituras do CEQ:** `year` malformado em `summary`, `rounds` e `annual_reports` → 422 `invalid_year` (como no corpo, C-E29).
+- **C-E41 — Quem lê:** Levey-Jennings: `lab_releaser`, RT/substituto e admin (não `lab_staff`, C-Q16). Rastreio por lote e consumo estimado: qualquer membro do laboratório e admin (a técnica rastreia lote num recall).
+- **C-E42 — Material com lotes:** material que já tem lote não muda níveis nem remove analitos (422 `invalid_analytes`); acrescentar analito é permitido.
+- **C-E43 — Aparelho inativo na versão do exame:** versão com aparelho inativo → 422 `invalid_version`; a tela não oferece aparelho inativo.
