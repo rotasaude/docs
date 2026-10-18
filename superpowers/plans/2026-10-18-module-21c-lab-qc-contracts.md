@@ -172,3 +172,4 @@ Aceitos pelo coordenador; prevalecem sobre as seções acima. Detalhe nas seçõ
 - **C-E41 — Quem lê:** Levey-Jennings: `lab_releaser`, RT/substituto e admin (não `lab_staff`, C-Q16). Rastreio por lote e consumo estimado: qualquer membro do laboratório e admin (a técnica rastreia lote num recall).
 - **C-E42 — Material com lotes:** material que já tem lote não muda níveis nem remove analitos (422 `invalid_analytes`); acrescentar analito é permitido.
 - **C-E43 — Aparelho inativo na versão do exame:** versão com aparelho inativo → 422 `invalid_version`; a tela não oferece aparelho inativo.
+- **C-E44 — Aparelho preservado na nova versão:** em `POST /lab/admin/exams/:id/versions`, chave `lab_instrument_id` **ausente** mantém o aparelho da versão vigente; `null` explícito desvincula. Assim, com CIQ e estoque desligados (tela sem o campo), uma nova versão não perde o aparelho e o bloqueio do CIQ continua valendo quando os interruptores voltarem.
