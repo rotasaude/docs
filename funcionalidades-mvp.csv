@@ -238,3 +238,13 @@ F-21.21,Valores críticos,mod-21,api|dashboard,0037,feature
 F-21.22,Retificação de laudo do laboratório municipal,mod-21,api|dashboard,"0037,0036",feature
 F-21.23,"Relatórios de produção, rejeição e prazo",mod-21,api|dashboard,0037,feature
 F-21.24,Registro do GAL,mod-21,api|dashboard,"0037,0036",feature
+F-21.25,Interruptores e aparelhos do laboratório,mod-21,api|dashboard|maintenance,"0038,0028",feature
+F-21.26,"Materiais, lotes e referências de controle",mod-21,api|dashboard,0038,feature
+F-21.27,Corridas de CIQ e regras de Westgard,mod-21,api|dashboard,0038,feature
+F-21.28,Controle pela HL7,mod-21,api|contracts,"0038,0037",feature
+F-21.29,"Bloqueio da liberação, exceção do RT e revisão",mod-21,api|dashboard,"0038,0037",feature
+F-21.30,Gráfico de Levey-Jennings,mod-21,dashboard,0038,feature
+F-21.31,Registro do CEQ,mod-21,api|dashboard,0038,feature
+F-21.32,Estoque de reagentes e insumos com lotes,mod-21,api|dashboard,0038,feature
+F-21.33,Lote em uso e rastreabilidade do reagente,mod-21,api|dashboard,0038,feature
+F-21.34,Relatório de consumo estimado,mod-21,api|dashboard,0038,feature

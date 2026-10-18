@@ -1,6 +1,6 @@
 # Módulo 21 — Exames e laboratório
 
-- **Estado:** 21a Entregue (F-21.1 a F-21.13 provadas no navegador e `Verified` em 2026-10-14; `Fechado` depois dos gates de go-live: primeiro laboratório real na entrada FHIR e botão no PEC real, rotasaude/api#64); 21b Entregue (F-21.14 a F-21.24 provadas no navegador em 2026-10-16; `Fechado` depois dos gates: primeiro middleware real, dossiê do art. 106 da RDC 978, certificados ICP dos liberadores médicos); 21c Stub
+- **Estado:** 21a Entregue (F-21.1 a F-21.13 provadas no navegador e `Verified` em 2026-10-14; `Fechado` depois dos gates de go-live: primeiro laboratório real na entrada FHIR e botão no PEC real, rotasaude/api#64); 21b Entregue (F-21.14 a F-21.24 provadas no navegador em 2026-10-16; `Fechado` depois dos gates: primeiro middleware real, dossiê do art. 106 da RDC 978, certificados ICP dos liberadores médicos); 21c Planejado (ADR 0038)
 - **Tipo:** Ciclo 2
 
 ## Escopo
@@ -21,8 +21,12 @@ Dois subprojetos:
   v2.5.1 do middleware do fornecedor do reagente; liberação por `lab_releaser`
   com ICP ou assinatura avançada (médico só ICP); laudo da RDC 978; valores
   críticos; retificação; produção; registro do GAL.
-- **21c — qualidade e insumos** (controle de qualidade interno e estoque de
-  reagentes). Brainstorm próprio depois do 21b.
+- **21c — qualidade e insumos** (ADR 0038): CIQ com lotes, níveis e referência
+  (bula, depois laboratório), valores digitados ou pela HL7, Westgard avaliado
+  na gravação com bloqueio da liberação, exceção do RT e revisão; registro do
+  CEQ; estoque de reagentes e insumos com lotes, lote em uso guardado em cada
+  resultado e controle (rastreio por lote) e consumo estimado sem baixa
+  automática. Importação CSV de controles em rotasaude/api#87.
 
 **Fora, por enquanto:** regulação completa (módulo 26); BPA-I; HL7 v2; REL/RELC
 na RNDS; GAL; DICOM; aviso por SMS ou e-mail.
@@ -31,6 +35,7 @@ na RNDS; GAL; DICOM; aviso por SMS ou e-mail.
 
 | ADR | Papel no módulo |
 |---|---|
+| 0038 | Qualidade e insumos: CIQ, Westgard, bloqueio, CEQ, estoque com lotes e rastreio |
 | 0037 | Laboratório municipal: catálogo com versões, amostras, HL7, liberação e laudo |
 | 0036 | Exame com ciclo de vida, regulação simples, prestador, FHIR na borda, prazos, ciência, política de liberação |
 | 0031 | Regras de leitura e trilha |
@@ -65,6 +70,16 @@ na RNDS; GAL; DICOM; aviso por SMS ou e-mail.
 | F-21.22 | Retificação de laudo do laboratório municipal (parte de api#85) | api, dashboard | 0037, 0036 |
 | F-21.23 | Relatórios de produção, rejeição e prazo | api, dashboard | 0037 |
 | F-21.24 | Registro do GAL | api, dashboard | 0037, 0036 |
+| F-21.25 | Interruptores e aparelhos do laboratório | api, dashboard, maintenance | 0038, 0028 |
+| F-21.26 | Materiais, lotes e referências de controle (bula e laboratório) | api, dashboard | 0038 |
+| F-21.27 | Corridas de CIQ e regras de Westgard | api, dashboard | 0038 |
+| F-21.28 | Controle pela HL7 | api, contracts | 0038, 0037 |
+| F-21.29 | Bloqueio da liberação, exceção do RT e revisão | api, dashboard | 0038, 0037 |
+| F-21.30 | Gráfico de Levey-Jennings | dashboard | 0038 |
+| F-21.31 | Registro do CEQ | api, dashboard | 0038 |
+| F-21.32 | Estoque de reagentes e insumos com lotes | api, dashboard | 0038 |
+| F-21.33 | Lote em uso e rastreabilidade do reagente | api, dashboard | 0038 |
+| F-21.34 | Relatório de consumo estimado | api, dashboard | 0038 |
 
 ## Critério de fechamento (21a)
 
@@ -205,3 +220,7 @@ Módulos 19 (pedido de exame) e 20 (linha do tempo, ponte com o PEC).
   21b"). `Fechado` depois dos gates de go-live. A retificação de laudo do
   laboratório municipal saiu no 21b; a de prestador externo segue em
   rotasaude/api#85.
+- 2026-10-18 — Brainstorm do 21c: CIQ completo com CEQ, estoque com lotes e
+  consumo estimado; `Planejado` (ADR 0038, spec
+  `superpowers/specs/2026-10-18-module-21c-lab-quality-supplies-design.md`).
+  Importação CSV de controles com colunas configuráveis em rotasaude/api#87.
