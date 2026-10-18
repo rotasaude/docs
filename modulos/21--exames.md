@@ -1,6 +1,6 @@
 # Módulo 21 — Exames e laboratório
 
-- **Estado:** 21a Entregue (F-21.1 a F-21.13 provadas no navegador e `Verified` em 2026-10-14; `Fechado` depois dos gates de go-live: primeiro laboratório real na entrada FHIR e botão no PEC real, rotasaude/api#64); 21b Entregue (F-21.14 a F-21.24 provadas no navegador em 2026-10-16; `Fechado` depois dos gates: primeiro middleware real, dossiê do art. 106 da RDC 978, certificados ICP dos liberadores médicos); 21c Planejado (ADR 0038)
+- **Estado:** 21a Entregue (F-21.1 a F-21.13 provadas no navegador e `Verified` em 2026-10-14; `Fechado` depois dos gates de go-live: primeiro laboratório real na entrada FHIR e botão no PEC real, rotasaude/api#64); 21b Entregue (F-21.14 a F-21.24 provadas no navegador em 2026-10-16 e `Verified`; `Fechado` depois dos gates: primeiro middleware real, dossiê do art. 106 da RDC 978, certificados ICP dos liberadores médicos); 21c Planejado (ADR 0038)
 - **Tipo:** Ciclo 2
 
 ## Escopo
@@ -224,3 +224,4 @@ Módulos 19 (pedido de exame) e 20 (linha do tempo, ponte com o PEC).
   consumo estimado; `Planejado` (ADR 0038, spec
   `superpowers/specs/2026-10-18-module-21c-lab-quality-supplies-design.md`).
   Importação CSV de controles com colunas configuráveis em rotasaude/api#87.
+- 2026-10-18 — 21b: F-21.14 a F-21.24 em `Verified`; catálogo público (rotasaude/catalog#28) e página de status publicados.
