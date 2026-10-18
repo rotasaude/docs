@@ -145,3 +145,6 @@ Aceitos pelo coordenador; prevalecem sobre as seções acima. Detalhe nas seçõ
 - **C-E16 — Ação corretiva longa:** acima de 1000 caracteres → 422 `invalid_text`, o mesmo código do texto em branco (C-E3); `invalid_reason` (C-E11) fica para motivos e justificativas.
 - **C-E17 — Data da lista de corridas:** `date` malformada → 422 `invalid_date` (não cai em hoje).
 - **C-E18 — Corrida do dia:** o valor digitado vai para a última corrida do aparelho no dia; se ela estiver `rejected` ou não existir, abre-se uma nova (detalha C-Q5). Assim, depois de uma reprovação, ação corretiva e nova corrida aprovada fecham o bloqueio.
+- **C-E19 — Retificação com analito bloqueado:** a retificação de item já liberado também fica `qc_blocked`, mas o RT ou substituto pode conceder exceção para ela (mesma rota e justificativa); assim um laudo errado pode ser corrigido com valor medido de forma confiável (outro aparelho, repetição validada), com registro.
+- **C-E20 — Nota da revisão:** acima de 1000 caracteres → 422 `invalid_note` (nota é opcional; `invalid_reason` fica para motivos e justificativas obrigatórios).
+- **C-E21 — "Desde quando" da revisão:** o marco é o `started_at` da última corrida aceita (`approved` ou `warning`) daquele aparelho e analito — conservador, nunca deixa liberação de fora.
