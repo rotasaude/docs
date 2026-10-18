@@ -79,3 +79,49 @@ estável.
 1. `contracts` — seção "Controle" no perfil HL7, exemplos; tag `lab-v1.1.0`.
 2. `api` (porta 3043; migrações de cidade a partir de 20261018900001; worktree `.claude/mod21c`, branch `feat/mod-21c-lab-qc`, bancos `_mod21c`).
 3. `dashboard` (Vite 5196; worktree `rota-saude/.worktrees/dashboard-mod21c`). 4. `maintenance`. 5. catálogo público.
+
+## 11. Acréscimos (revisão dos planos, 2026-10-18)
+
+Aceitos pelo coordenador; prevalecem sobre as seções acima. Detalhe nas seções finais de `2026-10-18-module-21c-lab-qc-{api,dashboard,maintenance}.md`.
+
+**Números (corrige o cabeçalho deste contrato).** No JSON, decimais (valor, média, dp, CEQ) são **string com ponto**, como no 21b; `z_score` é número. A recusa do ponto é regra de **entrada nas telas** (o dashboard lê vírgula como decimal e recusa ponto, como na digitação do 21b); o api aceita a string com ponto que o dashboard envia.
+
+**maintenance (M1–M3)**
+- **C-M1:** `lab_quality_control` e `lab_inventory` sem `environments` (todos os ambientes, produção inclusive) e independentes.
+- **C-M2:** o aviso do `fake-middleware` diz que ele manda uma corrida reprovada que abre bloqueio (também em staging).
+- **C-M3:** `missing` reaproveita `municipal_lab_disabled` do 21b.
+
+**dashboard (C1–C17), adotadas pelo api com estes ajustes**
+- **C-1:** `GET /lab/context` ganha `technical_lead_of` (laboratórios onde o usuário é RT ou substituto).
+- **C-2:** listas do 21c filtram por `provider_id` e têm envelope (`{ "<recurso>": [...], "next_before"? }`); `/lab/qc/runs` filtra por `instrument_id`; `/lab/instruments` também para o admin.
+- **C-3:** formas de lote de controle, referências `{ current, history }`, item de revisão (com `requisition_id`), saldos, lote em uso, alertas e resumo do CEQ como no plano do dashboard (o api pode mandar campos a mais).
+- **C-5:** `/lab/exams` com `id` e `analytes`, também para liberador e admin.
+- **C-6:** `reason` obrigatório ao lançar referência que troca a vigente e ao aceitar a sugestão (coluna `reason` na referência).
+- **C-7:** `GET /lab/qc/exceptions` (membros do laboratório, inclusive `lab_staff`).
+- **C-8:** `GET /lab/inventory/movements?lot_id=`.
+- **C-9:** itens do 409 `qc_blocked` trazem `instrument_name`.
+- **C-10:** `<qc_value>` traz `lot_id` e `reagent_lot { id, lot_number }`|null.
+- **C-11:** `GET /lab/qc/blocks/active/count` → `{ "count" }`, sem trilha, para membros do laboratório e admin.
+- **C-12:** `POST /lab/eqa/uploads` e `GET /lab/eqa/rounds/:id/annual_report.pdf` (sem trilha; sem dado de paciente).
+- **C-13:** aparelhos respondem com qualquer dos dois interruptores ligados (403 leva `feature: "lab_quality_control"`); a versão do exame devolve `lab_instrument_id`.
+- **C-14:** `lab_staff` e `lab_releaser` registram a ação corretiva.
+- **C-15:** quantidade de estoque inteira; o api dá o sinal, exceto no ajuste.
+- **C-16:** leitura das regras com `is_default`; `justification_required` só quando alguma regra fica desligada.
+- **C-17:** gráfico exige `from` e `to` (até 366 dias, 422 `invalid_period`); `target` `null` sem referência vigente; eixo em z contra a versão com que cada ponto foi avaliado.
+
+**api (Q1–Q17)**
+- **C-Q1/Q2 — HL7 do controle:** o `SPM-2` (código de barras de nível cadastrado) decide que é controle; `SPM-11` = `Q` recomendado (IHE LAW LAB-28/29); `Q` com código de paciente → `AE` `unknown_barcode` (controle nunca vira paciente); `INV` aceito e ignorado; `SPM-4` pode vir vazio; aparelho pela repetição de `OBX-18` que casa com `hl7_equipment_id` (`EQU` não faz parte do `OUL^R22` 2.5.1). Recusa nova `qc_disabled`. Corrida reprovada responde `AA` (é desfecho do CIQ, não erro da mensagem). Confirmado na Task 0 do api; se as fontes contradisserem, para.
+- **C-Q3 — Fechamento:** corrida aprovada sem ação corretiva registrada grava o valor (201) com `notice: "corrective_action_required"` e o bloqueio continua; fecha só com valores de todos os níveis gravados depois da ação.
+- **C-Q4/Q5/Q6 — Corridas e série:** "aprovada" = `approved` ou `warning`; `run_id` de corrida reprovada → 409; após reprovada a próxima corrida é nova; pela HL7, uma corrida por mensagem e aparelho; a série de Westgard ignora corridas reprovadas; limites estritos (|z| = 2 não dispara 1-2s; = 3 não dispara 1-3s).
+- **C-Q7/Q9 — Versões:** regras guardadas como versões só de acréscimo; o valor guarda o id da referência usada; o aceite da sugestão recalcula no servidor.
+- **C-Q8 — Códigos de barras de controle** em tabela própria; 10 dígitos (espaço das amostras) → `barcode_taken`; formato inválido → `invalid_barcode`.
+- **C-Q10 — Revisão e exceção:** revisão cobre itens liberados desde a última corrida aprovada daquele aparelho e analito; exceção só para item ainda não liberado.
+- **C-Q11 — Eventos a mais:** `lab_qc_block.action_recorded`, `lab_supply_lot.traced`.
+- **C-Q12 — Estoque idempotente:** entrada com mesmo lote e mesma validade soma no lote existente; marcar lote já em uso não faz nada.
+- **C-Q13 — "Teste" no consumo:** resultado, repetição e valor de controle dos exames ligados ao item (definição no plano do api).
+- **C-Q14 — Erros:** a lista de códigos 422 novos do plano do api passa a valer como parte deste contrato.
+- **C-Q16:** Levey-Jennings não abre para `lab_staff` (spec §8).
+- **C-Q17:** CEQ com um item por analito em cada rodada.
+- **C-Q15:** ver "Números" acima.
+
+**Dev:** sem contas novas — `tecnica-lab@`, `biomedica@` (RT), `patologista@` (substituto) e o admin de Curitiba; semente `lib/lab_qc_crew.rb`: aparelhos `BIO-01` (Mindray BS-240) e `HEM-01` (Sysmex XN-350), controle de dois níveis (lote `CQB-2611`, códigos `CQB2611N1`/`CQB2611N2`), 20 corridas aprovadas de glicose e creatinina, estoque com um lote vencendo e um item abaixo do mínimo; `fake-middleware` com uma corrida aprovada por dia e a reprovada 2-2s sob demanda (`run.rb qc reject_2_2s`).
