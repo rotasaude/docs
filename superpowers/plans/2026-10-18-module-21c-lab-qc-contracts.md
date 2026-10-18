@@ -144,3 +144,4 @@ Aceitos pelo coordenador; prevalecem sobre as seções acima. Detalhe nas seçõ
 - **C-E15 — Série entre níveis limitada ao lote (corrige C-E14):** a série entre níveis do 4-1s e do 10x junta só os níveis do **mesmo lote de controle**, no mesmo analito e aparelho; trocar de lote recomeça a série (a referência muda com o lote).
 - **C-E16 — Ação corretiva longa:** acima de 1000 caracteres → 422 `invalid_text`, o mesmo código do texto em branco (C-E3); `invalid_reason` (C-E11) fica para motivos e justificativas.
 - **C-E17 — Data da lista de corridas:** `date` malformada → 422 `invalid_date` (não cai em hoje).
+- **C-E18 — Corrida do dia:** o valor digitado vai para a última corrida do aparelho no dia; se ela estiver `rejected` ou não existir, abre-se uma nova (detalha C-Q5). Assim, depois de uma reprovação, ação corretiva e nova corrida aprovada fecham o bloqueio.
