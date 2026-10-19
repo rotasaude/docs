@@ -117,9 +117,9 @@ Ela fica no host da cidade, sem sessão, fora de `/citizen`, para servir o wpda 
 
 - **Dev:** serviço `minio` no `docker-compose.yml`, com volume nomeado e um bucket criado no boot (`rota-saude-dev`). Credenciais de dev no `.env` de exemplo. O Active Storage usa o serviço `S3` com `endpoint` e `force_path_style: true`.
 - **Teste:** serviço `Disk` (`tmp/storage`). Nenhum spec depende do MinIO.
-- **Staging e produção:** MinIO próprio, com credenciais nas credentials do ambiente. **Gate de go-live:**
+- **Staging e produção:** MinIO próprio, configurado por variáveis de ambiente (`MINIO_ENDPOINT`, `MINIO_BUCKET`, `MINIO_ACCESS_KEY_ID`, `MINIO_SECRET_ACCESS_KEY`), como as senhas de banco. **Gate de go-live:**
   - bucket criado;
-  - credenciais nas credentials;
+  - variáveis de ambiente definidas;
   - backup do bucket;
   - o boot de produção falha se o serviço não estiver configurado. A checagem é de **presença** da configuração, não de conectividade. O job `production-boot` da CI recebe uma configuração fictícia do MinIO para continuar verde (*escolha do autor*).
 - **Gem:** `aws-sdk-s3`.
@@ -253,7 +253,7 @@ Decisão do usuário: a entrega fica **pronta em dev**. Staging e produção dep
 1. **Borda HTTP de staging e produção.** Encaminhar `/city_identity` e `/city_identity/coat_of_arms` ao `api` nos hosts da cidade (dashboard e wpda). A borda não está nestes repositórios: os `nginx.conf` do dashboard e do wpda servem só o próprio app, e `apps/wpda/deploy/production` está vazio.
 2. **MinIO de staging e de produção**, que nascem juntos:
    - bucket;
-   - credenciais nas credentials de cada ambiente;
+   - variáveis de ambiente de cada ambiente;
    - backup do bucket.
 
 ## 11. Coordenação
