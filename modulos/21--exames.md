@@ -1,6 +1,6 @@
 # Módulo 21 — Exames e laboratório
 
-- **Estado:** 21a Entregue (F-21.1 a F-21.13 provadas no navegador e `Verified` em 2026-10-14; `Fechado` depois dos gates de go-live: primeiro laboratório real na entrada FHIR e botão no PEC real, rotasaude/api#64); 21b Entregue (F-21.14 a F-21.24 provadas no navegador em 2026-10-16 e `Verified`; `Fechado` depois dos gates: primeiro middleware real, dossiê do art. 106 da RDC 978, certificados ICP dos liberadores médicos); 21c Planejado (ADR 0038)
+- **Estado:** 21a Entregue (F-21.1 a F-21.13 provadas no navegador e `Verified` em 2026-10-14; `Fechado` depois dos gates de go-live: primeiro laboratório real na entrada FHIR e botão no PEC real, rotasaude/api#64); 21b Entregue (F-21.14 a F-21.24 provadas no navegador em 2026-10-16 e `Verified`; `Fechado` depois dos gates: primeiro middleware real, dossiê do art. 106 da RDC 978, certificados ICP dos liberadores médicos); 21c Entregue (F-21.25 a F-21.34 provadas no navegador e `Verified` em 2026-10-19; `Fechado` depois dos gates: middleware real mandando controles, validação do CIQ pelo RT no dossiê do art. 106)
 - **Tipo:** Ciclo 2
 
 ## Escopo
@@ -179,6 +179,52 @@ validação do sistema (art. 106 da RDC 978) e aceite da assinatura avançada pe
 VISA; certificados ICP dos liberadores médicos; REL/RELC à RNDS quando o Rota
 Saúde for o LIS (fora do módulo).
 
+## Entrega do 21c (2026-10-19)
+
+| Repo | Commit | Observação |
+|---|---|---|
+| `contracts` | `ebd7c76` | tag `lab-v1.1.0` (seção "Controle" do perfil HL7) |
+| `api` | `eb792c2` | suíte completa 6193/0 antes da última correção (C-E44) |
+| `dashboard` | `d9a89fe` | suíte 3279/0 |
+| `maintenance` | `5148825` | 450/450 |
+| `docs` | `13a3877` | provas técnicas e runbook |
+| `catalog` | rotasaude/catalog#29 | F-21.28 "em validação" |
+
+Migração de cidade `20261018900001` (aparelhos, CIQ, CEQ, estoque; `exam_files.purpose`;
+irreversível). Contrato com acréscimos C-M1..3, C-1..17, C-Q1..17 e C-E1..45
+(`superpowers/plans/2026-10-18-module-21c-lab-qc-contracts.md` §11).
+Runbook [`operacao/rollout-qualidade-insumos-laboratorio.md`](../operacao/rollout-qualidade-insumos-laboratorio.md).
+
+**Prova técnica:** HL7 v2.5.1 de controle conferido no IHE PaLM TF Vol. 2b (SPM-11 = Q,
+INV no grupo SAC, aparelho no OBX-18); o código de barras do nível decide o controle.
+
+**Provas no navegador (2026-10-19)**, com o middleware simulado mandando controles:
+aparelhos e versão do exame com aparelho preservado; lote de controle e referência da
+bula; corrida aprovada pela HL7 e digitada; corrida reprovada 2-2s abrindo bloqueio;
+liberação bloqueada, exceção do RT e revisão (manter e retificar, inclusive retificação
+com exceção); ação corretiva e corrida que fecha o bloqueio; Levey-Jennings com troca
+de referência para a do laboratório; regras com justificativa; CEQ com ação e
+relatório anual; estoque (lote vencido, perda maior que o saldo, ajuste só admin,
+alertas); rastreio por lote sem paciente com aviso de corte; consumo com linha "sem
+aparelho"; acesso por papel; interruptores no maintenance.
+
+**Decisões tomadas na execução** (contrato §11): Westgard clássico com 4-1s e 10x
+entre níveis dentro do mesmo lote; corrida do dia; exceção do RT também na
+retificação; laudo ICP pendente entra na revisão; relatório anual do CEQ por programa
+e ano, só com upload do CEQ (`exam_files.purpose`); saldo útil sem lotes vencidos;
+valor calculado herda o lote das medidas; aparelho sempre travado primeiro; versão
+nova mantém o aparelho; `Q` com código de paciente recusado mesmo com o CIQ
+desligado (muda o 21b); step-up só nas escritas sensíveis.
+
+**Pendências abertas no board #2:** rotasaude/api#87 (importação de controles por
+CSV), rotasaude/api#89 (`lab_staff` sem unidades de origem — trava a coleta no posto
+do laboratório; gate antes de ligar `municipal_lab` com essa coleta), rotasaude/dashboard#16
+(mensagem do horário do contato na retificação), rotasaude/api#90 (analitos elegíveis no
+CEQ), rotasaude/api#88 (teste instável do módulo 20, achado na suíte).
+
+**Gates de go-live:** middleware real mandando controles; validação do CIQ pelo RT
+(dossiê do art. 106 da RDC 978); imagem do api reconstruída (gem `barby`).
+
 ## Integrações externas
 
 v1 (21a) sem integração obrigatória: portal do prestador e entrada FHIR
@@ -225,3 +271,6 @@ Módulos 19 (pedido de exame) e 20 (linha do tempo, ponte com o PEC).
   `superpowers/specs/2026-10-18-module-21c-lab-quality-supplies-design.md`).
   Importação CSV de controles com colunas configuráveis em rotasaude/api#87.
 - 2026-10-18 — 21b: F-21.14 a F-21.24 em `Verified`; catálogo público (rotasaude/catalog#28) e página de status publicados.
+- 2026-10-19 — **21c implementado, publicado e Entregue** (F-21.25 a F-21.34 `Verified`;
+  ver "Entrega do 21c"). Com isso os três subprojetos do módulo 21 estão entregues;
+  `Fechado` depois dos gates de go-live de cada um.
