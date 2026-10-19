@@ -254,7 +254,9 @@ Decisão do usuário: a entrega fica **pronta em dev**. Staging e produção dep
 2. **MinIO de staging e de produção**, que nascem juntos:
    - bucket;
    - variáveis de ambiente de cada ambiente;
+   - variáveis `MINIO_*` no deploy do api antes do primeiro deploy com este código (o boot falha sem elas);
    - backup do bucket.
+3. **Limite de corpo na borda** (`client_max_body_size` ≈ 1 MB) para o console e os hosts de cidade: hoje o Rack aceita multipart de qualquer tamanho antes da checagem de 256 KB.
 
 ## 11. Coordenação
 
