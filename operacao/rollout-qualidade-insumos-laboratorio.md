@@ -116,6 +116,8 @@ do go-live** se algum fluxo de paciente manda `Q`.
   mensagem aprovada, reprovada e as recusas (`qc_lot_expired`, `qc_lot_closed`, `qc_no_target`,
   `unknown_instrument`, `unknown_barcode`) conferidas. Incluir a pergunta do C-E38 (`Q` em amostra de paciente).
 - Validação do CIQ pelo RT do laboratório (entra no dossiê do art. 106 da RDC 978).
+- Coleta no posto do laboratório (21b): hoje `lab_staff` recebe 403 na lista de unidades de origem e a requisição
+  não abre. Não ligue `municipal_lab` numa cidade com coleta no posto do laboratório antes da api#89.
 - Etiqueta e leitor: a prova de impressão e leitura herdada do 21b (203 dpi, 50 x 25 mm) vale; repita se trocar
   modelo de impressora ou leitor.
 - Laboratório com CIQ no software do provedor de controle: convive digitando os valores até a importação CSV
