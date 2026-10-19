@@ -35,6 +35,9 @@ Quem faz: admin da cidade (aparelhos e vínculos) e RT ou substituto (CIQ). Orde
    (até 50 caracteres; sem diferenciar maiúsculas de minúsculas).
 2. **Exame × aparelho.** Criar uma nova versão de cada exame ligada ao aparelho. Só itens de versão com
    aparelho entram no bloqueio e no rastreio. Exame sem aparelho continua liberando como no 21b.
+   Versão nova sem o campo `lab_instrument_id` herda o aparelho da versão vigente (C-E44), mesmo com os
+   interruptores do 21c desligados ou com o aparelho já inativo; só `null` explícito desvincula. Desligar o CIQ
+   por um tempo não solta o vínculo.
 3. **Material de controle e lote.** Cadastrar o material (um analito por `analyte_key`; o mesmo analito em dois
    exames é recusado) e o lote, com um código de barras por nível.
    - Formato: `^[A-Za-z0-9._-]{3,30}$`.
