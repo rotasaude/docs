@@ -67,7 +67,7 @@ Serviço no `docker-compose.yml`, **profile `test`**, para não subir com o `doc
 
 - Imagem `postgres:16`.
 - `POSTGRES_USER=rota_saude` e `POSTGRES_PASSWORD=postgres`: o superusuário de bootstrap, como na CI.
-- Dados em `tmpfs` (`/var/lib/postgresql/data`): recriar o container zera o servidor.
+- Dados em `tmpfs` (`/var/lib/postgresql/data`): velocidade, e reiniciar a máquina ou o Docker zera o servidor. O reset por rodada é o da §4.5.
 - Parâmetros:
   - `max_connections=300`;
   - `fsync=off`;
@@ -96,7 +96,7 @@ Em `spec/support`, um guard carregado antes de qualquer exemplo:
 - consulta `SHOW cluster_name` pela conexão de plataforma;
 - se o valor não for `rota_saude_test`, aborta a suíte com mensagem clara e sem rodar nenhum exemplo.
 
-A CI precisa do mesmo nome: o serviço `postgres:16` do `ci.yml` ganha `cluster_name=rota_saude_test`. Se o GitHub não aceitar o parâmetro por `options`, fica a cargo do builder ajustar via `ALTER SYSTEM` + reload no bootstrap.
+Na CI o guard é desligado com `TEST_SERVER_GUARD=off`. O service container do GitHub não aceita `command`, então não dá para definir `cluster_name`; e a CI já é descartável e isolada. Só esse valor explícito desliga o guard.
 
 ### 4.5 `bin/test` (executor único)
 Script na raiz do monorepo, executado no host. Interface:
@@ -108,7 +108,7 @@ bin/test <admin|dashboard|wpda|maintenance> [-w <worktree>] [args do vitest]
 
 Fluxo do `api`:
 1. **Fila.** Executa via `docker compose run --rm --name rota-test-run`. Se o nome estiver em uso, espera e tenta de novo a cada poucos segundos, com tempo limite configurável (padrão de 30 min) e mensagem "fila: aguardando execução em curso". O `--rm` remove o container ao final, então não sobra trava presa. A mesma trava serve para os frontends: o executor do vitest também roda com `--name rota-test-run`.
-2. **Banco.** Recria o `postgres-test` (`up -d --force-recreate`, espera ficar saudável) e roda `bin/test-db-bootstrap`. Com `--keep-db`, pula esta etapa se o servidor já estiver de pé (atalho para rodadas de arquivo isolado).
+2. **Banco.** Sobe o `postgres-test` se não estiver de pé (`up -d --wait`, idempotente, nunca `--force-recreate`). **Dentro** do container que segura a trava, `bin/test-db-bootstrap --reset` apaga todos os bancos que não sejam `postgres`/`template*` e os roles que não sejam `rota_saude`, depois roda os cinco passos. O reset fica dentro do container travado porque recriar o servidor por fora derrubaria o banco de uma execução em curso enquanto outra espera na fila. Com `--keep-db`, o reset e o bootstrap são pulados se `rota_saude_platform_test` já existir (atalho para rodadas de arquivo isolado).
 3. **Execução.** `bundle exec rspec` com `-f failures`, saída de progresso para o log e `--format json` para um arquivo.
 4. **Resumo.** Imprime só: exemplos, falhas, pendentes, duração, lista `arquivo:linha — mensagem` (primeira linha) e o caminho do log completo em `apps/api/tmp/test-runs/<timestamp>.log`.
 5. **Saída.** O código de saída é o do rspec.
