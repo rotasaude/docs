@@ -54,6 +54,8 @@ Estas decisões valem para todos os subprojetos.
 | 16 | **Navegação do maintenance:** só o trilho, sem cards, porque são 5 telas. O detalhe da cidade continua com abas. |
 | 17 | **Abordagem de implementação:** primeiro os tokens, depois a migração no lugar, app por app, mantendo a API dos componentes. Foram recusadas a camada de CSS por cima (exigiria `!important` em massa) e a biblioteca de componentes compartilhada (contraria o ADR 0002/0025). |
 
+**Decisão 9 — revisão 2026-10-20 — exceção em dev e staging (wpda 87a2de2, card rotasaude/wpda#2):** o fluxo do cidadão fica liberado no desktop em development (Vite com `MODE` "development") e em staging (container nginx com `WPDA_ALLOW_DESKTOP=1`; o entrypoint `docker/40-wpda-runtime-config.sh` grava `/wpda/runtime-config.js`, servido sem cache, na mesma imagem de produção). Em produção, sem a variável ou com qualquer valor diferente de "1", o bloqueio "Abra no celular" continua: o padrão é bloquear. Com a liberação ativa, a faixa "Modo desktop — ambiente de teste" aparece no topo. O bloqueio é de usabilidade, não de segurança (roda no navegador). O deploy de staging do wpda precisa incluir `WPDA_ALLOW_DESKTOP=1`; o README do wpda (seção "Desktop em dev e staging") descreve a variável.
+
 ### Subprojetos, na ordem
 
 Cada subprojeto tem a sua própria spec, o seu plano e a sua execução.

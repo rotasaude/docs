@@ -147,6 +147,7 @@ Ficam em `src/modules/citizen/`.
   - o endereço atual (`location.origin + location.pathname`) num `<code>` selecionável;
   - `EmergencyCall`.
 - **Testes:** o `src/test/setup.ts` ganha um stub padrão de celular, com `matchMedia`, `screen.width` 390 e `screen.height` 844. Os testes de bloqueio sobrescrevem o stub. Isso é infraestrutura de teste, não edição de asserção.
+- **Revisão 2026-10-20 — exceção em dev e staging (wpda 87a2de2, card rotasaude/wpda#2):** o fluxo do cidadão fica liberado no desktop em development (Vite com `MODE` "development") e em staging (container nginx com `WPDA_ALLOW_DESKTOP=1`; o entrypoint `docker/40-wpda-runtime-config.sh` grava `/wpda/runtime-config.js`, servido sem cache, na mesma imagem de produção). Em produção, sem a variável ou com qualquer valor diferente de "1", o bloqueio "Abra no celular" continua: o padrão é bloquear. Com a liberação ativa, a faixa "Modo desktop — ambiente de teste" aparece no topo. O bloqueio é de usabilidade, não de segurança (roda no navegador). O deploy de staging do wpda precisa incluir `WPDA_ALLOW_DESKTOP=1`; o README do wpda (seção "Desktop em dev e staging") descreve a variável.
 
 ### 4.4 Fora do escopo
 
