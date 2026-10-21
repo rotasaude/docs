@@ -101,3 +101,8 @@ Interruptor `procedure_billing` (sem `requires`).
 
 **api (F3, F7–F15)**
 - Avulso do profissional e lançamento do faturista → `source: manual`; eventos novos `billing_period.pending_viewed` e `billing_patient.looked_up`; fornecedor `Timeline::Sources::ProcedureSource`; rotas liberadas pela chave ligada (`enabled?`); demais códigos e formas conforme a seção final do plano do api.
+
+**D-U1 nas telas e no api (complementos aceitos)**
+- **D-U2 — Rotas da recepção:** os 7 campos do paciente vão em `POST /attendance/verifications` (validação presencial) e em `POST /attendance/verifications/:id/names` (só esses campos); a resposta traz só `race_color_set` e `address_set`, nunca o endereço; evento `patient.demographics_updated` (só ids). Validação: raça/cor `01`–`05`; etnia 4 dígitos, obrigatória com `05` e recusada fora; CEP 8 dígitos; larguras 30/5/10/30 (número vazio = `SN`); excedente → 422 `too_long` com `field`.
+- **D-U3 — Check-in por exceção:** a resposta passa a devolver `verification_id`, para a captura funcionar também nesse fluxo (acrescentar no api — não está no plano do api).
+- **D-U4 — Lookup do check-in:** passa a devolver `race_color_set` e `address_set`, para a tela só oferecer o formulário quando faltar dado (acrescentar no api — não está no plano do api).
