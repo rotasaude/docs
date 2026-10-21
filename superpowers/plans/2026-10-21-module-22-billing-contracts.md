@@ -83,3 +83,21 @@ Interruptor `procedure_billing` (sem `requires`).
 1. `contracts` — perfil e exemplos; tag `billing-v1.0.0`.
 2. `api` (porta 3044; migrações de cidade a partir de 20261021900001; worktree `.claude/mod22`, branch `feat/mod-22-billing`, bancos `_mod22`).
 3. `dashboard` (Vite 5197; worktree `rota-saude/.worktrees/dashboard-mod22`). 4. `maintenance`. 5. catálogo público.
+
+## 12. Acréscimos (revisão dos planos, 2026-10-21)
+
+**Decisão do usuário após a Task 0 (layout 05.00)**
+- **D-U1 — Dados do paciente para o BPA-I:** `patients` ganha `race_color` (código do layout, sem `99`), `ethnicity` (obrigatória quando indígena), `address_zip`, `address_street`, `address_number`, `address_complement`, `address_district` (cifrados) — município de residência continua o da cidade. Captados (a) na recepção: check-in e cadastro do paciente, campos opcionais e incentivados; (b) pelo faturista na pendência do fechamento: `PATCH /billing/patients/:id/demographics` (`billing_clerk`, trilha, evento `billing_patient.demographics_updated` só com id). No fechamento, falta de raça/cor ou de CEP/endereço → pendência (`missing_race_color`, `missing_address`, `fix: "patient"`).
+
+**Layout (Task 0 do api)**
+- **D-L1:** BPA Magnético 05.00 (09/07/2026): cabeçalho `01` 130 posições, BPA-C `02` 48, BPA-I `03` 351, CR+LF; campo de controle = soma (procedimento + quantidade) módulo 1111 + 1111; CPF e CNS nunca juntos; "pessoa sem CPF" (posição 351); sexo `I` aceito; data de realização na competência atual e nas 3 anteriores.
+- **D-L2:** `invalid_date` = fora da janela de 3 competências anteriores (substitui "antes da competência mais antiga aberta"); `sex_not_allowed` mantido como crítica do sistema; procedimento com BPA-I e BPA-C na SIGTAP vai como BPA-I; folhas de 20 também no BPA-I, série única, acima de 999 folhas → `too_many_sheets`; nome do paciente cortado em 30 (layout); `prd-org` = `BPA` (a conferir na importação real).
+
+**dashboard (B1–B13), adotadas pelo api**
+- B1 `patient_id` opcional com `attendance_id`/`consultation_id` (par validado sem paciente via `Patients::Resolve`; não validado → `citizen_not_verified`); B2 `GET /billing/procedures?attendance_id=`; B3 `POST /billing/patient_lookup {cpf}` (`invalid_cpf`); B4 `GET /billing/establishments`; B5 `professional_user_id`/`cbo_code` só do `billing_clerk` (`source: manual`; não faturista → 403; CBO do vínculo; no laboratório, liberador ativo), `GET /billing/professionals`, `invalid_professional`; B6 pendências com `performed_on`, `sigtap_code`, `label`, `patient`, `professional`; B7 `late` no procedimento; B8 409 `already_exported`, `reason_required` (10–500), 409 `invalid_transition`; B9 `{ exports }`, arquivo `bpa-<cnes>-<AAAAMM>-v<n>.txt`, versões para faturista e admin, arquivo só faturista; B10 `origin_acronym` (6, `cbc-sgl`), `too_long`, `field_required`, `GET` 200 com nulls, step-up só no `PUT`; B11 competência com `id`, `version` 0 antes do primeiro fechamento, admin lê; B12 profissional cancela só os próprios (quem fez); B13 a tela não oferece `ubs`.
+
+**maintenance (M1–M3)**
+- `procedure_billing` exige `ibge_code` (`ibge_code_missing`); todos os ambientes; rótulo "Faturamento de procedimentos (BPA)".
+
+**api (F3, F7–F15)**
+- Avulso do profissional e lançamento do faturista → `source: manual`; eventos novos `billing_period.pending_viewed` e `billing_patient.looked_up`; fornecedor `Timeline::Sources::ProcedureSource`; rotas liberadas pela chave ligada (`enabled?`); demais códigos e formas conforme a seção final do plano do api.

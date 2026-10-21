@@ -3,8 +3,8 @@
 **Data:** 2026-10-21
 **Status:** aprovado (2026-10-21)
 **Afeta:**
-- `apps/api`: cidade — `performed_procedures`, `billing_periods`, `billing_exports`; papel `billing_clerk`; interruptor `procedure_billing`; críticas SIGTAP; gerador do arquivo de interface do BPA Magnético; fornecedor `Timeline::Sources::Procedures`; origem automática a partir dos laudos liberados do 21b.
-- `apps/dashboard`: registro de procedimento (no atendimento, na consulta e avulso), lista de procedimentos com crítica, fechamento da competência (resumo, pendências, geração, reabertura, download).
+- `apps/api`: cidade — raça/cor, etnia, CEP e endereço em `patients` (cifrados); `performed_procedures`, `billing_periods`, `billing_exports`; papel `billing_clerk`; interruptor `procedure_billing`; críticas SIGTAP; gerador do arquivo de interface do BPA Magnético; fornecedor `Timeline::Sources::Procedures`; origem automática a partir dos laudos liberados do 21b.
+- `apps/dashboard`: raça/cor, etnia, CEP e endereço na recepção (check-in e cadastro do paciente) e na pendência do faturista; registro de procedimento (no atendimento, na consulta e avulso), lista de procedimentos com crítica, fechamento da competência (resumo, pendências, geração, reabertura, download).
 - `apps/maintenance`: interruptor (mecanismo genérico).
 - `contracts`: perfil do arquivo BPA (`billing/bpa-interface.md`) e exemplos — tag `billing-v1.0.0`.
 
@@ -32,6 +32,7 @@ O faturamento BPA/SIGTAP aparece nos 15 editais analisados e é o que a secretar
 | 6 | Paciente identificado por CPF no BPA-I; CNS quando não houver CPF (nunca os dois). |
 | 7 | Layout lido na Task 0 a partir do PDF vigente do DATASUS; teste byte a byte contra arquivo de referência; importação real no BPA Magnético é gate de go-live. |
 | 8 | Dados do paciente que o cadastro não tem: o arquivo usa o que existe, sem captar dados novos — "sem informação" onde o layout aceita (raça/cor, etnia), município de residência = o da cidade, endereço e telefone do cidadão do wpda quando houver; o que o layout não aceita vazio vira pendência no fechamento. |
+| 9 | Revisão da decisão 8 após a Task 0 (layout 05.00): raça/cor "sem informação" (99) é recusada desde 2023 e CEP/endereço são criticados desde 2013. O paciente passa a ter **raça/cor, etnia (quando indígena), CEP e endereço**, captados na recepção (check-in e cadastro do paciente, campos opcionais incentivados) e pelo faturista na pendência do fechamento (com trilha); o que faltar no fechamento continua pendência. |
 
 As decisões 2 a 7 foram propostas pelo coordenador e aprovadas pelo usuário; as decisões 2 (revista) e 8 foram escolhidas pelo usuário depois da revisão da spec.
 
