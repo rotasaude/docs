@@ -248,3 +248,10 @@ F-21.31,Registro do CEQ,mod-21,api|dashboard,0038,feature
 F-21.32,Estoque de reagentes e insumos com lotes,mod-21,api|dashboard,0038,feature
 F-21.33,Lote em uso e rastreabilidade do reagente,mod-21,api|dashboard,0038,feature
 F-21.34,Relatório de consumo estimado,mod-21,api|dashboard,0038,feature
+F-22.1,Interruptor e papel de faturista,mod-22,api|maintenance|dashboard,"0039,0028",feature
+F-22.2,Registro de procedimento com críticas SIGTAP,mod-22,api|dashboard,0039,feature
+F-22.3,Produção do laboratório municipal no faturamento,mod-22,api,"0039,0037",feature
+F-22.4,Lançamento manual pelo faturista,mod-22,api|dashboard,0039,feature
+F-22.5,Fechamento da competência e pendências,mod-22,api|dashboard,0039,feature
+F-22.6,Arquivo BPA-I/BPA-C do BPA Magnético,mod-22,api|contracts|dashboard,0039,feature
+F-22.7,Procedimentos na linha do tempo,mod-22,api,"0039,0035",feature
