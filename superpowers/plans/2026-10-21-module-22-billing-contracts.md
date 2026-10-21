@@ -106,3 +106,21 @@ Interruptor `procedure_billing` (sem `requires`).
 - **D-U2 — Rotas da recepção:** os 7 campos do paciente vão em `POST /attendance/verifications` (validação presencial) e em `POST /attendance/verifications/:id/names` (só esses campos); a resposta traz só `race_color_set` e `address_set`, nunca o endereço; evento `patient.demographics_updated` (só ids). Validação: raça/cor `01`–`05`; etnia 4 dígitos, obrigatória com `05` e recusada fora; CEP 8 dígitos; larguras 30/5/10/30 (número vazio = `SN`); excedente → 422 `too_long` com `field`.
 - **D-U3 — Check-in por exceção:** a resposta passa a devolver `verification_id`, para a captura funcionar também nesse fluxo (acrescentar no api — não está no plano do api).
 - **D-U4 — Lookup do check-in:** passa a devolver `race_color_set` e `address_set`, para a tela só oferecer o formulário quando faltar dado (acrescentar no api — não está no plano do api).
+
+## 13. Acréscimos (pré-voo da execução, 2026-10-21)
+
+Prevalecem sobre as seções acima.
+
+- **E1 — Respostas dos dados do paciente:** `POST /attendance/verifications/:id/names` → `{ "citizen": {…}, "race_color_set", "address_set" }` (flags na raiz); a mesma forma em `POST /attendance/verifications` quando vierem os campos; `PATCH /billing/patients/:id/demographics` → `{ "patient": { "id", "display_name" }, "race_color_set", "address_set" }` (nunca o endereço).
+- **E2 — Check-in:** `exception` devolve `verification_id` na raiz (`citizen.active_verification&.id`, null quando o par é só declarado) — D-U3; `lookup` devolve `race_color_set`/`address_set` dentro de `citizen`, ao lado de `verification_id` (sem paciente → `false`/`false`) — D-U4.
+- **E3 — Formulário no check-in:** no check-in por exceção, o formulário aparece quando houver `verification_id`; no check-in por código, só quando `race_color_set` ou `address_set` for `false` (ausente = comportamento atual). Saem B14/B15 do plano do dashboard.
+- **E4 — Número do endereço:** vazio é normalizado para `SN` em `Patients::Demographics.parse`; `missing_address` não exige número.
+- **E5 — Sigla do órgão de origem:** opcional (obrigatórios: `origin_name`, `destination_body`); a tela não a exige.
+- **E6 — CBO do liberador do laboratório (F16):** o perfil não tem CBO; vale o CBO do vínculo ativo mais antigo do liberador em qualquer unidade; sem vínculo → pendência `missing_professional_cbo`.
+- **E7 — `citizen_not_verified`:** 409 (convenção do api), não 422.
+- **E8 — Procedimentos no JSON do atendimento:** `procedures` só para `health_professional` ou leitor de faturamento (`billing_clerk`, admin); a recepção não recebe.
+- **E9 — Linha do tempo do cidadão (F13):** a entrada `procedure` do cidadão inclui o nome da unidade (padrão de `Timeline::Json.citizen`), além de nome e data.
+- **E10 — Laboratório em fila atrasada:** a produção do 21b aceita laudo `released` ou `rectified` com `replaces_report_id` nulo (o original), para não perder produção quando a retificação acontece antes do consumo; idempotente por item.
+- **E11 — Códigos de erro:** `invalid_race_color`, `invalid_ethnicity`, `ethnicity_required`, `invalid_zip`, `invalid_demographics` (com `field`); busca SIGTAP com `q` acima de 60 caracteres → `invalid_query`; `source_ref` é `{ "type", "id" }`|null.
+- **E12 — Validação antes da escrita:** os dados do paciente são validados antes de validar o par ou completar nomes (um erro nunca deixa o par validado nem o código consumido).
+- **E13 — Testes do catálogo:** o `bin/test` não cobre o catálogo; ele roda com `docker compose run --rm --no-deps catalog npx vitest run` (exceção explícita).
