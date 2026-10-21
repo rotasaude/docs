@@ -45,10 +45,11 @@
    reabra e feche de novo); importar no BPA Magnético ("importar arquivos de sistemas próprios"); consistir
    e exportar a remessa para a secretaria.
 5. Erro no arquivo: reabrir com motivo (gera nova versão; a anterior fica no histórico).
-6. Competência antiga é atrasada (§13 E18): procedimento com competência igual ou anterior à **última fechada** do
-   estabelecimento — mesmo de um mês que nunca teve competência própria — entra na primeira competência aberta depois da
-   última fechada, com `late: true` (a data aceita vai até o 1º dia de 3 competências antes). Nunca se abre competência
-   no passado. Vale também para o laboratório (coleta antiga).
+6. Competência antiga (§13 E18): se a competência própria do procedimento existe e está **aberta** (nunca fechada ou
+   reaberta), ele fica nela, sem atraso. Senão, competência igual ou anterior à **última fechada** do estabelecimento —
+   mesmo de um mês que nunca teve competência própria — entra, com `late: true`, na competência aberta **mais antiga**
+   depois da última fechada; só se não houver nenhuma nasce a seguinte à última fechada (a data aceita vai até o 1º dia
+   de 3 competências antes). Nunca se abre competência no passado. Vale também para o laboratório (coleta antiga).
 
 ## Gates de go-live (spec §12)
 - **Importação real no BPA Magnético** (VM Windows ou secretaria piloto) de um arquivo gerado em staging: sem rejeição
