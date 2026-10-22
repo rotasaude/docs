@@ -110,3 +110,18 @@ Aceitos pelo coordenador; prevalecem sobre as seções acima. Detalhe nas seçõ
 
 **maintenance**
 - **T7:** o catálogo-base não exige step-up (padrão do maintenance para o que só vale na próxima adoção); rótulo "Linhas de cuidado"; chave em todos os ambientes, sem simulado; `createdBy` opcional na versão; `all_of`, `code_filter`, `applies_to`, identidades de gênero e `declared` não são editáveis na tela — vêm da versão de partida e voltam iguais (mudar é pelo YAML do api).
+
+## 12. Acréscimos (pré-voo da execução, 2026-10-22)
+
+Prevalecem sobre as seções acima.
+
+- **P1 — Busca de pessoa (forma de T3):** `POST /care_lines/person_lookup { "cpf" }` → `{ "person": { "patient_id"|null, "citizen_id"|null, "display_name", "cpf_masked", "verified": true } }`, **sem** `Patients::Resolve` (buscar não cria paciente; ele nasce na inscrição); 422 `invalid_cpf`, 409 `citizen_not_verified`, 404 `person_not_found`, 403 `missing_role`, 429 `too_many_requests` (30/min por usuário); trilha uma por pessoa mostrada.
+- **P3 — Âncora e equipe na sugestão:** `<suggestion>` e `<enrollment>` trazem `care_line.requires_anchor`; `<suggestion>` traz `team_id`.
+- **P4 — `createdBy`** (e-mail do mantenedor; nulo na carga do YAML) na versão do catálogo-base no GraphQL.
+- **P5 — Detalhes:** (a) `GET /citizen/care` nunca traz item `untracked`; (b) fonte `oral_health` (não rastreada) e `exam:` restrito a SIGTAP do grupo 02; (c) `POST /citizen/declared_conditions` com `citizen_id` e `condition` no corpo; `DELETE` com `citizen_id` na URL e `condition` no corpo (T1); condição não vigente ou par alheio → 404 `not_found`; (d) pontos da boa prática inteiros de 0 a 100; (e) lista vazia vale como ausente nas regras (`problems: []`, `declared: []`); (f) profissional sem vínculo → 403 `missing_role` em `/care_lines/teams`.
+- **P6 — Consulta puerperal (`c3_i`):** consulta com código de puerpério **ou** procedimento 0301010129 (como a nota); `consultation` é permitida como alternativa dentro de `all_of`.
+- **P7 — Catálogo público:** testes do catálogo rodam fora do `bin/test` (exceção, como E13 do 22).
+- **P8 — Condição declarada no wpda:** vale para todo par com `verification_level = verified` (inclusive validado por check-in); a seção aparece também abaixo do formulário de perfil.
+- **P9 — Menu do dashboard:** o grupo "Linhas de cuidado" só aparece com `care_lines` **e** `clinical_record` utilizáveis na sessão.
+- **P10 — Prova do maintenance:** a versão nova da C4 publicada na prova é permanente (imutabilidade); publicar com as mesmas regras, mudando só o nome, por último, avisando.
+- **P11 — "Estou grávida":** opção visível para todos os sexos (homem trans pode gestar; C3/C7 já tratam identidade de gênero).
