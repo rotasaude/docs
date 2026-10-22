@@ -78,3 +78,35 @@ sem trilha; texto longo recusado; todo Data/Struct com dado pessoal sem dado em
 0. Prova técnica (plano do api, Task 0): notas metodológicas C2–C7 vigentes — boas práticas, janelas, contagens, códigos CIAP/CID de elegibilidade, pesos — fixadas no catálogo-base.
 1. `api` (porta 3045; migrações de cidade e plataforma a partir de 20261022900001; worktree `.claude/mod23`, branch `feat/mod-23-care-lines`; testes com `bin/test api -w mod23`).
 2. `dashboard` (Vite 5198) e `wpda` (Vite 5199), worktrees em `rota-saude/.worktrees/<app>-mod23`. 3. `maintenance`. 4. catálogo público.
+
+## 11. Acréscimos (revisão dos planos, 2026-10-22)
+
+Aceitos pelo coordenador; prevalecem sobre as seções acima. Detalhe nas seções finais de `2026-10-22-module-23-care-lines-{api,dashboard,wpda,maintenance}.md`.
+
+**Notas metodológicas (Task 0 do api).** As seis notas C2–C7 (assinadas em 19/06/2026) e a NT 8/2026 (29/05/2026) estão fixadas no plano do api com SHA-256; pesos C2 2, C3 2, C4 1, C5 1, C6 1, C7 2; conceitos Regular 0,25, Suficiente 0,50, Bom 0,75, Ótimo 1,00. Mudou um SHA-256 → a execução para.
+
+**api (L1–L14), aceitas**
+- **L1 — Boa prática:** soma `window_start_days`, `code_filter`, `applies_to`, `all_of` (E de OUs), `points`, `citizen_label`.
+- **L2 — Elegibilidade:** problemas e exclusões por prefixo CIAP/CID, idade em dias ou anos, sexo e identidade de gênero (C7 inclui homem trans e exclui mulher trans, como a nota), condição declarada, `requires_anchor`.
+- **L3 — CBO de quem confirma ou inscreve:** médico 2231*, 2251*, 2252*, 2253* e enfermeiro 2235* (substitui 225*/2235* do §4).
+- **L4 — Códigos:** `invalid_anchor` (DUM entre hoje − 336 dias e hoje), `line_inactive`, `invalid_transition`, `reason_required` (1–500)/`too_long`, `out_of_scope`, `immutable_rules`, `duplicate_declared_condition` e os demais do plano do api.
+- **L5 — Sugestão:** `team_id` obrigatório e `enrollment_id`; pessoa sem equipe atribuível não recebe sugestão; aceitar a sugestão de encerramento (`{}`) encerra com `discharge`.
+- **L6 — Busca ativa paginada:** a página pode vir curta com `next_before` não nulo ("continue"); a tela carrega mais só sob demanda.
+- **L7 — Trilha:** um `clinical_record.viewed` (`access: care_line`) por pessoa mostrada.
+- **L8 — Prévia:** + `template_version`, `concept`; por prática `denominator`, `points`, `label`; `score` e `weight` strings com uma casa (tela com vírgula); `excluded` com as famílias não rastreadas.
+- **L9 — Triagem vencida:** o módulo 15 não tem interruptor; `overdue`/`last_done_at` vêm sempre no catálogo do cidadão; "Meu acompanhamento" ganha `overdue_triages`.
+- **L10 — Apoio:** `GET /care_lines/lines`, `GET /care_lines/teams`.
+- **L11 — Condição declarada:** forma de resposta do plano do api; `none` retira as demais; só par validado declara.
+- **L12 — `<enrollment>`:** + `ended_reason`, `ended_at`; `contacts` no detalhe; `last_contact` sem nota.
+- **L13 — Eventos:** levam `user_id` ou `citizen_id`; evento de plataforma `care_line.template_changed` e auditoria `maintenance.care_line_template.changed` (R18).
+
+**Telas (dashboard, wpda, maintenance) — acrescentar no api (não estão no plano do api)**
+- **T1 — Condição declarada fora da URL:** `DELETE /citizen/declared_conditions?citizen_id=` leva `{ "condition" }` no **corpo** (dado de saúde nunca na URL nem no log de requisição); o spec do api testa assim.
+- **T2 — `can_confirm`:** `GET /care_lines/teams` traz, por equipe, `can_confirm` (o usuário tem CBO de quem confirma com vínculo na unidade da equipe).
+- **T3 — Busca de pessoa:** `POST /care_lines/person_lookup { "cpf" }` → paciente ou cidadão validado (como `patient_lookup` do 21a/22; trilha; limite de taxa; par só declarado → 409 `citizen_not_verified`).
+- **T4 — Agendar pela linha:** `POST /care_lines/enrollments/:id/appointment_request` → `{ "request", "unit" }` cria o pedido de agendamento do módulo 17 para o paciente, na unidade da equipe.
+- **T5 — Versão nova disponível:** `<care_line>` + `latest_template_version` (opcional; a tela também cruza com o catálogo-base).
+- **T6 — Sessão do cidadão:** `care_lines` em `features` da sessão do wpda (conferir o mecanismo genérico).
+
+**maintenance**
+- **T7:** o catálogo-base não exige step-up (padrão do maintenance para o que só vale na próxima adoção); rótulo "Linhas de cuidado"; chave em todos os ambientes, sem simulado; `createdBy` opcional na versão; `all_of`, `code_filter`, `applies_to`, identidades de gênero e `declared` não são editáveis na tela — vêm da versão de partida e voltam iguais (mudar é pelo YAML do api).
