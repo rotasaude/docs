@@ -1,6 +1,6 @@
 # Módulo 22 — Procedimentos e faturamento
 
-- **Estado:** Entregue (2026-10-22; F-22.2–F-22.5 e F-22.7 `Verified`; F-22.1 e F-22.6 `Done`; `Fechado` depois do gate da importação real no BPA Magnético)
+- **Estado:** Entregue (2026-10-22; F-22.1–F-22.5 e F-22.7 `Verified`; F-22.6 `Done`; `Fechado` depois do gate da importação real no BPA Magnético)
 - **Tipo:** Ciclo 2
 
 ## Escopo
@@ -84,9 +84,8 @@ arquivo adulterado nunca sai.
 **Gate de go-live:** importação real no BPA Magnético (Windows) ou pela secretaria
 piloto, conferindo `prd-org` (BPA × EXT), código de logradouro e INE.
 
-**Pendente:** F-22.1 `Verified` — o liga/desliga no maintenance foi provado por
-testes e pelo console, mas a tela do maintenance do worktree não abriu (origem não
-permitida); falta conferir na tela do maintenance publicado.
+F-22.1 verificada depois do merge na tela do maintenance publicado (liga e desliga
+com confirmação). Página de status: https://claude.ai/artifact/EQbnquYhiTJY2rUvT1w9uJ
 
 ## Integrações externas
 
