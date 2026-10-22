@@ -255,3 +255,11 @@ F-22.4,Lançamento manual pelo faturista,mod-22,api|dashboard,0039,feature
 F-22.5,Fechamento da competência e pendências,mod-22,api|dashboard,0039,feature
 F-22.6,Arquivo BPA-I/BPA-C do BPA Magnético,mod-22,api|contracts|dashboard,0039,feature
 F-22.7,Procedimentos na linha do tempo,mod-22,api,"0039,0035",feature
+F-23.1,Interruptor e catálogo-base das linhas,mod-23,api|maintenance,"0040,0028",feature
+F-23.2,Linhas da cidade (adoção e linhas próprias),mod-23,api|dashboard,0040,feature
+F-23.3,Sugestão e inscrição confirmada,mod-23,api|dashboard,0040,feature
+F-23.4,Acompanhamento das boas práticas,mod-23,api,0040,feature
+F-23.5,Painel da equipe e busca ativa,mod-23,api|dashboard,"0040,0029",feature
+F-23.6,Prévia dos indicadores C2–C7,mod-23,api|dashboard,0040,feature
+F-23.7,Condição declarada e Meu acompanhamento no wpda,mod-23,api|wpda,"0040,0017",feature
+F-23.8,Aviso de triagem periódica vencida,mod-23,api|wpda,"0040,0027",feature

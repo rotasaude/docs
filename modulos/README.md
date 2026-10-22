@@ -54,7 +54,7 @@
 | 20 | [Linha do tempo do paciente](20--linha-do-tempo.md) | Entregue | Ciclo 2 | [0035](../adr/0035.md), [0031](../adr/0031.md) |
 | 21 | [Exames e laboratório](21--exames.md) | Entregue (21a, 21b, 21c) | Ciclo 2 | [0036](../adr/0036.md), [0037](../adr/0037.md), [0038](../adr/0038.md), [0031](../adr/0031.md) |
 | 22 | [Procedimentos e faturamento](22--procedimentos.md) | Entregue | Ciclo 2 | [0039](../adr/0039.md), [0028](../adr/0028.md) |
-| 23 | [Linhas de cuidado](23--linhas-de-cuidado.md) | Stub | Ciclo 2 | — |
+| 23 | [Linhas de cuidado](23--linhas-de-cuidado.md) | Planejado | Ciclo 2 | [0040](../adr/0040.md), [0031](../adr/0031.md) |
 | 24 | [Atendimento domiciliar e coletivo](24--domiciliar-e-coletivo.md) | Stub | Ciclo 2 | — |
 | 25 | [Vigilância epidemiológica](25--vigilancia-epidemiologica.md) | Stub | Ciclo 2 | — |
 | 26 | [Regulação de média e alta complexidade](26--regulacao.md) | Stub | Ciclo 2 | — |
