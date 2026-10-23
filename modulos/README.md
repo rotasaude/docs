@@ -109,7 +109,10 @@ para disputar edital municipal, com **modo de prontuário por cidade** (registro
 ou integrado ao e-SUS PEC). Contexto externo em
 [`pesquisa/2026-10-05-mapa-de-integracoes.md`](../pesquisa/2026-10-05-mapa-de-integracoes.md).
 
-- **Ordem:** 15 → 16 → 17 → 18 → 19 → 20 → 21 → 22 → 23 → 24 → 25 → 26. Os
+- **Ordem (revista em 2026-10-23):** 15 → … → 23 → 24a → 25 → 26 → 27 a 33 → 24b →
+  24c → 35 → 34. O 24 e o 34 foram divididos em núcleo e ferramenta (ADR 0041); o
+  app de campo (24c), zoonoses (35, que precisa dele) e telessaúde (34) ficam por
+  último. Ordem original: 15 → … → 24 → 25 → 26. Os
   módulos 15 e 17 não dependem de integração externa. Do 16 em diante, nada vira
   spec antes das decisões de credencial e do uso do PEC em cada cidade.
 - **Lacunas dos editais (27–35):** entraram com a decisão de suíte completa,
