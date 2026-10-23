@@ -105,3 +105,24 @@ Interruptor `territory_registry` (rótulo e dependência, mecanismo genérico).
 2. `dashboard` (Vite 5200), worktree em `rota-saude/.worktrees/dashboard-mod24a`.
 3. `maintenance` (Vite 5201), worktree em `rota-saude/.worktrees/maintenance-mod24a`.
 4. Catálogo público.
+
+## 14. Acréscimos (revisão dos planos, 2026-10-23)
+
+Reconciliação dos planos do api (R1–R10, desvios), do dashboard (T1–T15) e do maintenance (N1–N3).
+
+- **L1 — Dicionários (R1, T6):** a tabela dos dicionários das fichas, entregue pela Task 0 do api, vira o **§15** deste contrato (o §11 é Maintenance). Códigos das seções são **inteiros** como no IDL (T13). A tela usa os códigos de raça/cor do paciente (22: `"01".."05"`) e o api traduz para o LEDI (parda 03→4, amarela 04→3); o §15 traz a tabela de tradução (T15).
+- **L2 — Equipes:** `GET /territory/admin/teams` (admin) → equipes 70/76 com os candidatos a ACS (CBO 515105, `has_cns`) (T1). `GET /territory/teams` (profissional) → equipes do vínculo com `micro_areas` e `can_register` (T2, como P22 do 23).
+- **L3 — Moradores e busca:** `GET /territory/registrations?household_id=` (trilha) (T3). `POST /territory/person_lookup` — `{ "cpf" }` só no corpo → `{ "patient_id"|null, "citizen_id"|null, "display_name", "registration_id"|null }` (T4).
+- **L4 — Identidade (R5, T5):** o corpo do cadastro ganha `identification` (nacionalidade, município de nascimento, nome do pai, celular, e-mail etc., chaves do §15) e `patient_demographics` (`race_color`, `ethnicity`, gravados no paciente). `full_name`, `birth_date`, `sex` e `mother_name` de paciente com par validado são só leitura: valor diferente → 422 `identity_locked`. 409 `already_registered` devolve `registration_id`. A validação posterior no posto gera nova versão e ficha em nome de quem gravou a versão anterior.
+- **L5 — Sem CPF e sem CNS (T7):** o LEDI exige CNS quando não há CPF, e CPF e CNS nunca vão juntos. O cadastro grava mesmo sem os dois; a ficha fica "não gerada" (`patient_without_identifier`), e a validade mostra a pessoa como `missing_identifier` para a equipe obter o CNS. 409 `cns_taken` quando o CNS já é de outro paciente.
+- **L6 — Endereço (R3, T8, R6, T9):** `address` ganha `street_type` (DNE), `no_number` e `district`; limites = o menor entre LEDI e BPA (logradouro 30, número 5, complemento 10, bairro 30). Imóveis tipo 07–11 exigem instituição de permanência (§15). Recepção e faturamento recebem `address_from_household: bool`; gravar endereço de paciente com cadastro ativo → 422 `address_from_household`.
+- **L7 — Fora de área e domicílio (R2, R4):** cadastro sem domicílio exige `team_id` e vai com fora de área; `<registration>` ganha `team` e `micro_area`. `PATCH` do domicílio aceita `status` (`active` \| `inactive`).
+- **L8 — Paciente nas outras telas (T10):** formas existentes que mostram paciente ganham `has_cpf` e `cns_masked` (só os 4 últimos dígitos).
+- **L9 — Saída (T11, T14):** `exit` ganha `death_certificate` (número da DO, opcional) e `death_on`; saída de cadastro recusado → 422 `invalid_transition`. `moved`/`death` são traduzidos pelo api para os motivos da ficha.
+- **L10 — Quem lê a validade (T12):** lista nominal para os profissionais com vínculo na equipe (ACS, enfermeiro, médico); contagens também para `municipal_admin` e `analyst`.
+- **L11 — Trilha (R7):** listas e detalhe de domicílio gravam `clinical_record.viewed` com `access: territory_registry` (uma por consulta; ids mostrados).
+- **L12 — Códigos (R8, R9):** acrescentam-se `cns_taken`, `citizen_not_verified`, `invalid_transition`, `invalid_request`, `invalid_limit`, `identity_locked`, `address_from_household`. Cursor de `registry_status` = `person_ref`. BPA-I sem CPF: CNS, CPF em branco e o indicador de sem CPF do layout, a confirmar na Task 0; muda `contracts/billing/bpa-interface.md` (tag `billing-v1.1.0`).
+- **L13 — Retenção LGPD (R10):** retém quem tem qualquer versão de cadastro gravada ou é responsável de família (superconjunto de "ficha enfileirada"). Paciente sem CPF não tem pedido de exclusão pelo celular; o fluxo do posto é por CPF (runbook).
+- **L14 — Exportação:** sem `ledi_export` a versão grava e nenhuma ficha nasce; não há varredura retroativa. O runbook manda ligar `ledi_export` antes de `territory_registry`.
+- **L15 — Índice de duplicados:** usa a mesma cifra determinística do CPF sobre nome normalizado + nascimento (sem texto claro; a rotação de chave da cidade cobre o índice).
+- **L16 — Maintenance (N1–N3):** rótulo do interruptor "Cadastro individual e domiciliar", sem `environments`; o catálogo chama o módulo de "Cadastro individual e domiciliar" até o 24b; a prova do maintenance usa a 5177 com o serviço do compose parado (o proxy exige o Origin constante), não a 5201.
