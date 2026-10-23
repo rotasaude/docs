@@ -1,6 +1,6 @@
 # Módulo 23 — Linhas de cuidado
 
-- **Estado:** Entregue (2026-10-23; F-23.1–F-23.8 `Verified`; `Fechado` depois de comparar a prévia F-23.6 com uma extração oficial do SIAPS)
+- **Estado:** Fechado (2026-10-23; F-23.1–F-23.8 `Verified`; comparação da prévia F-23.6 com o SIAPS virou pendência de go-live, api#97)
 - **Tipo:** Ciclo 2
 
 ## Escopo
@@ -84,10 +84,10 @@ DUM, notas, motivos e CPF só no corpo; painel só nas equipes do vínculo.
 
 **Pendências abertas:** api#94 (status "cancelado pela unidade" no 17), api#95
 (cifrar motivos em texto livre do 17, antes do go-live), api#96 (rubocop),
-maintenance#1 (`env.test.ts`).
+maintenance#1 (`env.test.ts`), api#97 (comparação com o SIAPS, antes do go-live).
 
-**Gate de fechamento:** comparar a prévia F-23.6 com uma extração oficial do SIAPS
-de uma equipe piloto.
+**Gate de go-live:** comparar a prévia F-23.6 com uma extração oficial do SIAPS de
+uma equipe piloto (api#97, board de pendências, antes do go-live).
 
 Página de status: https://claude.ai/artifact/De7hkPWP8ZwAxTMVzbqnXe
 
@@ -108,3 +108,4 @@ Módulos 15, 17, 18, 19, 21 e 22.
 - 2026-10-22 — Desenho aprovado e `Planejado` (ADR 0040, spec
   `superpowers/specs/2026-10-22-module-23-care-lines-design.md`).
 - 2026-10-23 — **Implementado, publicado e Entregue** (ver "Entrega"). `Fechado` depois do gate do SIAPS.
+- 2026-10-23 — **Verificado e Fechado** por decisão do usuário; a comparação com o SIAPS ficou como pendência de go-live (api#97).
