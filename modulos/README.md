@@ -55,7 +55,7 @@
 | 21 | [Exames e laboratório](21--exames.md) | Entregue (21a, 21b, 21c) | Ciclo 2 | [0036](../adr/0036.md), [0037](../adr/0037.md), [0038](../adr/0038.md), [0031](../adr/0031.md) |
 | 22 | [Procedimentos e faturamento](22--procedimentos.md) | Entregue | Ciclo 2 | [0039](../adr/0039.md), [0028](../adr/0028.md) |
 | 23 | [Linhas de cuidado](23--linhas-de-cuidado.md) | Fechado | Ciclo 2 | [0040](../adr/0040.md), [0031](../adr/0031.md) |
-| 24 | [Atendimento domiciliar e coletivo](24--domiciliar-e-coletivo.md) | Stub | Ciclo 2 | — |
+| 24 | [Atendimento domiciliar e coletivo](24--domiciliar-e-coletivo.md) | Stub | Ciclo 2 | [0041](../adr/0041.md) |
 | 25 | [Vigilância epidemiológica](25--vigilancia-epidemiologica.md) | Stub | Ciclo 2 | — |
 | 26 | [Regulação de média e alta complexidade](26--regulacao.md) | Stub | Ciclo 2 | — |
 | 27 | [Farmácia e almoxarifado](27--farmacia-e-almoxarifado.md) | Stub | Ciclo 2 | — |
@@ -65,7 +65,7 @@
 | 31 | [Atenção psicossocial (CAPS)](31--caps.md) | Stub | Ciclo 2 | — |
 | 32 | [Urgência (UPA)](32--urgencia.md) | Stub | Ciclo 2 | — |
 | 33 | [Ouvidoria](33--ouvidoria.md) | Stub | Ciclo 2 | — |
-| 34 | [Telessaúde](34--telessaude.md) | Stub | Ciclo 2 | — |
+| 34 | [Telessaúde](34--telessaude.md) | Stub | Ciclo 2 | [0041](../adr/0041.md) |
 | 35 | [Zoonoses e endemias](35--zoonoses-e-endemias.md) | Stub | Ciclo 2 | — |
 
 ## Mapa módulo × superfície (MVP)
