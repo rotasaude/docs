@@ -263,3 +263,11 @@ F-23.5,Painel da equipe e busca ativa,mod-23,api|dashboard,"0040,0029",feature
 F-23.6,Prévia dos indicadores C2–C7,mod-23,api|dashboard,0040,feature
 F-23.7,Condição declarada e Meu acompanhamento no wpda,mod-23,api|wpda,"0040,0017",feature
 F-23.8,Aviso de triagem periódica vencida,mod-23,api|wpda,"0040,0027",feature
+F-24.1,Interruptor e microáreas,mod-24,api|dashboard|maintenance,0042,feature
+F-24.2,ACS e agente de endemias sem conselho,mod-24,api|dashboard,"0042,0021",feature
+F-24.3,Paciente sem CPF e possíveis duplicados,mod-24,api|dashboard,0042,feature
+F-24.4,Cadastro domiciliar e família,mod-24,api|dashboard,0042,feature
+F-24.5,"Cadastro individual, recusa e saída",mod-24,api|dashboard,0042,feature
+F-24.6,Validade de 24 meses e quem falta cadastrar,mod-24,api|dashboard,0042,feature
+F-24.7,Fichas LEDI de cadastro,mod-24,api,"0042,0028",feature
+F-24.8,Equipe e óbito pelo cadastro,mod-24,api,"0042,0040",feature
