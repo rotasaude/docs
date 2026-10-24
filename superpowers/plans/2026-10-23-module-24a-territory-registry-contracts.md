@@ -16,7 +16,7 @@ dado pessoal sem dado em `inspect`/`to_s`/`pretty_print`/`as_json`.
 | Spec | Código |
 |---|---|
 | interruptor | `territory_registry` (`requires: ["feature:clinical_record"]`) |
-| situação do cadastro | `valid` \| `due_soon` (vence em ≤ 60 dias) \| `expired` (> 24 meses) \| `missing` \| `refused` \| `exited` |
+| situação do cadastro | `valid` \| `due_soon` (vence em ≤ 60 dias) \| `expired` (≥ 24 meses desde a última versão, no dia da cidade) \| `missing` \| `refused` \| `exited` |
 | motivo de saída | `moved` \| `death` |
 | sem CPF | `no_cpf_reason`: códigos da ficha (fixados na Task 0 do api) |
 | profissionais de campo | CBO `515105` (ACS), `515140` (agente de endemias) |
@@ -137,6 +137,8 @@ Reconciliação dos planos do api (R1–R10, desvios), do dashboard (T1–T15) e
 - **L21 — Forma do cadastro (Task 10 do api):** `<registration>.patient` ganha `full_name`, `mother_name`, `cns_masked` e `identity_locked`; `<registration>` ganha `patient_demographics` e `identification`; `exit` = `{ "reason", "on", "death_on"|null, "death_certificate"|null }` (`death_on` obrigatório no óbito). `social_name` também fica só leitura com par validado. `GET /territory/registrations?patient_id=` de paciente sem cadastro na equipe do usuário → 200 com lista vazia. `person_lookup` responde sem envelope. `patients:backfill_match_keys` é passo obrigatório do rollout.
 
 - **L22 — Equipe na linha inscrita (ajusta o §9):** inscrição ativa numa linha de cuidado mantém a equipe da inscrição **naquela linha**; o cadastro define a equipe em todo o resto (demais linhas, população da equipe, prévia, validade). Cadastro com recusa e sem saída também define a equipe. Óbito registrado pela saída do cadastro conta como óbito mesmo com o interruptor desligado depois.
+
+- **L23 — Validade (Task 12 do api):** exatamente 24 meses já é `expired` (conservador: "atualizado nos últimos 24 meses"). A lista de `registry_status` aceita também `status=valid` e `status=refused`. O ACS vê só a própria microárea; óbito sai da população; saída `moved` volta a pessoa para `missing`.
 
 ## 15. Dicionários das fichas (prova técnica, Task 0 do api)
 
