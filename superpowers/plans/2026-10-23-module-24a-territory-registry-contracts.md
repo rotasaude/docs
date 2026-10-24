@@ -136,6 +136,8 @@ Reconciliação dos planos do api (R1–R10, desvios), do dashboard (T1–T15) e
 
 - **L21 — Forma do cadastro (Task 10 do api):** `<registration>.patient` ganha `full_name`, `mother_name`, `cns_masked` e `identity_locked`; `<registration>` ganha `patient_demographics` e `identification`; `exit` = `{ "reason", "on", "death_on"|null, "death_certificate"|null }` (`death_on` obrigatório no óbito). `social_name` também fica só leitura com par validado. `GET /territory/registrations?patient_id=` de paciente sem cadastro na equipe do usuário → 200 com lista vazia. `person_lookup` responde sem envelope. `patients:backfill_match_keys` é passo obrigatório do rollout.
 
+- **L22 — Equipe na linha inscrita (ajusta o §9):** inscrição ativa numa linha de cuidado mantém a equipe da inscrição **naquela linha**; o cadastro define a equipe em todo o resto (demais linhas, população da equipe, prévia, validade). Cadastro com recusa e sem saída também define a equipe. Óbito registrado pela saída do cadastro conta como óbito mesmo com o interruptor desligado depois.
+
 ## 15. Dicionários das fichas (prova técnica, Task 0 do api)
 
 Fonte: documentação LEDI 8.7.0 baixada em 2026-10-23 para `apps/api/vendor/ledi/8.7.0/docs/` (SHA-256 em `vendor/ledi/8.7.0/SOURCE`), conferida campo a campo contra o IDL vendorizado (`9316f280f5`). O arquivo que manda é `apps/api/config/ledi/registration_dictionaries.yml` (api `c1665bf`, guardado por `spec/services/ledi/registration_dictionaries_spec.rb`); as tabelas abaixo são geradas dele. Chave = nome do campo do IDL em `snake_case` (`underscore` do ActiveSupport); **quando a documentação e o IDL divergem no nome, vale o IDL** (é o que vai no binário). Códigos de domínio são **inteiros** (L1), exceto os dois domínios de campo texto do fim.
