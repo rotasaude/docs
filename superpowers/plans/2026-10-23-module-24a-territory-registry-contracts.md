@@ -132,7 +132,7 @@ Reconciliação dos planos do api (R1–R10, desvios), do dashboard (T1–T15) e
 
 - **L19 — Pré-voo da execução (2026-10-23):** `GET /territory/registry_status/count` → `{ "valid", "due_soon", "expired", "missing", "missing_identifier" }`, e a lista aceita `status=missing_identifier`. A validade de 24 meses conta da **última** versão (gravação ou atualização de identidade). Cadastro com `household_id` copia o endereço do domicílio para o morador. Saída do cadastro só por quem cadastra (o cabeçalho da ficha exige CNS e CBO); o admin não registra saída. Quem cadastra precisa ter CBO das tabelas do LEDI (403 `cbo_not_allowed`).
 
-- **L20 — UF e IBGE:** `territory_registry` só liga com `CityProfile.uf` e `ibge_code` preenchidos (mesmo mecanismo do `procedure_billing`); se faltarem com o interruptor ligado, a versão grava e a ficha fica "não gerada" (`city_profile_incomplete`), nunca 500. Nomes vão para a ficha no conjunto oficial do "Validar nome" (Ç→C, diacríticos fora de agudo/circunflexo/til/trema removidos, hífen→espaço, apóstrofo simples); o paciente guarda o nome como digitado.
+- **L20 — UF e IBGE:** `territory_registry` declara a exigência de `CityProfile.uf` e `ibge_code` (mesmo mecanismo do `procedure_billing`: o maintenance mostra `usable: false` com `ibge_code_missing`/`uf_missing`, sem bloquear as rotas); enquanto faltarem, a versão grava e a ficha fica "não gerada" (`city_profile_incomplete`), nunca 500, e o reenvio gera a ficha depois de completar o perfil. Nomes vão para a ficha no conjunto oficial do "Validar nome" (Ç→C, diacríticos fora de agudo/circunflexo/til/trema removidos, hífen→espaço, apóstrofo simples); o paciente guarda o nome como digitado.
 
 ## 15. Dicionários das fichas (prova técnica, Task 0 do api)
 
