@@ -144,6 +144,8 @@ Reconciliação dos planos do api (R1–R10, desvios), do dashboard (T1–T15) e
 
 - **L25 — Fechamento do api (17175a8):** lista de domicílios em ordem `registered_at DESC, id DESC` com `next_before` opaco; `ocupacao_codigo_cbo2002` no formato `[0-9A-Z]{6}`; `POST /territory/patients/duplicates` limitado a 30 por minuto por usuário (429); chave `uf_missing` no maintenance (L20).
 
+- **L26 — Endereço travado (Task 7 do dashboard):** `address_from_household` é calculado pelo mesmo lookup da gravação (par vinculado ou CPF) e vem também em `attendance#lookup` e `check_ins#exception`, além do check-in com código e da pendência do faturamento. Depois de um 422 `address_from_household`, a tela trava o endereço. Fora da raça/cor `05`, o PATCH de dados do paciente do faturamento manda `ethnicity: ""` (apaga a etnia gravada; o L17 vale para a ficha).
+
 ## 15. Dicionários das fichas (prova técnica, Task 0 do api)
 
 Fonte: documentação LEDI 8.7.0 baixada em 2026-10-23 para `apps/api/vendor/ledi/8.7.0/docs/` (SHA-256 em `vendor/ledi/8.7.0/SOURCE`), conferida campo a campo contra o IDL vendorizado (`9316f280f5`). O arquivo que manda é `apps/api/config/ledi/registration_dictionaries.yml` (api `c1665bf`, guardado por `spec/services/ledi/registration_dictionaries_spec.rb`); as tabelas abaixo são geradas dele. Chave = nome do campo do IDL em `snake_case` (`underscore` do ActiveSupport); **quando a documentação e o IDL divergem no nome, vale o IDL** (é o que vai no binário). Códigos de domínio são **inteiros** (L1), exceto os dois domínios de campo texto do fim.
