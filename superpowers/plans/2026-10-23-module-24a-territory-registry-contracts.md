@@ -148,6 +148,8 @@ Reconciliação dos planos do api (R1–R10, desvios), do dashboard (T1–T15) e
 
 - **L27 — Quem lê a equipe toda:** `GET /territory/teams` traz, por equipe, `reads_whole_team: bool`, calculado pela mesma regra do `registry_status` (enfermeiro e médico leem a equipe toda; ACS só a própria microárea). O dashboard usa esse campo para oferecer "todas as microáreas" e a aba "Sem cadastro", em vez de deduzir pelo número de microáreas.
 
+- **L28 — Revisão final do dashboard (2026-10-26):** (a) criar ou trocar a família atualiza o cadastro ativo do responsável no mesmo domicílio (`family_id`, `is_responsible: true`; o anterior perde a marca), com nova versão e ficha individual em nome de quem gravou a família; (b) `new_patient` cujo `match_key` já existe → 409 `duplicate_suspected`, a menos que o corpo traga `duplicates_reviewed: true` (o dashboard só manda depois de mostrar a busca e o usuário escolher "é outra pessoa"); (c) na ficha, nome, nascimento e mãe de pessoa nova ficam só leitura depois da busca, com "Corrigir (refaz a busca)".
+
 ## 15. Dicionários das fichas (prova técnica, Task 0 do api)
 
 Fonte: documentação LEDI 8.7.0 baixada em 2026-10-23 para `apps/api/vendor/ledi/8.7.0/docs/` (SHA-256 em `vendor/ledi/8.7.0/SOURCE`), conferida campo a campo contra o IDL vendorizado (`9316f280f5`). O arquivo que manda é `apps/api/config/ledi/registration_dictionaries.yml` (api `c1665bf`, guardado por `spec/services/ledi/registration_dictionaries_spec.rb`); as tabelas abaixo são geradas dele. Chave = nome do campo do IDL em `snake_case` (`underscore` do ActiveSupport); **quando a documentação e o IDL divergem no nome, vale o IDL** (é o que vai no binário). Códigos de domínio são **inteiros** (L1), exceto os dois domínios de campo texto do fim.
