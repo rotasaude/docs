@@ -96,9 +96,50 @@ Bairro: domicílio do cadastro territorial (24a) → `citizens.neighborhood_id` 
 3. `maintenance` (prova na 5177 com o serviço do compose parado), worktree em `rota-saude/.worktrees/maintenance-mod25`.
 4. Catálogo público.
 
+## 14. Ficha de notificação individual
+
+Fixado pela Task 0 do api (`config/surveillance/sinan-form.yml`, versão "Sinan NET v5 — notificação
+individual (campos 1–30)"; fontes em `apps/api/vendor/surveillance/2026-10-27/`). `form` é um objeto
+com estas chaves (todas opcionais; ausente ou `null` = não preenchido); valor fora do domínio ou do
+limite → 422 `invalid_form` com `path: "form.<chave>"`. O campo é o número no bloco de notificação
+individual da Ficha de Notificação/Conclusão e das fichas de investigação do Sinan (a mesma numeração
+do dicionário de dados). Nome, nascimento, idade, sexo, Cartão SUS e nome da mãe (8–11, 15, 16) vêm do
+paciente; agravo + CID, datas, unidade e município de residência (2–7, 18) vêm da notificação — só
+leitura, fora de `form`.
+
+| chave | campo | tipo | domínio (código: descrição) | limite | pré-preenchido de |
+|---|---|---|---|---|---|
+| `pregnancy` | 12 Gestante | código | 1: 1º trimestre · 2: 2º trimestre · 3: 3º trimestre · 4: Idade gestacional ignorada · 5: Não · 6: Não se aplica · 9: Ignorado | — | vazio |
+| `race_color` | 13 Raça/Cor | código | 1: Branca · 2: Preta · 3: Amarela · 4: Parda · 5: Indígena · 9: Ignorado | — | raça/cor do paciente convertida (BPA `01→1`, `02→2`, `03→4`, `04→3`, `05→5`; sem raça → `9`) |
+| `schooling` | 14 Escolaridade | código | 0: Analfabeto · 1: 1ª a 4ª série incompleta do EF · 2: 4ª série completa do EF · 3: 5ª à 8ª série incompleta do EF · 4: Ensino fundamental completo · 5: Ensino médio incompleto · 6: Ensino médio completo · 7: Educação superior incompleta · 8: Educação superior completa · 9: Ignorado · 10: Não se aplica | — | vazio |
+| `residence_uf` | 17 UF | UF (sigla) | 27 UFs | 2 | endereço do paciente |
+| `residence_district` | 19 Distrito | texto | — | 60 | vazio |
+| `residence_neighborhood` | 20 Bairro | texto | — | 60 | endereço do paciente |
+| `residence_street` | 21 Logradouro | texto | — | 60 | endereço do paciente |
+| `residence_number` | 22 Número | texto | — | 6 | endereço do paciente |
+| `residence_complement` | 23 Complemento | texto | — | 30 | endereço do paciente |
+| `residence_geo1` | 24 Geo campo 1 | dígitos | código da tabela georreferenciada do município | 1–8 | vazio |
+| `residence_geo2` | 25 Geo campo 2 | dígitos | código da tabela georreferenciada do município | 1–8 | vazio |
+| `residence_reference` | 26 Ponto de referência | texto | — | 70 | vazio |
+| `residence_zip` | 27 CEP | dígitos | — | 8 exatos | endereço do paciente |
+| `phone` | 28 (DDD) Telefone | dígitos | DDD + número | 10–11 | telefone do par validado |
+| `residence_zone` | 29 Zona | código | 1: Urbana · 2: Rural · 3: Periurbana · 9: Ignorado | — | vazio |
+| `residence_country` | 30 País (se residente fora do Brasil) | texto | — | 40 | vazio |
+| `occupation_cbo` | — ("Ocupação" das fichas de investigação, número variável 31–34; não existe na Notificação/Conclusão nem na NINDIV) | CBO | código CBO | — (tamanho fora do dicionário baixado) | ocupação da última versão do cadastro individual (24a) |
+
+**Achados da Task 0**
+
+- **Semana epidemiológica (V1/K1):** conferida nos calendários do Sinan de 2025 e 2026 — `2025-12-28..2026-01-03` = `2025-53`; `2026-01-04` = `2026-01`; `2026-10-27` = `2026-43`; `2027-01-02` = `2026-52` (2026 não tem semana 53). Regra: domingo a sábado; semana 1 = a que tem mais dias de janeiro (= a que contém 4 de janeiro).
+- **Numeração da ficha:** a NINDIV v5 genérica (negativa/individual/surto) numera a residência 20–33; a numeração acima (17–30) é a do bloco individual da Ficha de Notificação/Conclusão, das fichas de investigação e do dicionário de dados. Ocupação só existe nas fichas de investigação, com número variável (31–34; ausente em tuberculose e PFA) e sem tamanho no dicionário da notificação individual — por isso sem número de campo.
+- **Limites do dicionário de dados do Sinan:** ponto de referência 70; geocampos são códigos numéricos (até 8 dígitos) da tabela do município; distrito e país são códigos de tabela no Sinan — a ficha guarda o nome (60 e 40 são proposta).
+- **Caxumba:** semanal (anexo), não imediata (art. 2º); a doença carrega a nota.
+- **CIAP-2:** só rubricas que correspondem a uma doença da lista (`A71`, `A72`, `A73`, `B90`, `D71`, `D72`, `R71`, `A84`, `Z25`); ambíguas fora (`A70` e `N70` incluem efeitos tardios/sequelas, `A74`, `A76`, `A77`, `A78`, `X70`, `Y70`, `N71`, `N72`, `D70`, `A86`, `S13`).
+- **Formas imediatas sem CID própria** (óbito por dengue, Zika em gestante e óbito, chikungunya em área sem transmissão e óbito, Oropouche óbito/gestante/anomalia, violência sexual e tentativa de suicídio): ficam em `notes` da doença; a vigilância notifica à mão. **15 doenças sem CID** (`cid10: []`) só entram por notificação manual.
+- **`X22` (escorpião) é da lista nacional** (acidente por animal peçonhento): não serve para doença local.
+
 ## 15. Acréscimos (revisão dos planos, 2026-10-27)
 
-Reconciliação dos planos do api (V1–V17), do dashboard (D1–D16) e do maintenance (M1–M6). O §14 continua reservado para a ficha (Task 0 do api).
+Reconciliação dos planos do api (V1–V17), do dashboard (D1–D16) e do maintenance (M1–M6). O §14 é a ficha de notificação individual, fixada pela Task 0 do api.
 
 - **K1 — Semana epidemiológica (V1, D16; corrige o §1):** a semana 1 é a que contém 4 de janeiro (domingo a sábado); há anos com semana 53 (`2022-01-01` = `2021-52`; `2026-01-03` = `2025-53`). A Task 0 confere no calendário do Sinan.
 - **K2 — Códigos (V2, V3, M3):** códigos sem ponto; CID-10 de 3 caracteres cobre a categoria; nenhum código em duas doenças; CIAP-2 só quando corresponde a uma única doença; doença local com prefixo `local_`; colisão de código ou de CID/CIAP com a plataforma → 409 `duplicate_code` com `path`. `<disease>` ganha `notes`; a local ganha `id` e `active` (D4).
@@ -112,3 +153,4 @@ Reconciliação dos planos do api (V1–V17), do dashboard (D1–D16) e do maint
 - **K10 — Saídas (V15, V16, D12):** colunas do CSV fixadas no plano do api, CNS só nos 4 últimos dígitos; pré-preenchimento da ficha traduz raça/cor do paciente para o Sinan (03 parda → 4, 04 amarela → 3); `Content-Disposition` sem dado pessoal (`notificacao-<id>.pdf`, `notificacoes-<YYYY-WW>.csv`).
 - **K11 — Unidade notificadora (V17, D14, D15):** `notifying` no POST/PATCH e no JSON da unidade; padrão `true` para unidades do tipo UBS na criação.
 - **K12 — Pré-voo da execução (2026-10-27):** (a) a mutação usa argumentos planos, convenção do `BaseMutation`: `publishNotifiableDiseaseList(diseases, effectiveFrom, expectedVersion, ordinance, notes?, code)` → `{ ok, errors, version }`; `notes` e `sources` ficam na versão; (b) a API aceita notificar consulta já finalizada (evita corrida com a rede de segurança); só a tela deixa de oferecer; (c) recusas acrescentadas: `invalid_limit`, `invalid_cursor` (fila com cursor opaco) e `invalid_notifying`; (d) se uma versão nova da plataforma passar a cobrir um CID/CIAP de doença local, a plataforma vence na correspondência e a doença local é recusada só na próxima edição dela.
+- **K13 — Prova técnica (Task 0 do api, 2026-10-27):** (a) SRAG só por notificação manual (o J11 da ficha é o da gripe sazonal); (b) malária com prazo imediato (região extra-amazônica), com nota para a região amazônica; (c) códigos genéricos impressos nas fichas — F99, L98.9, C80 e Z20.9 — não disparam sugestão (doença só manual, com nota); W64, Y09, O98.6, A92.8 e Z57.9 continuam; validar com a vigilância piloto (runbook); (d) a semente usa um agravo de notificação estadual do PR com fonte, ou uma doença local fictícia rotulada de dev; (e) tuberculose ganha os códigos extrapulmonares do GVS que não colidem. Lacunas registradas: P35.4 fora da tabela DATASUS 2008; Oropouche apoiado na NT 117 (cópia da SES-MG); resposta do Fala.BR sobre a caxumba não baixada.
