@@ -271,3 +271,11 @@ F-24.5,"Cadastro individual, recusa e saída",mod-24,api|dashboard,0042,feature
 F-24.6,Validade de 24 meses e quem falta cadastrar,mod-24,api|dashboard,0042,feature
 F-24.7,Fichas LEDI de cadastro,mod-24,api,"0042,0028",feature
 F-24.8,Equipe e óbito pelo cadastro,mod-24,api,"0042,0040",feature
+F-25.1,"Interruptor, papel de vigilância e lista de doenças",mod-25,api|dashboard|maintenance,0043,feature
+F-25.2,Sugestão de notificação na consulta,mod-25,api|dashboard,"0043,0031",feature
+F-25.3,Rede de segurança na finalização,mod-25,api,0043,feature
+F-25.4,"Fila, notificação manual e ficha",mod-25,api|dashboard,"0043,0042",feature
+F-25.5,"Andamento, encerramento e número oficial",mod-25,api|dashboard,0043,feature
+F-25.6,"Prazos, alertas e notificação negativa",mod-25,api|dashboard,0043,feature
+F-25.7,"Ficha em PDF, CSV por semana e relatório sem número",mod-25,api|dashboard,0043,feature
+F-25.8,Painel por bairro e semana epidemiológica,mod-25,api|dashboard,"0043,0025",feature
