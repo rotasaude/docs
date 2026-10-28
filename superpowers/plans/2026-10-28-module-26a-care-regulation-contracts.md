@@ -88,3 +88,17 @@ Interruptor `care_regulation` (rótulo e dependência, mecanismo genérico).
 2. `dashboard` (Vite 5203) e `wpda` (Vite 5204), worktrees em `rota-saude/.worktrees/<app>-mod26a`.
 3. `maintenance` (prova na 5177 com o serviço do compose parado).
 4. Catálogo público.
+
+## 13. Acréscimos (revisão dos planos, 2026-10-28)
+
+Reconciliação dos planos do api (R1–R19), do dashboard (D1–D18), do wpda (W1–W7) e do maintenance (M1–M3).
+
+- **G1 — Autorizações (R1, R4–R7, R10, R11):** tabela `regulation_authorizations` (uma por autorização; saldo da oferta = autorizações ativas do mês). Só a oferta do mês corrente no fuso da cidade é autorizável. Cancelar na rede própria só com o pedido de agendamento ainda `open` (422 `appointment_scheduled`); encerramentos do 17 fora da regulação viram `cancelled` com a cota liberada; horário expirado volta a `authorized` sem contar falta; `missed` nunca é situação atual (só andamento), `outcome` = `completed`\|`missed`\|null; externo agendado = `scheduled`, remarcar mantém o mês.
+- **G2 — Ordem da fila (R8, D6):** vencidos primeiro, depois cor, depois data do pedido — no api, numa leitura só (a tela não faz duas leituras).
+- **G3 — Alvos (R2, R9, R13, W3):** `GET /regulation/targets?type=&q=` (busca de especialidade CBO ou SIGTAP regulável); código do grupo 02 ativo no catálogo de exames do 21a é recusado (422 `invalid_target`, `hint: "exam_order"`); o pedido de agendamento `regulated` usa `consulta_medica` ou `consulta_odontologica`, prioridade alta para vermelho; `label` do cidadão = "Consulta em <especialidade>" ou o nome do procedimento.
+- **G4 — Rascunho e finalização (R14, D3, D4):** até 10 rascunhos por consulta; rascunho que deixou de valer **não bloqueia** a finalização — fica em `draft`, a consulta finaliza, e o profissional vê "pedido não enviado" e pode corrigir por adendo; recusas de rascunho trazem `index`. `cid10` é opcional para quem não pode registrar CID-10 (enfermeiro), com `ciap2` opcional no lugar.
+- **G5 — Recusas (R3, D10, D12, D18):** `invalid_offer`, `citizen_not_verified`, `appointment_scheduled`, `regulation_request_required`, `invalid_transition`, `invalid_month`, `duplicate_offer`, `cnes_taken`, `unit_taken`, `duplicate_item`, `invalid_query`, `invalid_limit`, `invalid_cursor`, `invalid_deadlines` (cor menos grave com prazo menor que a mais grave); nome do prestador com 3 a 120 caracteres; 422 `skip_reason_required` sem nenhum dado dos outros pedidos (nem contagem).
+- **G6 — Leitura e eventos (R12, R15, R16, D8):** fila e detalhe só para o regulador; guia para quem pediu, a unidade solicitante e o regulador; devolvidos da unidade vêm com `events`. Eventos novos `regulation_request.complemented`, `regulation_request.external`, `care_regulation.settings_changed` (só ids). A sincronização com o 17 independe do interruptor.
+- **G7 — Prestador próprio e textos (R17, R19):** prestador `own` exige unidade ativa, herda o CNES e não muda de tipo; motivos 10–500 caracteres, local 1–200, observação até 500; `due_on` só é recalculado quando a cor muda e conta da data original.
+- **G8 — Saídas (R18, D17):** colunas do CSV fixadas no plano do api; `Content-Disposition` sem dado pessoal (`guia-regulacao-<id>.pdf`, `regulacao-estado-<data>.csv`).
+- **G9 — wpda e maintenance (W5, M1–M3):** a sessão do cidadão lista `care_regulation` nas features; o interruptor chega com `missing: ["clinical_record_disabled"]`; o catálogo usa o id `"26a"`; o maintenance faz merge depois de api, dashboard e wpda.
