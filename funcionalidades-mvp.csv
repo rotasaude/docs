@@ -279,3 +279,10 @@ F-25.5,"Andamento, encerramento e número oficial",mod-25,api|dashboard,0043,fea
 F-25.6,"Prazos, alertas e notificação negativa",mod-25,api|dashboard,0043,feature
 F-25.7,"Ficha em PDF, CSV por semana e relatório sem número",mod-25,api|dashboard,0043,feature
 F-25.8,Painel por bairro e semana epidemiológica,mod-25,api|dashboard,"0043,0025",feature
+F-26.1,"Interruptor, papel de regulador e prazos por cor",mod-26,api|dashboard|maintenance,0044,feature
+F-26.2,Pedido de regulação na consulta e guia,mod-26,api|dashboard,"0044,0031",feature
+F-26.3,Fila regulada e decisões do regulador,mod-26,api|dashboard,0044,feature
+F-26.4,"Prestadores, ofertas e cotas",mod-26,api|dashboard,0044,feature
+F-26.5,"Agendamento e desfecho (realizado, falta)",mod-26,api|dashboard,"0044,0029",feature
+F-26.6,Convivência com o sistema do estado,mod-26,api|dashboard,0044,feature
+F-26.7,Situação do pedido no wpda,mod-26,api|wpda,"0044,0017",feature
