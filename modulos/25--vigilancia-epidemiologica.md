@@ -50,7 +50,7 @@ investigação de campo (35).
 | `api` | `139ab0e7` | 32 commits; suíte completa 7615/0; migrações de plataforma `20261027900001` e de cidade `20261027900002` |
 | `dashboard` | `956f57f` | 18 commits; 4368/0 |
 | `maintenance` | `83239db` | interruptor `surveillance` e lista de doenças da plataforma (publicação com step-up) |
-| `catalog` | pendente | Task 6 do maintenance, depois da autorização |
+| `catalog` | `2634b21` | rotasaude/catalog#32; F-25.7 e o módulo "em validação" até casos reais digitados no Sinan |
 | `docs` | contrato §14 (ficha) e §15 K1–K17 | runbook [`operacao/rollout-vigilancia.md`](../operacao/rollout-vigilancia.md) |
 
 **Prova técnica:** Portaria 11.211/2026 e 58 fontes oficiais vendorizadas com SHA-256 no api; 71 doenças cobrindo os 66 itens, com fonte por linha; CID-10 e CIAP-2 conferidos; ficha de notificação individual do Sinan publicada como §14; semana epidemiológica conferida no calendário do Sinan (SE 53/2025).
