@@ -1,6 +1,6 @@
 # Módulo 26 — Regulação de média e alta complexidade
 
-- **Estado:** Planejado (26a); 26b e 26c depois
+- **Estado:** 26a Entregue (2026-10-29; F-26.1–F-26.7 `Verified`); 26b e 26c depois
 - **Tipo:** Ciclo 2
 
 ## Escopo (intenção)
@@ -39,6 +39,25 @@ Encaminhamento ao especialista, fila regulada, classificação de risco, cotas (
 
 - F-26.1 a F-26.7 verificadas, com prova no navegador.
 
+## Entrega do 26a (2026-10-29)
+
+| Repo | Commit | Observação |
+|---|---|---|
+| `api` | `51c33aee` | 44 commits; suíte completa 8072/0; migração de cidade `20261028900001` (inclui `attendances.referral_regulated`) |
+| `dashboard` | `75a2d06` | 25 commits; 4607/0 |
+| `wpda` | `e699cd0` | 9 commits; "Meus encaminhamentos" |
+| `maintenance` | `eb18725` | interruptor `care_regulation` |
+| `catalog` | pendente | Task 3 do maintenance |
+| `docs` | contrato §13 G1–G16 | runbook [`operacao/rollout-regulacao.md`](../operacao/rollout-regulacao.md) |
+
+**Execução em paralelo** (pedido do usuário): três frentes (api; dashboard; wpda e maintenance) com até três implementadores, fronts contra dublês até a task do api correspondente ficar pronta.
+
+**Prova no navegador (2026-10-28/29):** pedido na consulta até a fila; ordem com vencidos no topo; motivo para furar a fila; saldo e cota esgotada; devolvido e complemento; externo agendado e realizado; CSV e guia em PDF; prazos e lista do enfermeiro; cidadão no celular (agendado, autorizado, realizado, devolvido, só declarado, interruptor desligado), sem cor, posição, CID ou prazo; interruptor no maintenance.
+
+**Decisões tomadas na execução** (contrato §13): SIGTAP regulável com BPA mesmo havendo APAC; patologia, radiologia, medicina nuclear, patologia bucal e endoscopia como procedimento; dentista e enfermeiro com CIAP-2 quando não podem CID-10; rascunho inválido nunca bloqueia a finalização nem o adendo; `attendances.referral_regulated`; cor confirmada × efetiva; o cidadão não recebe o prazo (revelaria a cor); desfecho só a partir do dia do agendamento; "Autorizado — aguardando o agendamento".
+
+**Evolução registrada:** fila de cirurgia eletiva (AIH) no 26b; documento assinado listando os pedidos de regulação.
+
 ## Integrações externas
 
 MIRA diário à RNDS se a cidade regular no Rota Saúde (Portaria 6.656/2025); convivência com SISREG (sem novas adesões), e-SUS Regulação e sistemas estaduais (CARE-PR, CROSS), todos sem API de escrita. Detalhe e fontes em
@@ -54,3 +73,4 @@ Módulos 19, 17.
   novos módulos; decisão de suíte completa).
 - 2026-10-28 — Desenho do 26a aprovado e `Planejado` (ADR 0044, spec
   `superpowers/specs/2026-10-28-module-26a-care-regulation-design.md`).
+- 2026-10-29 — 26a **implementado, publicado e Entregue** (ver "Entrega do 26a").
