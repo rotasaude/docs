@@ -286,3 +286,10 @@ F-26.4,"Prestadores, ofertas e cotas",mod-26,api|dashboard,0044,feature
 F-26.5,"Agendamento e desfecho (realizado, falta)",mod-26,api|dashboard,"0044,0029",feature
 F-26.6,Convivência com o sistema do estado,mod-26,api|dashboard,0044,feature
 F-26.7,Situação do pedido no wpda,mod-26,api|wpda,"0044,0017",feature
+F-27.1,"Interruptor, papéis e locais de estoque",mod-27,api|dashboard|maintenance,0045,feature
+F-27.2,"Entradas, lotes e validade",mod-27,api|dashboard,0045,feature
+F-27.3,Transferência do almoxarifado para a unidade,mod-27,api|dashboard,0045,feature
+F-27.4,"Inventário, ajustes e perdas",mod-27,api|dashboard,0045,feature
+F-27.5,Dispensação pela receita,mod-27,api|dashboard,"0045,0033",feature
+F-27.6,Receita externa e controlados,mod-27,api|dashboard,"0045,0034",feature
+F-27.7,"Alertas, posição e extrato",mod-27,api|dashboard,0045,feature
