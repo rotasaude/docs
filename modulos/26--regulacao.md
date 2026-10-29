@@ -58,6 +58,8 @@ Encaminhamento ao especialista, fila regulada, classificação de risco, cotas (
 
 Página de status: https://claude.ai/artifact/TEtXBsJ5skPLaU4SoTTLvj
 
+**Rodada de fechamento (2026-10-29):** api `ded8a0eb`, dashboard `fb18217`, wpda `886ab9a` — rastro da troca de número externo, CNES do prestador próprio lido da unidade, sementes de dev resistentes a óbito, paginação dos devolvidos (contrato G17), e2e do wpda sem api real, teste do formulário de domicílio estável; suíte completa 8087/0. Card api#102 (documento assinado com os pedidos de regulação).
+
 **Evolução registrada:** fila de cirurgia eletiva (AIH) no 26b; documento assinado listando os pedidos de regulação.
 
 ## Integrações externas
