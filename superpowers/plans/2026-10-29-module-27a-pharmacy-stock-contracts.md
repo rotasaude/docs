@@ -90,3 +90,19 @@ Interruptor `pharmacy` (rótulo e descrição; mecanismo genérico).
 2. `dashboard` (Vite 5205), worktree em `rota-saude/.worktrees/dashboard-mod27a`.
 3. `maintenance` (prova na 5177 com o serviço do compose parado).
 4. Catálogo público.
+
+## 13. Acréscimos (revisão dos planos, 2026-10-29)
+
+Reconciliação dos planos do api (P1–P18), do dashboard (D1–D25) e do maintenance (M1–M4).
+
+- **H1 — Unidade de dispensação (P1, corrige o §2):** `medication_catalog_items.unit` é a unidade da concentração; a unidade de dispensação sai de `dosage_form` por tabela YAML do api e fica gravada no lote (`<lot>.item.dispensing_unit`). Quantidades com até 2 casas, máximo 99999,99, sempre como string `"30.00"` na saída.
+- **H2 — Tabelas e rotas (P2, P3, D1–D7, D10, D12, D25):** tabelas auxiliares do plano do api (`stock_location_staff`, `pharmacy_settings`, `stock_entries`, `stock_openings`, `stock_transfer_items`, `stock_adjustments`, `dispensation_items`, `external_prescription_items`). Rotas novas: `GET /pharmacy/locations` (meus locais com `roles`; o `stock_keeper` do central vê todos), `POST /pharmacy/items/search`, `POST /pharmacy/person_lookup` (par validado vira paciente, como no 24a), `POST /pharmacy/patients/duplicates`, `GET /pharmacy/adjustments[/:id]`, `GET /pharmacy/transfers/:id`, `POST /pharmacy/returns`. `GET` dos mínimos traz `item`; posição aceita `catalog_item_id=`; `<transfer>` e `<adjustment>` com as formas do plano do api, `<adjustment>.by` com `user_id`; itens de `<dispensation>` com `id`, nome do item e número do lote. Abertura duplicada → 409 `opening_exists` (também pelo farmacêutico). Staff sem e-mail na resposta.
+- **H3 — Validade e intervalo (P4, P5, P9, P15, P16):** `valid_until` e `expired` também por item; o intervalo de 25 dias conta por item da receita; receita do 19c emitida em papel também é dispensável; busca por paciente olha os últimos 365 dias, até 20 receitas; receita externa: conselho CRM, CRO ou COREN, posologia 3–500, número da notificação obrigatório nas listas A/B (`notification_required`), validade fixa de 30 dias para controlado.
+- **H4 — Ajustes (P6, D17):** só o ajuste de contagem acima do limite vai para aprovação; perda e vencimento são aplicados na hora; o farmacêutico também faz abertura e ajuste.
+- **H5 — Transferência (P7, D18):** diferença no recebimento = `transfer_in` do enviado + `loss` da diferença no destino, com motivo.
+- **H6 — Retenção (P8, D14):** controlado (Portaria 344) só pelo farmacêutico, com retenção; **antimicrobiano** (RDC 471/2021) exige retenção da 2ª via por quem dispensa (farmacêutico ou auxiliar); `retention: {}` com o número tirado do documento quando houver.
+- **H7 — Prontuário (P10, D22, D23):** a dispensação aparece na linha do tempo só para o profissional (wpda não muda), com `status: "dispensed"` e filtro `kinds[]=dispensation`, e continua visível com o interruptor desligado; `last_dispensed_on` por item da lista de medicamentos.
+- **H8 — Recusas (P12, D20, D21):** recusas do plano do api, mais `prescription_not_found`; em escrita com vários itens (entrada, dispensação, transferência, receita externa), o 422 traz `problems: [ { "path", "error" } ]` com todas as recusas de uma vez.
+- **H9 — Eventos e papéis (P11, P17, P18, D19):** evento novo `dispensation.returned`, payloads do plano do api (só ids); `pharmacist` e `pharmacy_assistant` em `PRIVILEGED_ROLES`, `stock_keeper` não; vínculo ao local exige a `Membership` ativa do papel e, para `pharmacist`, CBO `2234*`.
+- **H10 — Listas (P14, D15, D24):** posições ordenadas por (local, item) com cursor opaco; alertas são contagens (as listas da tela vêm da posição); faixas das configurações do plano do api.
+- **H11 — Maintenance (M1–M4):** interruptor "Farmácia e almoxarifado" sem `requires` nem `missing`, sem `environments`, descrição do `CATALOG` do api; catálogo com o id `"27a"`.
