@@ -47,7 +47,7 @@ Encaminhamento ao especialista, fila regulada, classificação de risco, cotas (
 | `dashboard` | `75a2d06` | 25 commits; 4607/0 |
 | `wpda` | `e699cd0` | 9 commits; "Meus encaminhamentos" |
 | `maintenance` | `eb18725` | interruptor `care_regulation` |
-| `catalog` | pendente | Task 3 do maintenance |
+| `catalog` | `4807d7e` | F-26.6 "em validação" até a secretaria piloto digitar pedidos reais no sistema do estado |
 | `docs` | contrato §13 G1–G16 | runbook [`operacao/rollout-regulacao.md`](../operacao/rollout-regulacao.md) |
 
 **Execução em paralelo** (pedido do usuário): três frentes (api; dashboard; wpda e maintenance) com até três implementadores, fronts contra dublês até a task do api correspondente ficar pronta.
