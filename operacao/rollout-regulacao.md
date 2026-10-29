@@ -26,8 +26,10 @@ Migração de **cidade** `20261028900001_add_care_regulation` **irreversível** 
 Publicar a imagem e rodar o `bin/migrate` **dela**, antes de cortar o tráfego. Nunca migrar cidade fora do rake.
 
 1. **api**: publicar a imagem (api e worker) e rodar o `bin/migrate` da imagem (`db:migrate`, `platform:triggers`,
-   `city:migrate:all`). **Fora do pico**: a migração revalida `appointment_requests` (módulo 17) sob `ACCESS
-   EXCLUSIVE`, na mesma transação.
+   `city:migrate:all`). **Fora do pico, e medida antes em staging com volume real.** A migração roda numa única
+   transação: os `replace_check` revalidam sob `ACCESS EXCLUSIVE` as tabelas `appointment_requests` (módulo 17),
+   `attendances` (módulo 18, provavelmente a maior) e `memberships`. O índice parcial único novo em
+   `appointment_requests` é criado sem `CONCURRENTLY`, então também bloqueia escrita durante a criação.
 
    ```bash
    bin/migrate
