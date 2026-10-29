@@ -56,6 +56,8 @@ Encaminhamento ao especialista, fila regulada, classificação de risco, cotas (
 
 **Decisões tomadas na execução** (contrato §13): SIGTAP regulável com BPA mesmo havendo APAC; patologia, radiologia, medicina nuclear, patologia bucal e endoscopia como procedimento; dentista e enfermeiro com CIAP-2 quando não podem CID-10; rascunho inválido nunca bloqueia a finalização nem o adendo; `attendances.referral_regulated`; cor confirmada × efetiva; o cidadão não recebe o prazo (revelaria a cor); desfecho só a partir do dia do agendamento; "Autorizado — aguardando o agendamento".
 
+Página de status: https://claude.ai/artifact/TEtXBsJ5skPLaU4SoTTLvj
+
 **Evolução registrada:** fila de cirurgia eletiva (AIH) no 26b; documento assinado listando os pedidos de regulação.
 
 ## Integrações externas
