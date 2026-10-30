@@ -296,3 +296,5 @@ Reconciliação dos planos do api (D1–D12 do api), do dashboard (D1–D24 do d
   - O resumo do cidadão continua nulo: nenhum procedimento, dente ou achado chega ao wpda.
   - O código do wpda não muda; é nesse sentido que vale o "o wpda não muda" do cabeçalho.
   - A linha do tempo do cidadão já mostra o tipo do que aconteceu (agendamento, procedimento, documento), e a consulta é dele.
+- **O35 — Primeiro mês de meta do CEO (api T15):** o primeiro mês avaliado é o seguinte ao cadastro do perfil do CEO, a não ser que o perfil tenha nascido no dia 1. Um mês parcial nunca conta como falta. O `history` traz só os meses avaliados, por isso pode vir com menos de 12.
+- **O36 — Janela das faltas alternadas (api T15):** "3 alternados em 12 meses" (Portaria 1.464/2011) usa a janela estrita de 12: os 11 meses fechados mais o mês corrente. "2 consecutivos" não muda.
