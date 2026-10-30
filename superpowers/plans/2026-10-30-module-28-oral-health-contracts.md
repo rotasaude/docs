@@ -282,3 +282,6 @@ Reconciliação dos planos do api (D1–D12 do api), do dashboard (D1–D24 do d
   - `config/professionals/cbo_saude.yml` é lista nacional do api (ADR 0021): a prefeitura não edita, código nunca sai, título oficial da CBO e `council: CRO`.
   - Entram os CBOs que o CEO e a ESF precisam para operar: `223212` endodontista, `223220` estomatologista, `223236` odontopediatra, `223248` periodontista, `223256` protesista, `223268` traumatologista bucomaxilofacial, `223288` cirurgião-dentista para pacientes com necessidades especiais, `322425` TSB da ESF e `322430` ASB da ESF.
   - A revisão confere cada título na tabela oficial da CBO.
+- **O30 — Cancelar plano e concluir tratamento na mesma consulta (api T6):** a combinação é recusada com 422 `cancel_plan_conflicts_with_completed`, `path: "dental.plan_changes.cancel_plan"`. Sem isso, a FAO diria "tratamento concluído" com o plano cancelado.
+- **O31 — Itens de plano cancelado (api T6):** cancelar o plano passa todos os itens `planned` a `cancelled`, com o motivo do plano, na mesma transação.
+- **O32 — Limite de procedimentos da FAO (api T6):** mais de 20 SIGTAP distintos (`procedimentosRealizados` do LEDI) é recusado na finalização com `too_many_procedure_codes`, `path: "dental.procedures"`. A consulta nunca fica finalizada sem poder gerar ficha.
