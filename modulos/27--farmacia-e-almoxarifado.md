@@ -57,7 +57,7 @@ Dispensação, estoque por unidade, lotes e validade, almoxarifado central. Lacu
 
 Página de status: https://claude.ai/artifact/CoH6yUQhQdPdkreoyPAFbE
 
-**Gates de go-live:** prova do SNCR simulado (imagem de dev desatualizada na prova); perfil profissional para toda a equipe da farmácia; medir itens CATMAT sem forma farmacêutica.
+**Gates de go-live:** prova do SNCR simulado na dispensação de controlado (api#103, complementa o api#63); perfil profissional para toda a equipe da farmácia (api#104); medir itens CATMAT sem forma farmacêutica antes do inventário de abertura (api#105).
 
 ## Integrações externas
 
