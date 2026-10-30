@@ -55,6 +55,8 @@ Dispensação, estoque por unidade, lotes e validade, almoxarifado central. Lacu
 
 **Decisões tomadas na execução** (contrato §13): unidade de dispensação pela forma farmacêutica; antimicrobiano com retenção da 2ª via (RDC 471/2021) pela marca do catálogo; validade e intervalo por item; ajuste de contagem com aprovação e uma pendente por lote; devolução de controlado só pelo farmacêutico; unidade com transferência em trânsito não é desativada; busca de receita por paciente em qualquer farmácia da rede com papel, limite e trilha.
 
+Página de status: https://claude.ai/artifact/CoH6yUQhQdPdkreoyPAFbE
+
 **Gates de go-live:** prova do SNCR simulado (imagem de dev desatualizada na prova); perfil profissional para toda a equipe da farmácia; medir itens CATMAT sem forma farmacêutica.
 
 ## Integrações externas
