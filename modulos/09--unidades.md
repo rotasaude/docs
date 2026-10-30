@@ -97,3 +97,4 @@ Ainda a decidir: endereço, horário, especialidades e geolocalização (sem ref
   `evidencias/2026-10-04-esvaziar-unidade/` (raiz do monorepo). Rollout:
   reiniciar os processos depois de `city:migrate:all` (o primeiro esvaziamento
   em dev deu 500 com o cache de colunas antigo; nada mudou).
+- 2026-10-30 — Módulo 27a (ADR 0045): desativar unidade cuja farmácia tem transferência em trânsito ou ajuste pendente é recusado com 409 `pharmacy_pending`, só com o interruptor `pharmacy` utilizável (contrato do 27a §13 H14).
