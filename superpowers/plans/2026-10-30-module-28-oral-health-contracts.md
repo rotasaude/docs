@@ -274,3 +274,11 @@ Reconciliação dos planos do api (D1–D12 do api), do dashboard (D1–D24 do d
   - Transição fora de ordem → 409 `invalid_transition`.
   - `sessions[]` da endodontia ganha `by: { "name" }`.
   - Os textos de recusa do dashboard usam os códigos do api.
+- **O28 — Abertura justificada pelo dentista (api T4):**
+  - O dentista (`2232*`, papel odontológico) pode abrir o prontuário com justificativa, como a spec §5 manda ("em contexto ou abertura justificada"; ADR 0031).
+  - TSB e ASB ficam só com a leitura em contexto.
+  - `PecExternal::Authorize` não muda.
+- **O29 — CBOs de saúde bucal no vínculo (api T4):**
+  - `config/professionals/cbo_saude.yml` é lista nacional do api (ADR 0021): a prefeitura não edita, código nunca sai, título oficial da CBO e `council: CRO`.
+  - Entram os CBOs que o CEO e a ESF precisam para operar: `223212` endodontista, `223220` estomatologista, `223236` odontopediatra, `223248` periodontista, `223256` protesista, `223268` traumatologista bucomaxilofacial, `223288` cirurgião-dentista para pacientes com necessidades especiais, `322425` TSB da ESF e `322430` ASB da ESF.
+  - A revisão confere cada título na tabela oficial da CBO.
