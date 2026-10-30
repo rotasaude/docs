@@ -289,3 +289,10 @@ Reconciliação dos planos do api (D1–D12 do api), do dashboard (D1–D24 do d
   - Adendo com `changes.dental` e `dental_care` desligado → 403 `feature_disabled`. O adendo sem `dental` continua aceito.
   - Interruptor desligado significa nenhuma escrita odontológica nova; a leitura da consulta retida continua (O16).
   - Para corrigir o odontograma, religa-se o módulo.
+- **O34 — Título da consulta odontológica para o cidadão (api T10):**
+  - O título vem do api, nas duas pontas:
+    - dashboard: "Consulta odontológica" ou "Exame odontológico inicial";
+    - wpda: "Consulta odontológica com <profissional>" ou "Exame odontológico inicial".
+  - O resumo do cidadão continua nulo: nenhum procedimento, dente ou achado chega ao wpda.
+  - O código do wpda não muda; é nesse sentido que vale o "o wpda não muda" do cabeçalho.
+  - A linha do tempo do cidadão já mostra o tipo do que aconteceu (agendamento, procedimento, documento), e a consulta é dele.
