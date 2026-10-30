@@ -285,3 +285,7 @@ Reconciliação dos planos do api (D1–D12 do api), do dashboard (D1–D24 do d
 - **O30 — Cancelar plano e concluir tratamento na mesma consulta (api T6):** a combinação é recusada com 422 `cancel_plan_conflicts_with_completed`, `path: "dental.plan_changes.cancel_plan"`. Sem isso, a FAO diria "tratamento concluído" com o plano cancelado.
 - **O31 — Itens de plano cancelado (api T6):** cancelar o plano passa todos os itens `planned` a `cancelled`, com o motivo do plano, na mesma transação.
 - **O32 — Limite de procedimentos da FAO (api T6):** mais de 20 SIGTAP distintos (`procedimentosRealizados` do LEDI) é recusado na finalização com `too_many_procedure_codes`, `path: "dental.procedures"`. A consulta nunca fica finalizada sem poder gerar ficha.
+- **O33 — Adendo com o interruptor desligado (api T8):**
+  - Adendo com `changes.dental` e `dental_care` desligado → 403 `feature_disabled`. O adendo sem `dental` continua aceito.
+  - Interruptor desligado significa nenhuma escrita odontológica nova; a leitura da consulta retida continua (O16).
+  - Para corrigir o odontograma, religa-se o módulo.
