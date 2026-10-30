@@ -240,3 +240,37 @@ Reconciliação dos planos do api (D1–D12 do api), do dashboard (D1–D24 do d
 - BPA do CEO para o pagamento MAC;
 - Quadro 3 da NT 32 (lista oficial de próteses);
 - notas metodológicas B3–B6.
+
+### Acréscimos da execução (pré-voo, 2026-10-30)
+
+- **O20 — Opções sempre com vocabulário (api R5):** `GET /attendance/consultation_options` traz `dental_role` assim:
+  - `dentist` quando algum vínculo do usuário é `2232*`;
+  - `auxiliary` quando é TSB/ASB;
+  - `null` nos outros casos.
+
+  O bloco `dental` (vocabulário fixo, sem dado pessoal) vai sempre, mesmo com o interruptor desligado, para a consulta retida continuar legível (O16). `kinds` e `dental_role` seguem o CBO e o interruptor.
+- **O21 — Local do efeito fora da lista do LEDI (api R6):** procedimento fora da lista do LEDI continua aceitando `mouth` com quantidade total 1 (O5). A exceção são os códigos da tabela SIGTAP → situação, que aceitam também o local do efeito (dente, face ou arcada), sempre com quantidade total 1. A spec vence o O5 aqui; a FAO não muda.
+- **O22 — Recusas e exigências da finalização (api R7/R8):**
+  - `care_type_required` (fora do `baseline`) e `baseline_requires_findings` confirmados.
+  - Na `dental`, fora do `baseline`, continuam exigidos "A ou P" e o `outcome` do atendimento.
+  - O `baseline` exige achados e o `outcome`.
+- **O23 — Faixas e listas (api R9, R10, R11):**
+  - Recessão de −10 a 20 mm; sextante "X" = `code: null`; nome do laboratório com 3 a 120 caracteres.
+  - `GET /dental/admin/ceo_profiles` → `{ "profiles": [ { "health_unit": { "id", "name", "kind" }, "ceo_type"|null, "specialties" } ] }`, legível por quem lê os painéis.
+  - A lista de próteses exige `health_unit_id` ou `patient_id`; sem nenhum dos dois → 422 `invalid_request`. Com `patient_id`, vale o acesso do prontuário, com trilha.
+  - `GET /dental/laboratories` → `{ "laboratories": [ { "id", "name" } ] }`, legível por quem tem vínculo odontológico.
+  - `GET /dental/teams` → `{ "teams": [ { "id", "name", "ine", "health_unit": { "id", "name" } } ] }` (eSB `71` ativas), legível por quem lê os painéis.
+- **O24 — Painel do CEO (api R12, dashboard R6):**
+  - `history` traz os 12 meses fechados antes de `month`.
+  - `composition.value` é string percentual com ponto (`"20.00"`); a vírgula só aparece na tela.
+  - As chaves são `restorations_min_50` e `three_roots_min_20`.
+  - `denominator: null` aparece como "—".
+- **O25 — Códigos como string (api R13, dashboard R5/R7):**
+  - No JSON odontológico, os códigos da FAO e o `tooth` saem como string; a entrada aceita inteiro ou string de dígitos.
+  - Na consulta `dental`, o api ignora o `care_type` do topo do corpo (vale `dental.care_type`), e o JSON espelha o mesmo valor nos dois lugares.
+- **O26 — Sugestão de tratamento concluído (api R15):** `suggest_completed` só aparece com plano aberto da unidade que tenha pelo menos 1 item e nenhum item `planned` depois do rascunho.
+- **O27 — Etapas e endodontia (api R18, dashboard R8):**
+  - `POST /dental/prosthesis_orders/:id/stages` → 200 com `<prosthesis_order>`, sem `created_at` nem `stages[].reason` (opcionais no dashboard).
+  - Transição fora de ordem → 409 `invalid_transition`.
+  - `sessions[]` da endodontia ganha `by: { "name" }`.
+  - Os textos de recusa do dashboard usam os códigos do api.
