@@ -161,6 +161,9 @@ O estoque nasce do inventário. Não existe saldo por planilha importada.
 
 ## Desligar e reverter
 
+- Antes de desligar o interruptor `pharmacy` de uma cidade, receba todas as transferências em trânsito e decida os
+  ajustes pendentes. Com o interruptor desligado, a guarda H14 não vale. Uma unidade de saúde desativada nessa
+  situação deixa a transferência presa em `location_inactive`, sem saída pelo sistema.
 - Desligar `pharmacy` (maintenance): **todo `/pharmacy/*`** responde 403 `feature_disabled`, inclusive o admin; as
   telas somem. **Nada se apaga:** locais, lotes, movimentos, dispensações, retenções. O estoque fica **parado como
   está**: nada vence, nada transfere, nada é dispensado, e ligar de novo não reprocessa nada.
