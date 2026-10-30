@@ -46,7 +46,7 @@ Dispensação, estoque por unidade, lotes e validade, almoxarifado central. Lacu
 | `api` | `7e086d78` | suíte completa 8750/0; migração de cidade `20261029900001`; toca o 09 (`pharmacy_pending`) |
 | `dashboard` | `fadfa87` | 24 commits; grupo "Farmácia" |
 | `maintenance` | `1fdda62` | interruptor `pharmacy`; corrige maintenance#1 |
-| `catalog` | pendente | Task 3 do maintenance |
+| `catalog` | `85b90d3` | F-27.6 "em validação" até a prova do SNCR real |
 | `docs` | contrato §13 H1–H17 | runbook [`operacao/rollout-farmacia.md`](../operacao/rollout-farmacia.md) |
 
 **Execução em paralelo:** frente do api e frente dos fronts com dublês, como no 26a.
