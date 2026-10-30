@@ -24,6 +24,10 @@ Interruptor: `pharmacy` ("Farmácia e estoque"). Papéis: `pharmacist`, `pharmac
     mantenedor não concede. Quem tem o papel lê e dispensa receitas de pacientes da cidade (ver LGPD).
   - `stock_keeper` (almoxarife/central) não é privilegiado.
   - O papel efetivo no local é a `Membership` ativa **e** o vínculo ativo ao local (`role_not_granted`).
+- **Perfil profissional para toda a equipe da farmácia** (módulo 10), inclusive auxiliares e almoxarifes. O nome de
+  quem dispensou, recebeu ou ajustou vem do perfil profissional (o usuário não tem nome próprio): sem perfil, o
+  histórico de retiradas, os ajustes e o extrato mostram "—". Basta o perfil com nome; o vínculo de CBO é exigido só
+  do farmacêutico.
 - **Worker na imagem nova** (consumidores de eventos do módulo; worker antigo falha com
   `ActiveJob::UnknownJobClassError`).
 - Nenhuma gem nova; nenhuma migração de plataforma.
@@ -180,7 +184,10 @@ O estoque nasce do inventário. Não existe saldo por planilha importada.
 - **Impressão e retenção de controlados** (e do antimicrobiano) **conferidas com a vigilância sanitária**: o que se
   retém, em que via, e quem assina.
 - Revisão periódica da trilha `clinical_record.viewed` combinada com o encarregado (LGPD).
-- Quem recebe `pharmacist`, `pharmacy_assistant` e `stock_keeper` definido e concedido pelo admin com step-up.
+- Quem recebe `pharmacist`, `pharmacy_assistant` e `stock_keeper` definido e concedido pelo admin com step-up, cada
+  um com perfil profissional com nome.
+- **SNCR simulado provado** com a imagem atual do api (o `fake-sncr` de dev estava parado na prova de 2026-10-30):
+  dispensar uma receita de controle especial emitida com certificado e conferir o número do documento na retenção.
 - `CityProfile` e unidades com CNES conferidos; o central e as farmácias criados.
 
 ## Riscos conhecidos
