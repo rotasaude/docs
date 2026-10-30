@@ -293,3 +293,11 @@ F-27.4,"Inventário, ajustes e perdas",mod-27,api|dashboard,0045,feature
 F-27.5,Dispensação pela receita,mod-27,api|dashboard,"0045,0033",feature
 F-27.6,Receita externa e controlados,mod-27,api|dashboard,"0045,0034",feature
 F-27.7,"Alertas, posição e extrato",mod-27,api|dashboard,0045,feature
+F-28.1,"Interruptor, profissionais de saúde bucal e unidade CEO",mod-28,api|dashboard|maintenance,0046,feature
+F-28.2,Consulta odontológica e ficha FAO,mod-28,api|dashboard,"0046,0031",feature
+F-28.3,Odontograma,mod-28,api|dashboard,0046,feature
+F-28.4,Plano de tratamento e tratamento concluído,mod-28,api|dashboard,0046,feature
+F-28.5,"Especialidades: periograma, registro periodontal, endodontia",mod-28,api|dashboard,0046,feature
+F-28.6,Prótese e laboratório,mod-28,api|dashboard,0046,feature
+F-28.7,Documentos do dentista e encaminhamento ao CEO,mod-28,api|dashboard,"0046,0033,0034,0044",feature
+F-28.8,"Metas do CEO, indicadores B1/B2 e marco da gestante",mod-28,api|dashboard,"0046,0040",feature
