@@ -8,8 +8,9 @@ segue sob `/attendance` (tipo `dental` da consulta do 19a).
 
 ## Pré-requisitos
 
-- **Prontuário ligado na cidade** (`clinical_record`; módulo 16). Sem ele o `dental_care` não liga
-  (`clinical_record_disabled`). O modo de prontuário e a exportação LEDI estão em
+- **Prontuário ligado na cidade** (`clinical_record`; módulo 16). Sem ele o `dental_care` não fica utilizável
+  (o maintenance aceita ligar, mas fica "ligada, falta pré-requisito"; o api responde 403 `feature_disabled` com
+  `feature: "clinical_record"`). O modo de prontuário e a exportação LEDI estão em
   [`rollout-modo-de-prontuario.md`](rollout-modo-de-prontuario.md) e [`rollout-prontuario.md`](rollout-prontuario.md).
 - **Profissionais com vínculo profissional ativo e CBO do CNES** (módulo 10): dentistas `2232*` (todas as
   especialidades), TSB (`322405`, `322425`) e ASB (`322415`, `322430`). Sem o CBO o vínculo não dá o papel
@@ -78,7 +79,7 @@ Publicar a imagem e rodar o `bin/migrate` **dela**. Nunca migrar cidade fora do 
 ## Lista do TSB e do ASB
 
 A cidade define a lista de procedimentos SIGTAP que o TSB e o ASB podem registrar (envelope
-`{ "procedures": [ { "sigtap", "name" } ] }` em `/dental/admin`). Eles registram a consulta odontológica com
+`{ "procedures": [ { "sigtap", "name" } ] }` em `GET/PUT /dental/admin/auxiliary_procedures`, `municipal_admin` com step-up). Eles registram a consulta odontológica com
 procedimentos dessa lista, que geram eventos no odontograma e dão baixa em item do plano, mas **não** criam nem
 cancelam item, **não** encaminham, **não** emitem documento e **não** abrem plano. Lista vazia = o auxiliar não
 consegue registrar nada. Aprovar a lista com o responsável técnico da saúde bucal antes de ligar.
@@ -150,7 +151,10 @@ reenfileirar.
 - Rascunhos odontológicos abertos ao desligar ficam parados: finalize ou descarte antes.
 - A migração **não volta**: sem rollback de schema; volte só o código (expand/contract). Os CHECKs novos, o tipo
   `ceo` e a eSB `71` seguem aceitos.
-- Desligar `clinical_record` com `dental_care` ligado não é permitido sem desligar o `dental_care` antes.
+- Desligar `clinical_record` com `dental_care` ligado **é permitido** (`Platform::Features.set!` não confere
+  pré-requisito): o `dental_care` fica "ligada, falta pré-requisito" (`clinical_record_disabled` em `missing`),
+  inutilizável, e todo `/dental/*` responde 403 `feature_disabled` com `feature: "clinical_record"`. Ligar o
+  `dental_care` sem o prontuário também é aceito, com o mesmo efeito.
 
 ## Gates de go-live
 
