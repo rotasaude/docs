@@ -298,3 +298,11 @@ Reconciliação dos planos do api (D1–D12 do api), do dashboard (D1–D24 do d
   - A linha do tempo do cidadão já mostra o tipo do que aconteceu (agendamento, procedimento, documento), e a consulta é dele.
 - **O35 — Primeiro mês de meta do CEO (api T15):** o primeiro mês avaliado é o seguinte ao cadastro do perfil do CEO, a não ser que o perfil tenha nascido no dia 1. Um mês parcial nunca conta como falta. O `history` traz só os meses avaliados, por isso pode vir com menos de 12.
 - **O36 — Janela das faltas alternadas (api T15):** "3 alternados em 12 meses" (Portaria 1.464/2011) usa a janela estrita de 12: os 11 meses fechados mais o mês corrente. "2 consecutivos" não muda.
+- **O37 — Rascunho odontológico com o interruptor desligado (revisão final):**
+  - Com `dental_care` desligado, `PATCH` e `finalize` de consulta `dental` → 403 `feature_disabled`, pela mesma regra do O33.
+  - O rascunho fica parado até o módulo ser religado, ou é descartado pelo fluxo do api#51.
+  - A consulta `general` não muda.
+- **O38 — Tratamento concluído com item pendente (revisão final):**
+  - O desfecho 15 é recusado quando o plano da unidade ainda tem item `planned` depois do rascunho: `plan_items_pending`, `path: "dental.dental_outcomes[i]"`.
+  - Para concluir, o dentista cancela, na mesma consulta e com motivo (`plan_changes.cancel`), o que não vai fazer.
+  - Assim "tratamento concluído" sempre quer dizer plano feito ou explicitamente cancelado, o que mantém o B2 honesto.
