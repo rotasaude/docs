@@ -311,3 +311,9 @@ Reconciliação dos planos do api (D1–D12 do api), do dashboard (D1–D24 do d
   - A finalização exige os 6 sítios completos de cada dente do periograma; senão, `periodontal_chart_incomplete` com `path: "dental.periodontal_chart.teeth[i]"` em `problems[]`.
   - `mobility` e `furcation` continuam opcionais.
   - O dashboard mostra a regra no "o que falta".
+- **O40 — CID-10 do dentista no pedido de regulação (prova no navegador; aplica o G12 do 26a):**
+  - O G12 do 26a amarra o `cid10` do pedido ao CBO poder registrar CID-10 na consulta. Com o Desvio 9 deste módulo, o dentista (CBO 2232*) passa a poder, então o pedido de regulação aceita o `cid10` dele quando o interruptor `dental_care` está utilizável na cidade.
+  - Com o interruptor desligado, a regra do 26a fica como estava: `cid10_not_allowed_for_cbo`, e o `ciap2` é obrigatório.
+  - O `cid10` continua opcional para o dentista: basta um dos dois, `cid10` ou `ciap2`. Só o médico tem `cid10` obrigatório.
+  - TSB e ASB seguem sem pedido de regulação (invariante da ADR 0046).
+  - Spec de request: dentista com o interruptor ligado → 201 com `cid10`; com o interruptor desligado → 422 `cid10_not_allowed_for_cbo`.
