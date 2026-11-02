@@ -52,7 +52,7 @@ Atendimento odontológico (odontograma, procedimentos). Lacuna presente nos 15 e
 
 Página de status: https://claude.ai/artifact/Rtx5pYsJRf8t3kFDEmxwWb
 
-**Gates de go-live:** FAO aceita no PEC/SIAPS real com CNES real, inclusive `localAtendimento` do CEO (api#41, O19); eSB tipo 71 no CNES real e associação à eSF/eAP; códigos sucessores das restaurações nas metas do CEO; BPA do CEO para o pagamento MAC; Quadro 3 da NT 32 (lista de próteses); indicadores B3–B6; receita de controlado do dentista depende do SNCR real (api#63).
+**Gates de go-live:** FAO aceita no PEC/SIAPS real com CNES real, inclusive `localAtendimento` do CEO (api#41, O19); eSB tipo 71 no CNES real e associação à eSF/eAP (api#111); códigos sucessores das restaurações nas metas do CEO (api#112); Quadro 3 da NT 32, lista de próteses (api#113); BPA do CEO para o pagamento MAC (api#114); indicadores B3–B6 (api#115); receita de controlado do dentista depende do SNCR real (api#63). Cards no board #2, "A triar".
 
 ## Integrações externas
 
