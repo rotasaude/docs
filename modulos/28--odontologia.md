@@ -1,6 +1,6 @@
 # Módulo 28 — Odontologia
 
-- **Estado:** Planejado
+- **Estado:** Entregue
 - **Tipo:** Ciclo 2
 
 ## Escopo (intenção)
@@ -36,6 +36,24 @@ Atendimento odontológico (odontograma, procedimentos). Lacuna presente nos 15 e
 
 - F-28.1 a F-28.8 verificadas, com prova no navegador e a FAO aceita no PEC local.
 
+## Entrega (2026-11-02)
+
+| Repo | Commit | Observação |
+|---|---|---|
+| `api` | `1a1836a1` | 37 commits; suíte completa 9077 exemplos no `a63a01cf`, 3 falhas fora do módulo (bomba de data no spec do 19c, corrigida no `1a1836a1`); migração de cidade `20261030900001`; fecha api#75 |
+| `dashboard` | `f052574` | 29 commits; suíte 4978/0 |
+| `maintenance` | `31d37da` | interruptor `dental_care`; suíte 592/0 |
+| `catalog` | `5226d88` | PR catalog#33; F-28.2 e F-28.8 "em validação" até o aceite da FAO com CNES real e a confirmação dos códigos |
+| `docs` | contrato §16 O1–O40 | runbook [`operacao/rollout-saude-bucal.md`](../operacao/rollout-saude-bucal.md) |
+
+**Prova no navegador (2026-11-01/02):** administração e unidade CEO; registro inicial; primeira consulta com plano e gestante; paciente masculino; auxiliar (ASB); endodontista no CEO com periograma, registro periodontal com sextante excluído e endodontia; limites por SIGTAP; desfecho 15 com plano concluído; atestado; encaminhamento ao CEO com pedido de regulação (CID-10 do dentista, O40); adendo com achado novo e cancelamento de item; etapas e instalação da prótese; linha do tempo; três minutos sem polling.
+
+**Decisões tomadas na execução** (contrato §16 O20–O40): abertura justificada pelo dentista; CBOs de saúde bucal na tabela de profissionais; cancelamento de plano; até 20 códigos de procedimento; adendo e rascunho bloqueados com o interruptor desligado; primeiro mês da meta do CEO; janela de 12 meses das faltas alternadas; desfecho 15 recusado com itens pendentes; periograma incompleto aceito no rascunho e exigido na finalização (O39); CID-10 do dentista no pedido de regulação com `dental_care` ligado (O40).
+
+Página de status: https://claude.ai/artifact/Rtx5pYsJRf8t3kFDEmxwWb
+
+**Gates de go-live:** FAO aceita no PEC/SIAPS real com CNES real, inclusive `localAtendimento` do CEO (api#41, O19); eSB tipo 71 no CNES real e associação à eSF/eAP; códigos sucessores das restaurações nas metas do CEO; BPA do CEO para o pagamento MAC; Quadro 3 da NT 32 (lista de próteses); indicadores B3–B6; receita de controlado do dentista depende do SNCR real (api#63).
+
 ## Integrações externas
 
 Ficha LEDI de Atendimento Odontológico (FAO, layout 8.7.0) ao SIAPS, inclusive a produção do CEO e da prótese; SIGTAP. Pesquisa em
@@ -52,3 +70,4 @@ Módulos 16, 17, 19, 23 e 26a.
   novos módulos; decisão de suíte completa).
 - 2026-10-30 — Desenho aprovado e `Planejado` (ADR 0046, spec
   `superpowers/specs/2026-10-30-module-28-oral-health-design.md`).
+- 2026-11-02 — Entregue: api 1a1836a1, dashboard f052574, maintenance 31d37da, catálogo 5226d88 (PR #33); F-28.1..8 Verified; api#75 fechado.
