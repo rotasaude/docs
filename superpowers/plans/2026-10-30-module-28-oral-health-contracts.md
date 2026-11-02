@@ -306,3 +306,8 @@ Reconciliação dos planos do api (D1–D12 do api), do dashboard (D1–D24 do d
   - O desfecho 15 é recusado quando o plano da unidade ainda tem item `planned` depois do rascunho: `plan_items_pending`, `path: "dental.dental_outcomes[i]"`.
   - Para concluir, o dentista cancela, na mesma consulta e com motivo (`plan_changes.cancel`), o que não vai fazer.
   - Assim "tratamento concluído" sempre quer dizer plano feito ou explicitamente cancelado, o que mantém o B2 honesto.
+- **O39 — Periograma incompleto no rascunho (prova no navegador):**
+  - O rascunho aceita sítio com `probing_depth_mm` e `recession_mm` nulos, para o autosave não travar enquanto o dentista preenche.
+  - A finalização exige os 6 sítios completos de cada dente do periograma; senão, `periodontal_chart_incomplete` com `path: "dental.periodontal_chart.teeth[i]"` em `problems[]`.
+  - `mobility` e `furcation` continuam opcionais.
+  - O dashboard mostra a regra no "o que falta".
