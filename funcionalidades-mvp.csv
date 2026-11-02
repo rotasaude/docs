@@ -301,3 +301,11 @@ F-28.5,"Especialidades: periograma, registro periodontal, endodontia",mod-28,api
 F-28.6,Prótese e laboratório,mod-28,api|dashboard,0046,feature
 F-28.7,Documentos do dentista e encaminhamento ao CEO,mod-28,api|dashboard,"0046,0033,0034,0044",feature
 F-28.8,"Metas do CEO, indicadores B1/B2 e marco da gestante",mod-28,api|dashboard,"0046,0040",feature
+F-29.1,"Interruptores, credencial RNDS, sala de vacina e vacinadores",mod-29,api|dashboard|maintenance,"0047,0028",feature
+F-29.2,"Calendário, catálogo de imunobiológicos e caderneta conferida",mod-29,api|dashboard,0047,feature
+F-29.3,"Registro da dose, transcrição e cancelamento",mod-29,api|dashboard,0047,feature
+F-29.4,Envio à RNDS (RIA-R 2.0) com guarda do retorno,mod-29,api|dashboard,"0047,0028",feature
+F-29.5,"Estoque de imunobiológicos, frascos e perdas, resumo mensal",mod-29,api|dashboard,"0047,0045",feature
+F-29.6,Cadeia de frio,mod-29,api|dashboard,0047,feature
+F-29.7,Caderneta do cidadão e linha do tempo,mod-29,api|wpda|dashboard,"0047,0035",feature
+F-29.8,"Linhas de cuidado, campanhas, ESAVI e painel",mod-29,api|dashboard,"0047,0040,0024,0043",feature
