@@ -145,3 +145,8 @@ Planos: api (Tasks 0–21), dashboard (0–16), wpda (0–7), maintenance (0–3
 - **V14 — Formas:** frascos no envelope `{ "vials" }`; resumo mensal da rede de frio em `/vaccination/cold_chain_central/monthly_summary`; cadeia de frio, pendências e painel nas formas do plano do dashboard (D8–D10, D13); terminologias `{ "code", "name" }`; `applied` da caderneta `{ "id", "applied_at", "transcription" }`. Limites: motivos 10–500, nomes 3–120, lote ≤ 40.
 - **V15 — Maintenance:** rótulos "Sala de vacina", "Envio das vacinas à RNDS (Ministério da Saúde)", "RNDS simulada (desenvolvimento)"; o maintenance traduz os códigos de `missing` `vaccination_disabled`, `rnds_immunization_disabled`, `credential_missing:rnds`, `credential_unauthorized:rnds` e `vaccination_catalog_reviewed`; aviso de RNDS simulada como linha `role="note"` na aba, no molde do `fake_lab`.
 - **V16 — Semente de dev:** a semente cria um certificado de teste aceito pelo `fake-rnds` (porta 8094) e a credencial `rnds` da cidade de dev, para a prova no navegador não travar.
+
+### Acréscimos da execução (2026-11-02)
+
+- **V17 — Ordem das listas do cidadão (corrige o V11):** `items` em `applied_on` decrescente (o mais recente primeiro); `upcoming` em `due_on` crescente, com datas nulas no fim.
+- **V18 — Precedências confirmadas:** o V4 vence a "entrada sem `package`" do D9 do plano do api; o certificado do V1 tem limite de 100 KB **decodificados**; ESAVI repetido é 200 com `existing` (V12), não 409; a busca de pessoa fica na rota da sala (V3).
