@@ -230,3 +230,12 @@ Reconciliação das divergências dos quatro planos. Onde um plano diverge deste
   - o `start` reconfere a CNH (validade na data e categoria) e recusa com `driver_license_expired` ou `driver_license_category`;
   - correção ou presença fora da situação certa → `invalid_transition`; `attendance_pending` com path `passengers`.
 - **T36 — Série e outra origem:** se o paciente já é passageiro ativo, por qualquer origem, de uma viagem não cancelada no mesmo dia, o job da série não cria nem usa outra viagem para ele naquele dia. Corrige na onda final.
+- **T37 — Laudo e comissão:**
+  - **Fora do escopo:** escrita em caso alheio dá 404, seja de autor alheio, seja de rascunho visto pela comissão (como a leitura).
+  - **Prefill:** lê só os problemas da consulta finalizada, e "Pedir TFD" aparece só em consulta finalizada.
+  - **Paciente:** PATCH que muda `patient_id` → `invalid_request`.
+  - **Prestador:** `appointment` sem `provider_id` mantém o prestador do laudo.
+  - **Autorização:** `authorize` recusa `appointment_at` no passado com `appointment_required`.
+  - **Noites internado:** são a interseção de `[from, to)` com `[data da ida, data da volta)`; internação aberta na volta conta até a data da volta.
+  - **Eventos:** o §11 ganha `tfd.case_created`, `tfd.case_updated` e `tfd.case_cancelled` (só ids).
+  - **CID:** o normalizador de CID é compartilhado (`ClinicalTerms.cid10_code`).
