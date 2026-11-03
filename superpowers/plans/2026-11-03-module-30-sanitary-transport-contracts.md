@@ -277,3 +277,8 @@ Reconciliação das divergências dos quatro planos. Onde um plano diverge deste
     - `tfd_paid_cents` é 0 com `tfd` desligado;
     - rascunhos ficam fora de `tfd_by_status`, e chave ausente vale 0 (o dashboard trata);
     - o numerador da ocupação conta só viagens `done` com veículo.
+- **T43 — Exclusão LGPD** (precisa o §12, T23 e T39):
+  - **Viagem em andamento:** a exclusão é recusada com `patient_on_trip` enquanto o paciente for passageiro ativo de viagem `in_progress`. O admin tenta de novo depois do fechamento.
+  - **Correção de presença:** o texto livre de `transport_attendance_corrections.reason` é sobrescrito uma vez com o texto fixo de LGPD, sob flag na trigger.
+  - **Retenção tudo ou nada:** qualquer caso de TFD do paciente retém o paciente inteiro, sem anonimização parcial do lado do transporte, como no ADR 0026 e nos módulos anteriores. "Demais passageiros anonimizados" vale só para paciente sem nenhum TFD.
+  - **Limite conhecido:** acompanhante digitado como texto livre na linha de outra pessoa não é localizável pela exclusão.
