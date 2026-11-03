@@ -224,3 +224,9 @@ Reconciliação das divergências dos quatro planos. Onde um plano diverge deste
   - **Recusas:** `return_before_departure` em `return_time`; `invalid_request` em `from_on` no passado.
   - **Suspensão:** não se desfaz. Para retomar, a central cria uma série nova.
 - **T34 — Sem sessão:** rota sem sessão responde 401, não 403, como no resto da API. A conferência fica para a revisão final do api.
+- **T35 — Motorista:**
+  - o §11 ganha `transport.trip_started` e `transport.attendance_corrected` (só ids);
+  - `my_trips` mostra só viagens `confirmed`, `in_progress` e `done`, nunca `planned`;
+  - o `start` reconfere a CNH (validade na data e categoria) e recusa com `driver_license_expired` ou `driver_license_category`;
+  - correção ou presença fora da situação certa → `invalid_transition`; `attendance_pending` com path `passengers`.
+- **T36 — Série e outra origem:** se o paciente já é passageiro ativo, por qualquer origem, de uma viagem não cancelada no mesmo dia, o job da série não cria nem usa outra viagem para ele naquele dia. Corrige na onda final.
