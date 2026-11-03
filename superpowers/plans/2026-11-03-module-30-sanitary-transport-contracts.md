@@ -129,3 +129,61 @@ Só os dois interruptores no mecanismo genérico; nenhuma tela nova.
 ## 13. Ordem de entrega
 
 api → dashboard → wpda → maintenance. Migração de cidade a partir de `20261103900001`. Worktree `apps/api/.claude/mod30`, branch `feat/mod-30-sanitary-transport`; frontends em `.worktrees/<app>-mod30`. Portas: api 3052, Vite dashboard 5209, wpda 5210, maintenance 5177 com o serviço do compose parado.
+
+## 14. Acréscimos (revisão dos planos, 2026-11-03)
+
+Reconciliação das divergências dos quatro planos. Onde um plano diverge deste §14, vale o §14; o executor acrescenta ao plano do api as rotas que só o dashboard pediu (T2, T3, T7, T9).
+
+- **T1 — Linha do tempo:** campos reais `occurred_at` e `detail_ref.type` (padrão do 20/29), não `at`/`kind`. A fonte `transport` vem com `detail_ref: null` no dashboard e no wpda (não há tela de detalhe); `unit`, `professional_name` (nunca o motorista), `status` e `document` nulos; `occurred_at` = `departure_at` da viagem ou data do trecho de passagem feito. Entram passageiros `boarded` e trechos de TFD feitos; viagem cancelada e falta ficam fora. TFD usa o mesmo `kind: "transport"` com título "TFD para <cidade>".
+- **T2 — Paciente na central:** `POST /transport/person_lookup { "cpf" }` e `POST /transport/patients/duplicates`, na forma do 24a/V21, para `transport_dispatcher`; a central não cria paciente.
+- **T3 — Motoristas candidatos:** `GET /transport/driver_candidates` → `{ "items": [ { "user_id", "name" } ] }` (usuários com papel `driver` sem cadastro); recusas `user_not_driver` (422) e `user_already_driver` (409).
+- **T4 — Paradas:** escrita `{ "id"?, "position", "kind", "destination_id"?, "label" }`; o PATCH substitui a lista; parada com passageiro removida → `stop_in_use`. "Mudou a parada" (aviso) = mudou o `label` da parada do passageiro.
+- **T5 — Atendimentos marcados:** `POST /transport/scheduled_care { "date", "destination_id"?, "health_unit_id"? }`; horários do 17 só entram com `health_unit_id`. Item: `{ "patient", "origin", "origin_id", "appointment_at", "destination": { "destination_id"|null, "provider_name"|null, "address"|null } }`; chave estável `origin` + `origin_id`; o texto livre `schedule_place` do 26a nunca vira `provider_name`.
+- **T6 — Série:** escrita exige `return_time` e `boarding_label`; `weekdays` ISO (1 = segunda … 7 = domingo). Leitura `<series>`: campos da escrita + `"status": "active"|"suspended"|"ended"`, `"suspended_from"|null`.
+- **T7 — Opções do TFD:** `GET /tfd/options` → `{ "destinations": [<destination>], "providers": [ { "id", "name", "ibge_code" } ], "min_distance_km" }`, para o médico e a comissão.
+- **T8 — Processo de TFD:**
+  - o laudo exige `consultation_id` ou `regulation_request_id`;
+  - o CBO `225*` do autor fica gravado no processo, e o BPA usa esse CBO;
+  - `POST /tfd/cases/:id/cancel { "reason" }`, pela comissão, com step-up;
+  - toda escrita do TFD devolve o `<tfd-case>` inteiro;
+  - `<tfd-case>` ganha `trip_passengers: [ { "id", "date", "departure_at", "attendance", "companion_attendance" } ]`.
+- **T9 — Médico autor:** `GET /tfd/my_cases` (envelope, sem dado clínico); abre por `POST /tfd/cases/:id/read` com trilha. A fila da comissão `GET /tfd/cases` vem em `{ "items", "next_before" }`, do mais antigo para o mais novo.
+- **T10 — Trecho:**
+  - `<tfd-leg>` ganha `companion: bool` e `outbound_leg_id`: a volta se pareia sozinha com a ida aberta, e sem ida dá `no_outbound_leg`;
+  - marcar como feito um trecho de frota pela rota de passagem dá `fleet_leg_by_trip`;
+  - recusas `tfd_leg_done`, `legs_pending` (prestação de contas com trecho aberto), `inpatient_open` e `inpatient_overlap`.
+  - A internação fica em `tfd_cases.inpatient_stays` (jsonb).
+- **T11 — Ajuda de custo e BPA:** o deslocamento também vira linha de `tfd_allowances` (`ground_km` etc.). A linha do BPA sempre aponta `tfd_allowance_id` (único), com `tfd_leg_id` como rastro; os dois eventos levam `tfd_leg_id` e vão ao mesmo job. O desconto da internação vale só para o paciente; o acompanhante recebe as noites (gate: manual da UF). `Billing::Critic` não muda (`establishment_is_aps` só marca `ubs`).
+- **T12 — Unidade de faturamento:** `authorize` recusa `billing_unit_missing` com `procedure_billing` ligado e sem `tfd_billing_health_unit_id`; o PATCH de settings recusa `billing_unit_invalid`. `GET /transport/admin/settings` ganha `allowance_codes: [ { "code", "name", "kind" } ]` (só leitura). A unidade de faturamento **não** é `requires` do catálogo.
+- **T13 — Prestação de contas:** JSON base64 `{ "content_type", "data", "filename"? }` (não multipart), até 10 MB decodificados, PDF/JPG/PNG; armazenamento `Exams::Files` do 21a; `filename` cifrado (o api gera um se faltar); download por URL curta `POST /tfd/cases/:id/accountability/url` → `GET /tfd/files/:token`.
+- **T14 — Cidadão:** `GET /citizen/trips?citizen_id=` de um par validado (outro celular → 404; par só declarado → 403 `not_verified`). `sanitary_transport` e `tfd` vêm em `features` da sessão; transporte desligado → 403 `feature_disabled`; `tfd` desligado → `"tfd": []`. TFD em `draft` nunca aparece; `returned` aparece como "Em revisão pelo seu médico"; motivo, laudo e procedimento nunca. Itens por `departure_at`; `date` como data; horas ISO com fuso; `allowance_total_cents` inteiro (nulo antes do cálculo); `paid` quando os pagamentos alcançam o total.
+- **T15 — Avisos:**
+  - **Quando sai:** só em viagem `confirmed` ou `in_progress`; o `confirm` avisa todos os passageiros; o lembrete da véspera sai das 17h às 20h, como no 17.
+  - **Forma em `/citizen/notices`:** `{ "kind": "trip", "id", "event": "added"|"departure_changed"|"boarding_changed"|"cancelled"|"removed"|"reminder", "date", "departure_at", "boarding": { "label" }, "read", "cpf_masked" }`, sem destino nem prestador (a caixa mostra pares só declarados).
+  - **SMS:** um texto por `event`, com o prefixo do 17; exige `sms_opt_in` e respeita `notices_muted` e `appointment_reminders_muted`.
+- **T16 — Painel:** contagem de 1 a 4 sai `"lt5"`; 0 continua 0; somas nunca suprimidas.
+- **T17 — Acompanhante:** a regra da CIT fica como idade ≤ `max_age_child` (15) ou ≥ `min_age_elderly` (60), na data da viagem.
+- **T18 — Formas e limites:**
+  - `<passenger>.destination` ganha `name`;
+  - `no_shows`: `{ "items": [ { "patient": { "id", "display_name" }, "count", "dates" } ] }`;
+  - `expenses[].kind`: `toll` | `parking` | `meal` | `other`;
+  - correção de presença `{ "items", "reason" }`, com step-up;
+  - formas do 26a: `CareProvider.ibge_code` em `/regulation/providers`; `care_provider_id?` no `POST …/schedule`; `schedule.care_provider` na leitura.
+  - Limites de texto:
+    - motivos: 10–500
+    - justificativa: 20–2000
+    - nome do acompanhante: 3–120
+    - documento do acompanhante: até 20
+    - parada: 3–120
+    - posto, empresa e observação: até 120
+    - recibo: 1–40
+    - modelo do veículo: 2–80
+- **T19 — Recusas:**
+  - `GET /transport/trips` exige `date`;
+  - 422: `vehicle_required`, `driver_required`, `trip_not_open` (escrita em viagem `done`/`cancelled`), `trip_not_today` e `invalid_transition` (no `start`);
+  - 409: `plate_taken`, `renavam_taken`, `ibge_taken`.
+- **T20 — Tabelas além do ADR:** `transport_settings`, `transport_pending_items`, `transport_attendance_corrections`.
+- **T21 — Maintenance:**
+  - nomes "Transporte sanitário" e "Tratamento Fora de Domicílio (TFD)", iguais no dashboard;
+  - o maintenance traduz o `missing` `sanitary_transport_disabled`;
+  - desligar o transporte não desliga o TFD em cascata: o TFD fica "ligado, falta pré-requisito" e responde 403 até o transporte voltar.
