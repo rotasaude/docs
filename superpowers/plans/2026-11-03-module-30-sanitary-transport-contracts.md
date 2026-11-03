@@ -267,3 +267,13 @@ Reconciliação das divergências dos quatro planos. Onde um plano diverge deste
     - `departure_changed` e `boarding_changed` comparam com o último valor avisado àquele passageiro e cidadão, e o corte de 30 min fica no consumidor;
     - `event_key` é o id do evento; no lembrete é `trip.date`, então a viagem movida para outro dia ganha lembrete novo.
   - **Transporte desligado:** não nascem avisos novos, e os que já estão na caixa ficam.
+- **T42 — Avisos e painel:**
+  - **Avisos:**
+    - `transport_trip_notices.boarding_label` guarda o último valor avisado;
+    - o evento `transport.trip_changed` sai em toda mudança, e o corte de 30 min vale só para o **aviso** ao cidadão (a spec fala do aviso; nada a corrigir);
+    - um par sem aviso anterior da viagem, como o validado depois do `confirm`, recebe o aviso de mudança;
+    - pares do mesmo paciente dividem a transação do job, como no 17.
+  - **Painel:**
+    - `tfd_paid_cents` é 0 com `tfd` desligado;
+    - rascunhos ficam fora de `tfd_by_status`, e chave ausente vale 0 (o dashboard trata);
+    - o numerador da ocupação conta só viagens `done` com veículo.
