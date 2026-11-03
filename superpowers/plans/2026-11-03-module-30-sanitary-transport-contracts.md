@@ -201,3 +201,8 @@ Reconciliação das divergências dos quatro planos. Onde um plano diverge deste
   - `<driver>` ganha `"active"`, e `GET /transport/drivers?active=true` filtra por ele;
   - o `POST …/schedule` do 26a substitui o agendamento inteiro: reagendar sem `care_provider_id` limpa o prestador, então o dashboard (Task 7) reenvia o prestador ao reagendar;
   - falta ou sincronização da agenda limpa o `care_provider_id` junto com o agendamento.
+- **T29 — Viagem confirmada:**
+  - motorista inativo é recusado com `driver_inactive` (422), no padrão de `vehicle_inactive`;
+  - numa viagem `confirmed`, todo PATCH valida as regras do `confirm` sobre o estado resultante, então trocar o motorista ou o veículo que ficou inválido é sempre aceito;
+  - `cancel` nunca passa por essas regras;
+  - `transport.trip_cancelled` sai em todo cancelamento, e o aviso ao cidadão só sai para viagem que já foi confirmada (T15).
