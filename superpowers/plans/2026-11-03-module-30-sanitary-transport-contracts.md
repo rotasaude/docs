@@ -239,3 +239,7 @@ Reconciliação das divergências dos quatro planos. Onde um plano diverge deste
   - **Noites internado:** são a interseção de `[from, to)` com `[data da ida, data da volta)`; internação aberta na volta conta até a data da volta.
   - **Eventos:** o §11 ganha `tfd.case_created`, `tfd.case_updated` e `tfd.case_cancelled` (só ids).
   - **CID:** o normalizador de CID é compartilhado (`ClinicalTerms.cid10_code`).
+- **T38 — Trechos e ajuda de custo:**
+  - **Trecho de frota:** o índice único é por `(trip_passenger_id, direction)`, então uma linha de passageiro carrega ida, volta ou as duas (van no mesmo dia, ou viagem partida em A e B). A data do trecho sai da viagem: a ida usa `trip.date` e a volta a data local de `return_at`.
+  - **Alimentação:** a do par só é calculada quando o segundo trecho fica `done`, em qualquer ordem.
+  - **Acompanhante:** recebe alimentação só se viajou na ida do par. O deslocamento é por trecho. A regra entra no gate do manual da UF.
