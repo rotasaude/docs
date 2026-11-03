@@ -206,3 +206,14 @@ Reconciliação das divergências dos quatro planos. Onde um plano diverge deste
   - numa viagem `confirmed`, todo PATCH valida as regras do `confirm` sobre o estado resultante, então trocar o motorista ou o veículo que ficou inválido é sempre aceito;
   - `cancel` nunca passa por essas regras;
   - `transport.trip_cancelled` sai em todo cancelamento, e o aviso ao cidadão só sai para viagem que já foi confirmada (T15).
+- **T30 — Paciente na central (precisa o T2):**
+  - O `person_lookup` segue a regra comum do 27a/29: achando um cidadão com par validado e sem paciente, materializa o paciente.
+  - "A central não cria paciente" quer dizer que ela não cadastra pessoa nova do zero.
+  - `POST /transport/patients/duplicates` devolve `{ "candidates" }`, o envelope real do 27a/29.
+- **T31 — Agenda do 17 em `scheduled_care`:**
+  - O item sai com `destination_id: null`, `provider_name` = nome da unidade e `address` = endereço da unidade. Nada clínico: sem profissional nem especialidade.
+  - Com `destination_id` no filtro, os itens do 17 não aparecem (são intramunicipais).
+- **T32 — Códigos:**
+  - origem inexistente ou em situação errada: 422 `invalid_request` em `origin_id`;
+  - passageiro já retirado: 404;
+  - `DELETE` do passageiro devolve o `<trip>`.
