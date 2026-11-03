@@ -286,3 +286,18 @@ Reconciliação das divergências dos quatro planos. Onde um plano diverge deste
   - **Exclusão:** `patient_on_trip` sai como **409**, coerente com `not_pending` e `try_again`. O dashboard ganha o texto dele em `ErasureRequests.tsx` e `lib/attendance.ts`, dentro do trabalho do 30 no dashboard, porque o erro nasce do 30.
   - **`FromTfd`:** não loga nada, pela guarda do 22 que proíbe log no faturamento. A linha pulada do T40 fica só no retorno do job e no evento, sem log.
   - **Semente de dev:** série do Sebastião e TFD do José, com CID M17, porque N185 não está no recorte do dev.
+- **T45 — Revisão final do api:**
+  - **Trecho anulado:** `tfd_legs` ganha `voided_at` e `void_reason`. Anulam o trecho `RemovePassenger` (`passenger_removed`), `CancelTrip` (`trip_cancelled`) e `CloseTrip` com `no_show` (`no_show`). O trecho anulado fica fora de `legs_pending`, do pareamento e da ajuda de custo. `<tfd-leg>` ganha `"voided": bool`, e o dashboard mostra esse estado.
+  - **Dia travado:** mudar o **dia** de uma viagem com trecho de TFD ou passageiro de série → 422 `trip_day_locked`. Mudar só o horário é permitido.
+  - **Pagamento:** índice único em `(tfd_case_id, receipt_number)`; repetido → 409 `receipt_taken`.
+  - **Série:** qualquer recusa que não seja lotação vira pendência `reason: "refused"` em `/transport/pending`, nunca perda silenciosa de viagem.
+  - **Recusas:**
+    - escrita em viagem não aberta → `trip_not_open`;
+    - `cancel` em `in_progress`, `done` ou `cancelled` → `invalid_transition`;
+    - recusas que já existiam: `stop_not_boarding` e chave desconhecida nos comandos da frota.
+  - **Limites:**
+    - internação: `from` entre (data da ida ou do envio − 1 dia) e hoje; `to` entre `from` e hoje;
+    - `SetAppointment` só aceita data futura;
+    - passageiro de TFD só vai ao destino do caso;
+    - o PATCH de `allowance_complements` substitui o mapa inteiro.
+  - **Eventos:** o §11 ganha `tfd.leg_added` (só ids).
