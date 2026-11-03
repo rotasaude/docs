@@ -187,3 +187,11 @@ Reconciliação das divergências dos quatro planos. Onde um plano diverge deste
   - nomes "Transporte sanitário" e "Tratamento Fora de Domicílio (TFD)", iguais no dashboard;
   - o maintenance traduz o `missing` `sanitary_transport_disabled`;
   - desligar o transporte não desliga o TFD em cascata: o TFD fica "ligado, falta pré-requisito" e responde 403 até o transporte voltar.
+
+### Acréscimos da execução (2026-11-03)
+
+- **T22 — Data da viagem:** sem CHECK no banco; `date` é derivada de `departure_at` no fuso da cidade, em Ruby (o dump do esquema é único e o fuso varia por cidade).
+- **T23 — Passageiro anonimizado:** a exclusão LGPD primeiro retira o paciente das viagens abertas; o passageiro anonimizado fica congelado, e remover ou corrigir dá 422 `passenger_anonymized`. A exclusão também anonimiza o acompanhante gravado nas séries.
+- **T24 — Nomes:** a coluna `tfd_payments.method` chama-se `payment_method`; o JSON continua `"method"`.
+- **T25 — Cancelamento do TFD:** só a comissão cancela, com step-up (T8); o autor não cancela o próprio rascunho.
+- **T26 — BPA:** `character` da linha do TFD é `elective`, como no laboratório.
