@@ -282,3 +282,7 @@ Reconciliação das divergências dos quatro planos. Onde um plano diverge deste
   - **Correção de presença:** o texto livre de `transport_attendance_corrections.reason` é sobrescrito uma vez com o texto fixo de LGPD, sob flag na trigger.
   - **Retenção tudo ou nada:** qualquer caso de TFD do paciente retém o paciente inteiro, sem anonimização parcial do lado do transporte, como no ADR 0026 e nos módulos anteriores. "Demais passageiros anonimizados" vale só para paciente sem nenhum TFD.
   - **Limite conhecido:** acompanhante digitado como texto livre na linha de outra pessoa não é localizável pela exclusão.
+- **T44 — Ajustes finais do api:**
+  - **Exclusão:** `patient_on_trip` sai como **409**, coerente com `not_pending` e `try_again`. O dashboard ganha o texto dele em `ErasureRequests.tsx` e `lib/attendance.ts`, dentro do trabalho do 30 no dashboard, porque o erro nasce do 30.
+  - **`FromTfd`:** não loga nada, pela guarda do 22 que proíbe log no faturamento. A linha pulada do T40 fica só no retorno do job e no evento, sem log.
+  - **Semente de dev:** série do Sebastião e TFD do José, com CID M17, porque N185 não está no recorte do dev.
