@@ -196,3 +196,8 @@ Reconciliação das divergências dos quatro planos. Onde um plano diverge deste
 - **T25 — Cancelamento do TFD:** só a comissão cancela, com step-up (T8); o autor não cancela o próprio rascunho.
 - **T26 — BPA:** `character` da linha do TFD é `elective`, como no laboratório.
 - **T27 — Evento de configuração:** o `PATCH /transport/admin/settings` publica `transport.settings_changed` (só o id da cidade e as chaves alteradas, sem valores), como `vaccination.settings_changed` no 29; entra no §11.
+- **T28 — Cadastros:**
+  - o §11 ganha `transport.vehicle_saved`, `transport.driver_saved` e `transport.destination_saved`, só com ids;
+  - `<driver>` ganha `"active"`, e `GET /transport/drivers?active=true` filtra por ele;
+  - o `POST …/schedule` do 26a substitui o agendamento inteiro: reagendar sem `care_provider_id` limpa o prestador, então o dashboard (Task 7) reenvia o prestador ao reagendar;
+  - falta ou sincronização da agenda limpa o `care_provider_id` junto com o agendamento.
