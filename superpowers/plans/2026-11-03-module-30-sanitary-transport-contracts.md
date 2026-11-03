@@ -243,3 +243,14 @@ Reconciliação das divergências dos quatro planos. Onde um plano diverge deste
   - **Trecho de frota:** o índice único é por `(trip_passenger_id, direction)`, então uma linha de passageiro carrega ida, volta ou as duas (van no mesmo dia, ou viagem partida em A e B). A data do trecho sai da viagem: a ida usa `trip.date` e a volta a data local de `return_at`.
   - **Alimentação:** a do par só é calculada quando o segundo trecho fica `done`, em qualquer ordem.
   - **Acompanhante:** recebe alimentação só se viajou na ida do par. O deslocamento é por trecho. A regra entra no gate do manual da UF.
+- **T39 — Pareamento, pagamento e comprovante:**
+  - **Trechos:**
+    - `leg_in_future` (422) para trecho de passagem com data futura marcado como feito;
+    - a volta de frota pareia primeiro com a ida da mesma linha de passageiro; senão vale o T10.
+  - **Pagamento:** devolve 200 com o `<tfd-case>`. 201 fica só na criação do caso.
+  - **Eventos:** o §11 ganha `tfd.accountability_closed` (só ids).
+  - **Comprovante:**
+    - baixar grava a trilha `clinical_record.viewed` (acesso `tfd`);
+    - o token de `/tfd/files/<token>` e de `/exams/files/<token>` é mascarado no log de requisições;
+    - o link curto vale 5 minutos e depois responde 410.
+  - **Exclusão LGPD:** o comprovante e o nome do arquivo ficam **retidos** com o processo (prestação de contas, Portaria 55 arts. 15–16; §12), não são apagados.
