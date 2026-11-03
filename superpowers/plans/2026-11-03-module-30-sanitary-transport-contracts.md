@@ -259,3 +259,11 @@ Reconciliação das divergências dos quatro planos. Onde um plano diverge deste
   - **Erro do banco:** vira `InsertFailed` sem detalhe, sem CID nem paciente no log.
   - **Sem unidade de faturamento:** o job levanta `BillingUnitMissing` e o evento fica pendente até a configuração; nunca se perde em silêncio. O PATCH de settings recusa limpar a unidade com `procedure_billing` ligado (`billing_unit_invalid`).
   - **Gate da revisão SIGTAP:** a janela de data do BPA, que não se aplica nesse caminho, como no laboratório, e a aceitação do CBO 225* nos códigos 0803.
+- **T41 — Cidadão, PEC e avisos:**
+  - **Linha do tempo do PEC:** a página externa do PEC (ADR 0035) **exclui** a fonte `transport`. Viagem e TFD são logística, não registro clínico, e o PEC não precisa disso (LGPD, necessidade). Um spec fixa a exclusão. O dashboard e o wpda continuam mostrando a fonte.
+  - **`GET /citizen/trips`:** traz todas as viagens futuras e as passadas desde hoje − 90 dias, até 50 itens. `paid` é `false` quando o total da ajuda é 0 ou nulo.
+  - **Envio dos avisos:**
+    - um job por passageiro, e cada um roda `Notify` numa transação própria, como no 17;
+    - `departure_changed` e `boarding_changed` comparam com o último valor avisado àquele passageiro e cidadão, e o corte de 30 min fica no consumidor;
+    - `event_key` é o id do evento; no lembrete é `trip.date`, então a viagem movida para outro dia ganha lembrete novo.
+  - **Transporte desligado:** não nascem avisos novos, e os que já estão na caixa ficam.
