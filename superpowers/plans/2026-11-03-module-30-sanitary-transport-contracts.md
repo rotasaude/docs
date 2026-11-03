@@ -217,3 +217,10 @@ Reconciliação das divergências dos quatro planos. Onde um plano diverge deste
   - origem inexistente ou em situação errada: 422 `invalid_request` em `origin_id`;
   - passageiro já retirado: 404;
   - `DELETE` do passageiro devolve o `<trip>`.
+- **T33 — Séries:**
+  - **Dia sem viagem:** só uma pendência não resolvida faz o job pular o dia. Uma pendência resolvida, do paciente retirado ou da viagem cancelada, é reaberta.
+  - **Viagem do dia:** "já está numa viagem" conta só passageiro ativo em viagem não cancelada.
+  - **Execução do job:** cada dia roda num savepoint próprio. A série fica travada e o estado ativo é conferido de novo, contra a corrida com a suspensão.
+  - **Recusas:** `return_before_departure` em `return_time`; `invalid_request` em `from_on` no passado.
+  - **Suspensão:** não se desfaz. Para retomar, a central cria uma série nova.
+- **T34 — Sem sessão:** rota sem sessão responde 401, não 403, como no resto da API. A conferência fica para a revisão final do api.
