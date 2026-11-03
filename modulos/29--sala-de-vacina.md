@@ -45,6 +45,7 @@ Registro da dose aplicada, estoque de imunobiológicos, caderneta. Lacuna presen
 | `dashboard` | `022ccd3` | 30 commits; suíte 5176/0 |
 | `wpda` | `44b2533` | 8 commits; suíte 807/0 + e2e em celulares |
 | `maintenance` | `6b788fc` | interruptores `vaccination`, `rnds_immunization`, `rnds_mock`; suíte 602/0 |
+| `catalog` | `c823ee8` | PR catalog#34 mergeado (conteúdo cd6249a); F-29.2 e F-29.4 "em validação" até a revisão do calendário e a homologação da RNDS |
 | `docs` | contrato §15 V1–V29 | |
 
 **Prova no navegador (2026-11-03, RNDS falsa em dev):** busca por CPF sem dado na URL; caderneta do bebê de 2 meses com aprazamento e atraso; dose com lote por FEFO e abertura de frasco; envio aceito com `rnds_id`; transcrição recusada pela RNDS com CPF mascarado e listada em Pendências; estoque por frasco; excursão de temperatura que bloqueia lotes; conduta lote a lote com step-up e descarte acima do limite aguardando aprovação (a aprovação pela 2ª pessoa não foi exercitada); resumo mensal fechando a conta; painel do gestor só com contagens; "Minhas vacinas" no wpda sem lote nem vacinador; interruptores e 403 `feature_disabled`. Achados corrigidos antes do merge (V29): caderneta do cidadão sem linhas calculada sob demanda; "Transcrita por"; Pendências relida ao abrir; lote bloqueado identificado; plural e validade do frasco em dias.
@@ -53,7 +54,7 @@ Registro da dose aplicada, estoque de imunobiológicos, caderneta. Lacuna presen
 
 Página de status: https://claude.ai/artifact/MojHsDxjz2U4SGZhe3G1Mm
 
-**Gates de go-live (a abrir no board #2):** perfil RIA-R 2.0 oficial e homologação na RNDS (extensões, BRDose, BRTipoDocumento, NamingSystems, REG-IMUNO, forma do cancelamento, default "1" da condição materna, transcrição sem via/local/grupo, aceite sem `Location`, executante da transcrição); autenticação (certificado A1 legado no OpenSSL 3, e-CNPJ/e-CPF, token por CNES, alerta de certificado TLS); códigos de fabricante nulos e hep B "9"×"09"; revisão de enfermagem do calendário (fronteiras, influenza do idoso, resgate, dose após `not_applicable`, D1 repetido, 2ª dose de rotavírus sem a 1ª); custo do `RefreshStatusesJob` numa base de 300 mil pacientes.
+**Gates de go-live** (board #2, "A triar"): perfil RIA-R 2.0 na homologação da RNDS (api#116); autenticação com o certificado real (api#117); códigos de fabricante nulos e hep B (api#118); revisão de enfermagem do calendário, inclusive a 2ª dose de rotavírus sem a 1ª (api#119); custo do `RefreshStatusesJob` em 300 mil pacientes (api#120).
 
 ## Integrações externas
 
