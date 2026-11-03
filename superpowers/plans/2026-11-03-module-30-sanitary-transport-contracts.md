@@ -254,3 +254,8 @@ Reconciliação das divergências dos quatro planos. Onde um plano diverge deste
     - o token de `/tfd/files/<token>` e de `/exams/files/<token>` é mascarado no log de requisições;
     - o link curto vale 5 minutos e depois responde 410.
   - **Exclusão LGPD:** o comprovante e o nome do arquivo ficam **retidos** com o processo (prestação de contas, Portaria 55 arts. 15–16; §12), não são apagados.
+- **T40 — BPA do TFD:**
+  - **Quantidade:** só 1 a 999, o limite de `performed_procedures`. Uma volta a mais de 999 noites da ida é recusada (`invalid_request` em `date`). O `FromTfd` pula a linha fora da faixa com aviso só com ids e segue com as outras.
+  - **Erro do banco:** vira `InsertFailed` sem detalhe, sem CID nem paciente no log.
+  - **Sem unidade de faturamento:** o job levanta `BillingUnitMissing` e o evento fica pendente até a configuração; nunca se perde em silêncio. O PATCH de settings recusa limpar a unidade com `procedure_billing` ligado (`billing_unit_invalid`).
+  - **Gate da revisão SIGTAP:** a janela de data do BPA, que não se aplica nesse caminho, como no laboratório, e a aceitação do CBO 225* nos códigos 0803.
