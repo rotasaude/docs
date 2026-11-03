@@ -195,3 +195,4 @@ Reconciliação das divergências dos quatro planos. Onde um plano diverge deste
 - **T24 — Nomes:** a coluna `tfd_payments.method` chama-se `payment_method`; o JSON continua `"method"`.
 - **T25 — Cancelamento do TFD:** só a comissão cancela, com step-up (T8); o autor não cancela o próprio rascunho.
 - **T26 — BPA:** `character` da linha do TFD é `elective`, como no laboratório.
+- **T27 — Evento de configuração:** o `PATCH /transport/admin/settings` publica `transport.settings_changed` (só o id da cidade e as chaves alteradas, sem valores), como `vaccination.settings_changed` no 29; entra no §11.
