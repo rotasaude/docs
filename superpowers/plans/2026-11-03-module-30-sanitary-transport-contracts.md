@@ -313,3 +313,10 @@ Reconciliação das divergências dos quatro planos. Onde um plano diverge deste
   - **Situação hoje:** o CNES só chega à unidade pela proposta `link`/`create` da sincronização CNES do módulo 16. Essa proposta cobre unidade com equipe, então a unidade de gestão em geral fica de fora.
   - **Dashboard:** o `UnitForm` ganha o campo opcional CNES para todos os tipos. Os erros `invalid_cnes` e `cnes_taken` têm texto próprio. O api não muda.
   - **Limite:** a sincronização do 16 continua podendo vincular ou corrigir o CNES depois. Vale o último a gravar.
+- **T48 — Pedir TFD depois da consulta** (ajuste à spec, nascido da prova no navegador):
+  - "Pedir TFD" aparece também em "Minhas consultas", em consulta finalizada do próprio médico, além do `ConsultationWorkspace`. A spec fala em "na consulta finalizada", e o médico pode decidir o TFD depois.
+  - Muda só o dashboard. O api já aceita o laudo a partir de consulta finalizada.
+- **T49 — Ajustes de tela da prova:**
+  - **Pagamento acima do devido:** o api não bloqueia, porque o estado pode complementar o valor e o devido depende do SIGTAP (gate). O dashboard mostra o aviso "valor acima do devido (R$ X)" e pede confirmação antes de enviar.
+  - **Agenda:** depois de criar uma viagem em outro dia, a agenda vai para o dia da viagem criada.
+  - **Viagem a que o cidadão faltou:** no wpda continua aparecendo o status da viagem, sem a presença, como diz o contrato. Não muda.
