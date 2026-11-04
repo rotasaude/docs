@@ -301,3 +301,10 @@ Reconciliação das divergências dos quatro planos. Onde um plano diverge deste
     - passageiro de TFD só vai ao destino do caso;
     - o PATCH de `allowance_complements` substitui o mapa inteiro.
   - **Eventos:** o §11 ganha `tfd.leg_added` (só ids).
+- **T46 — Unidades para a central** (precisa o T5):
+  - **Rota:** nova rota `GET /transport/health_units`. Devolve `{ "units": [{ "id", "name" }] }` com as unidades ativas, em ordem de nome, sem endereço, CNES ou qualquer outro campo.
+  - **Acesso:** fica atrás do mesmo interruptor e dos mesmos papéis do `Transport::BaseController`.
+  - **Uso:** o dashboard monta o seletor de unidade do `scheduled_care` com essa rota.
+  - **Fora:** o `GET /attendance/units` não muda; o controle de acesso dos módulos 08 e 09 fica intacto.
+  - **Leitura:** é cadastro de unidade, sem dado de cidadão. Não grava trilha nem evento.
+  - **Testes:** spec de request, com escopo fechado. A suíte completa roda de novo antes do merge, porque a branch do api mudou depois da rodada 9968/1.
