@@ -642,3 +642,11 @@ O nome de um CAPS AD revela, de forma indireta, o uso de substância. Por isso, 
 - **Marcador da linha do tempo geral** (`psychosocial_link`): "Acompanhamento no CAPS", sem o nome, com início e fim.
 - **Outras superfícies fora do CAPS:** o mesmo vale para eventos, painel de quem não é do CAPS e qualquer superfície futura. O painel do CAPS para `psychosocial_lead`, `municipal_admin` e `analyst` continua por unidade, porque é agregado e não nominal.
 - **Specs:** um spec confere que nenhuma resposta vista pela UBS contém o nome da unidade CAPS.
+
+**P47 — Documentos pela ação (Task 13).**
+- **Criação:** o `POST /psychosocial/actions/:id/documents` devolve o documento no topo, como no 19. Se a ação estiver cancelada → 409 `already_cancelled`.
+- **Imprimir e cancelar:** o `health_unit_id` é aceito e ignorado. Quem decide é a lotação no CAPS.
+- **Assinatura:** as rotas `/signature/*` e o `signable_by` aceitam `psychosocial_staff` e `psychosocial_lead`, limitados aos pedidos de documentos do CAPS de que a pessoa é autora. É a mesma lógica do P29.
+- **Detalhe da assinatura:** `GET /signature/signatures/:id` devolve 404 para documento do CAPS. O dashboard não liga para esse detalhe; o PDF assinado sai pelo `print` do 19.
+- **Cancelamento:** cancelam a autora lotada e também o `psychosocial_lead` lotado no CAPS, com trilha (E1, opção a). Assim, uma receita errada continua cancelável depois que a autora sai do CAPS.
+- **Farmácia:** vê a receita do CAPS para dispensar. A Task 14 tira a dispensação do CAPS da linha do tempo e da "última retirada" da lista de medicamentos da UBS.
