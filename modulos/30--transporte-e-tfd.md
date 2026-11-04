@@ -63,7 +63,7 @@ Achados corrigidos antes do merge: frase velha de atendimento; "destino a escolh
 
 Página de status: https://claude.ai/artifact/AgDn32czUZ2VzwKafp2E3j
 
-**Gates de go-live** (board #2): SIGTAP 08.03.01 (códigos, valores, CBOs, trecho de frota); manual de TFD da UF piloto; `primary_care_groups.yml`; CNES da unidade de gestão no BPA; veículos no CNES (Portaria SAES 4.904/2026); km reais dos destinos; runbook para refazer o evento do BPA depois das 12 tentativas. Limite conhecido: acompanhante em texto livre não é localizado na exclusão LGPD.
+**Gates de go-live** (board #2, "A triar"): SIGTAP 08.03.01, com códigos, valores, CBOs e trecho de frota (api#121); manual de TFD da UF piloto (api#122); cadastros do go-live: CNES da unidade de gestão, veículos no CNES, km dos destinos e `primary_care_groups.yml` (api#123); runbook do evento do BPA depois das 12 tentativas (api#124); acompanhante em texto livre na exclusão LGPD (api#125).
 
 ## Integrações externas
 
