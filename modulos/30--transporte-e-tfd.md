@@ -60,6 +60,8 @@ Achados corrigidos antes do merge: frase velha de atendimento; "destino a escolh
 
 **Decisões tomadas na execução** (contrato, T22–T49): data da viagem no fuso da cidade; passageiro anonimizado congelado; só a comissão cancela TFD; trecho anulado e dia travado; recibo único; pendência `refused` da série; exclusão recusada com `patient_on_trip` (409) e retenção tudo ou nada; linha do tempo do PEC sem transporte; janela do cidadão; rota de unidades para a central; CNES no cadastro de unidade; Pedir TFD depois da consulta.
 
+Página de status: https://claude.ai/artifact/AgDn32czUZ2VzwKafp2E3j
+
 **Gates de go-live** (board #2): SIGTAP 08.03.01 (códigos, valores, CBOs, trecho de frota); manual de TFD da UF piloto; `primary_care_groups.yml`; CNES da unidade de gestão no BPA; veículos no CNES (Portaria SAES 4.904/2026); km reais dos destinos; runbook para refazer o evento do BPA depois das 12 tentativas. Limite conhecido: acompanhante em texto livre não é localizado na exclusão LGPD.
 
 ## Integrações externas
