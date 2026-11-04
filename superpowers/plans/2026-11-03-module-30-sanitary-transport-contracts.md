@@ -308,3 +308,8 @@ Reconciliação das divergências dos quatro planos. Onde um plano diverge deste
   - **Fora:** o `GET /attendance/units` não muda; o controle de acesso dos módulos 08 e 09 fica intacto.
   - **Leitura:** é cadastro de unidade, sem dado de cidadão. Não grava trilha nem evento.
   - **Testes:** spec de request, com escopo fechado. A suíte completa roda de novo antes do merge, porque a branch do api mudou depois da rodada 9968/1.
+- **T47 — CNES da unidade no cadastro** (precisa o T40 e o seletor da unidade de faturamento):
+  - **Situação no api:** `POST` e `PATCH /health_units` já aceitam `cnes` em `assign_cnes`, com sete dígitos ou nulo, e devolvem `invalid_cnes` e `cnes_taken`.
+  - **Situação hoje:** o CNES só chega à unidade pela proposta `link`/`create` da sincronização CNES do módulo 16. Essa proposta cobre unidade com equipe, então a unidade de gestão em geral fica de fora.
+  - **Dashboard:** o `UnitForm` ganha o campo opcional CNES para todos os tipos. Os erros `invalid_cnes` e `cnes_taken` têm texto próprio. O api não muda.
+  - **Limite:** a sincronização do 16 continua podendo vincular ou corrigir o CNES depois. Vale o último a gravar.
