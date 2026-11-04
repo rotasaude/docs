@@ -621,3 +621,13 @@ O dashboard tem texto para cada código.
 - Código que não resolve para BPA-C → 422 `instrument_mismatch`.
 
 *Risco aceito:* o nome de um CAPS AD no vínculo revela, de forma indireta, uso de substância. Isso decorre da decisão 3 da spec: a UBS vê "em acompanhamento no CAPS X". Fica registrado como risco conhecido.
+
+**P45 — BPA pelo 22 (Task 12).**
+- **CID na BPA-I:** a linha leva o CID principal da matrícula.
+- **Cancelamento pelo CAPS:** cancelar a ação cancela a linha. No faturamento, o motivo é o texto fixo "Ação do CAPS cancelada", sem texto do CAPS.
+- **Linha já exportada:** recusa com 409 `already_exported`.
+- **Cancelamento pelo faturista:** em `/billing/procedures/:id/cancel`, ele cancela a linha direto e a ação do CAPS continua de pé, como nas linhas `tfd` e `lab`. O motivo digitado ali é do faturamento: o runbook orienta a não pôr informação clínica nele.
+- **Pendências:** linha sem paciente que vire BPA-I aparece em `pending` com `fix: "patient"` e `patient: null`. O dashboard do faturamento tolera esse caso.
+- **Antes do merge:** a linha BPA-I do CAPS só sai da linha do tempo (`ProcedureSource`) e de `CareLines::Sources` com a Task 14.
+- **Exclusão:** linha BPA-I do CAPS retém o paciente na exclusão. A Task 16 confere.
+- **Gate:** `PATIENTLESS_AGE = 0` na BPA-C ainda precisa ser conferido no layout oficial.
