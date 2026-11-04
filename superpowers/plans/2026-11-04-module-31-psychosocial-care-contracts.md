@@ -727,3 +727,13 @@ A supressão de "menos de 5" pode ser desfeita por subtração:
 - o total sem filtro, comparado ao filtrado por unidade, isola a unidade suprimida.
 
 Não há supressão complementar. É o mesmo padrão do painel do transporte, e só papéis privilegiados (coordenação, gestão e analista) leem o painel.
+
+**P53 — Nome genérico também nos detalhes (Task 14; aplica P46/P51).**
+- **Telas fora do CAPS:** em qualquer tela de outro módulo, uma unidade `caps` aparece como "Centro de Atenção Psicossocial", seguido do CNES quando houver, para todos os leitores. Vale também para os detalhes abertos a partir da linha do tempo:
+  - `GET /vaccination/immunizations/:id` e o cartão lido pelo vacinador, que perde também o nome livre da sala;
+  - `GET /exams/orders/:id`;
+  - as telas da regulação e do laboratório.
+- **Telas do CAPS:** as próprias telas do CAPS (`/psychosocial/*`) continuam mostrando o nome real.
+- **Ponto único:** `Labels.unit_name` concentra essa regra. `PerformedProcedure.outside_caps` filtra a produção do CAPS.
+- **409 `unit_has_attendances`:** passa a contar também a cobertura de território e o prestador. O texto do dashboard fica genérico: "a unidade já tem histórico de atendimento, cobertura ou prestador".
+- **Risco baixo aceito:** uma equipe de saúde (`HealthTeam`) numa unidade CAPS não entra no 409, porque o `OpenAppointmentRequest` já barra o caso.
