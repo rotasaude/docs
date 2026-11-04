@@ -489,3 +489,24 @@ O dashboard tem texto para cada código.
 - **`units`:** lista só os CAPS ativos.
 
 **P36 — Detalhes de topo nos erros (Task 3).** Os detalhes que podem subir ao topo do erro estão numa lista de permissão: `used`, `limit`, `window_days` e `rule`. O `rule` é a regra do limite noturno que estourou.
+
+**P37 — Matrícula e mês fechado (Task 4).** A data de início ou de encerramento num mês já fechado é recusada com 422 `month_closed`:
+
+| Operação | Recusa quando | `path` |
+|---|---|---|
+| Criar ou editar | `started_on` cai num mês fechado | `started_on` |
+| Matricular no acolhimento | `started_on` cai num mês fechado | `enrollment.started_on` |
+| Editar `started_on` | o mês de início atual está fechado | `started_on` |
+| Encerrar | `closed_on` cai num mês fechado | `closed_on` |
+
+- `PATCH` e `close` devolvem o detalhe e gravam `clinical_record.viewed`.
+- `PATCH` sem nenhum campo → 422 `invalid_request`.
+- As RAAS dos meses depois do `closed_on` ficam fora da crítica, do fechamento, das fichas e da remessa.
+
+**P38 — Prefill e trilha (Task 4).**
+- **Prefill:** o `prefill` usa `CareLines::TeamPopulation`: primeiro o cadastro do 24a, senão o território do 11.
+  - Só a eSF (tipo 70) conta como cobertura de ESF.
+  - A resposta traz também `team`.
+  - eSF sem CNES → `esf_covered: true` e `esf_cnes: null`.
+- **Encaminhamento:** no detalhe, `referred_by` é `{user_id, name}`, sem `cbo_code`.
+- **Trilha:** todo `clinical_record.viewed` do CAPS leva `resource`. `person_lookup` e `patient_duplicates` também gravam a trilha.
