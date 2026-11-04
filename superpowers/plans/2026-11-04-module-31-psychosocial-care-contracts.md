@@ -468,3 +468,24 @@ Também tem o teste de que nenhum SMS nem aviso é enfileirado.
 **P33 — Configuração e acolhimento (R12, R13).**
 - `GET /psychosocial/settings` é lido por `municipal_admin` e `psychosocial_lead`.
 - O acolhimento responde só `{reception_id, enrollment_id|null}`.
+
+**P34 — Guardas do cadastro de unidade (Task 3).** O `/attendance/units` ganha estas recusas:
+
+| Código | Situação |
+|---|---|
+| 409 `unit_has_caps_records` | CAPS com qualquer registro `psychosocial_*` deixaria de ser `caps` |
+| 409 `caps_has_beds` | CAPS noturno com leito ativo passaria para uma modalidade sem leito |
+| 409 `unit_has_attendances` | unidade com atendimento ou agenda viraria `caps`; o nome do CAPS iria para o histórico do cidadão |
+| 422 `invalid_phone` | telefone inválido |
+
+O dashboard tem texto para cada código.
+
+**P35 — Forma de `options` (Task 3).**
+- **Campos:** além do P4, `options` traz `night_sigtap_code`, `competence`, `places`, `group_kinds`, `reception_outcomes` e `referral_priorities`.
+- **Procedimentos:** o filtro combina três condições:
+  - instrumento `01`, `02` ou `09`;
+  - CBO do vínculo de quem pede;
+  - prefixo de `procedure_prefixes` no `raas.yml` (`review: true`; em dev, `030108`).
+- **`units`:** lista só os CAPS ativos.
+
+**P36 — Detalhes de topo nos erros (Task 3).** Os detalhes que podem subir ao topo do erro estão numa lista de permissão: `used`, `limit`, `window_days` e `rule`. O `rule` é a regra do limite noturno que estourou.
