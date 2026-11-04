@@ -695,3 +695,35 @@ Sem isso, toda triagem web do bairro abriria um pedido com destino no CAPS, e o 
 - `/citizen/history?kinds[]=psychosocial_*` responde 422 `invalid_kinds`. O wpda e o dashboard não pedem esses kinds.
 - O marcador "Acompanhamento no CAPS" continua na linha do tempo profissional mesmo com o interruptor desligado, porque o registro fica retido.
 - Runbook: a farmácia não lança a receita impressa do CAPS como "externa", porque nesse caso ela escapa do filtro de dispensação.
+
+**P52 — Painel (Task 15).**
+
+*Acesso*
+- `psychosocial_lead` vê só os CAPS em que está lotado. Fora deles → 403 `not_on_caps_team`.
+- `municipal_admin` e `analyst` veem todos os CAPS ativos.
+- `billing_clerk` e `psychosocial_staff` → 403 `missing_role`.
+- Mês futuro → 422, com `path: month`.
+- O painel não grava trilha.
+
+*Valores*
+- De 1 a 4 sai `"lt5"`. Zero sai `0`.
+
+*Campos*
+- `enrollments_active[]` usa `caps_modality`.
+- `closed_by_destination` traz todos os destinos diferentes de `"00"`, com 0 quando não houver registro. O rótulo vem de `options`.
+- `raas_month` traz `open`, `closed`, `exported` e `no_actions`.
+
+*Definições*
+| Indicador | Como é contado |
+|---|---|
+| Matrículas ativas | abertas no fim do mês; no mês corrente, abertas hoje |
+| PTS vencidos | situação de hoje, qualquer que seja o mês pedido |
+| Noites | regra do limite noturno até o fim do mês ou até hoje, o que vier antes; a noite de hoje conta |
+| Leitos-dia | leitos ativos agora × dias do mês |
+
+*Risco aceito: supressão desfeita por diferença*
+A supressão de "menos de 5" pode ser desfeita por subtração:
+- o total da RAAS menos as matrículas ativas dá a soma dos encerramentos;
+- o total sem filtro, comparado ao filtrado por unidade, isola a unidade suprimida.
+
+Não há supressão complementar. É o mesmo padrão do painel do transporte, e só papéis privilegiados (coordenação, gestão e analista) leem o painel.
