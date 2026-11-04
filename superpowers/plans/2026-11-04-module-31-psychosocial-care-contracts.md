@@ -519,3 +519,17 @@ O dashboard tem texto para cada código.
   - `PATCH` sem mudança → 200 com o grupo atual;
   - o código e o responsável só são conferidos quando novos ou trocados.
 - **`today`:** usa o dia da semana e o dia locais da cidade. Não grava trilha.
+
+**P40 — Ações (Task 7).**
+- **Matrícula aberta na data da ação:** a matrícula só conta como aberta se `started_on` for igual ou anterior à data local de `performed_at`. Caso contrário, `enrollment_required` em `participants[i]`, sem criar RAAS fantasma.
+  - No acolhimento, `at` antes de `started_on` dá `{error: "enrollment_required", path: "at"}`.
+- **Crítica no acolhimento:** responde 422 `action_rejected` com os paths do acolhimento. `performed_at` vira `at`, e os demais vão para `sigtap_code`.
+- **Campos:**
+  - `quantity` ausente vale 1.
+  - `participants` é obrigatório: array, que pode ser vazio, com no máximo 100 itens.
+  - Participante repetido → `invalid_request` em `participants[i]`.
+  - Matrícula inexistente ou de outro CAPS → `enrollment_required` indexado.
+  - Os ids são normalizados para minúsculas.
+- **`enrollment_required` sem índice** (`path: "participants"`): ação só RAAS sem nenhum participante matriculado.
+- **Cancelamento:** qualquer pessoa lotada no CAPS cancela. Em mês fechado, só a coordenação. Ação já exportada não é cancelada (409).
+- **Dashboard:** manda sempre `enrollment_id` quando o paciente tem matrícula. Só `{patient_id}` não liga a ação à RAAS.
