@@ -671,3 +671,27 @@ O nome de um CAPS AD revela, de forma indireta, o uso de substância. Por isso, 
   Tirar o CBO dali exigiria uma tag nova do contracts, e trocá-lo por um genérico falsificaria o documento assinado. Por isso o CBO fica.
 - **Nome do profissional no atestado:** fica, porque o CFM exige a identificação do médico.
 - **Quem emite documento no CAPS:** só médico (CBO 2251, 2252 ou 2253). Os outros profissionais recebem 422 `prescriber_required`. Declaração de comparecimento por psicólogo e outros profissionais está fora desta entrega.
+
+**P51 — Sigilo fora do diff (Task 14; segue P32, P46 e P48).**
+
+**G1 — CAPS fora dos caminhos automáticos e de cadastro.**
+- `Territory::ReplaceCoverage` e `CareRegulation::SaveProvider` recusam unidade `caps` com 422 `caps_unit_not_allowed`.
+- `ReferenceUnits` exclui o CAPS, o que protege também os dados que já existem.
+- `CareLines::OpenAppointmentRequest` ganha a mesma guarda.
+- O 409 `unit_has_attendances` do P34 passa a contar também cobertura de território e prestador.
+
+Sem isso, toda triagem web do bairro abriria um pedido com destino no CAPS, e o nome dele apareceria no wpda.
+
+**G2 — Nome genérico, opção (i).**
+- `Timeline::Sources::Labels.unit` é o único ponto de nome de unidade. Unidade `caps` vira "Centro de Atenção Psicossocial", como no P48, em todas as fontes gerais:
+  - exame;
+  - vacina, inclusive para o cidadão;
+  - dispensação;
+  - procedimento.
+- `ProcedureSource` e `CareLines::Sources` filtram também as linhas de unidade `caps`. Isso inclui o BPA manual lançado antes do módulo.
+- O CAPS continua podendo pedir exame, ter sala de vacina e estoque. Só o nome some fora do CAPS.
+
+**Interface e operação.**
+- `/citizen/history?kinds[]=psychosocial_*` responde 422 `invalid_kinds`. O wpda e o dashboard não pedem esses kinds.
+- O marcador "Acompanhamento no CAPS" continua na linha do tempo profissional mesmo com o interruptor desligado, porque o registro fica retido.
+- Runbook: a farmácia não lança a receita impressa do CAPS como "externa", porque nesse caso ela escapa do filtro de dispensação.
