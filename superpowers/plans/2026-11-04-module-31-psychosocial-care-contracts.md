@@ -650,3 +650,10 @@ O nome de um CAPS AD revela, de forma indireta, o uso de substância. Por isso, 
 - **Detalhe da assinatura:** `GET /signature/signatures/:id` devolve 404 para documento do CAPS. O dashboard não liga para esse detalhe; o PDF assinado sai pelo `print` do 19.
 - **Cancelamento:** cancelam a autora lotada e também o `psychosocial_lead` lotado no CAPS, com trilha (E1, opção a). Assim, uma receita errada continua cancelável depois que a autora sai do CAPS.
 - **Farmácia:** vê a receita do CAPS para dispensar. A Task 14 tira a dispensação do CAPS da linha do tempo e da "última retirada" da lista de medicamentos da UBS.
+
+**P48 — Nome do CAPS nos documentos e telefone no vínculo** (decisão do usuário, 2026-11-04).
+- **Telefone:** o vínculo visto pela UBS (P46) mantém `caps.phone`, para a UBS poder ligar direto. O risco de identificar a unidade pelo número foi aceito.
+- **Verificação pública** (`/v/:token`), para documento com `psychosocial_action_id`: a unidade aparece como "Centro de Atenção Psicossocial", com o município e o CNES. Saem o nome e a modalidade.
+- **Atestado** (`sick_note`) do CAPS: o impresso e o PDF assinado também usam "Centro de Atenção Psicossocial", com o município e o CNES, sem o nome nem a modalidade. Assim o empregador não fica sabendo do tratamento.
+- **Receita e notificação de controlado:** o impresso mantém a identificação completa do emitente, porque a farmácia precisa dela. Na verificação pública desses documentos vale a forma genérica.
+- **Specs:** a verificação pública de qualquer documento do CAPS e o atestado impresso não podem conter o nome nem a modalidade da unidade.
