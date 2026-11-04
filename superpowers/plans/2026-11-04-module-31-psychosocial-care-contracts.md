@@ -620,7 +620,7 @@ O dashboard tem texto para cada código.
 - Na crítica, `performed_at` aparece como `held_on`; os demais erros, como `sigtap_code`.
 - Código que não resolve para BPA-C → 422 `instrument_mismatch`.
 
-*Risco aceito:* o nome de um CAPS AD no vínculo revela, de forma indireta, uso de substância. Isso decorre da decisão 3 da spec: a UBS vê "em acompanhamento no CAPS X". Fica registrado como risco conhecido.
+*Risco:* o nome de um CAPS AD no vínculo revela, de forma indireta, uso de substância. Resolvido pelo P46.
 
 **P45 — BPA pelo 22 (Task 12).**
 - **CID na BPA-I:** a linha leva o CID principal da matrícula.
@@ -631,3 +631,14 @@ O dashboard tem texto para cada código.
 - **Antes do merge:** a linha BPA-I do CAPS só sai da linha do tempo (`ProcedureSource`) e de `CareLines::Sources` com a Task 14.
 - **Exclusão:** linha BPA-I do CAPS retém o paciente na exclusão. A Task 16 confere.
 - **Gate:** `PATIENTLESS_AGE = 0` na BPA-C ainda precisa ser conferido no layout oficial.
+
+**P46 — Vínculo genérico, sem o nome do CAPS (decisão do usuário, 2026-11-04).** Este item substitui partes do §7, do §10 e do P44.
+
+O nome de um CAPS AD revela, de forma indireta, o uso de substância. Por isso, fora da equipe do CAPS, nenhuma superfície mostra o nome nem a modalidade da unidade.
+
+- **Vínculo para a UBS** (`GET /psychosocial/patients/:id/link`): devolve `{enrolled, caps: {phone}, since, reference: {name}, shared_cases: [{held_on, shared_text}]}`.
+  - Sem `caps.id`, `caps.name`, `caps_modality` e `caps_name`.
+  - O texto da tela é "Em acompanhamento no CAPS desde …".
+- **Marcador da linha do tempo geral** (`psychosocial_link`): "Acompanhamento no CAPS", sem o nome, com início e fim.
+- **Outras superfícies fora do CAPS:** o mesmo vale para eventos, painel de quem não é do CAPS e qualquer superfície futura. O painel do CAPS para `psychosocial_lead`, `municipal_admin` e `analyst` continua por unidade, porque é agregado e não nominal.
+- **Specs:** um spec confere que nenhuma resposta vista pela UBS contém o nome da unidade CAPS.
