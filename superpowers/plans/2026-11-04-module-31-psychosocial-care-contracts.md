@@ -601,3 +601,23 @@ O dashboard tem texto para cada código.
 **Trilha**
 - Download da remessa: `clinical_record.viewed` com `resource: raas_file`, uma entrada por paciente.
 - Ficha: trilha com `resource: raas_sheet`, uma entrada por paciente.
+
+**P44 — Matriciamento e vínculo (Task 11).**
+
+*Vínculo visto pela UBS* (`GET /psychosocial/patients/:id/link`)
+- A ordem das checagens evita que a resposta revele quem está no CAPS: primeiro 403 `out_of_context`, pelo `ClinicalRecord::Access`, e só depois qualquer consulta ao CAPS.
+- **Sem matrícula aberta** (por exemplo, depois da alta para a atenção básica), a resposta é `{enrolled: false}`. Se houver caso compartilhado com a equipe de quem lê, vem também `shared_cases: [...]`, e só nesse caso a leitura grava trilha. Isso corrige o §7.
+- **Interruptor desligado:** a UBS recebe 403 `feature_disabled`. O dashboard trata como "sem vínculo", sem mostrar erro.
+
+*Matriciamento cancelado*
+- A ação do matriciamento pode ser cancelada pela rota de ações; a linha do BPA cai junto (Task 12).
+- A lista e o detalhe do matriciamento mostram `action_cancelled_at`.
+- `add_case` num matriciamento cancelado → 409 `already_cancelled`.
+- O vínculo visto pela UBS exclui os casos de matriciamento cancelado.
+
+*Formas*
+- A lista e o detalhe trazem também `health_team`, `participants`, `sigtap`, `action_id`, `cases_count` e `created_at`.
+- Na crítica, `performed_at` aparece como `held_on`; os demais erros, como `sigtap_code`.
+- Código que não resolve para BPA-C → 422 `instrument_mismatch`.
+
+*Risco aceito:* o nome de um CAPS AD no vínculo revela, de forma indireta, uso de substância. Isso decorre da decisão 3 da spec: a UBS vê "em acompanhamento no CAPS X". Fica registrado como risco conhecido.
