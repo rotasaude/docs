@@ -416,3 +416,55 @@ Também tem o teste de que nenhum SMS nem aviso é enfileirado.
 - O rótulo é "Atenção psicossocial (CAPS)".
 - O nome do interruptor é traduzido no maintenance (`FEATURE_LABELS`).
 - Não há cascata: desligar o prontuário deixa `psychosocial_care` ligado e "falta pré-requisito", e as rotas respondem 403 `feature_disabled`.
+
+### Acréscimos da execução (2026-11-04)
+
+**P23 — Crítica da ação (R1).** A recusa responde `{error: "action_rejected", problems: [{error, path, participant_index?}]}`. O `path` de cada código:
+
+| Código | `path` |
+|---|---|
+| `instrument_mismatch` | `sigtap_code` |
+| `cbo_incompatible` | `sigtap_code` |
+| `quantity_exceeded` | `quantity` |
+| `performed_in_future` | `performed_at` |
+| `month_closed` | `performed_at` |
+| `enrollment_required` | `participants[i]` |
+| `authorization_required` | `authorization_number` |
+| `family_only_for_family_care` | `participants[i].family_name` |
+| `bpa_i_single_patient` | `participants` |
+
+**P24 — Pendências do mês (R2).** O 422 `month_has_problems` leva `problems: [{error, path: "records.<monthly_record_id>"}]`. O `GET /psychosocial/months/:month` traz `records[].problems` e `records[].warnings`. `no_actions` é um aviso.
+
+**P25 — Mínimos de texto (R3).**
+- `reason` e `shared_text`: no mínimo 10 caracteres.
+- `family_name`: no mínimo 3.
+- Motivo de reabertura, de reavaliação e de saída do leito: de 10 a 500.
+- Abaixo do mínimo → 422 `invalid_request`. Acima do máximo → 422 `too_long`.
+
+**P26 — Cadastro de unidade (R4).** `/attendance/units` continua sem step-up. O §3 fica corrigido: a escrita da unidade CAPS segue as regras que essa rota já tem.
+
+**P27 — Telefone da unidade (R5).**
+- `health_units.phone`: só dígitos, de 10 a 11, pode ser nulo. Entra na migração 900002 e é aceito em `/attendance/units`.
+- O cadastro do dashboard ganha o campo.
+- O vínculo devolve `phone: null` quando o telefone não está cadastrado.
+
+**P28 — Assinatura do documento do CAPS (R6, opção a).** `ck_signature_requests_consultation` e `Signatures::Canonical` passam a aceitar o documento com `psychosocial_action_id`, na migração 900004. O 19b assina como qualquer documento. É superfície transversal, coberta pela suíte completa.
+
+**P29 — Rotas de documento do 19 (R7, opção b).**
+- `ClinicalDocumentsController` aceita `psychosocial_staff` e `psychosocial_lead` em `show`, `print` e `cancel`, só para documento com `psychosocial_action_id`.
+- A decisão é do grant de lotação no CAPS. Fora dele → 404.
+- A equipe do CAPS não recebe `health_professional`.
+
+**P30 — Busca de paciente (R8).**
+- `POST /psychosocial/person_lookup` aceita `cpf` **ou** `cns`, no padrão do `Vaccination::PersonLookupsController`, por causa do usuário em situação de rua sem CPF.
+- A busca de duplicados é `POST /psychosocial/patients/duplicates`.
+
+**P31 — Procedimentos coletivos (R9).**
+- A marca `collective` em `options` vem de `collective_codes` no `raas.yml` (`review: true`).
+- Em dev: `0301080216`, `0301080283` e `0301080348`.
+
+**P32 — Unidade CAPS fora do check-in e da agenda (R11).** O check-in do módulo 09 e a marcação do módulo 17 em unidade `kind = caps` são recusados com 422 `caps_unit_not_allowed`, por uma guarda em cada comando. Sem essa guarda, o nome da unidade CAPS apareceria no wpda.
+
+**P33 — Configuração e acolhimento (R12, R13).**
+- `GET /psychosocial/settings` é lido por `municipal_admin` e `psychosocial_lead`.
+- O acolhimento responde só `{reception_id, enrollment_id|null}`.
