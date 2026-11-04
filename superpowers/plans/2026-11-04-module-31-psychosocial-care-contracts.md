@@ -662,3 +662,12 @@ O nome de um CAPS AD revela, de forma indireta, o uso de substância. Por isso, 
 - **F1:** no atestado (`sick_note`) do CAPS, o profissional aparece só com a profissão e o registro, por exemplo "Médico — CRM …". Não aparecem a especialidade, o título ("psiquiatra") nem o CBO. Isso vale no impresso, no PDF assinado e na verificação pública. A especialidade revelaria o tratamento ao empregador, como o nome do CAPS no P48. Um spec confere.
 - **F2:** a receita e a notificação de controlado assinadas (`/v/:token/signed.pdf`) continuam completas, com o nome do CAPS e o profissional completo, porque a farmácia precisa deles. O JSON e o HTML da verificação seguem genéricos (P48).
 - **Motivo do cancelamento de documento:** segue a regra do 19, de 10 a 500 caracteres. O limite de 10 a 2000 vale só para o cancelamento da ação do CAPS.
+
+**P50 — Notas da Task 13.**
+- **Canônico assinado:** o `clinical-document-v1` (contracts `clinical-v1.1.0`) continua com o `cbo_code` real, porque o esquema exige 6 dígitos. Ele não fica público:
+  - a verificação pública e o `signed.pdf` do atestado não mostram o CBO;
+  - `/signature/signatures/:id` responde 404 para documento do CAPS.
+
+  Tirar o CBO dali exigiria uma tag nova do contracts, e trocá-lo por um genérico falsificaria o documento assinado. Por isso o CBO fica.
+- **Nome do profissional no atestado:** fica, porque o CFM exige a identificação do médico.
+- **Quem emite documento no CAPS:** só médico (CBO 2251, 2252 ou 2253). Os outros profissionais recebem 422 `prescriber_required`. Declaração de comparecimento por psicólogo e outros profissionais está fora desta entrega.
