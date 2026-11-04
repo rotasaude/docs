@@ -533,3 +533,35 @@ O dashboard tem texto para cada código.
 - **`enrollment_required` sem índice** (`path: "participants"`): ação só RAAS sem nenhum participante matriculado.
 - **Cancelamento:** qualquer pessoa lotada no CAPS cancela. Em mês fechado, só a coordenação. Ação já exportada não é cancelada (409).
 - **Dashboard:** manda sempre `enrollment_id` quando o paciente tem matrícula. Só `{patient_id}` não liga a ação à RAAS.
+
+**P41 — Acolhimento noturno (Task 8).**
+
+*Ações na saída*
+- A saída grava uma ação RAAS por noite, no mês daquela noite, às 20:00 locais, na mesma transação.
+- Se alguma noite cai em mês fechado, a saída responde 422 `month_closed` e nada fica fechado.
+- Uma data que já tem ação noturna não cancelada do mesmo paciente no mesmo CAPS não gera outra ação.
+
+*Entrada*
+
+| Situação | Resposta | `path` |
+|---|---|---|
+| `started_at` antes do `started_on` da matrícula | 422 `enrollment_required` | `enrollment_id` |
+| primeira noite em mês fechado | 422 `month_closed` | `started_at` |
+
+*Encerrar matrícula*
+- Matrícula com permanência aberta não pode ser encerrada: 409 `night_stay_open`.
+
+*Limite*
+- A conta é o maior total entre todas as janelas de `window_days` que contêm alguma noite nova, isto é, "N em qualquer janela de 30". Isso cobre também a entrada retroativa.
+- A recusa é 422 `night_limit_reached`, com `{used, limit, window_days, rule}`.
+- Reavaliação desnecessária é ignorada, e a resposta traz `reassessment: null`.
+- Uma permanência reavaliada na entrada não confere o limite de novo na saída, porque o banco aceita uma reavaliação só.
+
+*Mapa dos leitos*
+- Forma: `{date, window_days, items: [{bed, stay: {id, patient, started_at, expected_end_at} | null, nights_used, limit}]}`. Substitui o `{beds: [...]}` da fixture do dashboard.
+- No CAPS III, o `limit` mostrado é o das noites intercaladas.
+- A permanência aberta conta as noites até `expected_end_at`.
+
+*Trilha*
+- O detalhe e a saída gravam trilha com `resource: night_stay`. A saída grava porque devolve a reavaliação.
+- A entrada e o mapa não gravam.
