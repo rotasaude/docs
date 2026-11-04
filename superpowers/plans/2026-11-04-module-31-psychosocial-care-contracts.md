@@ -578,3 +578,26 @@ O dashboard tem texto para cada código.
   - fora disso → 422 `invalid_request`, no mesmo `path`.
   - Um `PATCH` que reenvia o mesmo `started_on` é aceito sem efeito.
 - **Leito:** a entrada no leito também garante a RAAS do mês da entrada.
+
+**P43 — Remessa e ficha espelho (Task 10).**
+
+**Remessa**
+- Mês fechado sem nenhum registro com ação RAAS → 422 `nothing_to_export`. Nada é gravado e o mês não trava.
+- O aviso `no_actions` conta só ações `raas_psi` não canceladas. Um registro que só tem BPA:
+  - recebe o aviso;
+  - fica fora da remessa e das fichas;
+  - não impede o fechamento do mês.
+- Mês já exportado → 409 `already_exported`.
+- Remessa de CAPS desativado continua listável e baixável. Gerar remessa exige CAPS ativo.
+
+**Fichas espelho**
+- Quem lê:
+  - `psychosocial_lead` lotado no CAPS;
+  - `billing_clerk`, só de mês **fechado**. Em mês aberto, ele recebe 409 `month_open`, por minimização: a prévia ao vivo é da coordenação.
+  - `psychosocial_staff` recebe 403 `lead_required`.
+- Gerar fichas exige CAPS ativo.
+- Ficha com mais de uma página repete o cabeçalho "Ações (continuação)" com o nome e o CNS mascarado.
+
+**Trilha**
+- Download da remessa: `clinical_record.viewed` com `resource: raas_file`, uma entrada por paciente.
+- Ficha: trilha com `resource: raas_sheet`, uma entrada por paciente.
