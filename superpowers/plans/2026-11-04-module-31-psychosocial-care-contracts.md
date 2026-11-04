@@ -657,3 +657,8 @@ O nome de um CAPS AD revela, de forma indireta, o uso de substância. Por isso, 
 - **Atestado** (`sick_note`) do CAPS: o impresso e o PDF assinado também usam "Centro de Atenção Psicossocial", com o município e o CNES, sem o nome nem a modalidade. Assim o empregador não fica sabendo do tratamento.
 - **Receita e notificação de controlado:** o impresso mantém a identificação completa do emitente, porque a farmácia precisa dela. Na verificação pública desses documentos vale a forma genérica.
 - **Specs:** a verificação pública de qualquer documento do CAPS e o atestado impresso não podem conter o nome nem a modalidade da unidade.
+
+**P49 — Profissional no atestado do CAPS (Task 13; segue a intenção do P48).**
+- **F1:** no atestado (`sick_note`) do CAPS, o profissional aparece só com a profissão e o registro, por exemplo "Médico — CRM …". Não aparecem a especialidade, o título ("psiquiatra") nem o CBO. Isso vale no impresso, no PDF assinado e na verificação pública. A especialidade revelaria o tratamento ao empregador, como o nome do CAPS no P48. Um spec confere.
+- **F2:** a receita e a notificação de controlado assinadas (`/v/:token/signed.pdf`) continuam completas, com o nome do CAPS e o profissional completo, porque a farmácia precisa deles. O JSON e o HTML da verificação seguem genéricos (P48).
+- **Motivo do cancelamento de documento:** segue a regra do 19, de 10 a 500 caracteres. O limite de 10 a 2000 vale só para o cancelamento da ação do CAPS.
