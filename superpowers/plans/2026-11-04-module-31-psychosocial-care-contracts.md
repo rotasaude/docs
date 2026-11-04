@@ -288,6 +288,131 @@ Toda rota recebe `health_unit_id` do CAPS (corpo ou query) e confere a lotação
   - CIDs, substâncias, `notes`, `reason` do encaminhamento;
   - PTS, `shared_text`, motivos de cancelamento e de reavaliação.
 - **Fora de URL, log, evento, Analytics e mensagem de erro:** CPF, CNS, nome, CID, substância e texto clínico.
-- **Exclusão (ADR 0026):** matrícula, ações, PTS, RAAS e permanências são registro de saúde e ficam retidos. Encaminhamento sem acolhimento e acolhimento `no_follow_up` sem ação seguem a regra da triagem sem atendimento (anonimizar). Familiar sem cadastro em `action_participants.family_name` é anonimizado com o titular.
+- **Exclusão (ADR 0026):** matrícula, ações, PTS, RAAS e permanências são registro de saúde e ficam retidos. Encaminhamento sem acolhimento e acolhimento `no_follow_up` sem ação seguem a regra da triagem sem atendimento (anonimizar). (P17)
 - **Trilha:** toda leitura nominal de detalhe grava `clinical_record.viewed`. Listas não gravam trilha.
 - **Ordem de entrega:** api → dashboard → maintenance → wpda (só o spec de ausência).
+
+## 15. Reconciliação dos planos (2026-11-04)
+
+**Regra:** onde um plano diverge desta seção, vale esta seção. O api implementa todas as rotas abaixo, inclusive as que só o plano do dashboard pediu. Cada linha cita a origem (A = api, D = dashboard, W = wpda, M = maintenance).
+
+**P1 — SIGTAP (A-D1):**
+- A release é `terminology_releases` com `kind: "sigtap"`, não `sigtap_releases`.
+- Os atributos vêm de `rl_procedimento_detalhe` (`CO_DETALHE`). O nome do arquivo é conferido no pacote oficial, como gate.
+- Arquivo ausente significa zero atributos.
+- `max_quantity` com `0` ou `9999` significa sem limite.
+
+**P2 — BPA-C sem paciente (A-D2):** o CHECK é `patient_id IS NOT NULL OR psychosocial_action_id IS NOT NULL`. Ele não depende do instrumento, porque o `Billing::Recalculate` regrava o instrumento.
+
+**P3 — Instrumento da ação (A-D3):** o instrumento é resolvido pela SIGTAP, nesta ordem:
+
+| Condição | Instrumento |
+|---|---|
+| `09` com participante matriculado | RAAS |
+| senão, `02` | BPA-I |
+| senão, `01` | BPA-C |
+
+BPA-I com mais de um paciente → 422 `bpa_i_single_patient`.
+
+**P4 — Leitura e opções:** todas as rotas desta tabela são `GET` sob `/psychosocial`.
+
+| Rota | Conteúdo | Origem |
+|---|---|---|
+| `units` | CAPS de lotação; para `billing_clerk`, `municipal_admin` e `analyst`, todos | D-D1 |
+| `options?health_unit_id` | listas do `raas.yml`, procedimentos permitidos já filtrados pelo CBO de quem pede (com as marcas `family_care` e `collective`), a equipe do CAPS e os `health_teams` | D-D2 |
+| `prefill?patient_id&health_unit_id` | ESF e USF a partir do território do 11 e do 24a | A-D4, D-D5 |
+| `settings` | configuração do §3 | D-D10 |
+| `raas_exports?health_unit_id&month` | lista de remessas; o faturista baixa sem ler a RAAS nominal | D-D11 |
+| `matrix_supports?health_unit_id` e `matrix_supports/:id` | matriciamento: a lista sem texto; o detalhe com os casos e trilha | D-D12, A-D13 |
+| `actions/:id/documents` | documentos da ação | D-D8 |
+| `care_plans/due?health_unit_id` | PTS vencidos | A-D9 |
+
+**Busca de paciente (D-D3):** `POST /psychosocial/person_lookup {cpf|cns}`, no padrão do T30 do módulo 30, mais o `/patients/duplicates` que já existe. Nunca por query.
+
+**P5 — Nada de nome em URL (D-D4):** `GET /psychosocial/enrollments` não aceita `q=`. O dashboard filtra a lista localmente.
+
+**P6 — Formas de leitura (D-D6, D-D20):** as formas de lista e de detalhe seguem o plano do api. Se o dashboard precisar de um campo que o api não dá, o api acrescenta o campo, nunca texto clínico em lista.
+- `month` é `"YYYY-MM"`.
+- `PATCH /psychosocial/monthly_records/:id {homeless: bool}` vale só para registro `open`. Fora disso, 409 `record_not_open`.
+
+**P7 — Acolhimento (D-D7):**
+- A resposta é `{reception_id, enrollment_id|null}`.
+- Encaminhamento que não está mais pendente → 409 `referral_not_pending`.
+
+**P8 — Documentos pela ação (A-D7, A-D8, D-D8):**
+- **Tipos:** só `prescription`, `controlled_notification_record` e `sick_note`.
+- **Lista de medicamentos:** a receita do CAPS não entra na lista de medicamentos do paciente (`PatientMedication`).
+- **Constraints de `clinical_documents`:**
+  - `num_nonnulls(attendance_id, psychosocial_action_id) = 1`;
+  - `citizen_id IS NULL` exatamente quando `psychosocial_action_id IS NOT NULL`. Isso tira o documento do wpda, da linha do tempo e das consultas por par.
+- **Leitura:** pelas rotas do 19, o documento do CAPS só é lido por quem está lotado no CAPS; para os demais, 404.
+- **Impressão e cancelamento:** pelas rotas que já existem, com `health_unit_id`.
+
+**P9 — Unidade (D-D9):** a rota real do cadastro é `/attendance/units`. Ela ganha os campos do §3 e mantém o step-up que já tem.
+
+**P10 — Vínculo (D-D13):** a rota é `GET /psychosocial/patients/:id/link`, não `/patients/:id/psychosocial_link`. A forma é a do §7. Fora do contexto de leitura → 403 `out_of_context`.
+
+**P11 — Painel (D-D14, D-D19):**
+- `GET /psychosocial/dashboard?month&health_unit_id?`.
+- Valor de 1 a 4 sai como `"lt5"`.
+- O rótulo do destino vem de `options`.
+
+**P12 — Limites de texto (D-D15):**
+
+| Campo | Limite (caracteres) |
+|---|---|
+| `notes` | 4000 |
+| `reason` (encaminhamento e cancelamento) | 2000 |
+| `shared_text` | 2000 |
+| `needs` do PTS | 4000 |
+| cada objetivo do PTS | 500 |
+| `topic` | 200 |
+| `family_name` | 120 |
+
+Acima do limite → 422 `too_long`, com `path`.
+
+**P13 — Problemas (D-D16, D-D17):**
+- **Forma:** `problems[]` é `{error, path, participant_index?}`. A chave é `error`, não `code`, como no resto da API.
+- **Códigos novos:**
+  - `esf_cnes_required`, `closed_on_in_future`, `origin_locked`;
+  - `already_closed`, `already_cancelled`, `bed_label_taken`;
+  - `month_open` (exportar mês aberto, 409);
+  - `out_of_context`, `action_rejected`, `record_not_open`.
+- **`night_limit_reached`:** leva `{used, limit, window_days}`.
+
+**P14 — Fechamento do mês (A-D5, A-D11):**
+- `night_stay_open` é pendência que bloqueia: uma permanência aberta na virada do mês bloqueia o fechamento daquele mês.
+- `no_actions` vira **aviso**, não bloqueia. O registro sem ação no mês não entra na remessa nem nas fichas, mas continua em "permanência" no mês seguinte.
+
+**P15 — Remessa (A-D6, A-D12):**
+- O registro de layouts entra vazio, então a resposta é `raas_layout_unavailable` até o gate.
+- Exportar exige mês fechado (409 `month_open`).
+- Geram e baixam a remessa `psychosocial_lead` e `billing_clerk`, com step-up para gerar.
+
+**P16 — Alertas do PTS (A-D9):** tabela `psychosocial_care_plan_alerts`, criada pelo job diário, mais a rota `care_plans/due`. Nada vai ao cidadão.
+
+**P17 — LGPD (A-D10):** sai do §14 a frase "familiar sem cadastro … anonimizado com o titular". O titular com ação é sempre retido, então o `family_name` fica retido com a ação.
+
+**P18 — Linha do tempo (A-D13, D-D18, W-W2):**
+- Todo kind do CAPS começa com `psychosocial`.
+- O marcador da linha do tempo geral é o kind `psychosocial_link`, com `detail_ref: null`. Ele só aparece na visão profissional e fica fora do PEC e do cidadão.
+- `CAPS_ONLY_KINDS` reúne os demais kinds `psychosocial_*`.
+- O wpda filtra por prefixo `psychosocial` em `citizenApi.history()`, como defesa extra.
+
+**P19 — Sessão do cidadão (W-W1):**
+- `Platform::Features::CITIZEN_HIDDEN = %w[psychosocial_care]`. A chave sai de `GET /citizen/session` (`citizen_api/sessions_controller.rb#session_json`).
+- Usamos lista de exclusão, não de permissão, para não mexer nas chaves que já existem. Todo módulo futuro com interruptor sensível acrescenta a sua chave aqui.
+
+**P20 — Resumo de saúde do cidadão (W-W3):** o CAPS não grava problema nem medicamento no `Timeline::CitizenSummary` (P8). Um spec confirma isso.
+
+**P21 — Provas de ausência no api (W-W4):** a Task 18 do plano do api tem request specs com semente do CAPS para:
+- `/citizen/history`, com e sem `kinds[]`;
+- `/citizen/documents/:id/pdf`, que deve dar 404;
+- `/citizen/health_summary`, `/citizen/notices`, `/citizen/appointments` e `/citizen/session`.
+
+Também tem o teste de que nenhum SMS nem aviso é enfileirado.
+
+**P22 — Maintenance (M-M1 a M-M3):**
+- O rótulo é "Atenção psicossocial (CAPS)".
+- O nome do interruptor é traduzido no maintenance (`FEATURE_LABELS`).
+- Não há cascata: desligar o prontuário deixa `psychosocial_care` ligado e "falta pré-requisito", e as rotas respondem 403 `feature_disabled`.
