@@ -510,3 +510,12 @@ O dashboard tem texto para cada código.
   - eSF sem CNES → `esf_covered: true` e `esf_cnes: null`.
 - **Encaminhamento:** no detalhe, `referred_by` é `{user_id, name}`, sem `cbo_code`.
 - **Trilha:** todo `clinical_record.viewed` do CAPS leva `resource`. `person_lookup` e `patient_duplicates` também gravam a trilha.
+
+**P39 — PTS e grupos (Tasks 5 e 6).**
+- **Evento novo:** `psychosocial.care_plan_review_due` (`care_plan_id`) entra na tabela do §13.
+- **PTS vencidos:** em `care_plans/due`, `psychosocial_lead` vê o CAPS inteiro. Os demais veem só as matrículas em que são referência. A rota não grava trilha.
+- **Grupo:**
+  - o JSON do grupo devolve `sigtap_code`, e o nome do procedimento vem de `options`;
+  - `PATCH` sem mudança → 200 com o grupo atual;
+  - o código e o responsável só são conferidos quando novos ou trocados.
+- **`today`:** usa o dia da semana e o dia locais da cidade. Não grava trilha.
