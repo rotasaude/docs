@@ -44,6 +44,7 @@ Agendamento de viagens, veículos, passageiros e Tratamento Fora de Domicílio. 
 | `dashboard` | `f6fb6e4` | 47 commits; suíte 5519/0; campo CNES no cadastro de unidade (T47); "Pedir TFD" em Minhas consultas (T48) |
 | `wpda` | `f923cdc` | 14 commits; suíte 847/0 + e2e em celulares |
 | `maintenance` | `90237b1` | interruptores `sanitary_transport` e `tfd`; suíte 607/0 |
+| `catalog` | `6dfa4c9` | PR catalog#35 mergeado; F-30.6 e F-30.7 "em validação" até os gates do SIGTAP e do BPA |
 | `docs` | contrato §14 T1–T21 e acréscimos T22–T49 | |
 
 **Prova no navegador (2026-11-04, dev de Curitiba; Maringá para os interruptores):**
