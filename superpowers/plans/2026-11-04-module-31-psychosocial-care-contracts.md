@@ -565,3 +565,16 @@ O dashboard tem texto para cada código.
 *Trilha*
 - O detalhe e a saída gravam trilha com `resource: night_stay`. A saída grava porque devolve a reavaliação.
 - A entrada e o mapa não gravam.
+
+**P42 — RAAS do mês (Task 9).**
+- **Mês futuro:** fechar um mês futuro → 422 `invalid_request`, com `path: month`.
+- **Resposta do mês:** o `GET /psychosocial/months/:month` também traz `status`, `closure`, `actions_count` e `counts.actions`.
+- **Matrícula retroativa:** vale para criação, acolhimento e `PATCH` de `started_on`.
+  - Abre a RAAS de cada mês entre `started_on` e o mês corrente.
+  - Se algum mês do intervalo estiver fechado → 422 `month_closed`, com `path` `started_on` (ou `enrollment.started_on` no acolhimento).
+- **Limites de `started_on`:**
+  - no mínimo o 1º dia do mês de 12 meses antes do corrente (`MAX_RETROACTIVE_MONTHS = 12`);
+  - nunca antes do nascimento;
+  - fora disso → 422 `invalid_request`, no mesmo `path`.
+  - Um `PATCH` que reenvia o mesmo `started_on` é aceito sem efeito.
+- **Leito:** a entrada no leito também garante a RAAS do mês da entrada.
