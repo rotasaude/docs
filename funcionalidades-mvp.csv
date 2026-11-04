@@ -317,3 +317,11 @@ F-30.5,Laudo e comissão de TFD,mod-30,api|dashboard,"0048,0031",feature
 F-30.6,"Ajuda de custo, pagamento e prestação de contas",mod-30,api|dashboard,0048,feature
 F-30.7,Produção do TFD no BPA-I,mod-30,api,0048,feature
 F-30.8,"Minhas viagens, avisos, linha do tempo e painel",mod-30,api|wpda|dashboard,"0048,0035",feature
+F-31.1,"Interruptor, CAPS, modalidade e equipe",mod-31,api|dashboard|maintenance,0049,feature
+F-31.2,"Encaminhamento, acolhimento e matrícula",mod-31,api|dashboard,0049,feature
+F-31.3,PTS com versões e revisão,mod-31,api|dashboard,0049,feature
+F-31.4,"Ações individuais, coletivas e no território",mod-31,api|dashboard,"0049,0034",feature
+F-31.5,Acolhimento noturno: leitos e permanências,mod-31,api|dashboard,0049,feature
+F-31.6,"RAAS do mês: crítica, fechamento, remessa e ficha espelho",mod-31,api|dashboard,0049,feature
+F-31.7,"Matriciamento, vínculo na UBS e BPA-C",mod-31,api|dashboard,"0049,0031",feature
+F-31.8,"Sigilo: nada no wpda nem em avisos, linha do tempo restrita, fora do LEDI, e painel",mod-31,api|dashboard|wpda,"0049,0035",feature
