@@ -59,6 +59,7 @@ Fora: residência terapêutica como serviço, UA/UAI, comunidade terapêutica, i
 | `dashboard` | `3671781` | 40 commits; suíte 5967/0 |
 | `wpda` | `54b44bf` | 2 commits; filtro de borda `psychosocial` e specs de ausência; suíte 855/0 |
 | `maintenance` | `ec86846` | rótulo do interruptor `psychosocial_care`; suíte 614/0 |
+| `catalog` | `0b449be` | PR catalog#36 mergeado; F-31.5 e F-31.6 "em validação" |
 | `docs` | contrato §1–§14, §15 P1–P22 e acréscimos P23–P62 | |
 
 **Prova no navegador (2026-11-05, dev de Curitiba, só a PsychosocialCrew semeada):**
@@ -89,16 +90,17 @@ O coordenador aplicou a mesma linha em mais quatro pontos:
 
 Página de status: https://claude.ai/artifact/ViX8XZ4dWRhhwXxzBekM2e
 
-**Gates de go-live** (board #2): a abrir com autorização.
-- Layout da remessa RAAS.
-- Códigos de acolhimento no SIGTAP.
-- Limite do CAPS III.
-- Listas do `raas.yml`.
-- Arquivo de atributos do SIGTAP (P1).
-- Idade da linha sem paciente no BPA-C (P45).
-- Regra de `QT_MAXIMA_EXECUCAO` (G2).
-- CNES local para fechar o mês (G6).
-- Telefone do CAPS como contato da pessoa em situação de rua (P57).
+**Gates de go-live** (board #2, "A triar"):
+- layout da remessa RAAS (api#126);
+- códigos, instrumentos e regras de quantidade do SIGTAP do CAPS (api#127);
+- limite do CAPS III e listas da RAAS (api#128);
+- cadastros do go-live: CNES local, CAPS, telefone de contato e APAC (api#129).
+
+Resíduos de ciclo:
+- api#130;
+- ajuste de interface dashboard#23 (nome em minúsculas no mapa de leitos), com comentário em dashboard#17.
+
+**Catálogo:** `0b449be` (catalog#36). F-31.5 e F-31.6 ficam "em validação" até os gates.
 
 ## Integrações externas
 
