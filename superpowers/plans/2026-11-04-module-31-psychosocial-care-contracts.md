@@ -793,3 +793,11 @@ Se a SIGTAP do CAPS ou os CIDs faltarem, a crew avisa e não semeia, sem interro
   - O número SNCR só vai na receita controlada digital. A notificação de controlado é sempre em papel e não leva número.
   - A autoria fica garantida na emissão, porque o estoque SNCR é por usuário.
 - **Telefone de contato (I3):** a foto do mês grava o telefone do CAPS no campo de telefone do paciente, sem marcar de onde ele veio. Se o layout oficial da RAAS pedir essa distinção, o ajuste entra no gate do layout (G1).
+
+**P59 — Busca de CID e campanhas.**
+- **Busca de CID:** `POST /attendance/ciap2/search` aceita `psychosocial_staff` e `psychosocial_lead` só com `terminology: "cid10"`. A CIAP-2 continua exclusiva de `health_professional`, no padrão do P47 e do P56. Implementado em `200206f6`.
+- **Campanhas (módulo 12):** o público de uma campanha nunca pode ser uma unidade `caps`. Uma campanha "usuários do CAPS X" mandaria aviso ou SMS que revela o vínculo com o CAPS, contra a decisão 4.
+  - O api de campanhas recusa unidade `caps` no público com 422 `caps_unit_not_allowed`.
+  - A lista de unidades que alimenta esse seletor exclui o CAPS.
+  - O dashboard filtra `kind !== "caps"` no seletor.
+- **Telas que mantêm o CAPS:** configuração do admin, REMUME, origem da coleta, sala de vacina e transporte. Nelas o CAPS é destino legítimo, e só a equipe interna as vê. Fora do CAPS, os rótulos seguem o P53.
