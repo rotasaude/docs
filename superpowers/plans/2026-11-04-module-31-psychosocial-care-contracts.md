@@ -737,3 +737,12 @@ Não há supressão complementar. É o mesmo padrão do painel do transporte, e 
 - **Ponto único:** `Labels.unit_name` concentra essa regra. `PerformedProcedure.outside_caps` filtra a produção do CAPS.
 - **409 `unit_has_attendances`:** passa a contar também a cobertura de território e o prestador. O texto do dashboard fica genérico: "a unidade já tem histórico de atendimento, cobertura ou prestador".
 - **Risco baixo aceito:** uma equipe de saúde (`HealthTeam`) numa unidade CAPS não entra no 409, porque o `OpenAppointmentRequest` já barra o caso.
+
+**P54 — Exclusão LGPD (Task 16).**
+- **O que retém o paciente:** matrícula; ação, inclusive cancelada; permanência; caso de matriciamento; linha BPA-I; documento do CAPS. Isso vale também para os pares e para os duplicados por CPF.
+- **O que é anonimizado:** encaminhamento e acolhimento sem seguimento. Os campos `reason` e `notes` vão a NULL e a linha recebe `anonymized_at`. A anonimização acontece uma vez só, e depois a linha fica congelada por trigger.
+- **Como o encaminhamento anonimizado se comporta:**
+  - sai da fila;
+  - tentar acolhê-lo dá 409 `referral_not_pending`;
+  - o detalhe dá 404, sem trilha.
+- **Na prática:** só o encaminhamento de um paciente que nunca foi atendido chega a ser anonimizado. O acolhimento sempre gera uma ação, e a ação retém o paciente.
