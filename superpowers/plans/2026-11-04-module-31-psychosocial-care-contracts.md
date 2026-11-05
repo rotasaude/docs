@@ -801,3 +801,10 @@ Se a SIGTAP do CAPS ou os CIDs faltarem, a crew avisa e não semeia, sem interro
   - A lista de unidades que alimenta esse seletor exclui o CAPS.
   - O dashboard filtra `kind !== "caps"` no seletor.
 - **Telas que mantêm o CAPS:** configuração do admin, REMUME, origem da coleta, sala de vacina e transporte. Nelas o CAPS é destino legítimo, e só a equipe interna as vê. Fora do CAPS, os rótulos seguem o P53.
+
+**P60 — Prazo do PTS e CAPS certo na matrícula (Task 6 do dashboard).**
+- **Prazo do PTS:** `GET /psychosocial/options` traz `care_plan_review_days`, porque a equipe não lê `/settings` (P33). O dashboard usa esse prazo para sugerir a revisão do PTS e para marcar "sem PTS, prazo vencido", pela mesma regra do job.
+- **Desempenho:** `options.procedures` é lido em lote. Isso resolve o N+1, que deixa de ser resíduo.
+- **Do acolhimento para a matrícula:** a passagem leva `{enrollmentId, unitId}`, e o portão abre direto no CAPS certo.
+  - Se o CAPS não for de quem lê, a tela não busca nada e não grava trilha.
+  - Isso corrige quem está lotado em dois CAPS: antes, a matrícula abria no CAPS errado e a trilha registrava uma leitura que ninguém fez.
