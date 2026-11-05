@@ -1,6 +1,6 @@
 # Módulo 31 — Atenção psicossocial (CAPS)
 
-- **Estado:** Planejado
+- **Estado:** Entregue
 - **Tipo:** Ciclo 2
 
 ## Escopo (intenção)
@@ -51,6 +51,53 @@ Fora: residência terapêutica como serviço, UA/UAI, comunidade terapêutica, i
   - códigos de acolhimento conferidos no SIGTAP oficial;
   - limite do CAPS III conferido na norma.
 
+## Entrega (2026-11-05)
+
+| Repo | Commit | Observação |
+|---|---|---|
+| `api` | `34ce852f` | 66 commits; suíte completa 10545/0; migrações `20261104900001` (plataforma, SIGTAP) e `20261104900002`–`900004` (cidade: CAPS, BPA do 22, documentos do 19) |
+| `dashboard` | `3671781` | 40 commits; suíte 5967/0 |
+| `wpda` | `54b44bf` | 2 commits; filtro de borda `psychosocial` e specs de ausência; suíte 855/0 |
+| `maintenance` | `ec86846` | rótulo do interruptor `psychosocial_care`; suíte 614/0 |
+| `docs` | contrato §1–§14, §15 P1–P22 e acréscimos P23–P62 | |
+
+**Prova no navegador (2026-11-05, dev de Curitiba, só a PsychosocialCrew semeada):**
+
+O sigilo passou em todos os pontos:
+- **UBS:** o cartão do vínculo é genérico ("Em acompanhamento no CAPS desde …"), o marcador da linha do tempo não tem detalhe e nenhuma ação do CAPS aparece como procedimento.
+- **Encaminhamento:** o motivo fica fora da fila, e o log não traz CPF, nome nem motivo.
+- **wpda:** para um cidadão do CAPS AD, nada do CAPS aparece na sessão, no histórico, no resumo de saúde, nos agendamentos ou nos avisos, e nenhum SMS foi enfileirado.
+
+Fluxos conferidos: acolhimento, matrícula única, PTS, ações (recusas múltiplas, familiar e cancelamento), presença em grupo com clique duplo (uma ação só), leitos, limite de noites, fechamento e reabertura do mês com step-up, `raas_layout_unavailable` (gate) e painel com "menos de 5".
+
+Achados corrigidos antes do merge (P61 e P62):
+- procedimento RAAS oferecido no acolhimento sem matrícula;
+- acolhimento noturno oferecido em CAPS sem leito;
+- leito liberado que continuava ocupado no mapa;
+- noite contada para permanência de mesmo dia;
+- saída prevista vencida;
+- defeitos de tela.
+
+**Decisões do usuário na execução:**
+- **P46:** vínculo genérico, sem nome nem modalidade do CAPS.
+- **P48:** o telefone fica. Verificação pública e atestado saem como "Centro de Atenção Psicossocial".
+
+O coordenador aplicou a mesma linha em mais quatro pontos:
+- **P49:** atestado sem especialidade nem CBO;
+- **P51 e P53:** nome genérico em todas as fontes e detalhes fora do CAPS;
+- **P59:** CAPS fora do público de campanhas.
+
+**Gates de go-live** (board #2): a abrir com autorização.
+- Layout da remessa RAAS.
+- Códigos de acolhimento no SIGTAP.
+- Limite do CAPS III.
+- Listas do `raas.yml`.
+- Arquivo de atributos do SIGTAP (P1).
+- Idade da linha sem paciente no BPA-C (P45).
+- Regra de `QT_MAXIMA_EXECUCAO` (G2).
+- CNES local para fechar o mês (G6).
+- Telefone do CAPS como contato da pessoa em situação de rua (P57).
+
 ## Integrações externas
 
 SIA — RAAS (Atenção Psicossocial) e BPA-C. Detalhe e fontes em
@@ -70,3 +117,4 @@ Módulos 16, 19 (19d), 22.
 - 2026-10-05 — Registrado como `Stub` no portfólio do Ciclo 2 (brainstorm de
   novos módulos; decisão de suíte completa).
 - 2026-11-04 — Desenho aprovado (ADR 0049); estado `Planejado`.
+- 2026-11-05 — Executado nos quatro apps, provado no navegador, mergeado e publicado; estado `Entregue`.
