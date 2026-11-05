@@ -87,6 +87,8 @@ O coordenador aplicou a mesma linha em mais quatro pontos:
 - **P51 e P53:** nome genérico em todas as fontes e detalhes fora do CAPS;
 - **P59:** CAPS fora do público de campanhas.
 
+Página de status: https://claude.ai/artifact/ViX8XZ4dWRhhwXxzBekM2e
+
 **Gates de go-live** (board #2): a abrir com autorização.
 - Layout da remessa RAAS.
 - Códigos de acolhimento no SIGTAP.
