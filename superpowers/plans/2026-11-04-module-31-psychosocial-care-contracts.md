@@ -757,3 +757,15 @@ Não há supressão complementar. É o mesmo padrão do painel do transporte, e 
 - telefones com prefixo 99777.
 
 Se a SIGTAP do CAPS ou os CIDs faltarem, a crew avisa e não semeia, sem interromper o `db:seed`.
+
+**P56 — Preflight do dashboard.**
+- **R1:** vale o api real (`328a4351`). Os tipos e as fixtures do dashboard são reescritos a partir dele.
+- **R2:** `options.procedures[]` ganha `max_quantity` e `requires_authorization` (atributo 036). Entra na onda final do api.
+- **R3:** `today.groups[]` ganha `sigtap_code` e `action_id`, este da ação não cancelada do grupo no dia. Entra na onda final do api.
+- **R9:** o dashboard oferece pela ação os três tipos do P8: receita, notificação de controlado e atestado. A notificação de controlado é o caso central do CAPS (psicotrópicos B1, C1), e a decisão 19 da spec já a inclui.
+- **R10:**
+  - As rotas `/sncr/*` aceitam `psychosocial_staff` e `psychosocial_lead`, limitados aos documentos do CAPS de que a pessoa é autora, no padrão do P47. Entra na onda final do api.
+  - No dashboard, `canSign` aceita os dois papéis.
+- **R17:** os seletores de unidade do check-in, da agenda e da regulação no dashboard filtram `kind !== "caps"`. Entra neste plano, não como card à parte. A frase do 422 `caps_unit_not_allowed` fica como defesa.
+- **R19:** no formulário de encaminhamento, a UBS vê o nome dos CAPS no seletor, porque precisa escolher o destino. A mensagem de sucesso é genérica: "Encaminhamento enviado ao CAPS".
+- **R4–R8, R11–R16, R18 e R20:** decisões internas do dashboard, aceitas como estão no preflight.
