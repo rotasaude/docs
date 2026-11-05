@@ -827,3 +827,15 @@ Se a SIGTAP do CAPS ou os CIDs faltarem, a crew avisa e não semeia, sem interro
   - traz `ended_at` em `stay`;
   - mostra como ocupante só a permanência aberta na data, ou a que cobre a noite da data.
 - Permanência encerrada no dia aparece como "saiu às …", sem o botão "Registrar saída".
+
+**P62 — Fechamento do P61.**
+- **Contrato atualizado pelo P61:**
+  - §5: o mapa dos leitos traz `stay.ended_at`, e a noite é contada por data cruzada. Uma permanência que começa e termina no mesmo dia vale 0 noite e não gera ação. O "mínimo 1" anterior deixa de valer.
+  - §4: ação noturna em CAPS sem leito é recusada com `caps_without_beds`, path `sigtap_code`, dentro de `action_rejected`.
+  - §3/P34: o 409 `caps_has_beds` também vale enquanto houver permanência aberta, mesmo com o leito desativado.
+- **Permanência que passa da saída prevista:**
+  - o mapa, o detalhe e o painel contam até o maior valor entre `expected_end_at` e hoje;
+  - o mapa e o detalhe marcam "saída prevista vencida";
+  - o fechamento conta as noites reais e pode recusar com `night_limit_reached`, pedindo a reavaliação da coordenação.
+- **`options`:** `night_sigtap_code` continua no topo para todo CAPS, só como informação. A lista de procedimentos é que filtra pela modalidade.
+- **Texto de `already_staying`:** passa a dizer "o paciente já tem permanência nesse período", porque o conflito pode ser com uma permanência encerrada.
