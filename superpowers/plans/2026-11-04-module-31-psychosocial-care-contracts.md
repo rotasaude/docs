@@ -769,3 +769,19 @@ Se a SIGTAP do CAPS ou os CIDs faltarem, a crew avisa e não semeia, sem interro
 - **R17:** os seletores de unidade do check-in, da agenda e da regulação no dashboard filtram `kind !== "caps"`. Entra neste plano, não como card à parte. A frase do 422 `caps_unit_not_allowed` fica como defesa.
 - **R19:** no formulário de encaminhamento, a UBS vê o nome dos CAPS no seletor, porque precisa escolher o destino. A mensagem de sucesso é genérica: "Encaminhamento enviado ao CAPS".
 - **R4–R8, R11–R16, R18 e R20:** decisões internas do dashboard, aceitas como estão no preflight.
+
+**P57 — Revisão final do api.**
+- **I1 (início da matrícula):**
+  - `in_window` também corta os meses anteriores a `started_on`.
+  - O `PATCH` que move `started_on` para depois da ação mais antiga é recusado com 422 `started_after_actions`, `path: started_on`.
+- **I2:** o P53 vale também no laboratório (`Lab::Json.requisition`, `Lab::ShipmentJson` e `scheduled_place` de `Lab::OpenRequisition`). O nome do CAPS deixa de chegar ao wpda pelo `Exams::CitizenList`.
+- **I3 (telefone e situação de rua):**
+  - Registro com `homeless = true` e sem telefone: `phone_missing` vira aviso. A remessa e a ficha usam o telefone da unidade CAPS como "telefone de contato", porque o CAPS é o contato legítimo da pessoa em situação de rua.
+  - Se a unidade também não tiver telefone, continua sendo pendência.
+  - Nos demais casos, `phone_missing` segue como pendência.
+  - Gate: conferir se o SIA aceita o telefone da unidade.
+- **Registros sem ação:** registro `no_actions` não bloqueia o fechamento por nenhuma pendência, porque fica fora da remessa.
+- **Gates para o runbook:**
+  - **G2:** a regra de `QT_MAXIMA_EXECUCAO`. Hoje a conferência é por ação; se o SIA limita por competência e paciente, o excesso passa sem aviso. `QT_DIAS_PERMANENCIA` é importado, mas não é usado.
+  - **G6:** sem o retrato do CNES da cidade, ou com o CAPS sem CNES, nenhum mês fecha.
+- **Correções miúdas:** ficam a critério da sessão.
