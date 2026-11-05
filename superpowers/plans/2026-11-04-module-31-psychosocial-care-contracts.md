@@ -808,3 +808,22 @@ Se a SIGTAP do CAPS ou os CIDs faltarem, a crew avisa e não semeia, sem interro
 - **Do acolhimento para a matrícula:** a passagem leva `{enrollmentId, unitId}`, e o portão abre direto no CAPS certo.
   - Se o CAPS não for de quem lê, a tela não busca nada e não grava trilha.
   - Isso corrige quem está lotado em dois CAPS: antes, a matrícula abria no CAPS errado e a trilha registrava uma leitura que ninguém fez.
+
+**P61 — Prova no navegador.**
+
+*Acolhimento sem matrícula (P2 da prova)*
+- Quando o desfecho do acolhimento não é `enrolled`, o dashboard oferece só procedimentos de instrumento `bpa_i`, pelo campo `instrument` de `options.procedures`.
+- O 422 do api continua como defesa.
+
+*Acolhimento noturno em CAPS sem leito (P3 da prova)*
+- `options` não oferece o `night_sigtap_code` a CAPS fora de `NIGHT_MODALITIES`. A correção é pequena no api, e por isso deixa de ser gate.
+- O gate do código SIGTAP do acolhimento noturno continua como estava.
+
+*Leito liberado e contagem de noites (P9 da prova)*
+- Conta-se uma noite para cada data D em que `started_at.date ≤ D < ended_at.date`. A permanência aberta conta até `expected_end_at`.
+- Permanência que entra e sai no mesmo dia vale 0 noite e não gera ação noturna.
+- O `NightLimit` e a ação RAAS da saída seguem essa regra.
+- `GET /psychosocial/beds/board`:
+  - traz `ended_at` em `stay`;
+  - mostra como ocupante só a permanência aberta na data, ou a que cobre a noite da data.
+- Permanência encerrada no dia aparece como "saiu às …", sem o botão "Registrar saída".
