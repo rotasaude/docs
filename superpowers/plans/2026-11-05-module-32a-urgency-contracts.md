@@ -241,3 +241,88 @@ Todo `Platform.audit` novo entra em R18.
 - O `walk_in` com evasão antes da classificação segue a triagem sem atendimento.
 
 **Ordem de entrega:** contracts (tag) → api → dashboard → wpda → maintenance.
+
+## 14. Reconciliação dos planos (2026-11-05)
+
+**Regra:** onde um plano diverge desta seção, vale esta seção. As origens são: A = api, D = dashboard, C = contracts, W = wpda, M = maintenance.
+
+**Q1 — Schema do protocolo** (C1–C6, D13, A4, A19, A20). Prevalece a versão validada do plano do contracts.
+- **Estrutura:** `levels` é uma lista ordenada (`prefixItems`) com as 5 cores, cada uma com `max_wait_minutes` inteiro de 0 a 1440. `classification_rules` é uma lista separada de `risk_rules`, e cada regra é `{id, when, color, criterion}`, com `criterion` de até 120 caracteres e no máximo 100 regras.
+- **Validação no gate do api:**
+  - `id` único → `rule_id`;
+  - tempos máximos fora de ordem → `levels_out_of_order`;
+  - um protocolo ativo por cidade, conferido pelo `kind`. Não há nome reservado.
+- **Avaliação:** quando várias regras casam, vale a cor mais grave; no empate, a primeira regra da lista. As variáveis do `when` são `vitals.*`, `pain_scale`, `profile.age` e `profile.sex`. A queixa não entra na condição.
+- **Sugestão:** `POST /urgency/suggest` exige `encounter_id`, por causa da idade e do sexo. Devolve `{suggested: {color, criterion, rule_id} | null, levels}`.
+- **Fora do 32a:** o simulador no editor.
+
+**Q2 — Classificação só por enfermeiro** (A14, D21). Só o CBO 2235\* com vínculo ativo na UPA classifica, conforme a COFEN 661/2021. O técnico (3222) recebe 403 `cbo_not_allowed`. Isso corrige o §1.
+
+**Q3 — Dor** (D11). A dor vai em `pain_scale`, de 0 a 10, fora de `vital_signs`. `vital_signs` usa o formato do 18, sem o `pain_score`.
+
+**Q4 — Paciente** (A1, D1).
+- `patients` ganha `unidentified` (bool), indexado. A coluna é necessária porque `no_cpf_reason` é cifrado e não dá para buscar nele.
+- Paciente novo usa o `NewPatient` do 24a (`full_name`).
+- `person_lookup` responde 200 com `patient: null` e `candidates: []`.
+
+**Q5 — Fusão** (A16; amplia R4). Na identificação com paciente existente, passam para o paciente real:
+- o encontro, a consulta e os documentos;
+- os exames;
+- o BPA;
+- **a lista de problemas e de medicamentos nascida das consultas do atendimento**, para não perder informação clínica.
+
+O provisório fica com `merged_into_id` e nada é apagado. A guarda de arquitetura cobre toda tabela com `patient_id` (A9).
+
+**Q6 — Fila e detalhe** (A5, A6, A17, D2, D4).
+- **Fila:** cada item traz `attendance_id`, `last_call` e `max_wait_minutes`. A fila tem um grupo `in_care[]`.
+- **Estouro:** é contado desde a 1ª classificação, com o tempo máximo gravado nela.
+- **Detalhe:** `GET /urgency/encounters/:id` grava trilha. Classificação, identificação e desfecho devolvem essa mesma forma.
+
+**Q7 — Chamada** (A3, A24, D6, D8, D19).
+- **Caminhos:** os locais de chamada e o "chamar de novo" ficam sob `/attendance`, em `/attendance/attendances/:id/recall`.
+- **Local:** `call_location_id` vai no corpo de `Call` e `CallNext`. A lista de locais traz `location_required`.
+- **Senha:** o `ticket` também aparece no check-in e na fila do 13.
+- **Médico num `walk_in`:** só chama encontro já classificado, e precisa de vínculo 225\*.
+
+**Q8 — TV** (A12, A18, D7, D17, D18, D20).
+- **Tempos por cor:** no 32a, só na UPA, com o flag da unidade e o do dispositivo ligados. A UBS mostra só as chamadas.
+- **Forma das TVs:** inclui `paired` e `last_seen_at`.
+- **Token:** fica no `localStorage` do aparelho, é guardado no servidor só como SHA-256 e deixa de valer só quando a TV é revogada. O pareamento e o board funcionam sem cookie e sem CSRF.
+- **Tempos:** `wait_times[].median_minutes` é um número ou `"lt5_patients"`.
+
+**Q9 — Senha por dia** (A13). Coluna `attendances.ticket_on` (data local). A senha é única por (unidade, `ticket_on`).
+
+**Q10 — Atendimento e desfecho** (A8, A9, A10, A22, A23, D5, D14, M3).
+- **Consulta:** o `kind` da consulta vem do encontro. Finalizar a consulta `urgency` usa `{}`, não aceita `outcome` e não fecha o atendimento. `consultation_options` oferece `kinds: ["urgency"]` ao CBO 225\* na UPA.
+- **Quem registra o desfecho:** o médico registra qualquer desfecho. A recepção e a enfermagem só registram `left_without_care`.
+- **Identificação no desfecho:** alta e transferência exigem paciente identificado. Óbito e evasão não.
+- **Ligação com o 13:**
+  - o 13 aceita `in_care → left` quando a evasão é registrada;
+  - a `referral_note` recebe só "Retorno à UBS em até N dias";
+  - `transferred` vira `referred` regulado.
+- **Check-in numa UPA:** check-in por código ou por exceção com `urgency_care` ligado → 422 `urgency_reception_required`.
+- **Fechamento:** `Attendances::Close` exige o desfecho só quando `urgency_care` está utilizável. Com o interruptor desligado, o fechamento segue o 13.
+
+**Q11 — Contrarreferência** (A7, D10). `GET /urgency/counter_referrals?health_unit_id`, para a UBS, sem o motivo e sem evento novo. O dashboard mostra a lista "Retornos pedidos pela urgência".
+
+**Q12 — BPA** (A11). A pendência do provisório aparece sem linha (`procedure_id: null`, `fix: "patient"`). A tela de pendências do faturamento aceita esse caso.
+
+**Q13 — Cidadão** (A21, W1–W4).
+- A entrada `urgency` do cidadão traz:
+  - chegada, unidade e desfecho em texto simples, pela tabela de W3;
+  - `return_guidance` sem o motivo.
+- Ficam nulos `professional_name`, `status` e `document`.
+- Só aparecem encontros fechados.
+- **Duplicidade:** `AttendanceSource` não emite o `walk_in`, para a visita não aparecer duas vezes.
+- **Óbito:** não aparece no histórico do cidadão. Ele seria visto por quem acompanha a pessoa, e esse não é o canal para essa notícia.
+
+**Q14 — Maintenance** (M1–M3).
+- Rótulos: "Urgência e emergência (UPA)" e "Painel de chamada na TV da sala de espera".
+- O maintenance só traduz os nomes. Não há cascata entre os interruptores.
+
+**Q15 — Detalhes do dashboard.**
+- **Códigos de erro** (D12): o dashboard tem texto para `not_classified`, `invalid_pairing_code`, `destination_required`, `return_guidance_required`, `encounter_closed`, `not_unidentified`, `cbo_not_allowed`, `patient_not_found` e `invalid_ticket_prefix`. `problems[]` segue o formato do P23 do 31.
+- **Limites de texto** (D16): o api define.
+- **Painel do gestor** (A15, D9): a forma segue o plano do api.
+- **Cor laranja** (D22): o tema não tem esse papel. O tom de urgente vem sempre acompanhado do texto "laranja". Um token novo é decisão do ciclo de interface.
+- **Telas** (D): a mesa da UPA fica dentro do Atendimento. "Senhas, locais e TVs" fica no grupo "Urgência" e só aparece com `waiting_room_display`.
