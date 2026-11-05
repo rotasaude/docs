@@ -325,3 +325,11 @@ F-31.5,Acolhimento noturno: leitos e permanências,mod-31,api|dashboard,0049,fea
 F-31.6,"RAAS do mês: crítica, fechamento, remessa e ficha espelho",mod-31,api|dashboard,0049,feature
 F-31.7,"Matriciamento, vínculo na UBS e BPA-C",mod-31,api|dashboard,"0049,0031",feature
 F-31.8,"Sigilo: nada no wpda nem em avisos, linha do tempo restrita, fora do LEDI, e painel",mod-31,api|dashboard|wpda,"0049,0035",feature
+F-32.1,"Interruptores, protocolo de 5 cores e configuração da UPA",mod-32,api|dashboard|maintenance|contracts,"0050,0030",feature
+F-32.2,"Chegada, senha e paciente não identificado",mod-32,api|dashboard,0050,feature
+F-32.3,Classificação de risco e fila por cor,mod-32,api|dashboard,"0050,0030",feature
+F-32.4,Atendimento médico e desfecho com contrarreferência,mod-32,api|dashboard,"0050,0031",feature
+F-32.5,Chamada com local e painel da TV (UPA e UBS),mod-32,api|dashboard,0050,feature
+F-32.6,"BPA, vigilância, histórico no wpda e painel do gestor",mod-32,api|dashboard|wpda,"0050,0035",feature
+F-32.7,Observação com leitos e alerta de 24 h,mod-32,api|dashboard,0050,feature
+F-32.8,"Prescrição interna, checagem e baixa de estoque",mod-32,api|dashboard|maintenance,0050,feature
