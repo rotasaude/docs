@@ -785,3 +785,11 @@ Se a SIGTAP do CAPS ou os CIDs faltarem, a crew avisa e não semeia, sem interro
   - **G2:** a regra de `QT_MAXIMA_EXECUCAO`. Hoje a conferência é por ação; se o SIA limita por competência e paciente, o excesso passa sem aviso. `QT_DIAS_PERMANENCIA` é importado, mas não é usado.
   - **G6:** sem o retrato do CNES da cidade, ou com o CAPS sem CNES, nenhum mês fecha.
 - **Correções miúdas:** ficam a critério da sessão.
+
+**P58 — Onda final do api.**
+- **Permanência aberta:** `night_stay_open` continua bloqueando o fechamento, mesmo em registro sem ação RAAS. É uma exceção ao P57. Na saída do leito, cada noite vira uma ação daquele mês, e com o mês fechado a saída seria recusada.
+- **Pendências em `warnings`:** os códigos de pendência também podem chegar em `warnings`. Por exemplo, `patient_cns_missing` e `homeless_missing` num registro sem ações. O dashboard tem rótulo para todos eles nos dois lugares.
+- **SNCR:**
+  - O número SNCR só vai na receita controlada digital. A notificação de controlado é sempre em papel e não leva número.
+  - A autoria fica garantida na emissão, porque o estoque SNCR é por usuário.
+- **Telefone de contato (I3):** a foto do mês grava o telefone do CAPS no campo de telefone do paciente, sem marcar de onde ele veio. Se o layout oficial da RAAS pedir essa distinção, o ajuste entra no gate do layout (G1).
