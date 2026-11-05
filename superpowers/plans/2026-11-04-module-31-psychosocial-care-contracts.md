@@ -746,3 +746,14 @@ Não há supressão complementar. É o mesmo padrão do painel do transporte, e 
   - tentar acolhê-lo dá 409 `referral_not_pending`;
   - o detalhe dá 404, sem trilha.
 - **Na prática:** só o encaminhamento de um paciente que nunca foi atendido chega a ser anonimizado. O acolhimento sempre gera uma ação, e a ação retém o paciente.
+
+**P55 — Perfil profissional da equipe do CAPS (Task 17).**
+- **Regra:** `Professionals::Create` (módulo 10) aceita `psychosocial_staff` e `psychosocial_lead` para criar o perfil profissional, com CNS e CBO, e o vínculo CNES (`professional_links`). Esses usuários aparecem na lista de pendentes do admin.
+- **Por quê:** sem isso, a prefeitura só conseguiria criar o perfil da equipe do CAPS dando o papel `health_professional`, o que vai contra o P29.
+- **Garantia:** um spec negativo confere que ter perfil e vínculo numa UBS não dá permissão clínica fora do CAPS.
+
+**Semente de dev:**
+- usuários `caps@`, `capsmed@`, `capspsi@` e `capstec@curitiba.dev`, com TOTP fixo;
+- telefones com prefixo 99777.
+
+Se a SIGTAP do CAPS ou os CIDs faltarem, a crew avisa e não semeia, sem interromper o `db:seed`.
