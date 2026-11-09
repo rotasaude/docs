@@ -355,3 +355,9 @@ Base: contracts `b0d1f87`, tag `protocols-v1.7.0`, publicada com autorização d
 - **Receitas externas:** `external_prescriptions` do paciente provisório passa para o paciente real na fusão, com o mesmo destino dos documentos, porque a farmácia dispensa contra o paciente.
 - **Colisão em chave única:** a regra do Q17 vale para qualquer linha que bateria em chave única. Isso inclui `walk_in` aberto e notificação aberta. A linha fica no provisório e entra em `kept_duplicates`.
 - **Guarda de recifragem:** a exceção de fusão vale só para `exam_results` e `dispensations`. A trilha `clinical_record_openings` não é tocada.
+
+**Q22 — Protocolo: nome e dor (Task 5; amplia o Q16).**
+- **Nome do protocolo de urgência:**
+  - Ao salvar o rascunho, o gate também confere `name_kind_conflict`. Assim, um rascunho de urgência não sobrescreve uma triagem nem as assinaturas dela.
+  - O nome "acolhimento" é reservado à escuta do 18 e recusado para urgência.
+- **Dor obrigatória:** em toda classificação, `pain_scale` (0–10) é obrigatório. Sem ele → 422 `pain_scale_required`. Assim, a dor nunca fica "não avaliada", e uma regra como `not gt pain_scale 0` não sugere azul por falta de dado. A semente e os exemplos não dependem do comportamento com valor ausente.
