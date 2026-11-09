@@ -67,7 +67,7 @@ A UPA não faz a escuta do 18. `Screenings::Scope` e `ActiveProtocol` ignoram un
 | `consultations` | `kind` ganha `urgency`; CHECKs de `care_type` e dos campos dentais ajustados |
 | `performed_procedures` | `source` ganha `urgency`, com `urgency_encounter_id` |
 
-**Linha do tempo.** Fonte `urgency`, que entra em `Timeline::KINDS` (cidadão e profissional) e fica fora do PEC externo e do LEDI.
+**Linha do tempo.** Fonte `urgency`, que entra em `Timeline::KINDS` (cidadão e profissional) entra também na página do PEC externo, na forma profissional, e fica fora do LEDI (Q27).
 
 **Cores.** `red`, `orange`, `yellow`, `green`, `blue`, nessa ordem de prioridade. Tempos máximos padrão, em minutos: 0, 10, 60, 120 e 240.
 
