@@ -326,3 +326,27 @@ O provisório fica com `merged_into_id` e nada é apagado. A guarda de arquitetu
 - **Painel do gestor** (A15, D9): a forma segue o plano do api.
 - **Cor laranja** (D22): o tema não tem esse papel. O tom de urgente vem sempre acompanhado do texto "laranja". Um token novo é decisão do ciclo de interface.
 - **Telas** (D): a mesa da UPA fica dentro do Atendimento. "Senhas, locais e TVs" fica no grupo "Urgência" e só aparece com `waiting_room_display`.
+
+### Acréscimos da execução (2026-11-09)
+
+Base: contracts `b0d1f87`, tag `protocols-v1.7.0`, publicada com autorização do usuário.
+
+**Q16 — Nome e ativação do protocolo (C-3, C-4).**
+- **Nome:** o gate recusa um `name` que já pertence a um protocolo de outro `kind`, com `name_kind_conflict`. Assim, ativar a urgência nunca desliga a triagem.
+- **Ativação:** só um protocolo de urgência fica ativo por cidade, garantido por índice único parcial em `definition->>'kind'`. Ativar um novo rebaixa o ativo anterior do mesmo `kind`, como já acontece numa troca de versão.
+
+**Q17 — Fusão com item repetido (C-10).**
+- Se o paciente real já tem ativo o mesmo problema (código) ou o mesmo medicamento, a linha do provisório fica no provisório e não é movida.
+- O retorno informa quantos itens foram movidos e quantos ficaram (`moved` e `kept_duplicates`), e a trilha `urgency.patient_identified` registra os dois números.
+- O histórico guardado não muda.
+
+**Q18 — Estouro após reclassificação (C-12).** O tempo conta desde a 1ª classificação. O limite é o `max_wait_minutes` gravado na classificação **vigente**. Quem passa de verde para laranja depois de 60 minutos de espera estoura na hora. Isso corrige a letra do Q6.
+
+**Q19 — Detalhe sem acesso clínico (C-14).** Quando quem lê não tem acesso clínico, como a recepção ao identificar ou registrar evasão, o detalhe do encontro omite:
+- `complaint`, `vital_signs`, `pain_scale`;
+- `justification`, `criterion`;
+- os campos cifrados do desfecho.
+
+`patient.description` continua no detalhe. Todo detalhe com campo clínico ou com a descrição grava trilha.
+
+**Q20 — Retornos à UBS (C-27).** Os itens de `counter_referrals` trazem `return_days`. Leem `citizen_verifier` e `health_professional` vinculados à UBS.
