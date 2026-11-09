@@ -361,3 +361,10 @@ Base: contracts `b0d1f87`, tag `protocols-v1.7.0`, publicada com autorização d
   - Ao salvar o rascunho, o gate também confere `name_kind_conflict`. Assim, um rascunho de urgência não sobrescreve uma triagem nem as assinaturas dela.
   - O nome "acolhimento" é reservado à escuta do 18 e recusado para urgência.
 - **Dor obrigatória:** em toda classificação, `pain_scale` (0–10) é obrigatório. Sem ele → 422 `pain_scale_required`. Assim, a dor nunca fica "não avaliada", e uma regra como `not gt pain_scale 0` não sugere azul por falta de dado. A semente e os exemplos não dependem do comportamento com valor ausente.
+
+**Q23 — Paciente novo com conferência de duplicado (Task 6; corrige o Q4).**
+- **Comandos:** `arrivals` e `identify` criam o paciente novo por `Patients::CreateReviewed` do 24a, como a farmácia, a vacina e a vigilância. A conferência usa o `match_key`, travado contra criação simultânea.
+- **Duplicado suspeito:** a resposta é 409 `duplicate_suspected` (`path: new_patient`) com os candidatos. O dashboard mostra os candidatos, e a recepção escolhe um deles ou reenvia com `duplicates_reviewed: true`.
+- **Urgência:** quem está em estado grave não espera a conferência. O caminho do não identificado (provisório) continua sem ela, e a identificação acontece depois.
+- **Prévia da cor:** `POST /urgency/suggest` com `pain_scale` nulo devolve `suggested: null` e os `levels`.
+- **Corpo da requisição:** `arrivals` e as demais escritas recusam chave desconhecida, como no P23 do 31.
