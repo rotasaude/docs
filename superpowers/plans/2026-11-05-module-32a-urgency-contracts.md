@@ -415,3 +415,10 @@ Base: contracts `b0d1f87`, tag `protocols-v1.7.0`, publicada com autorização d
 - **Descrição física na exclusão:** é apagada quando o provisório foi identificado como paciente novo e passou a ter CPF.
 - **Provisório fundido:** a linha fundida mantém a descrição física, que não tem nome nem CPF. Isso está aceito e documentado.
 - **Recusa nova:** 409 `patient_in_urgency` quando a pessoa ainda espera na UPA, com `walk_in` aberto e sem classificação. O pedido de exclusão fica pendente, como no `patient_on_trip`. O dashboard tem o texto da recusa.
+
+**Q29 — Lista de provisórios para identificar (conferência prévia do dashboard).**
+- **Rota nova no api:** `GET /urgency/provisional_encounters?health_unit_id`, para a recepção da UPA. Lista os encontros com paciente provisório ainda não identificado, abertos ou fechados nos últimos 7 dias.
+- **Cada item:** `{encounter_id, attendance_id, arrived_at, closed_at, outcome_kind, patient: <patient-ref com description>}`. Nenhum dado clínico.
+- **Trilha:** a leitura grava trilha, porque leva a descrição física.
+- **Objetivo:** permite identificar, no dia seguinte, o óbito de alguém sem documento (RF5, Q25). Entra como task extra do api, antes da suíte completa.
+- **Dashboard:** aplica as decisões da conferência prévia como estão. A Task 13 do dashboard ajusta o `PendingPanel` do faturamento para a linha sem `procedure_id` (Q12).
