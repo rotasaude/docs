@@ -424,3 +424,8 @@ Base: contracts `b0d1f87`, tag `protocols-v1.7.0`, publicada com autorização d
 - **Dashboard:** aplica as decisões da conferência prévia como estão. A Task 13 do dashboard ajusta o `PendingPanel` do faturamento para a linha sem `procedure_id` (Q12).
 
 **Q30 — Limite do "registrado por engano" (revisão final do api; restringe o Q25).** `registered_in_error` só é aceito enquanto o encontro não tiver consulta `urgency` finalizada. Com a consulta finalizada, a resposta é 422 `consultation_finalized`, e o caso fecha com outro desfecho registrado pelo médico. Assim, um cuidado que aconteceu não pode ter o BPA apagado nem sumir da visão do cidadão, do painel e do PEC. Na screening do 18, `POST /attendance/screenings/suggest` num `walk_in` de UPA responde 422 `screening_not_in_upa`.
+
+**Q31 — Alcance da exclusão (decisão do usuário, 2026-11-09; fecha os pontos 1 e 2 do Q28).**
+- **Ponto 1, opção A:** o `Citizens::Erase` passa a apagar o nome completo, o nome social, o nome da mãe, o nascimento, o sexo e o CNS de todo paciente não retido, em qualquer módulo. São os mesmos dados que o par do cidadão já perdia. O ADR 0026 recebeu uma nota de revisão com essa mudança. A retenção continua tudo ou nada por pedido.
+- **Ponto 2, opção B:** o CPF do paciente excluído continua como está no 32a. A correção fica para uma rodada própria de LGPD, no card rotasaude/api#131 (board #2, Alta, antes do go-live).
+- **Suíte completa:** liberada.
