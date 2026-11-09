@@ -368,3 +368,8 @@ Base: contracts `b0d1f87`, tag `protocols-v1.7.0`, publicada com autorização d
 - **Urgência:** quem está em estado grave não espera a conferência. O caminho do não identificado (provisório) continua sem ela, e a identificação acontece depois.
 - **Prévia da cor:** `POST /urgency/suggest` com `pain_scale` nulo devolve `suggested: null` e os `levels`.
 - **Corpo da requisição:** `arrivals` e as demais escritas recusam chave desconhecida, como no P23 do 31.
+
+**Q24 — Fila, chamada e exceção da fusão (Task 8; esclarece o Q21).**
+- **Exceção da fusão:** a lista de exceção da guarda de recifragem passa a ser `exam_results`, `dispensations`, `external_prescriptions` e `external_prescription_items`, este último se tiver `patient_id`. O "só" do Q21 existe para proteger as trilhas: `clinical_record_openings` e as demais continuam recusadas.
+- **Fila do 13 com a urgência desligada:** a trava da fila ignora `walk_in`. Assim, um `walk_in` na frente da fila não trava o "Chamar próximo".
+- **"Chamar próximo" na UPA:** sem nenhum paciente classificado, a chamada cai para a fila do 13 sem `walk_in`. Os atendimentos abertos antes de ligar a urgência continuam podendo ser chamados.
