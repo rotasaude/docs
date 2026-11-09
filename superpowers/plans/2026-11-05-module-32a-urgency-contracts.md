@@ -408,3 +408,10 @@ Base: contracts `b0d1f87`, tag `protocols-v1.7.0`, publicada com autorização d
   - ignora os problemas nascidos de consulta `urgency`, para manter o "sem CID" do §10 e do Q13;
   - um problema crônico identificado na UPA chega ao cidadão quando a UBS o registra.
 - **Visão do cidadão:** só mostra um encontro quando ele é elegível. Nada aparece por padrão.
+
+**Q28 — Painel e exclusão (Tasks 15 e 16; os pontos 1 e 2 da exclusão aguardam o usuário).**
+- **Evasão no painel:** conta só `left_without_care`. `left_against_advice` aparece só em `by_outcome`.
+- **% acima do tempo máximo:** o cálculo inclui quem foi chamado e quem saiu sem atendimento depois de classificado. Quem saiu depois de estourar o tempo entra como estouro. Sem isso, o número sairia baixo.
+- **Descrição física na exclusão:** é apagada quando o provisório foi identificado como paciente novo e passou a ter CPF.
+- **Provisório fundido:** a linha fundida mantém a descrição física, que não tem nome nem CPF. Isso está aceito e documentado.
+- **Recusa nova:** 409 `patient_in_urgency` quando a pessoa ainda espera na UPA, com `walk_in` aberto e sem classificação. O pedido de exclusão fica pendente, como no `patient_on_trip`. O dashboard tem o texto da recusa.
