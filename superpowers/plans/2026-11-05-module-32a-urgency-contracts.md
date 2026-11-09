@@ -373,3 +373,19 @@ Base: contracts `b0d1f87`, tag `protocols-v1.7.0`, publicada com autorização d
 - **Exceção da fusão:** a lista de exceção da guarda de recifragem passa a ser `exam_results`, `dispensations`, `external_prescriptions` e `external_prescription_items`, este último se tiver `patient_id`. O "só" do Q21 existe para proteger as trilhas: `clinical_record_openings` e as demais continuam recusadas.
 - **Fila do 13 com a urgência desligada:** a trava da fila ignora `walk_in`. Assim, um `walk_in` na frente da fila não trava o "Chamar próximo".
 - **"Chamar próximo" na UPA:** sem nenhum paciente classificado, a chamada cai para a fila do 13 sem `walk_in`. Os atendimentos abertos antes de ligar a urgência continuam podendo ser chamados.
+
+**Q25 — Fusão com atendimento aberto e identificação depois do fechamento (Task 9).**
+- **Dois atendimentos abertos:** se o paciente real já tem um atendimento `walk_in` aberto na mesma UPA, a identificação é recusada com 409 `encounter_open` antes de mover qualquer registro.
+  - O `attendance` é a raiz do encontro, não um item do prontuário. Por isso não entra na regra de `kept_duplicates` do Q17 e do Q21.
+  - Para resolver, fecha-se um dos dois atendimentos. Depois disso a fusão funciona normalmente.
+- **Novo desfecho `registered_in_error`:** serve para o atendimento aberto por engano ou em duplicidade.
+  - Não gera BPA.
+  - Fica fora das contagens de evasão e de desfecho do painel.
+  - Não aparece para o cidadão.
+  - Recepção, enfermagem e médico podem registrá-lo, com motivo obrigatório de pelo menos 10 caracteres.
+  - Fecha o atendimento do 13 como `left`.
+- **Identificação de encontro fechado:** é permitida. Um óbito sem identificação, por exemplo, pode ser identificado no dia seguinte (Review Focus 5). A regra de vez única continua valendo.
+- **Ajustes internos aprovados:**
+  - a ordem de lock é attendance → paciente;
+  - `urgency_encounters.provisional_patient_id` passa a ser durável.
+- **Pendência de ciclo:** gravadores de outros módulos aceitam o `patient_id` de um paciente já fundido. Vira card no board #2 no fechamento, aberto só com autorização do usuário.
