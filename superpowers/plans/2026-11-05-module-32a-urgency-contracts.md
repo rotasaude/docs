@@ -395,3 +395,16 @@ Base: contracts `b0d1f87`, tag `protocols-v1.7.0`, publicada com autorização d
 - **`walk_in` com a urgência desligada:** um `walk_in` aberto antes de desligar `urgency_care` e encaminhado à UBS não gera pedido do 17 nem contrarreferência. Fica como pendência de produto, de risco baixo: com o interruptor desligado, não nascem `walk_in` novos.
 - **Texto da `referral_note`:** concorda o número com o substantivo ("Retorno à UBS em até 1 dia", "em até 7 dias").
 - **`NON_CARE_OUTCOMES`:** é o gancho do `registered_in_error` no BPA (Task 13), na linha do tempo (14) e no painel (15).
+
+**Q27 — Linha do tempo: PEC externo e resumo do cidadão (Task 14; corrige o §1 e o §10).**
+- **PEC externo:** quem usa a página da linha do tempo no PEC (ADR 0035) é o profissional da atenção básica, e a passagem pela UPA importa para a continuidade do cuidado. Por isso:
+  - a fonte `urgency` **entra** na página do PEC, na forma profissional: data, unidade, desfecho, cor e CID;
+  - também entram as linhas de BPA e os documentos do `walk_in`;
+  - não aparecem `registered_in_error` nem o paciente provisório.
+
+  Sair do PEC era decisão errada do §1 e foi retirada. A urgência continua fora do **LEDI**, porque a UPA não é atenção básica.
+- **Link da entrada profissional:** a entrada aponta para a consulta do 19a (`{type: "consultation"}`), que é o único caminho até a nota da UPA.
+- **Resumo de saúde do cidadão** (`Timeline::CitizenSummary`):
+  - ignora os problemas nascidos de consulta `urgency`, para manter o "sem CID" do §10 e do Q13;
+  - um problema crônico identificado na UPA chega ao cidadão quando a UBS o registra.
+- **Visão do cidadão:** só mostra um encontro quando ele é elegível. Nada aparece por padrão.
