@@ -350,3 +350,8 @@ Base: contracts `b0d1f87`, tag `protocols-v1.7.0`, publicada com autorização d
 `patient.description` continua no detalhe. Todo detalhe com campo clínico ou com a descrição grava trilha.
 
 **Q20 — Retornos à UBS (C-27).** Os itens de `counter_referrals` trazem `return_days`. Leem `citizen_verifier` e `health_professional` vinculados à UBS.
+
+**Q21 — Fusão: receitas externas e colisões (Tasks 3 e 9).**
+- **Receitas externas:** `external_prescriptions` do paciente provisório passa para o paciente real na fusão, com o mesmo destino dos documentos, porque a farmácia dispensa contra o paciente.
+- **Colisão em chave única:** a regra do Q17 vale para qualquer linha que bateria em chave única. Isso inclui `walk_in` aberto e notificação aberta. A linha fica no provisório e entra em `kept_duplicates`.
+- **Guarda de recifragem:** a exceção de fusão vale só para `exam_results` e `dispensations`. A trilha `clinical_record_openings` não é tocada.
