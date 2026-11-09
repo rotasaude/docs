@@ -389,3 +389,9 @@ Base: contracts `b0d1f87`, tag `protocols-v1.7.0`, publicada com autorização d
   - a ordem de lock é attendance → paciente;
   - `urgency_encounters.provisional_patient_id` passa a ser durável.
 - **Pendência de ciclo:** gravadores de outros módulos aceitam o `patient_id` de um paciente já fundido. Vira card no board #2 no fechamento, aberto só com autorização do usuário.
+
+**Q26 — Desfecho e contrarreferência (Task 11).**
+- **Recepção e a lista de retornos:** `counter_referrals` para `citizen_verifier` não é filtrada por unidade, assim como a fila do 13. Restringir a leitura por unidade mudaria o 13 também, então fica como pendência de ciclo, no mesmo card da recepção sem vínculo de unidade.
+- **`walk_in` com a urgência desligada:** um `walk_in` aberto antes de desligar `urgency_care` e encaminhado à UBS não gera pedido do 17 nem contrarreferência. Fica como pendência de produto, de risco baixo: com o interruptor desligado, não nascem `walk_in` novos.
+- **Texto da `referral_note`:** concorda o número com o substantivo ("Retorno à UBS em até 1 dia", "em até 7 dias").
+- **`NON_CARE_OUTCOMES`:** é o gancho do `registered_in_error` no BPA (Task 13), na linha do tempo (14) e no painel (15).
