@@ -140,7 +140,7 @@ O detalhe do encontro (`GET /urgency/encounters/:id`) ganha três blocos, sob as
 - Cada item: `{catalog_item_id, dose, dose_unit, route, frequency: {kind, interval_hours?, max_per_day?}, first_dose_at?, instructions?, stock_quantity_per_dose?}`. `first_dose_at` vale "agora" quando omitido.
 - Se já existe uma versão `active`, ela passa a `superseded` e a nova nasce `active` com `supersedes_id`. Alterar sempre cria uma versão nova; a anterior não muda.
 - Item fora do catálogo ou escondido → 422 `catalog_item_invalid`.
-- Controlado: segue a decisão do usuário registrada na §12 (P1).
+- Controlado: aceito em todas as listas, com `controlled_list` copiado do catálogo (§12, P1).
 
 **Suspender.** `POST /urgency/prescriptions/:id/suspend {reason}`, com motivo de 10 caracteres ou mais. Só a versão `active` pode ser suspensa.
 
@@ -247,7 +247,7 @@ As contagens seguem a supressão "lt5" do 32a.
 
 **Pendências de ciclo já conhecidas** (viram cards só com autorização no fechamento):
 - correção de uma checagem errada;
-- BPA da administração de medicamentos.
+- BPA da administração de medicamentos (P2, no api#136).
 
 **Ordem de entrega:** api → dashboard → maintenance.
 
@@ -266,5 +266,20 @@ As contagens seguem a supressão "lt5" do 32a.
 - teste e parágrafo no README.
 
 ## 12. Reconciliação dos planos
+
+**Regra:** onde um plano diverge desta seção, vale esta seção. As origens são: A = api, D = dashboard, M = maintenance.
+
+### Decisões do usuário (2026-11-10)
+
+**P1 — Controlados na prescrição interna (opção A).**
+- A prescrição interna da UPA aceita **todas** as listas da Portaria 344 (A, B e C), porque é uso interno, registrado no prontuário, e não exige notificação de receita.
+- A regra do 19d (`requires_notification`, `not_supported`, `controlled_not_allowed`) **não** se aplica à prescrição interna. Continua valendo para a receita do 19, que é para levar.
+- Com `urgency_stock_deduction` ligado, a administração de um controlado gera o movimento `administration` como qualquer item.
+- A escrituração oficial dos controlados continua no gate do SNCR, rotasaude/api#63.
+- O item guarda `controlled_list` como cópia do catálogo, e o detalhe e a checagem mostram a marca "controlado".
+
+**P2 — BPA da administração (opção A).** O 32b fatura só a observação (§8). O `0301100012` entra na conferência do gate SIGTAP, rotasaude/api#136, e pode ser ligado depois.
+
+### Reconciliação dos planos
 
 *(a preencher)*
