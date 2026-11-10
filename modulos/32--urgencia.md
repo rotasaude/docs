@@ -1,6 +1,6 @@
 # Módulo 32 — Urgência (UPA)
 
-- **Estado:** Planejado
+- **Estado:** 32a Entregue (2026-11-10); 32b Planejado
 - **Tipo:** Ciclo 2
 
 ## Escopo (intenção)
@@ -69,8 +69,40 @@ Módulos 13, 18, 19, 21, 22, 25, 27a.
 
 - Spec: [`superpowers/specs/2026-11-05-module-32-urgency-design.md`](../superpowers/specs/2026-11-05-module-32-urgency-design.md)
 
+## Entrega
+
+### 32a — 2026-11-10
+
+- **Commits na main:**
+  - api 69d283c4;
+  - dashboard 979e881;
+  - wpda 339e4ac;
+  - maintenance bbff803;
+  - contracts b0d1f87 (tag `protocols-v1.7.0`).
+- **Cards:** F-32.1 a F-32.6 em Verified, com prova no navegador nos quatro apps. F-32.7 e F-32.8 (32b) seguem em Not Started.
+- **Testes:**
+
+  | App | Resultado |
+  |---|---|
+  | api | suíte completa 10823/0 |
+  | dashboard | 6241/0 |
+  | wpda | 861/0 |
+  | maintenance | 622/0 |
+
+- **Decisões de execução:** Q16–Q31 no contrato [`superpowers/plans/2026-11-05-module-32a-urgency-contracts.md`](../superpowers/plans/2026-11-05-module-32a-urgency-contracts.md). A Q31 é a revisão do ADR 0026.
+- **Página de status:** https://claude.ai/artifact/JR7dArccMh7akYssERmtJZ
+- **Catálogo:** #m-32a em rotasaude/catalog#37.
+- **Gates de go-live (board #2):**
+  - SIGTAP da UPA (api#136);
+  - revisão clínica do protocolo (api#137);
+  - licença do Manchester por cidade (api#138);
+  - rotação do token da TV (api#139);
+  - trusted proxies (api#140).
+- **Pendências (board #2):** api#133–#135 e dashboard#24.
+
 ## Histórico
 
 - 2026-10-05 — Registrado como `Stub` no portfólio do Ciclo 2 (brainstorm de
   novos módulos; decisão de suíte completa).
 - 2026-11-05 — Desenho aprovado (ADR 0050); estado `Planejado` (32a e 32b).
+- 2026-11-10 — 32a entregue (F-32.1 a F-32.6 Verified); 32b segue planejado.
