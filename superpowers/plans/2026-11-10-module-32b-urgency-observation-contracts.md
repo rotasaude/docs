@@ -360,3 +360,11 @@ Uma observação de até 24 h passa por mais de um plantão, e o médico seguint
 - **Faltas devolvidas:** o api devolve `urgency_care_disabled` e `pharmacy_disabled`, na ordem do `requires`, e nunca a falta do pré-requisito do pré-requisito.
 - **Frases:** são as da Task 1 do maintenance, e o dashboard usa as mesmas.
 - **Comentário do 32a em `features.ts`:** perde a frase sobre o 32b.
+
+### Acréscimos da execução (2026-11-10)
+
+**Q12 — Lote do corpo sem saldo (Task 10; corrige o §6, item 2).** Se o lote informado no corpo for válido mas já tiver sido consumido por outra checagem quando a transação for gravada, a checagem **não** é recusada:
+- o api tenta o próximo lote por FEFO;
+- se não houver nenhum, grava a administração com falta `lot_unavailable`.
+
+Continuam dando 422 `lot_invalid` só o lote vencido, o bloqueado, o de outro item, o de outra unidade de dispensação e o de outro local. Assim se mantém a regra de que a checagem nunca é recusada por falta de estoque. O dashboard não precisa recarregar o aprazamento para refazer a checagem.
