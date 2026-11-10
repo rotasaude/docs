@@ -368,3 +368,5 @@ Uma observação de até 24 h passa por mais de um plantão, e o médico seguint
 - se não houver nenhum, grava a administração com falta `lot_unavailable`.
 
 Continuam dando 422 `lot_invalid` só o lote vencido, o bloqueado, o de outro item, o de outra unidade de dispensação e o de outro local. Assim se mantém a regra de que a checagem nunca é recusada por falta de estoque. O dashboard não precisa recarregar o aprazamento para refazer a checagem.
+
+"De outro local" quer dizer um lote que **nunca teve movimento** no local da UPA. Como no 27a um lote só pertence a um local pelos movimentos, um lote que já esteve na UPA e foi transferido inteiro conta como consumido: o api passa ao próximo lote por FEFO, sem 422.
