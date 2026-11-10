@@ -280,6 +280,83 @@ As contagens seguem a supressão "lt5" do 32a.
 
 **P2 — BPA da administração (opção A).** O 32b fatura só a observação (§8). O `0301100012` entra na conferência do gate SIGTAP, rotasaude/api#136, e pode ser ligado depois.
 
-### Reconciliação dos planos
+### Reconciliação dos planos (2026-11-10)
 
-*(a preencher)*
+Planos: api (Tasks 0–19, A1–A32), dashboard (Tasks 0–12, D1–D19) e maintenance (Tasks 0–2, M1–M4). Onde esta seção não fala de uma divergência, vale a proposta do plano.
+
+**Q1 — Leitos** (D1, A2, A3).
+- **Tela:** o cadastro fica numa tela irmã, "Leitos de observação", no grupo Urgência. Ela aparece com `urgency_care` e para `municipal_admin`. Fica fora de "Senhas, locais e TVs", que depende de `waiting_room_display`.
+- **Rótulo repetido:** 409 `bed_label_taken`, no padrão do 31. Isso corrige o §3.
+- **`upa_has_beds`:** 409, tanto ao desativar a UPA quanto ao trocar o `kind` dela.
+
+**Q2 — Técnico de enfermagem (3222\*)** (D2, A17).
+- **O que ele lê:** o mapa, a fila e o aprazamento. Também registra a checagem.
+- **O que ele não lê:** o detalhe do encontro.
+- **No código:** o `Urgency::Access` ganha um vínculo de enfermagem (2235\* ou 3222\*) para essas rotas. A classificação continua só com o 2235\* (Q2 do 32a).
+
+**Q3 — Mapa e fila** (A1, D3, A25, A29, D19).
+- **`waiting_bed`:** são os encontros em `in_care` sem estadia aberta.
+- **Contagem de horas:** começa na primeira entrada do encontro, mesmo depois de sair e voltar. O limite de 24 h é da observação do atendimento, não de cada estadia.
+- **Recepção:** lê o mapa de qualquer UPA, como a fila (Q26 do 32a). Isso já está no card api#134.
+- **Quem perde o vínculo:** recebe 403 `missing_link` ou `cbo_not_allowed`, nunca 404.
+
+**Q4 — Prescrição** (A8, A9, A14, A32, D6, D7, D13, D14, A31).
+- **Novas colunas:** o item ganha `controlled_list`, copiado do catálogo (P1). A prescrição ganha `status_changed_by_user_id`.
+- **`first_dose_at`:** aceito de agora − 1 h até agora + 24 h.
+- **`dose_unit`:** domínio fechado, conforme o plano do api.
+- **Limites, códigos e caminhos (`items.<n>.<campo>`):** seguem os planos do api e do dashboard.
+- **Busca de medicamento:** rota nova, `POST /urgency/medication_search {query}`, sob `urgency_care` e sem exigir `clinical_documents`. Devolve `{catalog_item_id, catmat_code, name, strength, dosage_form, unit, controlled_list}`. O dashboard usa essa rota, e não o `MedicationSearch` do 19.
+- **"Encerrar observação" sem desfecho:** a prescrição continua ativa, e a checagem segue.
+
+**Q5 — Checagem e aprazamento** (A13, A15, A16, A19, D5, D8, D9, D18).
+- **Antecipação:** um horário pode ser checado até **60 min antes** de vencer. Mais cedo que isso → 422 `slot_not_due`. Horários passados podem ser checados enquanto o encontro estiver aberto. Como a checagem é imutável, isso impede registrar como dada uma dose que ainda não foi dada.
+- **`administered_at` e `max_per_day`:** seguem a A15 e a A16. O `max_per_day` conta só `administered`.
+- **Dose em dobro entre versões:** o mesmo `catalog_item_id` no mesmo horário, em qualquer versão da prescrição → 409 `slot_taken`. O aprazamento traz `last_administration` de cada item.
+- **Forma do aprazamento:** traz `stock_deduction`, que diz se o interruptor está utilizável. Quando estiver, traz também `lots[]` em ordem FEFO, sem saldo de outros locais. A enfermagem não lê o estoque da farmácia.
+- **Resposta da checagem:** traz `shortfall: null | {cause}`. A falta não é erro.
+- **Trilha:** a leitura do aprazamento grava trilha com o recurso novo `medication_schedule`.
+
+**Q6 — Estoque** (A6, A7, A10, A11, A12, M3).
+- **Formato das quantidades:** `dose` e as quantidades de estoque vão como texto decimal, como no `Pharmacy::Quantity`.
+- **Unidade:** o item grava `stock_unit`, e o FEFO só considera lotes nessa unidade.
+- **Lote:**
+  - uma administração usa um lote só, sem fracionar;
+  - o FEFO ignora lote bloqueado (`StockLotBlock`);
+  - um lote bloqueado enviado no corpo → 422 `lot_invalid`.
+- **Causas da falta:** seguem a A11.
+- **Interruptor:** onde o contrato diz "desligado", leia "desligado ou não utilizável", tanto na regra do estoque quanto no 422 `stock_deduction_disabled` (§1 e §6). O plano do api cobre isso com um request spec.
+
+**Q7 — Faltas da UPA** (A4, A5, A24, D16, D17).
+- **Filtro:** o parâmetro é `location_id`, como no 27a.
+- **Falta `no_location`:** é lida e conciliada por quem tem papel no local **central**. A lista do central mostra essas faltas de todas as UPAs.
+- **Alertas:** `/pharmacy/alerts` ganha a 6ª chave, e as listas fixas dos specs são atualizadas.
+- **Menu:** a tela aparece mesmo sem a urgência ligada. Isso está aceito.
+
+**Q8 — Evolução em plantões diferentes** (D10). Enquanto o encontro estiver aberto, **qualquer médico (225\*) com vínculo na UPA** pode:
+- abrir o prontuário do encontro;
+- escrever adendos na consulta `urgency`.
+
+Uma observação de até 24 h passa por mais de um plantão, e o médico seguinte precisa evoluir. A regra vale só para o `kind: urgency` e só com o encontro aberto, e cada leitura e cada adendo gravam trilha. Fechado o encontro, volta a regra do 19a.
+
+**Q9 — Detalhe, desfecho e fechamento pelo 13** (A18, A20, A21, A28).
+- **Sem acesso clínico** (Q19 do 32a): o detalhe traz `observation`, mas não `prescription` nem `administrations`.
+- **Administrações no detalhe:** as das últimas 48 h, de qualquer versão.
+- **Eventos:** a saída com desfecho também publica `urgency.observation_ended`.
+- **Fechamento pelo 13:** quando `Attendances::Close` fecha um `walk_in` de UPA com `urgency_care` desligado, ele fecha a estadia aberta com `outcome` e leva a prescrição ativa a `ended`, na mesma transação (passo condicional da Task 12 do api, aceito).
+
+**Q10 — BPA, linha do tempo, painel e eventos** (A22, A23, A26, A27, A30, D11, D12, D15).
+- **BPA:** a linha da observação nasce com a consulta finalizada, porque o desfecho que fecha já a exige. A amostra SIGTAP de dev aceita só alguns CIDs no `0301060029`, e a semente usa um deles.
+- **PEC:** na página do PEC, `observation_hours` vai como texto no resumo. No JSON, vai como chave só nas entradas `urgency`.
+- **Extrato do 27a:**
+  - ganha o documento `urgency_administration`;
+  - o dashboard mostra "administração na UPA" para o `kind` e para o `document.type`;
+  - os kinds do 29 sem rótulo ficam fora do 32b.
+- **Painel:**
+  - as horas saem com uma casa decimal;
+  - a supressão `lt5` vale para o bloco inteiro, pelo número de estadias, inclusive `bed_hours`. A A30 prevalece sobre a D12.
+- **Eventos:** são duas listas, a do registro em `domain_events_bindings_spec` e um cenário novo do 32b no `urgency_secrecy_spec`.
+
+**Q11 — Maintenance** (M1–M4).
+- **Faltas devolvidas:** o api devolve `urgency_care_disabled` e `pharmacy_disabled`, na ordem do `requires`, e nunca a falta do pré-requisito do pré-requisito.
+- **Frases:** são as da Task 1 do maintenance, e o dashboard usa as mesmas.
+- **Comentário do 32a em `features.ts`:** perde a frase sobre o 32b.
