@@ -64,7 +64,7 @@
 | 30 | [Transporte sanitário e TFD](30--transporte-e-tfd.md) | Entregue | Ciclo 2 | [0048](../adr/0048.md), [0044](../adr/0044.md) |
 | 31 | [Atenção psicossocial (CAPS)](31--caps.md) | Entregue | Ciclo 2 | [0049](../adr/0049.md), [0031](../adr/0031.md) |
 | 32 | [Urgência (UPA)](32--urgencia.md) | Fechado | Ciclo 2 | [0050](../adr/0050.md), [0030](../adr/0030.md) |
-| 33 | [Ouvidoria](33--ouvidoria.md) | Stub | Ciclo 2 | — |
+| 33 | [Ouvidoria](33--ouvidoria.md) | Planejado | Ciclo 2 | [0051](../adr/0051.md) |
 | 34 | [Telessaúde](34--telessaude.md) | Stub | Ciclo 2 | [0041](../adr/0041.md) |
 | 35 | [Zoonoses e endemias](35--zoonoses-e-endemias.md) | Stub | Ciclo 2 | — |
 
