@@ -1,6 +1,6 @@
 # Módulo 32 — Urgência (UPA)
 
-- **Estado:** 32a Entregue (2026-11-10); 32b Planejado
+- **Estado:** Entregue (32a em 2026-11-10; 32b em 2026-11-11); `Fechado` depois dos gates de go-live
 - **Tipo:** Ciclo 2
 
 ## Escopo (intenção)
@@ -91,7 +91,7 @@ Módulos 13, 18, 19, 21, 22, 25, 27a.
 
 - **Decisões de execução:** Q16–Q31 no contrato [`superpowers/plans/2026-11-05-module-32a-urgency-contracts.md`](../superpowers/plans/2026-11-05-module-32a-urgency-contracts.md). A Q31 é a revisão do ADR 0026.
 - **Página de status:** https://claude.ai/artifact/JR7dArccMh7akYssERmtJZ
-- **Catálogo:** #m-32a em rotasaude/catalog#37.
+- **Catálogo:** #m-32a em rotasaude/catalog#37 (desde o catalog#38, #m-32).
 - **Gates de go-live (board #2):**
   - SIGTAP da UPA (api#136);
   - revisão clínica do protocolo (api#137);
@@ -100,9 +100,38 @@ Módulos 13, 18, 19, 21, 22, 25, 27a.
   - trusted proxies (api#140).
 - **Pendências (board #2):** api#133–#135 e dashboard#24.
 
+### 32b — 2026-11-11
+
+- **Commits na main:**
+  - api 3e96796d;
+  - dashboard 84e8824 (443faca corrige a CI, vermelha desde o 32a por um fetch real escapando em dois testes de faturamento);
+  - maintenance f2086a1.
+- **Cards:** F-32.7 e F-32.8 em Verified.
+- **Testes:**
+
+  | App | Resultado |
+  |---|---|
+  | api | suíte completa 11097/0 |
+  | dashboard | 6418/0 |
+  | maintenance | 631/0 |
+
+- **Decisões do usuário:** P1 = A (a prescrição interna aceita todas as listas da Portaria 344; a escrituração fica no gate api#63) e P2 = A (só a observação é faturada; o 0301100012 fica no api#136).
+- **Decisões de reconciliação e execução:** Q1–Q17 no contrato [`superpowers/plans/2026-11-10-module-32b-urgency-observation-contracts.md`](../superpowers/plans/2026-11-10-module-32b-urgency-observation-contracts.md).
+- **Página de status:** https://claude.ai/artifact/TMnNY1Xzq3Qjqh3z4Yuvrj
+- **Catálogo:** o módulo passa a `#m-32` (F-32.1 a F-32.8) em rotasaude/catalog#38.
+- **Gates de go-live:** comentados no api#63 (controlados de qualquer lista) e no api#136 (BPA só da observação).
+- **Pendências (board #2):**
+  - api#143 (deadlock entre adendo e identificação);
+  - api#144 (trilha nas respostas da prescrição);
+  - api#145 (dose fracionada entre lotes);
+  - api#146 (correção de checagem errada);
+  - api#147 (termo da busca de medicamento no log DEBUG);
+  - dashboard#25–#27 (botão de iniciar atendimento, painel após troca de leito, 7 ajustes visuais).
+
 ## Histórico
 
 - 2026-10-05 — Registrado como `Stub` no portfólio do Ciclo 2 (brainstorm de
   novos módulos; decisão de suíte completa).
 - 2026-11-05 — Desenho aprovado (ADR 0050); estado `Planejado` (32a e 32b).
 - 2026-11-10 — 32a entregue (F-32.1 a F-32.6 Verified); 32b segue planejado.
+- 2026-11-11 — 32b entregue (F-32.7 e F-32.8 Verified); módulo 32 Entregue.
