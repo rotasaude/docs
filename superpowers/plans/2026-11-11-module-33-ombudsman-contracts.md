@@ -47,7 +47,7 @@ As duas vão ao cidadão em `GET /citizen/session` (não entram em `CITIZEN_HIDD
 | Papel | Privilegiado | Faz |
 |---|---|---|
 | `ombudsman` | sim (`PRIVILEGED_ROLES`) | tudo do `ombudsman_staff`, mais: ver identidade preservada, prorrogar, arquivar, reabrir, decidir pedido de reabertura, alterar resolutividade, registrar consentimento, configurar respondentes, assuntos e prazos, painel por profissional, relatório anual |
-| `ombudsman_staff` | não | registrar pela equipe, classificar, encaminhar e cancelar encaminhamento, pedir e registrar complemento, resposta intermediária e conclusiva, comprovante, painel agregado |
+| `ombudsman_staff` | sim (U3) | registrar pela equipe, classificar, encaminhar e cancelar encaminhamento, pedir e registrar complemento, resposta intermediária e conclusiva, comprovante, painel agregado |
 | `ombudsman_responder` | não | só os encaminhamentos dos destinos em que está em `ombudsman_responders` |
 
 `departments` é cadastrado pelo `municipal_admin`. O acesso fica num módulo `Ombudsman::Access` (padrão de `Psychosocial::Access`).
@@ -281,8 +281,8 @@ Reconciliação dos planos de 2026-11-11: api (A1–A31), dashboard (D1–D24), 
 |---|---|
 | U1 (W2) | A ouvidoria aceita o CPF direto, sem o termo da triagem. Se a sessão do telefone não tem o cidadão, `POST /citizen/ombudsman/manifestations` aceita `{ cpf, full_name }` em vez de `citizen_id`, e o api cria o par declarado (CPF + telefone da sessão) **sem `consent_version`**. O plano do api confere que nenhum fluxo assume termo para todo `Citizen`; a triagem continua exigindo o termo na própria entrada. |
 | U2 (W13) | A denúncia anônima abre também no desktop em produção, como exceção ao bloqueio por dispositivo, igual à do relatório público. O resto do wpda segue só no celular. |
-| U3 (A2, D3) | **Pendente do usuário.** O coordenador recomenda `ombudsman_staff` também em `PRIVILEGED_ROLES` (lê texto de saúde e a identidade no modo `identified`). |
-| U4 (D22) | **Pendente do usuário.** O coordenador recomenda que abrir a identidade preservada **não** peça step-up: o ombudsman já tem segundo fator, e a justificativa e a trilha valem por abertura. |
+| U3 (A2, D3) | `ombudsman_staff` também entra em `PRIVILEGED_ROLES` (segundo fator), porque lê texto de saúde e a identidade no modo `identified`. A tabela de papéis do §1 fica corrigida. |
+| U4 (D22) | Abrir a identidade preservada **não** pede step-up: o ombudsman já tem segundo fator, e a justificativa e a trilha valem por abertura. |
 
 **Do coordenador:**
 
