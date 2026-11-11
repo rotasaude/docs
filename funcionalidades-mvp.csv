@@ -333,3 +333,12 @@ F-32.5,Chamada com local e painel da TV (UPA e UBS),mod-32,api|dashboard,0050,fe
 F-32.6,"BPA, vigilância, histórico no wpda e painel do gestor",mod-32,api|dashboard|wpda,"0050,0035",feature
 F-32.7,Observação com leitos e alerta de 24 h,mod-32,api|dashboard,0050,feature
 F-32.8,"Prescrição interna, checagem e baixa de estoque",mod-32,api|dashboard|maintenance,0050,feature
+F-33.1,"Interruptores, papéis, setores, respondentes, assuntos e prazos",mod-33,api|dashboard|maintenance,0051,feature
+F-33.2,Manifestação pelo wpda (identificada ou com identidade preservada) com protocolo e anexos,mod-33,api|wpda,"0051,0017",feature
+F-33.3,"Denúncia anônima sem login, com limites",mod-33,api|wpda,0051,feature
+F-33.4,"Registro pela equipe (presencial, telefone, OuvidorSUS) e comprovante",mod-33,api|dashboard,0051,feature
+F-33.5,"Classificação, encaminhamento com extrato e resposta do ponto de resposta",mod-33,api|dashboard,0051,feature
+F-33.6,"Prazos, prorrogação, complemento, respostas, arquivamento e reabertura",mod-33,api|dashboard,0051,feature
+F-33.7,Identidade preservada com trilha,mod-33,api|dashboard,0051,feature
+F-33.8,"""Minhas manifestações"", avisos e pesquisa de satisfação",mod-33,api|wpda,0051,feature
+F-33.9,Painel e relatório de gestão anual,mod-33,api|dashboard,0051,feature
