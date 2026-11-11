@@ -390,3 +390,7 @@ Continuam dando 422 `lot_invalid` só o lote vencido, o bloqueado, o de outro it
 - **Conferência:** é feita com o encontro e a prescrição travados. Se não bater → 409 `prescription_changed`, e nada é gravado nem publicado.
 - **Chave ausente:** vale a regra de hoje. O dashboard envia a chave **sempre**, mostra a frase de que a prescrição mudou e relê o detalhe.
 - **Ordem:** entra no api antes do merge, com request spec e um spec de corrida.
+
+**Q17 — Doses já dadas ao alterar a prescrição (achado F-P1 da prova no navegador).**
+- **Dose única (`once`) já administrada:** ao alterar a prescrição, o dashboard deixa o item fora da nova versão e avisa o médico com a lista dos itens que ficaram de fora. Se o médico quiser repetir a dose, readiciona o item de propósito. O api não muda nesse ponto.
+- **"Se necessário" (`if_needed`):** o `max_per_day` conta as doses `administered` das últimas 24 h pelo **`catalog_item_id` no encontro, em todas as versões**, e não pelo item da versão. Assim, alterar a prescrição não zera o limite diário. É a mesma lógica do `slot_taken` entre versões (Q5). Entra no api antes do merge, com spec.
