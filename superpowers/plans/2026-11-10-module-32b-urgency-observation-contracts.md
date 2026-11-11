@@ -370,3 +370,8 @@ Uma observação de até 24 h passa por mais de um plantão, e o médico seguint
 Continuam dando 422 `lot_invalid` só o lote vencido, o bloqueado, o de outro item, o de outra unidade de dispensação e o de outro local. Assim se mantém a regra de que a checagem nunca é recusada por falta de estoque. O dashboard não precisa recarregar o aprazamento para refazer a checagem.
 
 "De outro local" quer dizer um lote que **nunca teve movimento** no local da UPA. Como no 27a um lote só pertence a um local pelos movimentos, um lote que já esteve na UPA e foi transferido inteiro conta como consumido: o api passa ao próximo lote por FEFO, sem 422.
+
+**Q13 — Alcance da Q8 (Task 16b).**
+- **Acesso:** o que se concede é o acesso "em contexto" inteiro do 19a: consulta, documentos, linha do tempo, medicamentos e resultados externos, mais as escritas que passam por esse mesmo portão. A abertura justificada de prontuário já dá esse acesso hoje; a Q8 só a dispensa enquanto o encontro e o atendimento estão abertos, para o médico 225\* com vínculo ativo na UPA. Fechado um dos dois, voltam as recusas do 19a (403).
+- **Rascunhos de regulação:** só o adendo do autor da consulta envia os rascunhos dele. O adendo de outro médico deixa os rascunhos em `draft`. O rascunho que ficar órfão segue o fluxo do api#51, em que o admin descarta ou designa.
+- **Interruptor:** o `urgency_care` não é conferido nesse caminho. A janela termina quando o atendimento fecha, inclusive pelo 13 com a urgência desligada.
