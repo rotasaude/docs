@@ -40,7 +40,7 @@ O 33 não mexe no contracts.
 | `ombudsman` | "Ouvidoria do SUS municipal" | `[]` |
 | `ombudsman_anonymous_web` | "Denúncia anônima sem login no canal do cidadão" | `%w[feature:ombudsman]` |
 
-As duas vão ao cidadão em `GET /citizen/session` (não entram em `CITIZEN_HIDDEN`). Sem `ombudsman`, toda rota do módulo responde 404 `feature_disabled`, como os outros gates.
+As duas vão ao cidadão em `GET /citizen/session` (não entram em `CITIZEN_HIDDEN`). Sem `ombudsman`, toda rota do módulo responde 403 `feature_disabled`, como os outros gates (Q1).
 
 **Papéis** (em `Membership::ROLES`, com migração de cidade que recria `ck_memberships_role`; no dashboard, `ROLE_OPTIONS`):
 
@@ -273,4 +273,63 @@ Rótulos: "Sua demanda foi atendida?" (Sim, Em parte, Não); "A resposta foi fá
 
 ## 16. Decisões
 
-(Reconciliação dos planos e decisões de execução entram aqui.)
+Reconciliação dos planos de 2026-11-11: api (A1–A31), dashboard (D1–D24), wpda (W1–W15) e maintenance (M1–M4). Onde o plano e esta seção divergem, vale esta seção. Os códigos de erro, nomes e formatos fixados no plano do api valem para os fronts.
+
+**Do usuário:**
+
+| # | Decisão |
+|---|---|
+| U1 (W2) | A ouvidoria aceita o CPF direto, sem o termo da triagem. Se a sessão do telefone não tem o cidadão, `POST /citizen/ombudsman/manifestations` aceita `{ cpf, full_name }` em vez de `citizen_id`, e o api cria o par declarado (CPF + telefone da sessão) **sem `consent_version`**. O plano do api confere que nenhum fluxo assume termo para todo `Citizen`; a triagem continua exigindo o termo na própria entrada. |
+| U2 (W13) | A denúncia anônima abre também no desktop em produção, como exceção ao bloqueio por dispositivo, igual à do relatório público. O resto do wpda segue só no celular. |
+| U3 (A2, D3) | **Pendente do usuário.** O coordenador recomenda `ombudsman_staff` também em `PRIVILEGED_ROLES` (lê texto de saúde e a identidade no modo `identified`). |
+| U4 (D22) | **Pendente do usuário.** O coordenador recomenda que abrir a identidade preservada **não** peça step-up: o ombudsman já tem segundo fator, e a justificativa e a trilha valem por abertura. |
+
+**Do coordenador:**
+
+| # | Decisão |
+|---|---|
+| Q1 (A1, D1, M3, W12) | Interruptor desligado responde **403 `feature_disabled`**, como todos os portões do api. O §1 e o §4 ficam corrigidos. |
+| Q2 (A3, A4, D17, W8) | O dono do anexo fica em `ombudsman_attachments` (`citizen_session_id` sem FK, ou `uploaded_by_user_id`), sem coluna nova em `exam_files` e sem `claim!`. A linha nasce órfã no upload e some em cascata com o `ExamFile` órfão. `filename` é cifrado e **nunca é mostrado**: as telas mostram "Anexo N"; o wpda sempre manda `anexo-N.ext`. |
+| Q3 (A5) | Prazo pelo par `overdue_sql` + método Ruby, no padrão de `RegulationRequest`. |
+| Q4 (A6, D16, W4) | A lista de `ombudsman_events.kind` e o subconjunto `visible_to_citizen` são os da A6 do plano do api. A equipe vê `actor_name`; o cidadão nunca. O `text` ao cidadão vem pronto (rótulo do motivo de arquivamento já em palavras dele). |
+| Q5 (A7) | A manifestação **não** retém o pedido de exclusão (senão o `Erase` nunca roda). O `Erase` copia nome, CPF e telefone para os `manifestant_*`, anula `citizen_id` e apaga os avisos. O §13 fica corrigido. |
+| Q6 (A8, D6) | Busca nova `POST /ombudsman/person_lookup { cpf }` → `{ citizen_id, name, cpf_masked }` ou `null`, sobre `Citizen.not_erased`. Não cria paciente nem exige par validado. |
+| Q7 (A9, D5, D7, D8) | `GET /ombudsman/options` (staff e ombudsman) traz assuntos, unidades com `has_active_responder`, setores e profissionais ativos com as unidades. `GET /ombudsman/responder_candidates` (ombudsman) traz os usuários da cidade para virar respondente. |
+| Q8 (A10, D11, W6, W9) | Textos de ação 10–4000; `body` 20–4000. Contagem em code points depois do `strip`, nos dois lados. Os códigos de validação são os do plano do api. |
+| Q9 (A11) | O motivo do `decline` vai em `reply`, com `state = declined`. |
+| Q10 (A12) | `ombudsman_reopen_requests.cycle`, único por (manifestação, ciclo). |
+| Q11 (A13) | `ombudsman_daily_runs` com `kind` (`deadlines`, `anonymous_cap`), único por (dia, kind). |
+| Q12 (A14, D23) | `/departments` sem o portão da ouvidoria. |
+| Q13 (A15) | `Ombudsman::Settings.ensure_defaults!` na leitura cria a linha de configuração e a semente de assuntos que faltarem (banco vindo do dump). |
+| Q14 (A16, D18) | Download pela rota assinada `GET /ombudsman/files/:token`, com o caminho mascarado em `RequestLogPathMask`. O cidadão **não** baixa anexos (só vê "Anexo N"). |
+| Q15 (A17) | O SMS respeita `notices_muted`. |
+| Q16 (A18, W3) | O aviso de ouvidoria traz `cpf_masked`, como as outras fontes. |
+| Q17 (A19) | O prazo é sempre o da configuração vigente; mudar a configuração muda as abertas. `on_time_rate` usa o ciclo vigente. |
+| Q18 (A20) | Ids de unidade e assunto podem aparecer em URL e log (filtros). Nenhum id de unidade, assunto ou profissional vai em payload de evento. O §13 proíbe nomes e textos. |
+| Q19 (A21) | 403 `not_own_citizen` no POST; 404 nas rotas por `:id` de outro cidadão. |
+| Q20 (A22) | `public_config` lista todas as unidades ativas, CAPS inclusive. |
+| Q21 (A23) | `ombudsman.anonymous_cap_reached` com payload `{}`. |
+| Q22 (A24) | Registro `identified` ou `preserved` pela equipe exige `citizen_id` ou `manifestant_name`. |
+| Q23 (A25, D14) | Listas com `{ items, next_before }`, cursor `before`, filtros repetidos como `state[]`; vale para a caixa e para `/ombudsman/inbox`. |
+| Q24 (A26, D15) | O detalhe traz `identity_available` e, no `identified` sem cidadão, `contact`. `POST .../identity` na anônima sem dado responde 422 `no_identity` e não grava acesso. |
+| Q25 (A27) | `complement_requested_at` volta a nulo quando o complemento chega. |
+| Q26 (A28) | `archive duplicate` aceita `duplicate_of_protocol` ou `duplicate_of_id`. |
+| Q27 (A29) | Relatório anual só se publica para ano encerrado (422 `year_not_closed`). |
+| Q28 (A30, D19) | Formato do painel do plano do api: escondido é `{ suppressed: true }`; médias com 1 a 4 casos saem escondidas; sem caso, `null`; `by_subject` tem `unclassified`. |
+| Q29 (A31) | Aceito: o JSON da anônima é interpretado antes do 413, e o `body` segue filtrado no log. Sem middleware novo. |
+| Q30 (D2) | O campo do extrato mostra o `FrozenTextNotice` e o aviso do §14, sem mudar `src/components`. |
+| Q31 (D4) | No dashboard, os papéis entram em `INVITE_ROLES` e `PRIVILEGED_ROLES` de `src/lib/team.ts`. |
+| Q32 (D9) | O corpo de cada ação é o do plano do api, e toda ação responde com o detalhe atualizado. |
+| Q33 (D10) | `cancel` e as ações do respondente levam `expected_state` do encaminhamento → 409 `forwarding_changed`. |
+| Q34 (D12, D13) | `subject = { id, name, parent: { id, name } \| null }`; `destination = { kind: department \| health_unit, id, name }`. |
+| Q35 (D20) | `GET` do relatório anual sempre 200 (rascunho vazio quando não há); `PATCH` em publicado → 409 `report_published`. |
+| Q36 (D21) | `no_complement` não é oferecido na tela; só o job usa. |
+| Q37 (D24) | Sai o filtro "responsável" da caixa (não há responsável no modelo). |
+| Q38 (M1, M2, M4) | Rótulos do plano do maintenance, sempre diferentes da descrição; o dashboard usa os mesmos. Desligar `ombudsman` não desliga a denúncia em cascata: ela fica "ligada, falta pré-requisito", as rotas respondem `feature_disabled` e nada é apagado. O api tem spec de serviço para isso. |
+| Q39 (W1) | A ouvidoria não depende do termo da triagem (ver U1). |
+| Q40 (W5) | O cidadão vê `forwarded` como `in_analysis`; o api já devolve `in_analysis` no canal do cidadão. |
+| Q41 (W7) | O wpda manda as rotas públicas sem cookie (`credentials: "omit"`), e o api confere que nada se liga à sessão. |
+| Q42 (W10) | O detalhe do cidadão traz `color`. |
+| Q43 (W11) | Todo limite responde 429 `too_many_requests`, inclusive a anônima; `rate_limited` sai do §4. O teto da cidade segue `daily_cap_reached`. |
+| Q44 (W14) | O runbook pede `client_max_body_size 15m` só nas rotas de anexo. |
+| Q45 (W15) | O `GET` do detalhe do cidadão marca como lidos os avisos daquela manifestação. |
