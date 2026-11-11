@@ -377,3 +377,10 @@ Continuam dando 422 `lot_invalid` só o lote vencido, o bloqueado, o de outro it
 - **Interruptor:** o `urgency_care` não é conferido nesse caminho. A janela termina quando o atendimento fecha, inclusive pelo 13 com a urgência desligada.
 
 **Q14 — Alerta do central (revisão final do api; completa a Q7).** No local **central**, a contagem `urgency_shortfalls` do `/pharmacy/alerts` soma as faltas abertas do próprio local **e** todas as faltas `no_location` abertas. Pela Q7, quem cuida dessas faltas é o central. Se o alerta não as contasse, elas ficariam numa fila sem aviso. Nos locais `unit`, a contagem continua sendo só das faltas do local.
+
+**Q15 — Troca de leito com tela desatualizada (revisão da Task 5 do dashboard; completa o §4).** `POST /urgency/encounters/:id/observation` aceita `expected_stay_id`.
+- **Valores:** `null` declara uma entrada, ou seja, nenhuma estadia aberta. Um id declara uma troca a partir daquela estadia aberta.
+- **Conferência:** é feita com o encontro travado. Se não bater com a estadia aberta no momento da gravação → 409 `observation_changed`, e nada é gravado.
+- **Chave ausente:** vale a regra antiga (entrada ou troca). O campo é opcional para o api, mas o dashboard o envia **sempre**.
+- **Dashboard:** mostra a frase de que o paciente mudou de leito e recarrega o mapa.
+- **Ordem:** entra no api antes do merge, com request spec e escopo fechado.
