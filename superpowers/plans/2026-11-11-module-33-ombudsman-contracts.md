@@ -333,3 +333,12 @@ Reconciliação dos planos de 2026-11-11: api (A1–A31), dashboard (D1–D24), 
 | Q43 (W11) | Todo limite responde 429 `too_many_requests`, inclusive a anônima; `rate_limited` sai do §4. O teto da cidade segue `daily_cap_reached`. |
 | Q44 (W14) | O runbook pede `client_max_body_size 15m` só nas rotas de anexo. |
 | Q45 (W15) | O `GET` do detalhe do cidadão marca como lidos os avisos daquela manifestação. |
+
+**Da execução (api, 2026-11-11):**
+
+| # | Decisão |
+|---|---|
+| Q46 (U1) | O `full_name` informado no par declarado vai para `manifestant_name` da manifestação, nunca para `citizens.full_name` (nome conferido em documento, ADR 0031). O par nasce por `Citizens::RegisterPerson`, sem consentimento. No `Erase`, `manifestant_* = COALESCE(manifestant_*, valor do cidadão)`, para não apagar o nome declarado. |
+| Q47 (Q13) | A semente de assuntos só entra com a tabela vazia, nunca item a item (assunto renomeado ou desativado pela cidade não reaparece). A linha de configuração é criada sempre que faltar. |
+| Q48 (Q32, §6) | As ações do respondente (`/ombudsman/inbox/:id/reply`, `decline`, `extend`) respondem 200 com o item atualizado do inbox, não com o detalhe. As ações da equipe e o `cancel` respondem com o detalhe. |
+| Q49 (Q28) | `unclassified` é o último item de `by_subject`: `{ id: null, name: null, unclassified: true, count: <célula> }`. |
