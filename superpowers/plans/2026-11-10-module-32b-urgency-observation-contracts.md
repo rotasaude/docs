@@ -384,3 +384,9 @@ Continuam dando 422 `lot_invalid` só o lote vencido, o bloqueado, o de outro it
 - **Chave ausente:** vale a regra antiga (entrada ou troca). O campo é opcional para o api, mas o dashboard o envia **sempre**.
 - **Dashboard:** mostra a frase de que o paciente mudou de leito e recarrega o mapa.
 - **Ordem:** entra no api antes do merge, com request spec e escopo fechado.
+
+**Q16 — Prescrição alterada por outro médico (revisão da Task 6 do dashboard; completa o §5, no molde da Q15).** `POST /urgency/encounters/:id/prescriptions` aceita `expected_active_id`.
+- **Valores:** `null` declara uma prescrição nova, sem nenhuma versão `active`. Um id declara a alteração daquela versão ativa.
+- **Conferência:** é feita com o encontro e a prescrição travados. Se não bater → 409 `prescription_changed`, e nada é gravado nem publicado.
+- **Chave ausente:** vale a regra de hoje. O dashboard envia a chave **sempre**, mostra a frase de que a prescrição mudou e relê o detalhe.
+- **Ordem:** entra no api antes do merge, com request spec e um spec de corrida.
