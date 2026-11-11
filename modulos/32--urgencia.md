@@ -1,6 +1,6 @@
 # Módulo 32 — Urgência (UPA)
 
-- **Estado:** Entregue (32a em 2026-11-10; 32b em 2026-11-11); `Fechado` depois dos gates de go-live
+- **Estado:** Fechado (2026-11-11; 32a entregue em 2026-11-10, 32b em 2026-11-11); gates de go-live seguem no board #2 (api#63, api#136–#140)
 - **Tipo:** Ciclo 2
 
 ## Escopo (intenção)
@@ -135,3 +135,4 @@ Módulos 13, 18, 19, 21, 22, 25, 27a.
 - 2026-11-05 — Desenho aprovado (ADR 0050); estado `Planejado` (32a e 32b).
 - 2026-11-10 — 32a entregue (F-32.1 a F-32.6 Verified); 32b segue planejado.
 - 2026-11-11 — 32b entregue (F-32.7 e F-32.8 Verified); módulo 32 Entregue.
+- 2026-11-11 — Módulo 32 `Fechado` por decisão do usuário; gates de go-live seguem no board #2.
