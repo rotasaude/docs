@@ -344,3 +344,4 @@ Reconciliação dos planos de 2026-11-11: api (A1–A31), dashboard (D1–D24), 
 | Q49 (Q28) | `unclassified` é o último item de `by_subject`: `{ id: null, name: null, unclassified: true, count: <célula> }`. |
 | Q50 (§8) | `POST .../identity` traz `name` (`manifestant_name` ou o nome de exibição do cidadão) e também `full_name`, o nome civil conferido, que pode ser `null` (par declarado). O §8 fica lido assim. No modo `identified`, a mesma rota revela CPF e telefone sem máscara, com trilha, e o dashboard oferece "abrir identidade" ao ombudsman em qualquer modo. |
 | Q51 (Q23) | Filtros das listas sempre com `[]` (escalar → 422). `q` aceita só o protocolo `AAAA-NNNNNN` ou o prefixo `AAAA-`. |
+| Q52 (§6) | O item de `/ombudsman/inbox` traz também `extended` (bool), para a tela esconder "Prorrogar" depois do uso; o 422 `already_extended` continua. |
