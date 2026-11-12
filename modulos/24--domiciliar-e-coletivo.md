@@ -102,4 +102,4 @@ Módulos 10, 11, 16, 20, 22 e 23.
 - 2026-10-27 — 24a **implementado, publicado e Entregue** (ver "Entrega do 24a"). `Fechado` depois do gate do SIAPS.
 - 2026-11-12 — Desenho do 24b aprovado e `Planejado` (ADR 0052, spec
   `superpowers/specs/2026-11-12-module-24b-home-visit-collective-activity-design.md`;
-  decisões do usuário 1A–5A), aguardando aprovação.
+  decisões do usuário 1A–7A).
