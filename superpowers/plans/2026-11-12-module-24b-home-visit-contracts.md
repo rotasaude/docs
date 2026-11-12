@@ -91,8 +91,8 @@ Convenções herdadas (24a §1–§14, 23, 33): erros `{ "error" }`, com `path` 
 - **`collective_activities`:**
   - `client_uuid` (único), `team_id`, `health_unit_id` (unidade da equipe, do CNES do cabeçalho), `professional_id` e `cbo` (quem registra, o cabeçalho), `recorded_by_user_id`, `held_on` (date), `shift` (1, 2, 3, informado);
   - `activity_type` (1–7), `place_health_unit_id` ou `place_text` (até 250; CHECK: exatamente um);
-  - `participants_count` (1–999), `altered_count` (0–999, ≤ `participants_count`);
-  - `meeting_topics`, `target_audience`, `health_topics`, `health_practices` (cifrados; listas de inteiros), `procedure_code` (cifrado; SIGTAP de 10 dígitos);
+  - `participants_count` (1–999), `altered_count` (0–999, ≤ `participants_count`; derivado pelo api, nunca no corpo; Q38);
+  - `meeting_topics`, `target_audience`, `health_topics`, `health_practices` (cifrados; listas de inteiros), `procedure_code` (cifrado; um dos 58 códigos SIGTAP de `outro_procedimento_coletivo`, Q37);
   - `mistaken_at`, `mistaken_by_user_id`, `mistaken_reason` (cifrado, 10–500);
   - `origin`, `field_device_id`.
 - **`collective_activity_professionals`:** `collective_activity_id`, `professional_id`, `cbo`. Único por (atividade, profissional). Não inclui quem registra (já é o cabeçalho).
@@ -176,15 +176,19 @@ Dia de referência = data local da cidade de `occurred_at`.
 - **Pessoa:**
   - imóvel não residencial (`2 3 4 5 6 12 13`): nenhum `patient_id`, `family_id` nem `new_patient` → `422 non_residential_with_person`; `subject = none`;
   - residencial (`1 7 8 9 10 11 99`): `subject` é `resident` (`patient_id` ou `new_patient`), `family_responsible` (`family_id`; o api põe o responsável em `patient_id`) ou `none` (visita ao imóvel sem pessoa);
+  - paciente provisório da UPA (`no_cpf_reason = "unidentified"`) nunca é a pessoa da visita → `422 patient_unidentified` (`path` `patient_id`; no app, item `rejected`; Q41);
   - `resident` com domicílio: o paciente tem cadastro ativo nesse domicílio ou não tem cadastro ativo (inclusive o recém-registrado do §5); cadastro ativo em outro domicílio → `422 patient_in_other_household`;
   - `family_responsible`: a família é do domicílio e não está `moved_out` (`422 family_moved_out`, Q21); responsável que saiu → `422 family_without_responsible`.
 - **Desfecho × motivos × medidas:**
   - `outcome` obrigatório (1, 2, 3);
   - `outcome` 2 ou 3: `reasons` vazio (`422 reasons_forbidden`) e sem `measurements` (`422 measurements_forbidden`);
-  - não residencial: só os motivos `1 27 28 31 34 35 36 37` (`422 reason_not_allowed`, `path` `reasons[i]`) e sem medidas;
-  - sexo masculino (`male`): motivos 5 e 6 proibidos (`422 reason_not_allowed`);
+  - não residencial: só os motivos `1 34 35 36 37 27 31 28` (`non_residential_reasons`; `422 reason_not_allowed`, `path` `reasons[i]`) e sem medidas;
+  - residencial com `subject = none`: só os motivos `1 27 28` (`without_person_allowed_reasons`; `422 reason_not_allowed`, `path` `reasons[i]`) e sem `weight_kg`/`height_cm` (`422 measurements_forbidden`, `path` `measurements.<chave>`); qualquer outro motivo e o peso ou a altura exigem nascimento e sexo, que não há de quem tirar (Q34, Q40);
+  - motivos `29` (visita periódica) e `34 35 36 37` (controle ambiental e vetorial) em imóvel residencial: com família ativa, a ficha leva CPF/CNS, nascimento e sexo do responsável familiar (`responsible_document_reasons`; Q40). Se o profissional escolheu um morador que não é o responsável, o api grava a visita como `family_responsible` da família desse morador, sem recusa, e a tela avisa antes de salvar (Q43). Sem família ativa no domicílio (imóvel vazio ou sem cadastro de família), a visita vai sem dado de pessoa (Q44, gate de go-live no PEC);
+  - sexo masculino (`male`): os motivos da lista oficial `male_forbidden_reasons` (`5 6`) são proibidos (`422 reason_not_allowed`; Q35);
+  - `reasons` com no máximo 36 itens (`422 invalid_home_visit`, `path` `reasons`; Q36);
   - `has_reason = reasons.any?`, gravado pelo api.
-- **Medidas** (`measurements`, todas opcionais; limites do dicionário, a confirmar na task 1):
+- **Medidas** (`measurements`, todas opcionais; limites do dicionário, confirmados na task 1):
 
 | Chave | Faixa | Campo LEDI |
 |---|---|---|
@@ -200,7 +204,7 @@ Dia de referência = data local da cidade de `occurred_at`.
 
 ## 4. Regras da atividade coletiva
 
-Regras cruzadas da ficha (a confirmar na task 1 contra o `dicionario-fac.html`); o api recusa com `422 invalid_collective_activity` e o `path`, e o dashboard espelha:
+Regras cruzadas da ficha (confirmadas na task 1 contra o `dicionario-fac.html`, §11); o api recusa com `422 invalid_collective_activity` e o `path`, e o dashboard espelha:
 
 | Campo | Tipos 1–3 (reuniões) | Tipo 4 | Tipo 5 | Tipo 6 | Tipo 7 |
 |---|---|---|---|---|---|
@@ -210,9 +214,11 @@ Regras cruzadas da ficha (a confirmar na task 1 contra o `dicionario-fac.html`);
 | `health_practices` | proibido | proibido | opcional | obrigatório | proibido |
 | `participants` | opcional | opcional | **obrigatório** | **obrigatório** | opcional |
 
-- Práticas 2, 9 e 33 só no tipo 6. `procedure_code` (SIGTAP, 10 dígitos) obrigatório com a prática 30 e proibido sem ela.
-- `smoking` do participante só com uma das práticas 25–28.
-- `participants_count` ≥ número de participantes; `altered_count` = participantes com `altered_evaluation` quando a lista vem, senão ≤ `participants_count`.
+- Tamanho máximo das listas (coluna Máximo do dicionário): `meeting_topics` 7, `target_audience` 17, `health_topics` 16, `health_practices` 14 (`path` da lista; Q36).
+- Práticas 2, 9 e 33 só no tipo 6. `procedure_code` obrigatório com a prática 30 e proibido sem ela; só um dos 58 códigos SIGTAP de `outro_procedimento_coletivo` (§11; Q37).
+- `smoking` do participante só com uma das práticas 25–28 (a 34 fica fora).
+- `participants_count` ≥ número de participantes. `altered_count` não vem no corpo: o api grava o número de participantes com `altered_evaluation = true` (sem lista, 0; Q38).
+- Participante que é paciente provisório da UPA (`no_cpf_reason = "unidentified"`) → `422 patient_unidentified` (`path` `participants[i].patient_id`; no app, item `rejected`; Q41).
 - Local: `place_health_unit_id` (unidade ativa com CNES) **ou** `place_text`; nunca INEP.
 - `held_on` ≤ hoje e `Ledi::Deadline.on(competência) > hoje` (`422 activity_date_out_of_range`).
 - Tema 18 (Semana saúde na escola) não é aceito (`422`, `path` `health_topics[i]`). PSE sempre `false` na ficha.
@@ -277,7 +283,7 @@ Base `/collective_activities`, gate `collective_activities`, `CollectiveActiviti
 | Rota | Quem | Notas |
 |---|---|---|
 | `GET /collective_activities/options` | Tabela 5 | `{ today, min_date, teams: [{ id, ine, name, cbo, can_register }], units: [{ id, name, has_cnes }], professionals: [{ id, name, cbo, has_cns, team_ids }], domains }`. `domains` = a forma `collective_activity` do §7, com as regras do §4 em dado (o dashboard não as copia à mão; Q13) |
-| `POST /collective_activities` | Tabela 5 | corpo explícito (Q15): `{ client_uuid, team_id, held_on, shift, activity_type, place_health_unit_id? \| place_text?, participants_count, altered_count, meeting_topics?, target_audience?, health_topics?, health_practices?, procedure_code?, professionals?: [{ professional_id }], participants?: [{ patient_id \| patient_client_uuid (só no app) \| new_patient, duplicates_reviewed?, altered_evaluation?, measurements?, smoking? }] }`; exatamente um dos dois de local; lista ausente = vazia (o dashboard manda `[]` no campo proibido pelo tipo) → 201 `<collective_activity>`. Mesmo `client_uuid` → 200 com a gravada |
+| `POST /collective_activities` | Tabela 5 | corpo explícito (Q15): `{ client_uuid, team_id, held_on, shift, activity_type, place_health_unit_id? \| place_text?, participants_count, meeting_topics?, target_audience?, health_topics?, health_practices?, procedure_code?, professionals?: [{ professional_id }], participants?: [{ patient_id \| patient_client_uuid (só no app) \| new_patient, duplicates_reviewed?, altered_evaluation?, measurements?, smoking? }] }`; exatamente um dos dois de local; lista ausente = vazia (o dashboard manda `[]` no campo proibido pelo tipo) → 201 `<collective_activity>`. Mesmo `client_uuid` → 200 com a gravada |
 | `GET /collective_activities?team_id=&from=&to=&activity_type[]=&state[]=&before=` | equipe | `{ items: [ <collective_activity> sem participants nem temas ], next_before }`, sem trilha |
 | `GET /collective_activities/:id` | equipe | `<collective_activity>` (trilha com os pacientes) |
 | `POST /collective_activities/:id/mark_mistaken` | quem registrou | `{ expected_state, reason }` → 200 |
@@ -285,8 +291,8 @@ Base `/collective_activities`, gate `collective_activities`, `CollectiveActiviti
 Atividade `mistaken` sai da lista por padrão (`state[]=mistaken` a mostra).
 
 **Forma dos `domains` (Q13)** — a de `context.domains` e `options.domains`, servida pelo api a partir do mesmo YAML da task 1 que preenche `domains-v1.json`. O `domains-v1.json` (do app) mantém a estrutura do plano do contracts, mais rica (erros, limites, paciente); um spec do api confere que os códigos e as regras das duas formas são os mesmos:
-- `home_visit`: `motivo_visita: [{ code, label, group, group_label }]`, `desfecho`, `turno`, `tipo_glicemia`, `tipo_de_imovel` (todos `[{ code, label }]`), `non_residential_property_types`, `non_residential_reasons`, `male_forbidden_reasons`, `measurement_ranges: { <chave>: { min, max, decimals } }`;
-- `collective_activity`: `activity_types`, `meeting_topics`, `target_audience`, `health_topics` (sem o 18), `health_practices` (todos `[{ code, label }]`) e `rules: { by_type: { "<tipo>": { meeting_topics | target_audience | health_topics | health_practices | participants: "required" | "forbidden" | "optional" } }, health_topics_with_meeting_topic: [6], practices_only_in_type: [{ type: 6, practices: [2, 9, 33] }], procedure_practices: [30], smoking_practices: [25, 26, 27, 28], participant_measurements: { weight_kg, height_cm } }`.
+- `home_visit`: `motivo_visita: [{ code, label, group, group_label }]`, `desfecho`, `turno`, `tipo_glicemia`, `tipo_de_imovel` (todos `[{ code, label }]`), `non_residential_property_types`, `non_residential_reasons`, `male_forbidden_reasons`, `without_person_allowed_reasons`, `responsible_document_reasons`, `reasons_max`, `measurement_ranges: { <chave>: { min, max, decimals } }` (Q34–Q36, Q40);
+- `collective_activity`: `activity_types`, `meeting_topics`, `target_audience`, `health_topics` (sem o 18), `health_practices`, `procedures` (os 58 de `outro_procedimento_coletivo`) (todos `[{ code, label }]`, rótulos oficiais; Q39) e `rules: { list_max: { meeting_topics: 7, target_audience: 17, health_topics: 16, health_practices: 14 }, by_type: { "<tipo>": { meeting_topics | target_audience | health_topics | health_practices | participants: "required" | "forbidden" | "optional" } }, health_topics_with_meeting_topic: [6], practices_only_in_type: [{ type: 6, practices: [2, 9, 33] }], procedure_practices: [30], smoking_practices: [25, 26, 27, 28], participant_measurements: { weight_kg, height_cm } }`.
 - O esquema não confere as relações; elas ficam em `rules` e no api, com os códigos do §13 (Q26).
 
 ## 8. Quem visitar
@@ -420,7 +426,7 @@ Domínio novo `field-sync/` (tag `field-sync-v1.0.0`; o README do contracts ganh
 | `headerTransport.cboCodigo_2002` | `home_visit_days.cbo` |
 | `headerTransport.cnes` | CNES da unidade da equipe |
 | `headerTransport.ine` | INE da equipe |
-| `headerTransport.dataAtendimento` | `day` às 00h no fuso da cidade, em epoch ms, pelo `Ledi::Fichas::RegistrationHeader` (a confirmar na task 1; Q3) |
+| `headerTransport.dataAtendimento` | `day` às 00h no fuso da cidade, em epoch ms, pelo `Ledi::Fichas::RegistrationHeader` (confirmado na task 1: o dicionário só exige epoch ms e "não posterior à data atual"; Q3) |
 | `headerTransport.codigoIbgeMunicipio` | `CityProfile.ibge_code` |
 | `visitasDomiciliares` | as visitas `recorded` da folha, em ordem de `occurred_at`, 1 a 99 |
 
@@ -430,9 +436,9 @@ Domínio novo `field-sync/` (tag `field-sync-v1.0.0`; o README do contracts ganh
 |---|---|---|---|
 | 1 | `turno` | `shift` | |
 | 2 | `numProntuario` | nunca enviado | |
-| 3 / 14 | `cnsCidadao` / `cpfCidadao` | paciente de `patient_id` | CPF se houver; senão CNS; nunca os dois; nenhum em `subject = none` |
-| 24 / 25 | `stCidadaoNaoPossuiCpf` / `justificativaCidadaoNaoPossuiCpf` | paciente | sem CPF: `true` e `no_cpf_reason`; vai com o CNS quando houver |
-| 4 / 5 | `dtNascimento` / `sexo` | paciente (`SEX_TO_LEDI`) | só com pessoa; nunca em não residencial |
+| 3 / 14 | `cnsCidadao` / `cpfCidadao` | paciente de `patient_id` | CPF se houver; senão CNS; nunca os dois; nenhum em `subject = none`; nos motivos 29 e 34–37 com família, o do responsável (`family_responsible`; Q40) |
+| 24 / 25 | `stCidadaoNaoPossuiCpf` / `justificativaCidadaoNaoPossuiCpf` | paciente | sem CPF: `true` e `no_cpf_reason` (2–13); vai com o CNS quando houver. Na FVD o CNS **não** é obrigatório com o marcador (confirmado na task 1) |
+| 4 / 5 | `dtNascimento` / `sexo` | paciente (`SEX_TO_LEDI`) | sempre os dois com pessoa; nunca em não residencial. Nascimento às 00h no fuso da cidade, como o `dataAtendimento` (o dicionário o quer ≤ `dataAtendimento`) |
 | 6 | `statusVisitaCompartilhadaOutroProfissional` | `shared` | |
 | 7 | `motivosVisita` | `reasons` | |
 | 8 | `desfecho` | `outcome` | |
@@ -449,18 +455,36 @@ Os nomes que valem são os do IDL (`justificativaCidadaoNaoPossuiCpf`, `tipoGlic
 
 Ficha recusada: "Reenviar" regera da folha (uuid novo, `replaces_outbox_id`), como o 24a, **na Produção** (`municipal_admin`, step-up); "Visitas da equipe" e o detalhe da atividade só mostram a situação (Q12). A folha não muda. `siaps_deadline_passed` nunca se resolve: a Produção não oferece "Gerar de novo" para ele (Q12).
 
-**Domínios** (do `dicionario.html` vendorizado; códigos inteiros; conferir na task 1 contra o `dicionario-fvd.html` e o `gen-rb`):
+**Domínios** (confirmados na task 1 contra o `dicionario-fvd.html`, o `dicionario.html` e o `gen-rb`; código → rótulo oficial, na ordem do dicionário; fonte única `config/ledi/visit_activity_dictionaries.yml` do api, que o `domains-v1.json` copia; Q39):
 
-| Domínio | Códigos |
+| Domínio | Código → rótulo |
 |---|---|
-| `motivo_visita` | TIPO_VISITA 1, 29 · BUSCA_ATIVA 2, 3, 4, 30 · ACOMPANHAMENTO 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 32, 33, 19, 20, 21, 22, 23, 24, 38 · CONTROLE_AMBIENTAL_E_VETORIAL 34, 35, 36, 37 · OUTROS 25, 27, 31, 28 (rótulos na pesquisa §2; 21 e 30 têm o mesmo rótulo no dicionário, a tela mostra o grupo) |
-| `desfecho` | 1 Realizada, 2 Recusada, 3 Ausente |
-| `tipo_de_imovel` | o do 24a (contrato do 24a, §15); não residencial = 2, 3, 4, 5, 6, 12, 13 |
-| `turno` | 1 Manhã, 2 Tarde, 3 Noite |
-| `tipo_glicemia` | 0 Jejum, 1 Pós-prandial, 2 Pré-prandial, 3 Não especificado (`tipoGlicemiaCapilar` do `dicionario.html`; vale salvo o `dicionario-fvd.html` dizer outro na task 1; Q3) |
-| `justificativa_nao_possui_cpf` | o do 24a (contrato do 24a, §15) |
+| `motivo_visita` — TIPO_VISITA "Tipo de visita" | 1 Cadastramento / Atualização · 29 Visita periódica |
+| `motivo_visita` — BUSCA_ATIVA "Busca ativa" | 2 Consulta · 3 Exame · 4 Vacina · 30 Condicionalidades do bolsa família |
+| `motivo_visita` — ACOMPANHAMENTO "Acompanhamento" | 5 Gestante · 6 Puérpera · 7 Recém-nascido · 8 Criança · 9 Pessoa com desnutrição · 10 Pessoa em reabilitação ou com deficiência · 11 Pessoa com hipertensão · 12 Pessoa com diabetes · 13 Pessoa com asma · 14 Pessoa com DPOC / enfisema · 15 Pessoa com câncer · 16 Pessoa com outras doenças crônicas · 17 Pessoa com hanseníase · 18 Pessoa com tuberculose · 32 Sintomáticos respiratórios · 33 Tabagista · 19 Domiciliados / Acamados · 20 Condições de vulnerabilidade social · 21 Condicionalidades do bolsa família · 22 Saúde mental · 23 Usuário de álcool · 24 Usuário de outras drogas · 38 Pessoa idosa |
+| `motivo_visita` — CONTROLE_AMBIENTAL_E_VETORIAL "Controle ambiental e vetorial" | 34 Ação educativa · 35 Imóvel com foco · 36 Ação mecânica · 37 Tratamento focal |
+| `motivo_visita` — OUTROS "Outros" | 25 Egresso de internação · 27 Convite para atividades coletivas / campanha de saúde · 31 Orientação / Prevenção · 28 Outros |
+| `desfecho` | 1 Visita realizada · 2 Visita recusada · 3 Ausente |
+| `turno` | 1 Manhã · 2 Tarde · 3 Noite |
+| `tipo_glicemia` (`tipoGlicemiaCapilar`) | 0 Jejum · 1 Pós-prandial · 2 Pré-prandial · 3 Não especificado |
+| `tipo_de_imovel` | o do 24a (`registration_dictionaries.yml`, igual ao oficial); não residencial = 2, 3, 4, 5, 6, 12, 13 |
+| `justificativa_nao_possui_cpf` | o do 24a (contrato do 24a, §15), 2–13 |
 
-**A confirmar na prova técnica (task 1):** `dataAtendimento` da folha; obrigatoriedade do CNS com `stCidadaoNaoPossuiCpf = true` na MIVDT; quando nascimento e sexo são obrigatórios em residencial sem pessoa; o domínio de `tipoGlicemia`; mais de uma ficha do mesmo profissional no mesmo dia (gate de go-live). A task 1 publica o resultado como acréscimo nesta seção (e em `domains-v1.json`) antes das tasks do dashboard.
+O grupo é da coluna Observações do dicionário; o `group_label` é nosso. 21 e 30 têm o mesmo rótulo: a tela mostra o grupo.
+
+**Regras confirmadas na prova técnica (task 1):**
+- `tipoGlicemia` = 18 e `glicemia` = 19 no IDL (o dicionário numera ao contrário; vale o IDL); domínio 0–3 acima, na ordem acima (Q3 fecha).
+- `dataAtendimento`: `day` às 00h no fuso da cidade, em epoch ms (o dicionário só exige "não posterior à data atual").
+- CNS com `stCidadaoNaoPossuiCpf = true`: **não** obrigatório na FVD; sem CPF vai o marcador com a justificativa e o CNS quando houver.
+- Nascimento e sexo: nunca em não residencial; em residencial o dicionário os exige com CNS, com o outro dos dois, com motivo de BUSCA_ATIVA ou ACOMPANHAMENTO, com 25 ou 31, ou com peso/altura. Com pessoa o api manda sempre os dois; sem pessoa vale o §3 (`without_person_allowed_reasons` `1 27 28`, sem peso/altura; Q34, Q40).
+- Motivos 29 e 34–37 em residencial com família: CPF/CNS, nascimento e sexo do responsável familiar (`family_responsible`; Q40).
+- Não residencial: só `1 34 35 36 37 27 31 28`; `male_forbidden_reasons` `5 6` (só com sexo masculino; Q35); com desfecho 2 ou 3, nenhum motivo e nenhuma medida; motivo não é obrigatório com desfecho 1; `motivosVisita` com no máximo 36 (Q36); `visitasDomiciliares` 1–99.
+- Faixas das medidas: as do §3, todas confirmadas (peso/altura/temperatura `double`, pressões e glicemia `i32`, `tipoGlicemia` `i64`).
+- CBO do cabeçalho na Tabela 7 (7 códigos: `515105 515310 515140 515130 515125 322255 515120`); tipo 8 = `Visitadomiciliar::FichaVisitaDomiciliarMasterThrift`, `uuidFicha` de 36–44.
+
+**Gate de go-live (não confirmado):** mais de uma ficha do mesmo profissional no mesmo dia (folha complementar ou cheia). O dicionário não tem regra de unicidade por profissional e dia; conferir no PEC/SISAB com duas folhas do mesmo dia (§15).
+
+**Dicionários vendorizados** (`vendor/ledi/8.7.0/docs/`, 8.7.0, alterados em 11/09/2026, baixados em 2026-11-12): SHA-256 `dicionario-fvd.html` `e4057a7a27e104ae155a931ecd98260f7b84215421e705b81c5cd3f64f969e7c` · `dicionario-fac.html` `b4dcd22fed0161528072493f02a6039cfca4a63df394ef40747157ba1c43013b`.
 
 ## 11. Ficha LEDI de atividade coletiva (tipo 6)
 
@@ -472,33 +496,49 @@ Ficha recusada: "Reenviar" regera da folha (uuid novo, `replaces_outbox_id`), co
 | 24 | `headerTransport` | quem registrou: CNS, `cbo`, CNES de `health_unit_id`, INE da equipe, `held_on` (00h local, ms), IBGE |
 | 4 / 21 | `outraLocalidade` / `cnesLocalAtividade` | `place_text` / CNES de `place_health_unit_id` (um só) |
 | 7 | `inep` | nunca |
-| 11 / 12 | `numParticipantes` / `numAvaliacoesAlteradas` | `participants_count` / `altered_count` |
+| 11 / 12 | `numParticipantes` / `numAvaliacoesAlteradas` | `participants_count` / `altered_count` (derivado: participantes com `altered_evaluation = true`; Q38) |
 | 13 | `profissionais` | `collective_activity_professionals` (`cnsProfissional`, `codigoCbo2002`) |
 | 14 | `atividadeTipo` | `activity_type` |
 | 15 / 16 / 25 / 26 | temas, público, temas para saúde, práticas | listas do §4 |
 | 18 | `participantes` | `collective_activity_participants` |
 | 19 | `tbCdsOrigem` | 3 |
-| 22 | `procedimento` | `procedure_code` |
+| 22 | `procedimento` | `procedure_code` (um dos 58 de `outro_procedimento_coletivo`; Q37) |
 | 23 | `turno` | `shift` |
 | 27 / 28 | `pseEducacao` / `pseSaude` | sempre `false`, sempre enviados |
 
 **Participante:** `cpfParticipante` se houver CPF; senão `stCidadaoNaoPossuiCpf = true`, `justificativaCidadaoNaoPossuiCpf` e `cnsParticipante`; `dataNascimento`, `sexo`, `avaliacaoAlterada`, `peso`, `altura`, `cessouHabitoFumar`, `abandonouGrupo`.
+- `dataNascimento` e `sexo` obrigatórios em todo participante (nascimento às 00h no fuso da cidade, como o `held_on`).
+- `cnsParticipante` só com o marcador `true`, e obrigatório **só nos tipos 5 e 6** (confirmado na task 1); fora deles o dicionário não exige identificação.
+- `peso` 0,5–500 (3 casas) e `altura` 20–250 (1 casa), as faixas da visita.
+- `cessouHabitoFumar`/`abandonouGrupo` só com as práticas 25–28 (PNCT); a 34 fica fora.
+- Paciente provisório da UPA nunca chega à ficha: a gravação recusa (`patient_unidentified`, §4; Q41).
 - Tipos 5 e 6: participante sem CPF e sem CNS → ficha "não gerada" `participant_without_identifier`.
 - Outros tipos: participante sem CPF e sem CNS fica fora da lista da ficha e segue contado em `numParticipantes`; a tela avisa antes de gravar.
 
 **"Não gerada" (lista fechada):** `unit_without_cnes`, `professional_without_cns`, `cbo_not_in_ledi_table`, `city_profile_incomplete`, `siaps_deadline_passed`, `participant_without_identifier`, `participant_without_birth_date`, `participant_without_sex` (Q4), `participant_professional_without_cns`, `place_without_cnes`. Entram em `LediGenerationFailure::REASONS` (com o `siaps_deadline_passed`, seis códigos novos no módulo).
 
-**Domínios** (códigos inteiros; conferir na task 1 contra o `dicionario-fac.html`):
+**Domínios** (confirmados na task 1 contra o `dicionario-fac.html` e o `dicionario.html`; código → rótulo oficial, na ordem do dicionário; mesma fonte do §10; Q39):
 
-| Domínio | Códigos |
+| Domínio | Código → rótulo |
 |---|---|
-| `tipo_atividade_coletiva` | 1 Reunião de equipe, 2 Reunião com outras equipes de saúde, 3 Reunião intersetorial/conselho local/controle social, 4 Educação em saúde, 5 Atendimento em grupo, 6 Avaliação/procedimento coletivo, 7 Mobilização social |
-| `temas_para_reuniao` | 1, 2, 3, 4, 5, 6, 7, 8 |
-| `temas_para_saude` | 29, 19, 1, 4, 5, 7, 8, 10, 13, 14, 15, 6, 16, 17, 31, 32, 21 (18 fora: exige PSE) |
-| `praticas_em_saude` | 20, 2, 23, 9, 11, 25, 26, 27, 28, 34, 22, 3, 24, 12, 30, 33 |
-| `publico_alvo` | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18 "Outros", 19 e 20 (adolescente em medida socioeducativa, meio aberto e fechado); o 74 não existe no `dicionario.html` (vale salvo o `dicionario-fac.html` dizer outro na task 1; Q3) |
+| `tipo_atividade_coletiva` | 1 Reunião de equipe · 2 Reunião com outras equipes de saúde · 3 Reunião intersetorial / Conselho local de saúde / Controle social · 4 Educação em saúde · 5 Atendimento em grupo · 6 Avaliação / Procedimento coletivo · 7 Mobilização social |
+| `temas_para_reuniao` | 1 Questões administrativas / funcionamento · 2 Processo de trabalho · 3 Diagnóstico / Monitoramento do território · 4 Planejamento / Monitoramento das ações da equipe · 5 Discussão de caso ou projeto terapêutico singular · 6 Educação permanente · 7 Outros · 8 Vigilância em saúde |
+| `temas_para_saude` (sem o 18 "Semana saúde na escola", que exige PSE) | 29 Ações de combate ao Aedes aegypti · 19 Agravos e Doenças Negligenciadas · 1 Alimentação saudável · 4 Autocuidado de pessoas com doenças crônicas · 5 Cidadania e direitos humanos · 7 Prevenção ao uso de álcool, tabaco e outras drogas · 8 Envelhecimento / Climatério / Andropausa / Etc · 10 Plantas medicinais / Fitoterapia · 13 Prevenção da violência e promoção da cultura da paz · 14 Saúde ambiental · 15 Saúde bucal · 6 Saúde do trabalhador · 16 Saúde mental · 17 Saúde sexual e reprodutiva · 31 Amamentação · 32 Alimentação complementar saudável · 21 Outros |
+| `praticas_em_saude` | 20 Antropometria · 2 Aplicação tópica de flúor · 23 Desenvolvimento da linguagem · 9 Escovação dental supervisionada · 11 Práticas corporais e Atividade física · 25 Programa Nacional de Controle do Tabagismo 1 · 26 Programa Nacional de Controle do Tabagismo 2 · 27 Programa Nacional de Controle do Tabagismo 3 · 28 Programa Nacional de Controle do Tabagismo 4 · 22 Saúde auditiva · 3 Saúde ocular · 24 Verificação da situação vacinal · 12 Outras · 30 Outro procedimento coletivo · 33 Fornecimento de kit bucal · 34 Programa Nacional de Controle do Tabagismo Manutenção |
+| `publico_alvo` | 1 Comunidade em geral · 2 Criança de 0 a 3 anos · 3 Criança de 4 a 5 anos · 4 Criança de 6 a 11 anos · 5 Adolescente · 6 Mulher · 7 Gestante · 8 Homem · 9 Familiares · 10 Pessoa idosa · 12 Pessoas com doenças crônicas · 13 Usuário de tabaco · 14 Usuário de álcool · 15 Usuário de outras drogas · 16 Pessoas com sofrimento ou transtorno mental · 17 Profissional da educação · 18 Outros · 19 Adolescente em atendimento socioeducativo em meio aberto · 20 Adolescente em atendimento socioeducativo em meio fechado (não há 11 nem 74) |
+| `outro_procedimento_coletivo` | os 58 códigos SIGTAP (sem ponto nem hífen, competência 06/2026) da tabela `OutroProcedimentoColetivo`, de `0101050178` ATIVIDADE COLETIVA DE ANTROPOSOFIA APLICADA À SAÚDE a `0101050046` YOGA; lista completa em `collective_activity.domains.outro_procedimento_coletivo` do YAML e no `domains-v1.json` (Q37) |
 
-Rótulos na pesquisa §3. **A confirmar na task 1:** cada regra cruzada do §4 (em especial `health_topics` nos tipos 1–3 com o tema 6 e no tipo 6), o "Outros" do público-alvo (Q3), e se `smoking` vale também na prática 34.
+**Regras confirmadas na prova técnica (task 1):**
+- Tabela do §4 inteira, por tipo, confirmada. `health_topics` nos tipos 1–3: proibido salvo quando `meeting_topics` contém o 6 (Educação permanente), e aí opcional; no tipo 6, opcional (obrigatório só em 4, 5 e 7). A leitura "contém o 6" (e não "só o 6") vai com o gate de go-live da ficha 6.
+- Público-alvo: 18 = "Outros"; 19/20 com os rótulos acima; sem 11 e sem 74 (Q3 fecha).
+- Tamanhos máximos: `temasParaReuniao` 7, `publicoAlvo` 17, `temasParaSaude` 16, `praticasEmSaude` 14 (Q36).
+- Práticas 2, 9 e 33 só no tipo 6. `procedimento` só com a prática 30, da lista fechada acima (o dicionário não o exige com a 30; o §4 exige, mais estrito; Q37).
+- Tabagismo (`cessouHabitoFumar`, `abandonouGrupo`) só com as práticas 25–28.
+- Tema 18 nunca; `pseEducacao`/`pseSaude` sempre `false` e sempre enviados; sem INEP.
+- `numParticipantes` 1–999 e ≥ participantes listados; `numAvaliacoesAlteradas` 0–999, igual ao número de participantes com `avaliacaoAlterada = true` (Q38).
+- Local: no máximo um de `outraLocalidade` (até 250), `inep`, `cnesLocalAtividade`; o "exatamente um" do §4 é mais estrito e fica.
+- `profissionais`: `cnsProfissional` obrigatório; `codigoCbo2002` de qualquer CBO. CBO do cabeçalho na Tabela 5 (117 strings, com `2231F9` e `1312C1`); tipo 6 = `Atividadecoletiva::FichaAtividadeColetivaThrift`, `uuidFicha` de 36–44.
+- `dataAtendimento` = `held_on` às 00h no fuso da cidade, em epoch ms.
 
 ## 12. Linhas de cuidado e linha do tempo
 
@@ -550,6 +590,7 @@ Rótulos na pesquisa §3. **A confirmar na task 1:** cada regra cruzada do §4 (
 | `non_residential_with_person` | 422 | §3 |
 | `reasons_forbidden`, `reason_not_allowed`, `measurements_forbidden` | 422 | §3, com `path` |
 | `patient_in_other_household`, `family_without_responsible` | 422 | §3 |
+| `patient_unidentified` | 422 / item | §3 e §4, paciente provisório da UPA (`path` `patient_id` ou `participants[i].patient_id`; no app, item `rejected`) (Q41) |
 | `day_changed`, `day_closed`, `visit_changed` | 409 | §2 |
 | `invalid_collective_activity` | 422 | §4, com `path` |
 | `activity_date_out_of_range`, `duplicate_participant`, `professional_without_cns` | 422 | §4 |
@@ -628,7 +669,7 @@ Rótulos na pesquisa §3. **A confirmar na task 1:** cada regra cruzada do §4 (
 | C6 | Morador da visita: cadastro ativo no domicílio ou sem cadastro ativo; cadastro em outro domicílio é recusado. |
 | C7 | Uma visita com problema segura a ficha da folha inteira ("não gerada"); `blockers` avisam antes. Folha só com visitas retiradas fecha `empty`, sem ficha. |
 | C8 | Retirar só pelo dono da folha; "por engano" só por quem registrou; motivo de 10–500, cifrado, nos dois. |
-| C9 | Participante sem CPF e sem CNS nos tipos 1–4 e 7 fica fora da lista da ficha e conta em `numParticipantes`. |
+| C9 | ~~Participante sem CPF e sem CNS nos tipos 1–4 e 7 fica fora da lista da ficha.~~ Revogada pela Q42. |
 | C10 | Até 3 aparelhos ativos por usuário; token `rsf_` + 32 bytes; QR `rotasaude-field:v1:` com host e token; revogar o próprio sem step-up; o administrador revoga com step-up. |
 | C11 | Envio: até 50 itens por lote, item `patient` próprio e `patient_client_uuid` para citar o paciente criado offline; só aceitos vão ao livro de idempotência. |
 | C12 | Download: mudança de escopo responde `reset: true` (recarga completa); remoções por `field_sync_tombstones`; "quem visitar" só na última página, completo. |
@@ -677,4 +718,15 @@ Rótulos na pesquisa §3. **A confirmar na task 1:** cada regra cruzada do §4 (
 | Q31 (contracts, pre-flight) | Validação do envio em dois níveis. **Envelope** inválido devolve 422 `invalid_request` para o lote inteiro e não grava nada: corpo que não é objeto, `items` ausente, vazio, que não é lista ou com mais de 50 itens, ou chave desconhecida no envelope. **Item** fora do esquema (campo desconhecido, tipo errado, `type` desconhecido, `client_uuid` ausente ou inválido) volta só ele como `rejected` com `code: invalid_request` e o `path` do campo, e os outros itens seguem. Os resultados saem na mesma ordem dos itens, com o `client_uuid` quando ele for válido. O `type` desconhecido é recusado por item para que um app mais novo não perca o lote num api mais velho. |
 | Q32 (Q31) | `path` do item recusado: campo do corpo na notação do contrato, relativo ao `body` (`occurred_at`, `reasons[0]`, `participants[1].new_patient`); chave do próprio item, pelo nome (`client_uuid`, `type`); corpo que não é objeto, `body`. Nenhum corpo de item declara `type`, `client_uuid` ou `body`, e o esquema proíbe passar a declarar. |
 | Q33 (api, pre-flight) | `age` no item de "quem visitar" é `integer | null` (paciente sem nascimento), no download do app (`changes-response-v1.json`, aplicado na Task 4 do contracts antes da tag, com SHA novo) e na rota da equipe (§8). A tela e o app mostram o item sem idade. O ACS 515105 nunca recebe atribuição de microárea: a atribuição é só para os outros CBOs da Tabela 7 (6A). |
+| Q34 (A-13) | Aceita. Visita a imóvel residencial sem pessoa (`subject = none`) aceita só os motivos que o dicionário permite ali (`without_person_allowed_reasons`, com a lista da Q40) e nenhum peso nem altura: `422 reason_not_allowed` (`path` `reasons[i]`) e `422 measurements_forbidden` (`path` `measurements.<chave>`) (§3, §10). |
+| Q35 (A-14) | Aceita. A regra do sexo é a lista oficial de motivos proibidos para o sexo masculino, `male_forbidden_reasons` = `5 6` (Gestante, Puérpera), lida do YAML (`MALE_FORBIDDEN_REASONS`); nada de `female_only_reasons` (§3, §7, §10). |
+| Q36 (A-15) | Aceita. Tamanhos máximos oficiais das listas: `reasons` 36; `meeting_topics` 7; `target_audience` 17; `health_topics` 16; `health_practices` 14. Validados no api (`invalid_home_visit` / `invalid_collective_activity`, com o `path` da lista) e espelhados no dashboard e no `domains-v1.json` (§3, §4, §7, §10, §11). |
+| Q37 (A-16) | Aceita. `procedure_code` da prática 30 só da lista fechada de 58 códigos SIGTAP do dicionário (`outro_procedimento_coletivo`, no arquivo de domínios); o "obrigatório com a 30" do §4 fica (§1, §4, §7, §11). |
+| Q38 (A-17) | Aceita. `numAvaliacoesAlteradas` = número de participantes marcados com avaliação alterada, derivado pelo api e nunca digitado: `altered_count` sai do corpo do `POST /collective_activities` (e do item do app, no schema da Task 4 do contracts) e segue na resposta (§1, §4, §7, §11). |
+| Q39 (A-18) | Valem os rótulos (e a ordem) do dicionário oficial, os das tabelas do §10 e do §11. O `domains-v1.json` é corrigido na Task 4 do contracts (SHA novo devolvido ao api); o dashboard lê os rótulos dos `domains`, nunca de literais (§7, §10, §11). |
+| Q40 (A-19) | Opção (a). Motivos de visita periódica e controle vetorial (`29`, `34 35 36 37`; `responsible_document_reasons`) em imóvel residencial com família levam CPF/CNS, nascimento e sexo do responsável familiar (`subject = family_responsible`). A lista de motivos da visita sem pessoa encolhe para `1 27 28`. Coincide com a decisão 5 do coordenador na spec (§3, §7, §10). |
+| Q41 (relato da task 1) | Paciente provisório da UPA (`no_cpf_reason = "unidentified"`) é recusado nas fichas 8 e 6 com o código nomeado `patient_unidentified`: 422 na rota da equipe, item `rejected` no envio do app. Entra na lista fechada de erros do §13 (§3, §4, §11, §13). |
+| Q42 (C9 × Q38) | A C9 é revogada. Fora dos tipos 5 e 6, o participante sem CPF e sem CNS entra na lista da ficha sem identificação, que o dicionário não exige. Assim `numAvaliacoesAlteradas` (Q38) sempre bate com a lista. |
+| Q43 (Q40) | Morador que não é o responsável, com motivo `29` ou `34`–`37`, não é recusado: a visita é da família, e o api grava `family_responsible` da família desse morador. A tela avisa "A visita será registrada para a família, no nome do responsável" antes de salvar. |
+| Q44 (Q40) | Motivo `29` ou `34`–`37` em imóvel residencial sem família ativa (vazio ou sem cadastro de família): a visita é aceita sem dado de pessoa, para o controle vetorial em casa fechada ou vazia. Gate de go-live: confirmar no PEC real que a ficha passa assim. |
 
