@@ -512,6 +512,8 @@ As três listas exatas ganham `home_visits collective_activities` no fim; `sessi
 
 ---
 
+**Q25 (decisão do usuário):** `CareLines::CitizenView` acrescenta a cada item `by_team`, `true` só quando a fonte da prática é `acs_visit`, sem expor o código da fonte. Spec em `spec/requests/citizen_api/care_spec.rb`: com `home_visits` utilizável, o item da visita vem `by_team: true` e os outros `false`; nenhum item traz `source` nem nome de profissional.
+
 ### Task 17: Linha do tempo — `home_visit` e `collective_activity` (§12)
 
 **Files:**

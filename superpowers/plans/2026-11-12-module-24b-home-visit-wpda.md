@@ -531,6 +531,8 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 
 ---
 
+**Q25 (decisão do usuário, substitui a caracterização pura desta task):** o cliente de "Meu acompanhamento" lê `by_team` (booleano; ausente = `false`). Com `by_team: true`, o `careItemView` usa "O agente de saúde deve passar até <dia>" no `due_soon` e "A visita está atrasada — fale com a sua unidade de saúde" no `overdue`; nos outros estados e itens, as frases de sempre. Testes: "item by_team due_soon mostra a frase do agente", "item by_team overdue manda falar com a unidade", "item sem by_team segue Faça até". Commit `feat: say the health agent visits in my care when the practice is the agent's`.
+
 ### Task 5: Suíte, tipos, build, e2e, revisão e prova no navegador
 
 **Files:** nenhum novo.
