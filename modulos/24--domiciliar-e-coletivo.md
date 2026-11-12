@@ -1,6 +1,6 @@
 # Módulo 24 — Atendimento domiciliar e coletivo
 
-- **Estado:** 24a Entregue (2026-10-27; F-24.1–F-24.6 e F-24.8 `Verified`; F-24.7 `Done` até o SIAPS aceitar fichas reais); 24b e 24c no fim do Ciclo 2
+- **Estado:** 24a Entregue (2026-10-27; F-24.1–F-24.6 e F-24.8 `Verified`; F-24.7 `Done` até o SIAPS aceitar fichas reais); 24b `Planejado` (2026-11-12, ADR 0052); 24c depois do 24b
 - **Tipo:** Ciclo 2
 
 ## Escopo (intenção)
@@ -19,6 +19,7 @@ Visita do ACS/eSF, cadastro individual e domiciliar, atividade coletiva; app off
 
 | ADR | Papel no módulo |
 |---|---|
+| 0052 | Visita domiciliar e atividade coletiva (24b): folha do dia como ficha LEDI tipo 8, atividade coletiva tipo 6 sem PSE, visita nas linhas de cuidado e na linha do tempo, "quem visitar", contrato de sincronização do app de campo |
 | 0042 | Cadastro territorial (24a): microárea, domicílio, família, cadastro individual, paciente sem CPF, fichas LEDI, equipe pelo cadastro |
 | 0041 | Divisão em núcleo e app de campo |
 | 0023 | Território (bairros, cobertura) |
@@ -36,6 +37,24 @@ Visita do ACS/eSF, cadastro individual e domiciliar, atividade coletiva; app off
 | F-24.6 | Validade de 24 meses e quem falta cadastrar | api, dashboard | 0042 |
 | F-24.7 | Fichas LEDI de cadastro | api | 0042, 0028 |
 | F-24.8 | Equipe e óbito pelo cadastro | api | 0042, 0040 |
+
+## Funcionalidades planejadas (24b)
+
+Spec: [`superpowers/specs/2026-11-12-module-24b-home-visit-collective-activity-design.md`](../superpowers/specs/2026-11-12-module-24b-home-visit-collective-activity-design.md) · pesquisa: [`pesquisa/2026-11-12-visita-e-coletiva-24b.md`](../pesquisa/2026-11-12-visita-e-coletiva-24b.md)
+
+| ID | Funcionalidade | Superfície | ADRs |
+|---|---|---|---|
+| F-24.9 | Interruptores e quem registra (Tabelas 7 e 5 do LEDI) | api, dashboard, maintenance | 0052 |
+| F-24.10 | Folha do dia e visita domiciliar pelo dashboard | api, dashboard | 0052, 0042 |
+| F-24.11 | Ficha LEDI de visita domiciliar e territorial (tipo 8) | api | 0052, 0028 |
+| F-24.12 | Atividade coletiva, sem PSE | api, dashboard | 0052 |
+| F-24.13 | Ficha LEDI de atividade coletiva (tipo 6) | api | 0052, 0028 |
+| F-24.14 | Visita nas linhas de cuidado e em "Meu acompanhamento" | api, dashboard, wpda | 0052, 0040 |
+| F-24.15 | Visita na linha do tempo do profissional e do cidadão | api, dashboard, wpda | 0052, 0035 |
+| F-24.16 | "Quem visitar" por microárea | api, dashboard | 0052, 0040, 0042 |
+| F-24.17 | Contrato de sincronização do app de campo e lado do api (aparelho, envio idempotente, download por microárea) | contracts, api, dashboard | 0052, 0041 |
+
+**Gates de go-live (24b):** prova no PEC real das fichas 8 e 6 (inclusive mais de uma ficha de visita do mesmo profissional no mesmo dia); SIAPS contando visita e atividade no Acompanhamento; regra da C5 conferida contra o relatório do SIAPS.
 
 ## Critério de fechamento (24a)
 
@@ -70,7 +89,7 @@ Fichas LEDI de visita, cadastro e atividade coletiva (componente de Vínculo do 
 
 ## Depende de
 
-Módulos 10, 11, 16, 22 e 23.
+Módulos 10, 11, 16, 20, 22 e 23.
 
 ## Histórico
 
@@ -81,3 +100,6 @@ Módulos 10, 11, 16, 22 e 23.
 - 2026-10-23 — Desenho do 24a aprovado e `Planejado` (ADR 0042, spec
   `superpowers/specs/2026-10-23-module-24a-territory-registry-design.md`).
 - 2026-10-27 — 24a **implementado, publicado e Entregue** (ver "Entrega do 24a"). `Fechado` depois do gate do SIAPS.
+- 2026-11-12 — Desenho do 24b aprovado e `Planejado` (ADR 0052, spec
+  `superpowers/specs/2026-11-12-module-24b-home-visit-collective-activity-design.md`;
+  decisões do usuário 1A–5A), aguardando aprovação.

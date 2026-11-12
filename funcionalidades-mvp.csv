@@ -271,6 +271,15 @@ F-24.5,"Cadastro individual, recusa e saída",mod-24,api|dashboard,0042,feature
 F-24.6,Validade de 24 meses e quem falta cadastrar,mod-24,api|dashboard,0042,feature
 F-24.7,Fichas LEDI de cadastro,mod-24,api,"0042,0028",feature
 F-24.8,Equipe e óbito pelo cadastro,mod-24,api,"0042,0040",feature
+F-24.9,Interruptores e quem registra (Tabelas 7 e 5 do LEDI),mod-24,api|dashboard|maintenance,0052,feature
+F-24.10,Folha do dia e visita domiciliar pelo dashboard,mod-24,api|dashboard,"0052,0042",feature
+F-24.11,Ficha LEDI de visita domiciliar e territorial (tipo 8),mod-24,api,"0052,0028",feature
+F-24.12,"Atividade coletiva, sem PSE",mod-24,api|dashboard,0052,feature
+F-24.13,Ficha LEDI de atividade coletiva (tipo 6),mod-24,api,"0052,0028",feature
+F-24.14,"Visita nas linhas de cuidado e em ""Meu acompanhamento""",mod-24,api|dashboard|wpda,"0052,0040",feature
+F-24.15,Visita na linha do tempo do profissional e do cidadão,mod-24,api|dashboard|wpda,"0052,0035",feature
+F-24.16,"""Quem visitar"" por microárea",mod-24,api|dashboard,"0052,0040,0042",feature
+F-24.17,"Contrato de sincronização do app de campo e lado do api (aparelho, envio idempotente, download por microárea)",mod-24,contracts|api|dashboard,"0052,0041",feature
 F-25.1,"Interruptor, papel de vigilância e lista de doenças",mod-25,api|dashboard|maintenance,0043,feature
 F-25.2,Sugestão de notificação na consulta,mod-25,api|dashboard,"0043,0031",feature
 F-25.3,Rede de segurança na finalização,mod-25,api,0043,feature
