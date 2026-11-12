@@ -1,6 +1,6 @@
 # Módulo 33 — Ouvidoria
 
-- **Estado:** Planejado
+- **Estado:** Entregue (2026-11-12); `Fechado` depois dos gates de go-live
 - **Tipo:** Ciclo 2
 
 ## Escopo (intenção)
@@ -24,7 +24,7 @@ Manifestações do cidadão (7 de 15 editais).
 | 0026 | Retenção na exclusão |
 | 0010 | Supressão e publicação de agregados |
 
-## Funcionalidades planejadas
+## Funcionalidades
 
 | ID | Funcionalidade | Superfície | ADRs |
 |---|---|---|---|
@@ -45,6 +45,38 @@ Manifestações do cidadão (7 de 15 editais).
   - decreto ou portaria municipal de ouvidoria (prazos locais);
   - SMS ao cidadão (o aviso fica na caixa do wpda até lá).
 
+## Entrega — 2026-11-12
+
+- **Commits na main:**
+  - api d36aef34;
+  - dashboard 4524082;
+  - wpda 7482397;
+  - maintenance 9269b55.
+- **Cards:** F-33.1 a F-33.9 em Verified, com prova no navegador no dashboard, no wpda e no maintenance.
+- **Testes:**
+
+  | App | Resultado |
+  |---|---|
+  | api | suíte completa 11578/0 |
+  | dashboard | 6649/0 |
+  | wpda | 1075/0 |
+  | maintenance | 639/0 |
+
+- **Decisões do usuário:** U1 (par declarado com CPF e nome, sem termo da triagem), U2 (a denúncia anônima abre também no computador em produção), U3 (`ombudsman_staff` é papel privilegiado) e U4 (sem step-up para abrir identidade).
+- **Decisões de reconciliação e execução:** Q1–Q62 no contrato [`superpowers/plans/2026-11-11-module-33-ombudsman-contracts.md`](../superpowers/plans/2026-11-11-module-33-ombudsman-contracts.md). Na execução: Q46–Q62, com destaque para a supressão complementar do painel (Q53–Q55) e o rótulo "oculto" (Q61).
+- **Página de status:** https://claude.ai/artifact/RusHDSoJY9VNFK8rHzn2vX
+- **Gates de go-live:**
+  - decreto ou portaria municipal de ouvidoria (prazos locais);
+  - SMS ao cidadão;
+  - IP fora do log no proxy de borda e `TRUSTED_PROXIES`;
+  - `client_max_body_size 15m` no nginx (anexos);
+  - `Rails.cache` compartilhado entre processos em produção (limites da denúncia anônima).
+- **Pendências (board #2):**
+  - api#148 (Fala.BR), api#149 (ficha do OuvidorSUS), api#150 (perguntas próprias e totem de satisfação): próximo ciclo;
+  - api#151 (supressão complementar nos painéis dos outros módulos);
+  - api#152 (aviso com o id da manifestação);
+  - dashboard#28 (rótulo "SITUAÇÃO" vazio nos cartões da Caixa no celular) e comentário no dashboard#22 (semente sem nome).
+
 ## Integrações externas
 
 Nenhuma nesta entrega. Fala.BR (API REST) e OuvidorSUS (sem API publicada) ficam para o próximo ciclo: api#148, api#149. Detalhe e fontes em
@@ -58,9 +90,11 @@ Módulos 06, 10, 14.
 ## Documentos
 
 - Spec: [`superpowers/specs/2026-11-11-module-33-ombudsman-design.md`](../superpowers/specs/2026-11-11-module-33-ombudsman-design.md)
+- Contrato e planos: `superpowers/plans/2026-11-11-module-33-ombudsman-{contracts,api,dashboard,wpda,maintenance}.md`
 
 ## Histórico
 
 - 2026-10-05 — Registrado como `Stub` no portfólio do Ciclo 2 (brainstorm de
   novos módulos; decisão de suíte completa).
 - 2026-11-11 — Desenho aprovado (ADR 0051); estado `Planejado`. Próximo ciclo no board #2: api#148 (Fala.BR), api#149 (ficha do OuvidorSUS), api#150 (totem e perguntas próprias de satisfação).
+- 2026-11-12 — Entregue (F-33.1 a F-33.9 Verified nos quatro apps).
