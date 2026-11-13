@@ -280,9 +280,9 @@ F-24.14,"Visita nas linhas de cuidado e em ""Meu acompanhamento""",mod-24,api|da
 F-24.15,Visita na linha do tempo do profissional e do cidadão,mod-24,api|dashboard|wpda,"0052,0035",feature
 F-24.16,"""Quem visitar"" por microárea",mod-24,api|dashboard,"0052,0040,0042",feature
 F-24.17,"Contrato de sincronização do app de campo e lado do api (aparelho, envio idempotente, download por microárea)",mod-24,contracts|api|dashboard,"0052,0041",feature
-F-24.18,"App de campo: cadastro do aparelho por QR, PIN, banco cifrado e proteção do tablet",mod-24,campo,"0053,0041",feature
-F-24.19,"Download do território e sincronização (fila, lotes, reset, remoções, 30 dias, revogação)",mod-24,campo|api,"0053,0052",feature
-F-24.20,"Mapa offline por município (geração, entrega, mapa no app e no dashboard)",mod-24,api|campo|dashboard|maintenance,0053,feature
+F-24.18,"App de campo: cadastro do aparelho por QR, PIN, banco cifrado e proteção do tablet",mod-24,campo|dashboard,"0053,0041",feature
+F-24.19,"Download do território e sincronização (fila, lotes, reset, remoções, 30 dias, revogação)",mod-24,contracts|api|campo|dashboard,"0053,0052",feature
+F-24.20,"Mapa offline por município (geração, entrega, mapa no app e no dashboard)",mod-24,contracts|api|campo|dashboard|maintenance,0053,feature
 F-24.21,"Cadastro domiciliar, família e individual offline com duplicado no tablet",mod-24,contracts|api|campo,"0053,0042",feature
 F-24.22,"Conflito com mescla campo a campo",mod-24,campo,0053,feature
 F-24.23,"Visita offline, ""quem visitar"" e atividade coletiva no app",mod-24,campo,"0053,0052",feature

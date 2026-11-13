@@ -63,9 +63,9 @@ Spec: [`superpowers/specs/2026-11-13-module-24c-field-app-design.md`](../superpo
 
 | ID | Funcionalidade | Superfície | ADRs |
 |---|---|---|---|
-| F-24.18 | App de campo: cadastro do aparelho por QR, PIN, banco cifrado e proteção do tablet | campo | 0053, 0041 |
-| F-24.19 | Download do território e sincronização (fila, lotes, reset, remoções, 30 dias, revogação) | campo, api | 0053, 0052 |
-| F-24.20 | Mapa offline por município (geração, entrega, mapa no app e no dashboard) | api, campo, dashboard, maintenance | 0053 |
+| F-24.18 | App de campo: cadastro do aparelho por QR, PIN, banco cifrado e proteção do tablet | campo, dashboard | 0053, 0041 |
+| F-24.19 | Download do território e sincronização (fila, lotes, reset, remoções, 30 dias, revogação) | contracts, api, campo, dashboard | 0053, 0052 |
+| F-24.20 | Mapa offline por município (geração, entrega, mapa no app e no dashboard) | contracts, api, campo, dashboard, maintenance | 0053 |
 | F-24.21 | Cadastro domiciliar, família e individual offline com duplicado no tablet | contracts, api, campo | 0053, 0042 |
 | F-24.22 | Conflito com mescla campo a campo | campo | 0053 |
 | F-24.23 | Visita offline, "quem visitar" e atividade coletiva no app | campo | 0053, 0052 |
