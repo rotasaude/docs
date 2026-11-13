@@ -513,7 +513,7 @@ O grupo é da coluna Observações do dicionário; o `group_label` é nosso. 21 
 - `cessouHabitoFumar`/`abandonouGrupo` só com as práticas 25–28 (PNCT); a 34 fica fora.
 - Paciente provisório da UPA nunca chega à ficha: a gravação recusa (`patient_unidentified`, §4; Q41).
 - Tipos 5 e 6: participante sem CPF e sem CNS → ficha "não gerada" `participant_without_identifier`.
-- Outros tipos: participante sem CPF e sem CNS fica fora da lista da ficha e segue contado em `numParticipantes`; a tela avisa antes de gravar.
+- Outros tipos: participante sem CPF e sem CNS entra na lista da ficha com o marcador "não possui CPF" e a justificativa, sem documento (Q42); a tela avisa que ele não conta no acompanhamento.
 
 **"Não gerada" (lista fechada):** `unit_without_cnes`, `professional_without_cns`, `cbo_not_in_ledi_table`, `city_profile_incomplete`, `siaps_deadline_passed`, `participant_without_identifier`, `participant_without_birth_date`, `participant_without_sex` (Q4), `participant_professional_without_cns`, `place_without_cnes`. Entram em `LediGenerationFailure::REASONS` (com o `siaps_deadline_passed`, seis códigos novos no módulo).
 
