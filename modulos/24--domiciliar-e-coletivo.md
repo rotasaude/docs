@@ -1,6 +1,6 @@
 # Módulo 24 — Atendimento domiciliar e coletivo
 
-- **Estado:** 24a Entregue (2026-10-27; F-24.1–F-24.6 e F-24.8 `Verified`; F-24.7 `Done` até o SIAPS aceitar fichas reais); 24b `Planejado` (2026-11-12, ADR 0052); 24c depois do 24b
+- **Estado:** 24a Entregue (2026-10-27; F-24.1–F-24.6 e F-24.8 `Verified`; F-24.7 `Done` até o SIAPS aceitar fichas reais); 24b `Planejado` (2026-11-12, ADR 0052); 24c `Planejado` (2026-11-13, ADR 0053)
 - **Tipo:** Ciclo 2
 
 ## Escopo (intenção)
@@ -19,6 +19,7 @@ Visita do ACS/eSF, cadastro individual e domiciliar, atividade coletiva; app off
 
 | ADR | Papel no módulo |
 |---|---|
+| 0053 | App de campo (24c): um tablet por profissional, tudo offline numa entrega, mescla campo a campo, mapa OpenStreetMap por município servido pelo Rota Saúde, revogação automática guarda o trabalho |
 | 0052 | Visita domiciliar e atividade coletiva (24b): folha do dia como ficha LEDI tipo 8, atividade coletiva tipo 6 sem PSE, visita nas linhas de cuidado e na linha do tempo, "quem visitar", contrato de sincronização do app de campo |
 | 0042 | Cadastro territorial (24a): microárea, domicílio, família, cadastro individual, paciente sem CPF, fichas LEDI, equipe pelo cadastro |
 | 0041 | Divisão em núcleo e app de campo |
@@ -55,6 +56,23 @@ Spec: [`superpowers/specs/2026-11-12-module-24b-home-visit-collective-activity-d
 | F-24.17 | Contrato de sincronização do app de campo e lado do api (aparelho, envio idempotente, download por microárea) | contracts, api, dashboard | 0052, 0041 |
 
 **Gates de go-live (24b):** prova no PEC real das fichas 8 e 6 (inclusive mais de uma ficha de visita do mesmo profissional no mesmo dia); SIAPS contando visita e atividade no Acompanhamento; regra da C5 conferida contra o relatório do SIAPS.
+
+## Funcionalidades planejadas (24c)
+
+Spec: [`superpowers/specs/2026-11-13-module-24c-field-app-design.md`](../superpowers/specs/2026-11-13-module-24c-field-app-design.md) · pesquisa: [`pesquisa/2026-11-13-app-de-campo-24c.md`](../pesquisa/2026-11-13-app-de-campo-24c.md)
+
+| ID | Funcionalidade | Superfície | ADRs |
+|---|---|---|---|
+| F-24.18 | App de campo: cadastro do aparelho por QR, PIN, banco cifrado e proteção do tablet | campo | 0053, 0041 |
+| F-24.19 | Download do território e sincronização (fila, lotes, reset, remoções, 30 dias, revogação) | campo, api | 0053, 0052 |
+| F-24.20 | Mapa offline por município (geração, entrega, mapa no app e no dashboard) | api, campo, dashboard, maintenance | 0053 |
+| F-24.21 | Cadastro domiciliar, família e individual offline com duplicado no tablet | contracts, api, campo | 0053, 0042 |
+| F-24.22 | Conflito com mescla campo a campo | campo | 0053 |
+| F-24.23 | Visita offline, "quem visitar" e atividade coletiva no app | campo | 0053, 0052 |
+| F-24.24 | Coordenada do imóvel e da visita nas fichas LEDI 3 e 8 | contracts, api, campo | 0053, 0028 |
+| F-24.25 | Build assinado, distribuição pelo Google Play gerenciado e runbook | campo, docs | 0053 |
+
+**Gates de go-live (24c):** prova no PEC real das fichas 3 e 8 com coordenada; conta de desenvolvedor Google verificada; app privado publicado no Google Play gerenciado de uma cidade piloto; um dia de campo real sem sinal.
 
 ## Critério de fechamento (24a)
 
@@ -103,3 +121,6 @@ Módulos 10, 11, 16, 20, 22 e 23.
 - 2026-11-12 — Desenho do 24b aprovado e `Planejado` (ADR 0052, spec
   `superpowers/specs/2026-11-12-module-24b-home-visit-collective-activity-design.md`;
   decisões do usuário 1A–7A).
+- 2026-11-13 — Desenho do 24c aprovado e `Planejado` (ADR 0053, spec
+  `superpowers/specs/2026-11-13-module-24c-field-app-design.md`;
+  decisões do usuário 1A, 2A, 3B, 4A, 5A, 6A).
