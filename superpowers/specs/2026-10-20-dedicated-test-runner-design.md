@@ -107,7 +107,7 @@ bin/test <admin|dashboard|wpda|maintenance> [-w <worktree>] [args do vitest]
 ```
 
 Fluxo do `api`:
-1. **Fila.** Executa via `docker compose run --rm --name rota-test-run`. Se o nome estiver em uso, espera e tenta de novo a cada poucos segundos, com tempo limite configurável (`TEST_QUEUE_TIMEOUT`, padrão de 30 min) e mensagem "fila: aguardando execução em curso". Esgotado o tempo, sai com exit 3 e a última linha `resultado: NÃO RODOU (fila: tempo limite, exit 3)`. O `--rm` remove o container ao final, então não sobra trava presa. A mesma trava serve para os frontends: o executor do vitest também roda com `--name rota-test-run`.
+1. **Fila.** Executa via `docker compose run --rm --name rota-test-run`. Se o nome estiver em uso, espera e tenta de novo a cada poucos segundos, com tempo limite configurável (`TEST_QUEUE_TIMEOUT`, padrão de 2 h, acima de uma suíte completa do api) e mensagem "fila: aguardando execução em curso". Esgotado o tempo, sai com exit 3 e a última linha `resultado: NÃO RODOU (fila: tempo limite, exit 3)`. O `--rm` remove o container ao final, então não sobra trava presa. A mesma trava serve para os frontends: o executor do vitest também roda com `--name rota-test-run`.
 2. **Banco.** Sobe o `postgres-test` se não estiver de pé (`up -d --wait`, idempotente, nunca `--force-recreate`). **Dentro** do container que segura a trava, `bin/test-db-bootstrap --reset` apaga todos os bancos que não sejam `postgres`/`template*` e os roles que não sejam `rota_saude`, depois roda os cinco passos. O reset fica dentro do container travado porque recriar o servidor por fora derrubaria o banco de uma execução em curso enquanto outra espera na fila. Com `--keep-db`, o reset e o bootstrap são pulados se `rota_saude_platform_test` já existir (atalho para rodadas de arquivo isolado).
 3. **Execução.** `bundle exec rspec` com `-f failures`, saída de progresso para o log e `--format json` para um arquivo.
 4. **Resumo.** Imprime só: exemplos, falhas, pendentes, duração, lista `arquivo:linha — mensagem` (primeira linha), `erros fora de exemplo: N` (com o fim do log) quando houver, e o caminho do log completo em `.test-runs/<app>[-<wt>]-<timestamp>.log`. Se o exit for ≠ 0 e o resumo não mostrar falha nem erro fora de exemplo, imprime também o fim do log.
@@ -176,6 +176,6 @@ Vai para o `CLAUDE.md` da raiz.
 ## 6. Decisões do builder (calls do Claude)
 
 - Nomes: `postgres-test`, `api-test`, `rota-test-run`, `bin/test`, `bin/test-db-bootstrap`.
-- Tempo limite da fila: 30 min. Intervalo de nova tentativa: 5 s.
+- Tempo limite da fila: 2 h (era 30 min; subiu em 2026-11-14, quando a suíte completa do api passou de 66 min e rodadas de escopo fechado esgotavam a espera). Intervalo de nova tentativa: 5 s.
 - Recriar o banco a cada rodada é o padrão. Se o bootstrap passar de ~60 s, a otimização seguinte é recriar só quando o hash de `apps/api/db/` mudar. Fica fora deste escopo até medir.
 - O formato exato do resumo e a ferramenta de parse do JSON do rspec (Ruby no container ou `jq` no host) ficam com o builder.
