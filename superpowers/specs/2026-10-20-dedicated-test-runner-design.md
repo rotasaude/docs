@@ -107,11 +107,15 @@ bin/test <admin|dashboard|wpda|maintenance> [-w <worktree>] [args do vitest]
 ```
 
 Fluxo do `api`:
-1. **Fila.** Executa via `docker compose run --rm --name rota-test-run`. Se o nome estiver em uso, espera e tenta de novo a cada poucos segundos, com tempo limite configurável (padrão de 30 min) e mensagem "fila: aguardando execução em curso". O `--rm` remove o container ao final, então não sobra trava presa. A mesma trava serve para os frontends: o executor do vitest também roda com `--name rota-test-run`.
+1. **Fila.** Executa via `docker compose run --rm --name rota-test-run`. Se o nome estiver em uso, espera e tenta de novo a cada poucos segundos, com tempo limite configurável (`TEST_QUEUE_TIMEOUT`, padrão de 30 min) e mensagem "fila: aguardando execução em curso". Esgotado o tempo, sai com exit 3 e a última linha `resultado: NÃO RODOU (fila: tempo limite, exit 3)`. O `--rm` remove o container ao final, então não sobra trava presa. A mesma trava serve para os frontends: o executor do vitest também roda com `--name rota-test-run`.
 2. **Banco.** Sobe o `postgres-test` se não estiver de pé (`up -d --wait`, idempotente, nunca `--force-recreate`). **Dentro** do container que segura a trava, `bin/test-db-bootstrap --reset` apaga todos os bancos que não sejam `postgres`/`template*` e os roles que não sejam `rota_saude`, depois roda os cinco passos. O reset fica dentro do container travado porque recriar o servidor por fora derrubaria o banco de uma execução em curso enquanto outra espera na fila. Com `--keep-db`, o reset e o bootstrap são pulados se `rota_saude_platform_test` já existir (atalho para rodadas de arquivo isolado).
 3. **Execução.** `bundle exec rspec` com `-f failures`, saída de progresso para o log e `--format json` para um arquivo.
-4. **Resumo.** Imprime só: exemplos, falhas, pendentes, duração, lista `arquivo:linha — mensagem` (primeira linha) e o caminho do log completo em `apps/api/tmp/test-runs/<timestamp>.log`.
+4. **Resumo.** Imprime só: exemplos, falhas, pendentes, duração, lista `arquivo:linha — mensagem` (primeira linha), `erros fora de exemplo: N` (com o fim do log) quando houver, e o caminho do log completo em `.test-runs/<app>[-<wt>]-<timestamp>.log`. Se o exit for ≠ 0 e o resumo não mostrar falha nem erro fora de exemplo, imprime também o fim do log.
 5. **Saída.** O código de saída é o do rspec.
+
+Frontends: o resumo traz as linhas `FAIL` (até 30), os totais do vitest (`Test Files`, `Tests`, `Errors`, `Duration`) e, havendo "Unhandled Errors", `Vitest caught N unhandled errors` mais a 1ª linha de cada erro (agrupada, até 5). O vitest sai 1 com `Tests N passed` quando há erro não tratado; por isso as contagens não são o veredito.
+
+Toda execução termina com a linha `resultado: ok` ou `resultado: FALHOU (exit N)`, e o `bin/test` sai com o código do runner. O veredito é essa linha, nunca as contagens.
 
 ### 4.5.1 Dependências de worktree (frontends)
 
