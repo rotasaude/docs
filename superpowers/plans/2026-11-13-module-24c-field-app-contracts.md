@@ -316,6 +316,7 @@ iOS, tablet compartilhado, sincronização em segundo plano, fechar o dia pelo a
 | Q58 (Task 1, prova; Task 15) | No mapa do app, o logo e o botão (i) do MapLibre ficam desligados, e um texto fixo próprio "© OpenStreetMap" fica sempre visível (Restrições globais). Não muda contrato. |
 | Q59 (Task 1, prova; Tasks 24 e 26) | Prova offline e Maestro sempre com JS embutido (variante release `e2e`): o build de depuração não alcança o Metro com a rede do emulador desligada. |
 | Q60 (contracts Task 0, contracts#2) | Na MINOR v1.2.0, numa Task 3b própria, antes do SHA-256 da Task 4: (1) texto e dados — README com UUID em minúsculas e `note`/`reason` já aparados; `errors.http` com o código do 415 com o mesmo nome que o api usa hoje; os dois trechos mal lidos do README corrigidos; exemplos de `overdue` com data e dos pares exclusivos; (2) esquema só de resposta — `duplicate_suspected` exige `candidates` e `results` ganha `minItems: 1`, desde que o api de hoje já cumpra (conferir nos specs do api; se não cumprir, fica para depois). Ficam para depois, com o motivo no CHANGELOG e no contracts#2: candidato discriminado por `type`, `id` do `already_registered` amarrado ao `type`, fusão dos blocos `care_line`, metaesquema no `check.sh`, expects com a chave e forma de `proof`. A cópia do esquema no api acompanha a v1.2.0 (plano do api). |
+| Q61 (contracts Task 6; Q55, §14) | **Fontes completas:** o `map-style/` copia do `protomaps/basemaps-assets` (commit `028c18f`) as **quatro** pilhas que o estilo do `@protomaps/basemaps` 5.7.2 cita (Noto Sans Regular, Medium, Italic e Noto Sans Devanagari Regular v1), com as **256 faixas** de cada uma (~11,5 MB), sem gerar binário. Motivo (medido no emulador): faixa ausente faz o MapLibre não terminar de carregar o bloco e apaga ruas, POIs e prédios. O manifesto lista as quatro pilhas; o teste do `map-style` cobra que toda pilha citada pelas camadas (inclusive dentro de expressões de `text-font`) tenha as 256 faixas. Substitui as "três faixas" da Q55 e do §14. A prova integrada (campo Task 26) ganha um caso fixo: rótulo com "Ω" aparece e o mapa termina de carregar. |
 
 ## 14. Prova técnica do campo (Task 1)
 
@@ -336,7 +337,7 @@ iOS, tablet compartilhado, sincronização em segundo plano, fechar o dia pelo a
 - CLI `go-pmtiles` **1.31.2** (commit a3e4951) — Q12
 - `expo-sqlite` 58.0.17 (`useSQLCipher: true`) · `expo-file-system` 58.0.13 · `expo-crypto` 58.0.8 · `expo-secure-store` 58.0.3 · `expo-asset` 58.0.21
 - JDK 21.0.12 · Gradle 9.4.1 · Kotlin 2.2.10 · compileSdk 37 · targetSdk 36 · minSdk 24 · NDK 27.1.12297006 · Node 22.19.0
-- `protomaps/basemaps-assets` commit `028c18f713baecad011301ff7a69acc39bcc2ae7`: fontes Noto Sans Regular, Medium e Italic (faixas 0-255, 256-511, 8192-8447) e sprites v4 light e dark (`.json`, `.png`, `@2x`); alimentam a Task 6 do contracts-repo (`map-style-v1.0.0`).
+- `protomaps/basemaps-assets` commit `028c18f713baecad011301ff7a69acc39bcc2ae7`: fontes Noto Sans Regular, Medium e Italic (na prova, faixas 0-255, 256-511, 8192-8447; no `map-style`, as quatro pilhas completas, Q61) e sprites v4 light e dark (`.json`, `.png`, `@2x`); alimentam a Task 6 do contracts-repo (`map-style-v1.0.0`).
 - Build Protomaps usada na prova: `20261113.pmtiles`.
 
 **Tamanhos (z0–15, caixas do plano):**
