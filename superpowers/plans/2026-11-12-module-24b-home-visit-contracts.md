@@ -562,7 +562,7 @@ O grupo é da coluna Observações do dicionário; o `group_label` é nosso. 21 
 
 **wpda:**
 - `GET /citizen/history`: o wpda não muda o pedido (vai sem `kinds[]`, que o api lê como todos); a visita chega porque `home_visit` entra em `Timeline::KINDS` e passa por `Timeline::Query.citizen_kinds` (Q22). O cartão mostra o rótulo de tipo "Visita" (o wpda não tem ícones), o título como constante do canal e **só o dia**, no fuso da cidade. Defesa do cliente: a entrada some se vier com `status` não nulo ou sem data (Q22).
-- `GET /citizen/care`: sem rota nova; com `home_visits` utilizável, a prática de visita passa a aparecer (rastreada) com o `citizen_label` e o status, com `by_team: true` e as frases próprias da Q25 no `due_soon` e no `overdue`.
+- `GET /citizen/care`: sem rota nova; com `home_visits` utilizável, a prática de visita passa a aparecer (rastreada) com o `citizen_label` e o status, com `by_team: true` e as frases próprias da Q25 no `due_soon` e no `overdue`. No `overdue` de regra `rolling` nunca cumprida, `due_on` vem `null` (a frase da Q25 não leva data); o `due_soon` com `by_team: true` sempre traz data, e sem data o wpda cai na frase de sempre (Q76, Q77).
 
 ## 13. LGPD, cifra, imutabilidade, eventos e códigos de erro
 
@@ -760,4 +760,6 @@ O grupo é da coluna Observações do dicionário; o `group_label` é nosso. 21 
 | Q73 (X4) | `identity_locked` é só do cadastro do 24a; no 24b nada o produz (busca e registro rápido incluídos). A Q21 fica corrigida nesse ponto. |
 | Q74 (C-Q1) | Participante sem CPF e sem CNS nos tipos 5 e 6: a tela avisa ("a ficha não será gerada") sem bloquear, e a atividade grava; `options.domains.rules` não muda. |
 | Q75 (C-Q2, Q62) | "Aparelhos de campo" fica sempre visível ao profissional da Tabela 7 e ao administrador municipal, mesmo com `home_visits` desligado, para revogar aparelho perdido; a tela não lê `/home_visits/context` para isso. Só o cadastro de aparelho novo depende do interruptor (o api responde 403 e a tela esconde o botão). |
-
+| Q76 (X2) | `GET /citizen/care`: o item `acs_visit` em `overdue` pode vir com `due_on: null` quando a regra `rolling` nunca foi cumprida (`evaluate.rb`). Fica registrado no §12; a frase do `overdue` da Q25 não tem data, então o wpda não muda. |
+| Q77 (X3) | `due_soon` com `by_team: true` e sem data: o api não emite esse caso. Se vier, o wpda usa a frase de sempre ("Está chegando a hora"), sem inventar dia. |
+| Q78 (X4) | O filtro `outcome = 1` é do api (§12, a entrada do cidadão não traz `outcome`). A defesa do wpda é só a da Q22: descartar se `status` não for nulo ou faltar data. A regra extra "outcome ≠ 1 some" do plano do wpda sai. |
