@@ -55,7 +55,7 @@
 | 21 | [Exames e laboratório](21--exames.md) | Entregue (21a, 21b, 21c) | Ciclo 2 | [0036](../adr/0036.md), [0037](../adr/0037.md), [0038](../adr/0038.md), [0031](../adr/0031.md) |
 | 22 | [Procedimentos e faturamento](22--procedimentos.md) | Entregue | Ciclo 2 | [0039](../adr/0039.md), [0028](../adr/0028.md) |
 | 23 | [Linhas de cuidado](23--linhas-de-cuidado.md) | Fechado | Ciclo 2 | [0040](../adr/0040.md), [0031](../adr/0031.md) |
-| 24 | [Atendimento domiciliar e coletivo](24--domiciliar-e-coletivo.md) | 24a Entregue · 24b e 24c Planejado | Ciclo 2 | [0042](../adr/0042.md), [0041](../adr/0041.md), [0052](../adr/0052.md), [0053](../adr/0053.md) |
+| 24 | [Atendimento domiciliar e coletivo](24--domiciliar-e-coletivo.md) | 24a e 24b Entregue · 24c Planejado | Ciclo 2 | [0042](../adr/0042.md), [0041](../adr/0041.md), [0052](../adr/0052.md), [0053](../adr/0053.md) |
 | 25 | [Vigilância epidemiológica](25--vigilancia-epidemiologica.md) | Entregue | Ciclo 2 | [0043](../adr/0043.md), [0031](../adr/0031.md) |
 | 26 | [Regulação de média e alta complexidade](26--regulacao.md) | 26a Entregue | Ciclo 2 | [0044](../adr/0044.md), [0029](../adr/0029.md) |
 | 27 | [Farmácia e almoxarifado](27--farmacia-e-almoxarifado.md) | 27a Entregue | Ciclo 2 | [0045](../adr/0045.md), [0033](../adr/0033.md) |

@@ -1,6 +1,6 @@
 # Módulo 24 — Atendimento domiciliar e coletivo
 
-- **Estado:** 24a Entregue (2026-10-27; F-24.1–F-24.6 e F-24.8 `Verified`; F-24.7 `Done` até o SIAPS aceitar fichas reais); 24b `Planejado` (2026-11-12, ADR 0052); 24c `Planejado` (2026-11-13, ADR 0053)
+- **Estado:** 24a Entregue (2026-10-27; F-24.1–F-24.6 e F-24.8 `Verified`; F-24.7 `Done` até o SIAPS aceitar fichas reais); 24b Entregue (2026-11-14; F-24.9, .10, .12, .15, .16 e .17 `Verified`; F-24.11 e .13 `Done` até o PEC real e o SIAPS, api#165; F-24.14 `Done` até a decisão da frase de atraso); 24c `Planejado` (2026-11-13, ADR 0053)
 - **Tipo:** Ciclo 2
 
 ## Escopo (intenção)
@@ -100,6 +100,26 @@ Spec: [`superpowers/specs/2026-11-13-module-24c-field-app-design.md`](../superpo
 
 Página de status: https://claude.ai/artifact/BWNV4wLVver5fWM4wfpCo6
 
+## Entrega do 24b (2026-11-14)
+
+| Repo | Commit | Observação |
+|---|---|---|
+| `contracts` | `673bb143` | tag `field-sync-v1.1.0` (v1.0.0 = `5493651`) |
+| `api` | `7a7343bc` | suíte completa 12084/0 |
+| `dashboard` | `ceb53aff` | 24b em `4f13f0e` + correção do `<form>` aninhado na busca de pessoa e no registro rápido |
+| `wpda` | `dfbe9508` | visita em "Meu histórico" (só o dia) e em "Meu acompanhamento" (`by_team`) |
+| `maintenance` | `39a729b3` | interruptores; `min_gap_days` e rótulo `acs_visit` no editor do catálogo-base |
+| `catalog` | PR rotasaude/catalog#40 (`dfe4601`) | F-24.9..17; .11, .13 e .17 em validação |
+| `docs` | contrato §16 Q1–Q78 | |
+
+**Prova no navegador (2026-11-13/14):** ACS, enfermeira, TACS e admin no dashboard (folha do dia, visita, atividade coletiva, aparelhos de campo, Produção); catálogo-base C2–C6 publicado pelo maintenance e adotado em Curitiba; cidadã no wpda (histórico e acompanhamento, visita retirada oculta). A prova achou o `<form>` aninhado que o jsdom não reproduz (busca por documento e registro rápido sem efeito no Chromium), corrigido antes do Verified.
+
+**Pendências (board #2):** api#162–#170, maintenance#2–#3, dashboard#29–#30, wpda#3, contracts#2 (entra na MINOR do 24c). Em aberto com o usuário: a frase "visita atrasada" logo depois da 1ª das 2 visitas da C5/C6.
+
+**Gates de go-live:** api#165 (PEC real das fichas 8 e 6, SIAPS contando, regra da C5 contra o relatório do SIAPS) e api#164 (Q67).
+
+Página de status: https://claude.ai/artifact/K9ThEFh3xLtnUrTDaUsksj
+
 ## Integrações externas
 
 Fichas LEDI de visita, cadastro e atividade coletiva (componente de Vínculo do cofinanciamento). Detalhe e fontes em
@@ -124,3 +144,4 @@ Módulos 10, 11, 16, 20, 22 e 23.
 - 2026-11-13 — Desenho do 24c aprovado e `Planejado` (ADR 0053, spec
   `superpowers/specs/2026-11-13-module-24c-field-app-design.md`;
   decisões do usuário 1A, 2A, 3B, 4A, 5A, 6A).
+- 2026-11-14 — 24b **implementado, publicado e Entregue** (ver "Entrega do 24b"). `Fechado` depois do api#165.
