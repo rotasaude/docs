@@ -356,3 +356,5 @@ iOS, tablet compartilhado, sincronização em segundo plano, fechar o dia pelo a
 **Ajustes de ambiente:** imagem de sistema `system-images;android-34;google_apis;arm64-v8a` reinstalada (a do SDK estava sem `system.img`), AVD `campo_api34` (pixel_tablet); o Gradle instalou Build-Tools 36 e 37, Platform 37 e o NDK acima. No Android, `Paths.bundle` é `asset:///` e `File.copySync` de asset para documento funciona.
 
 **Guardado fora de repositório** (até as Tasks que consomem): `.worktrees/campo-proof-tools/keep` (fontes, sprites, as duas amostras, `SHA256SUMS`, evidências).
+
+**Versões do dashboard (Task 0 do dashboard, Q12; 2026-11-14):** `maplibre-gl` **6.16.0** (publicada em 2026-10-25) e `pmtiles` **4.5.0** (2026-08-10) — as estáveis mais novas com mais de duas semanas, sem beta nem rc.
