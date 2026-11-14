@@ -310,3 +310,45 @@ iOS, tablet compartilhado, sincronização em segundo plano, fechar o dia pelo a
 | Q52 (cruzamento, Q11) | Interface do `map-style/`: estilos com os marcadores `__PMTILES__`, `__GLYPHS__` e `__SPRITE__` (`sprite: "__SPRITE__/<tema>"`), `dist/manifest.json` com versão e SHA-256 de cada arquivo; dashboard copia para `src/lib/vendor/map-style/` + `public/map/` com `src/lib/vendor/map-style.lock`; campo para `assets/map/` com `assets/map/map-style.lock`. |
 | Q53 (cruzamento, Q5) | Aceito: a marca de recarga da Q5 só some quando a linha vier no download; até lá, a próxima edição cai em `stale_version` e mescla. Afeta só recibos de dev/test. |
 | Q54 (cruzamento) | Só o coordenador escreve no contrato: a Task 1 do campo (prova e versões) e a Task 0 do dashboard (versões) relatam ao coordenador, que transcreve no §13. |
+| Q55 (Task 1, prova) | Fontes e sprites no app por `asset://map/fonts/{fontstack}/{range}.pbf` e `asset://map/sprites/<tema>`, servidos de `android/app/src/main/assets/map` por plugin de config local (variante A da prova; sem cópia na abertura). O `.pmtiles` fica em `file://<documentDirectory>/map/<cidade>.pmtiles` e entra como `pmtiles://file://…`. O dashboard segue a Q52 (`public/map/`). |
+| Q56 (Task 1, prova; Task 14) | O SHA-256 do mapa baixado sai do nativo do `expo-file-system` 58 (`new File(uri).digest("SHA-256")`, 12 ms em 14,7 MB, sem carregar o arquivo em memória). Substitui as opções (a) `Crypto.digest` e (b) `@noble/hashes` da Task 14; a porta `fs` do `AppServices` ganha `sha256Hex(uri): Promise<string>`. |
+| Q57 (Task 1, prova; Task 24 e api) | Fixture de mapa: `sample-z8-15.pmtiles` (932.293 bytes, z8–15), o único que fica ≤ 1 MB. Serve à Task 24 do campo e ao fixture do api (Range e SHA-256). O `sample-z0-15` não entra em repositório. Mapas reais continuam z0–15. |
+| Q58 (Task 1, prova; Task 15) | No mapa do app, o logo e o botão (i) do MapLibre ficam desligados, e um texto fixo próprio "© OpenStreetMap" fica sempre visível (Restrições globais). Não muda contrato. |
+| Q59 (Task 1, prova; Tasks 24 e 26) | Prova offline e Maestro sempre com JS embutido (variante release `e2e`): o build de depuração não alcança o Metro com a rede do emulador desligada. |
+
+## 14. Prova técnica do campo (Task 1)
+
+**Data:** 2026-11-14, sessão "MVP Module 24c App". **Resultado:** PASSOU em todos os critérios; a decisão 5A segue sem volta ao usuário.
+
+| Critério | Resultado |
+|---|---|
+| Mapa offline com glyphs e sprites | OK: APK release com JS embutido, emulador em modo avião; `pmtiles://file:///data/user/0/<pacote>/files/map/sample.pmtiles`; ruas, nomes em português e ícones de POI nos temas light e dark (71 camadas), sem erro de glyph ou sprite no logcat. As variantes `asset://` e `file://` funcionaram; fica a `asset://` (Q55). |
+| `cipher_version` | `4.17.0 community` (SQLite 3.53.3) |
+| Sem chave falha | Sem `PRAGMA key` e com chave errada: "Error code 26: file is not a database"; com a chave, lê a linha. |
+| Cabeçalho cifrado | `9e9d57454d123e8639e3e7d2e2c05496` (não é `SQLite format 3\0`); `strings` não acha o texto gravado. |
+
+**Versões que funcionaram** (as três marcadas com Q12 ficam fixadas para todos os repos):
+
+- Expo 58.0.25 · React Native 0.88.1 · React 19.3.0 · nova arquitetura
+- `@maplibre/maplibre-react-native` **11.5.1** (MapLibre Native Android 13.6.1, variante opengl) — Q12
+- `@protomaps/basemaps` **5.7.2** (`layers("protomaps", namedFlavor("light"|"dark"), { lang: "pt" })`) — Q12
+- CLI `go-pmtiles` **1.31.2** (commit a3e4951) — Q12
+- `expo-sqlite` 58.0.17 (`useSQLCipher: true`) · `expo-file-system` 58.0.13 · `expo-crypto` 58.0.8 · `expo-secure-store` 58.0.3 · `expo-asset` 58.0.21
+- JDK 21.0.12 · Gradle 9.4.1 · Kotlin 2.2.10 · compileSdk 37 · targetSdk 36 · minSdk 24 · NDK 27.1.12297006 · Node 22.19.0
+- `protomaps/basemaps-assets` commit `028c18f713baecad011301ff7a69acc39bcc2ae7`: fontes Noto Sans Regular, Medium e Italic (faixas 0-255, 256-511, 8192-8447) e sprites v4 light e dark (`.json`, `.png`, `@2x`); alimentam a Task 6 do contracts-repo (`map-style-v1.0.0`).
+- Build Protomaps usada na prova: `20261113.pmtiles`.
+
+**Tamanhos (z0–15, caixas do plano):**
+
+| Recorte | Tamanho | Blocos | Observação |
+|---|---|---|---|
+| Curitiba (-49.40,-25.65,-49.18,-25.34) | 14.673.035 bytes (15 MB) | 958 | extração em ~11 s; SHA-256 `575d7431d813161c8b9dd34e8537ed1860c410acd1647359befa33f624970bf1` |
+| Maringá (-52.10,-23.53,-51.85,-23.30) | 4,3 MB (dry-run) | 830 | |
+| Amostra z0–15 | 1.426.872 bytes | | acima de 1 MB por causa dos zooms baixos |
+| Amostra z8–15 | 932.293 bytes | | fixture (Q57) |
+
+**SHA-256 de 14,7 MB no emulador arm64** (os três iguais ao do host): `File.digest` nativo 12 ms (Q56); `Crypto.digest` sobre `file.bytes()` 30 ms; `@noble/hashes` incremental em blocos de 1 MB 5,8 s.
+
+**Ajustes de ambiente:** imagem de sistema `system-images;android-34;google_apis;arm64-v8a` reinstalada (a do SDK estava sem `system.img`), AVD `campo_api34` (pixel_tablet); o Gradle instalou Build-Tools 36 e 37, Platform 37 e o NDK acima. No Android, `Paths.bundle` é `asset:///` e `File.copySync` de asset para documento funciona.
+
+**Guardado fora de repositório** (até as Tasks que consomem): `.worktrees/campo-proof-tools/keep` (fontes, sprites, as duas amostras, `SHA256SUMS`, evidências).
