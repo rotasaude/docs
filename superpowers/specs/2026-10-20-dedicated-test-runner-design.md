@@ -113,6 +113,19 @@ Fluxo do `api`:
 4. **Resumo.** Imprime só: exemplos, falhas, pendentes, duração, lista `arquivo:linha — mensagem` (primeira linha) e o caminho do log completo em `apps/api/tmp/test-runs/<timestamp>.log`.
 5. **Saída.** O código de saída é o do rspec.
 
+### 4.5.1 Dependências de worktree (frontends)
+
+Acrescentado em 2026-11-14 (módulo 24c). Com `-w <worktree>`, o `bin/test` compara o `package-lock.json` do worktree com o de `apps/<app>`.
+
+- **Iguais:** o container usa o volume `<app>-node-modules` do `<app>-dev`. O `bin/test` nunca altera esse volume.
+- **Diferentes** (o worktree traz dependência nova):
+  - o container monta um volume próprio, `<app>-<worktree>-node-modules`, em `/app/node_modules`;
+  - roda `npm ci` antes do vitest sempre que o SHA-256 do lock muda (carimbo em `node_modules/.lock.sha256`);
+  - com o carimbo em dia, vai direto ao vitest.
+- **Saída:** falha do `npm ci` encerra com exit 97, e o resumo mostra que o vitest não rodou. Quando o vitest roda, o exit é o dele.
+- **Proibido:** instalar pacote no volume compartilhado de um `<app>-dev` a partir de worktree.
+- **Limpeza:** o volume do worktree é apagado no fechamento do módulo (`docker volume rm <app>-<worktree>-node-modules`), junto com o worktree.
+
 ### 4.6 Sessão "Testes"
 - Única sessão que roda `bin/test api --full`.
 - Recebe pedidos por `SendMessage` no formato `app · worktree/branch · escopo · motivo` e responde **só** o resumo do §4.5.
