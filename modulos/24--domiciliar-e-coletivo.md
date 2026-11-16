@@ -129,7 +129,7 @@ Página de status: https://claude.ai/artifact/K9ThEFh3xLtnUrTDaUsksj
 | `api` | `fd0422b2` | 23 commits; suíte completa 12258/0 em `065deffa` (`fd0422b2` só acrescenta spec) |
 | `dashboard` | `677a511` | 7 commits; 568/568 e 7017; exige `npm install` no volume por `maplibre-gl` 6.16.0 e `pmtiles` 4.5.0 |
 | `maintenance` | `fea9c29` | 3 commits; 689 testes |
-| `catalog` | branch `content/modulo-24c` (`e9f2a92`) | F-24.18..25, superfície nova "App de campo"; .23, .24 e .25 em validação; PR depois do push |
+| `catalog` | PR rotasaude/catalog#41 (`e9f2a92`) | F-24.18..25, superfície nova "App de campo"; .23, .24 e .25 em validação |
 | `docs` | contrato §13 Q1–Q86 | |
 
 **Prova no navegador (2026-11-15/16):** dashboard e maintenance contra o api de dev (geração e entrega do mapa, aparelhos de campo, mapa no dashboard), com o conserto do sprite (`677a511`).
