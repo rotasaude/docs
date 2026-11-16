@@ -1,0 +1,668 @@
+# Módulo 35a — Contratos entre apps
+
+**Fonte única** do que os repositórios do 35a combinam entre si. As linhas do §20 prevalecem sobre o texto das seções anteriores. Os planos de cada repositório (`-contracts-repo.md`, `-api.md`, `-dashboard.md`, `-maintenance.md`, `-campo.md`) seguem este documento; divergência vai para a seção "Divergências propostas ao contrato" do plano, e a decisão volta aqui como Q-n.
+
+- **Spec:** `docs/superpowers/specs/2026-11-14-module-35-zoonoses-endemics-design.md` (decisões do usuário 1–7; do coordenador 1–13 e 23–30). **ADR:** 0054. **Pesquisa:** `docs/pesquisa/2026-11-14-zoonoses-e-endemias-35.md`. **Módulo:** `docs/modulos/35--zoonoses-e-endemias.md`.
+- **Base:** contratos do 24a, 24b (§1–§16) e 24c (§1–§13, até a Q86); `field-sync-v1.2.0`. Nada deles muda, salvo o que este documento diz que muda.
+- **Fica no 35b:** animal, vacinação antirrábica, ouvidoria, agressor, leishmaniose, canil, papel do veterinário, interruptor `zoonoses`.
+
+Convenções herdadas (24a, 24b, 33):
+- erros `{ "error" }`, com `path` nas recusas de validação;
+- step-up `401 mfa_required`;
+- interruptor desligado `403 feature_disabled`;
+- JSON em toda escrita por cookie;
+- listas `{ items, next_before }`, com cursor `before` opaco;
+- filtros repetidos com `[]`;
+- registro de outro escopo por id → 404; lista de escopo alheio → 403;
+- leitura nominal com trilha e sem polling; contagens sem trilha;
+- texto longo é recusado, nunca cortado;
+- dado sensível só no corpo, nunca em URL nem em log;
+- `Data`/`Struct` com dado pessoal sem esse dado em `inspect`/`to_s`/`as_json`.
+
+**Bases** (origin/main em 2026-11-16):
+
+| Repo | Commit |
+|---|---|
+| api | `469e2e68` |
+| dashboard | `677a511` |
+| maintenance | `fea9c29` |
+| contracts | `f9d6df2` (`field-sync-v1.2.0`) |
+| campo | `8429bd5` |
+
+**Valores fixos:**
+
+| Item | Valor |
+|---|---|
+| Porta do api | 3059 |
+| Vite do dashboard | 5220 |
+| maintenance | 5177, com o serviço do compose parado durante a prova |
+| Migrações da cidade | a partir de `20261116900001` (a última na main é `20261113900001`); nenhuma de plataforma |
+| Branch (todos os repos) | `feat/mod-35a-vector-control` |
+| Worktree do api | `apps/api/.claude/mod35a`, com `config/master.key` copiada |
+| Worktrees dos fronts, do contracts e do campo | `rota-saude/.worktrees/<repo>-mod35a` |
+| Testes | só `bin/test api -w mod35a …`, `bin/test <app> -w <repo>-mod35a` e `bin/test campo -w campo-mod35a`; suíte completa pela sessão "Testes" |
+| Tag do contracts | `field-sync-v1.3.0` (MINOR); `session.contract` continua `"field-sync-v1"` |
+
+**Mudança transversal.** O 35a toca:
+- migração de cidade e `CityEncryption::CITY_KEYED_TARGETS`;
+- `Platform::Features` e `Membership::ROLES`;
+- `HealthUnit::KINDS` e o estoque do 27a (`Stock::Domain`, `Pharmacy::Ledger::DOCUMENTS`, `stock_movements`);
+- `HomeVisits::Record` e os vínculos de eventos do 25;
+- o `field-sync`.
+
+A suíte completa do api é obrigatória antes do merge.
+
+## 1. Nomes no código
+
+**Interruptor** (fim do `CATALOG` de `Platform::Features`; os specs que fixam a ordem são atualizados):
+
+| Chave | Descrição | `requires` |
+|---|---|---|
+| `vector_control` | "Vigilância ambiental de endemias: boletim do agente na visita, quarteirões, ciclos, ovitrampas, LIRAa e bloqueio" | `%w[feature:home_visits]` |
+
+- O rótulo curto, no maintenance e no dashboard, é "Vigilância ambiental (endemias)".
+- A chave entra em `CITIZEN_HIDDEN`.
+- Gate: `VectorControl::Gate.usable?(city)` = habilitado e `HomeVisits::Gate.usable?(city)`.
+- Desligado: as rotas respondem `403 feature_disabled`, o item do app é `rejected feature_disabled`, e o que foi gravado fica.
+- O job de bloqueio (§8) não age com o gate desligado.
+- `home_visits` já exige `territory_registry`, então a decisão 1 da spec continua valendo (Q1).
+
+**Papéis novos** (`Membership::ROLES` + `ck_memberships_role`, como o 33 fez em `20261111900001`; valem para a cidade inteira):
+
+| Papel | Rótulo | Privilegiado | Faz |
+|---|---|---|---|
+| `endemic_coordinator` | "Coordenação de endemias" | sim (`PRIVILEGED_ROLES`: lê o endereço do caso de arbovirose, §8) | quarteirões e perfil do imóvel, cadência e ciclos, produtos e parâmetros, LIRAa, bloqueio, contagem de ovitrampa, resultado de amostra, tarefas, relatórios |
+| `vector_lab` | "Laboratório de entomologia" | não | contagem de ovos e resultado de amostra; lê a fila de amostras e de palhetas |
+
+`municipal_admin` lê os relatórios e não escreve nada do 35a. O acesso mora em `VectorControl::Access`:
+
+| Método | Regra |
+|---|---|
+| `coordinator?(user)` | papel ativo `endemic_coordinator` |
+| `lab?(user)` | papel ativo `vector_lab` |
+| `reader?(user)` | um dos dois, ou `municipal_admin` |
+| `field_agent?(user, team)` | `HomeVisits::Access.role(member) == :field` com o CBO `515140` (`TerritoryRegistry::Catalog::ENDEMIC_AGENT_CBO`) |
+
+**Quem registra o boletim:** só o agente de combate às endemias (CBO `515140`), pela visita do 24b, nas microáreas atribuídas a ele (`HomeVisits::Access.registers?`). Visita com boletim de outro CBO → `403 cbo_not_allowed`, com `path` `vector_inspection`. Nada muda para o ACS. O `352210` fica fora: não está na Tabela 7 do LEDI (api#171).
+
+**Unidade:** `HealthUnit::KINDS` + `environmental_surveillance`, rótulo "Vigilância ambiental e zoonoses" (UVZ, coordenação de endemias; decisão 30). Não dispensa, não tem fila e não tem leito. Os bloqueios de troca de tipo do `HealthUnitsController` valem como para `other`.
+
+**Tabelas novas da cidade.** Todas `id: :uuid`, com `created_at`; as mutáveis também têm `updated_at` e `version` (≥ 1, `+1` a cada escrita, para o feed do app). "Cifrado" = `CityEncryption`, e entra em `CITY_KEYED_TARGETS`.
+
+- **`city_blocks`** (quarteirão):
+  - `neighborhood_id` (não nulo), `number` (texto 1–10, `/\A[0-9A-Za-z-]{1,10}\z/`), `active`, `created_by_user_id`;
+  - único (`neighborhood_id`, `lower(number)`).
+- **`city_block_neighbors`:** `city_block_id`, `neighbor_block_id`. Guarda o par uma vez, com `CHECK (city_block_id < neighbor_block_id)`, e é único pelo par. Pode cruzar bairros. Nunca é apagada: o par desfeito ganha `ended_at`.
+- **`household_vector_profiles`** (1:1 com `households`, único por `household_id`):
+  - `city_block_id` (nulo até alguém atribuir), `risk_class` (`green` | `yellow` | `red` | `gray` | `purple` | nulo), `risk_assessed_on` (date);
+  - `last_inspection_id`, `last_worked_on` (date), `last_situation`, denormalizados pelo §3;
+  - `updated_by_user_id`;
+  - CHECK: `risk_assessed_on IS NOT NULL` ⇔ `risk_class IS NOT NULL`.
+  - Não é versão do 24a: mudar quarteirão ou risco **não** cria `household_versions` nem ficha LEDI 3 (Q2).
+- **`vector_inspections`** (1:1 com a visita, único por `home_visit_id`):
+  - `activity`, `work_type`, `situation`, `recovered` (derivado), `educational_action` (bool);
+  - `entered_at`, `left_at` (timestamptz, opcionais juntos);
+  - `liraa_draw_item_id`, `transmission_block_id` (opcionais);
+  - `city_block_id`: o quarteirão do imóvel na hora da visita, congelado.
+- **`vector_inspection_deposits`:** `vector_inspection_id`, `group` (`A1` `A2` `B` `C` `D1` `D2` `E`), `existing`, `with_water`, `with_larvae`, `eliminated`, `treated` (inteiros 0–999). Único por (inspeção, grupo).
+- **`vector_inspection_measures`:** `vector_inspection_id`, `method` (`mechanical` | `focal` | `perifocal` | `spatial`), `vector_product_id` (nulo só em `mechanical`), `charges` (numeric 8,2, > 0 e ≤ 999, nulo só em `mechanical`), `quantity` (numeric 12,2 = `charges × charge_size` do produto na hora). Único por (inspeção, método, produto).
+- **`vector_samples`:**
+  - `vector_inspection_id`, `number` (1–99, sequencial na inspeção), `deposit_group`, `larvae_collected` (1–10), `label` (único, §9);
+  - resultado: `examined_larvae`, `aegypti_larvae`, `albopictus_larvae`, `result_at`, `result_by_user_id`, `result_note` (cifrado, 10–500, só na correção).
+- **`vector_products`:** `code` (1–10, único sem caixa), `name` (1–80), `unit` (`g` | `ml` | `un`), `charge_size` (numeric 10,2, > 0), `uses` (lista não vazia de `focal` `perifocal` `spatial`), `active`.
+- **`vector_cadences`:**
+  - `neighborhood_id` (nulo = cidade), `risk_class` (nulo = qualquer), `strategic_point` (bool), `days` (7–365);
+  - único por (`neighborhood_id`, `risk_class`, `strategic_point`), tratando os nulos como valor.
+- **`vector_cycles`:** `year`, `number` (1–12), `starts_on`, `ends_on`. Único por (`year`, `number`), sem sobreposição de datas (exclusion constraint `daterange`).
+- **`vector_parameter_versions`:** `version` (int, único), `values` (jsonb, §11), `created_by_user_id`. A vigente é a maior; a semente cria a versão 1 com o padrão de fábrica.
+- **`vector_control_settings`** (singleton id 1): `stock_location_id` (o local do 27a que o boletim baixa; nulo = sem baixa, §4).
+- **`ovitraps`:**
+  - `number` (texto 1–12; único entre as ativas, sem caixa), `household_id`, `city_block_id` (congelado na instalação);
+  - `consent_at`, `installed_on`, `removed_on`, `status` (`active` | `removed` | `lost`), `installed_by_user_id`, `client_uuid` (único, opcional);
+  - `field_device_id`, `origin`.
+- **`ovitrap_readings`:**
+  - `ovitrap_id`, `installed_on` (palheta), `collected_on`, `condition` (`ok` | `damaged` | `lost` | `dry` | nulo até a coleta), `epi_week` (`YYYYWW`, da semana epidemiológica de `installed_on`);
+  - `egg_count` (≥ 0, nulo até a contagem), `counted_at`, `counted_by_user_id`, `count_note` (cifrado, 10–500, só na correção);
+  - no máximo uma leitura aberta (`collected_on IS NULL`) por ovitrampa.
+- **`vector_tasks`:**
+  - `kind` (`ovitrap_intensification` | `case_resident_elsewhere` | `block_case_without_place`);
+  - `state` (`open` | `done` | `dismissed`), `ovitrap_reading_id` | `disease_notification_id` | `transmission_block_id`;
+  - `suggested_block_ids` (uuid[]), `closed_by_user_id`, `closed_note` (cifrado, 10–500).
+- **`liraa_surveys`:** `name` (1–80), `starts_on`, `ends_on`, `status` (`draft` | `drawn` | `closed`), `parameters_version`, `drawn_at`, `closed_at`.
+- **`liraa_strata`:** `liraa_survey_id`, `name` (1–60), `mode` (`standard` | `half` | `census`), `households_count` (N na hora do sorteio), `sample_target` (n), `block_interval`, `random_start`.
+- **`liraa_stratum_blocks`:** `liraa_stratum_id`, `city_block_id`, `drawn` (bool), `household_start` (1–5, nulo se não sorteado). Um quarteirão aparece em no máximo um estrato por levantamento.
+- **`liraa_draw_items`:** `liraa_stratum_id`, `city_block_id`, `household_id`, `position`, `status` (`pending` | `inspected` | `substituted`), `substitute_of_id`.
+- **`transmission_blocks`:**
+  - `status` (`proposed` | `active` | `closed` | `dismissed`), `disease_group` (`arbovirus`), `center_block_id` (nulo até a coordenação escolher);
+  - `confirmed_at`, `confirmed_by_user_id`, `closed_at`, `dismissed_reason` (cifrado, 10–500).
+- **`transmission_block_areas`:** `transmission_block_id`, `city_block_id`. Único pelo par.
+- **`transmission_block_cases`:** `transmission_block_id`, `disease_notification_id` (único), `case_on` (o `suspected_on` da notificação), `added_by` (`job` | `user`).
+- **`transmission_block_cycles`:** `transmission_block_id`, `number` (1–3), `starts_on`, `ends_on`. Único por (bloqueio, número).
+- **`vector_stock_shortfalls`:**
+  - `vector_inspection_measure_id` (único), `stock_location_id` (nulo ⇔ `no_location`), `vector_product_id`, `quantity`;
+  - `cause` (`no_location` | `insufficient_balance` | `no_lot`);
+  - `reconciled_at`, `reconciled_by_user_id`, `reconciliation_note` (cifrado, 10–500).
+
+**Colunas novas em tabelas existentes:**
+
+| Tabela | Muda |
+|---|---|
+| `health_units` | `ck_health_units_kind` + `environmental_surveillance` |
+| `memberships` | `ck_memberships_role` + `endemic_coordinator`, `vector_lab` |
+| `stock_locations` | `ck_stock_locations_kind` + `vector_control`, com `health_unit_id` obrigatório e unidade do tipo `environmental_surveillance` (validado no comando, §4) |
+| `stock_lots` | `item_kind` + `vector_control`; coluna `vector_product_id` (uuid); `ck_stock_lots_item`: o lote `vector_control` tem `vector_product_id`, não tem `catalog_item_id` nem `immunobiological_code`, e `dispensing_unit` = `unit` do produto |
+| `stock_movements` | `kind` + `vector_application` (negativo); coluna `vector_inspection_measure_id`; o `ck_stock_movements_document` passa a contar essa coluna; `vector_product_id` ao lado de `catalog_item_id`/`immunobiological_code`, com `num_nonnulls(...) = 1`, como o 29 fez |
+| mínimos, aberturas e afins do 27a que têm `num_nonnulls(catalog_item_id, immunobiological_code)` | passam a ter três colunas, como no 29 |
+
+**Migrações da cidade** (irreversíveis, como as do 24a, 24b e 33: o `down` levanta `ActiveRecord::IrreversibleMigration` e o `up` termina executando `db/city_triggers.sql`; sem dado):
+
+| Timestamp | Conteúdo |
+|---|---|
+| `20261116900001_add_vector_control_territory.rb` | `city_blocks`, `city_block_neighbors`, `household_vector_profiles`, `vector_cadences`, `vector_cycles`, `vector_parameter_versions`, `vector_control_settings`, papéis, tipo de unidade |
+| `20261116900002_add_vector_inspections.rb` | `vector_products`, `vector_inspections`, `vector_inspection_deposits`, `vector_inspection_measures`, `vector_samples`, `vector_stock_shortfalls`, mudanças do estoque |
+| `20261116900003_add_vector_surveillance.rb` | `ovitraps`, `ovitrap_readings`, `vector_tasks`, `liraa_*`, `transmission_blocks`, `transmission_block_*` |
+
+**Mudanças em código existente:**
+
+| Onde | Mudança |
+|---|---|
+| `HomeVisits::Record` | aceita `vector_inspection` (§3); `ALLOWED` + `vector_inspection`; deriva os motivos 34–37; grava a inspeção, as medidas, as amostras e a baixa de estoque na mesma transação |
+| `HomeVisits::Json` | a visita ganha `vector_inspection` (§12) para quem lê a visita |
+| `Stock::Domain` | `VECTOR_CONTROL = "vector_control"`, `FEATURES["vector_control"] = "vector_control"`, local `vector_control` |
+| `Pharmacy::Ledger::DOCUMENTS` | + `VectorInspectionMeasure => :vector_inspection_measure_id` |
+| `Pharmacy::Catalog` | `MOVEMENT_KINDS`/`NEGATIVE_KINDS` + `vector_application` |
+| 27a: entrada, transferência, ajuste, perda | aceitam lote `vector_control` (produto do `vector_products`, sem CATMAT), só em local `vector_control`; fora dele → `item_not_allowed_here` |
+| `config/initializers/domain_events.rb` | `disease_notification.created` e `disease_notification.transitioned` ganham `VectorControl::ProposeBlockJob` (§8); os eventos novos do §17 |
+| `FieldSync::*` | §13 |
+| `config/recurring.yml` | nada novo (os índices são lidos na hora) |
+
+## 2. Quarteirão e perfil do imóvel
+
+- A coordenação cadastra o quarteirão: bairro e número, e depois os vizinhos.
+  - Vizinho do mesmo quarteirão → `422 invalid_neighbor`.
+  - Quarteirão inativo não recebe imóvel novo, mas segue nos vizinhos e no histórico.
+  - Desativar quarteirão com imóvel ativo → `409 block_in_use`.
+- **Atribuir o imóvel:** a coordenação faz, no dashboard, em lote (`household_ids[]` até 200 + `city_block_id`); o agente de endemias faz pelo boletim (§3).
+  - O imóvel tem de ter `neighborhood_id` na versão atual do 24a (`household_versions.neighborhood_id`). Sem ele → `422 household_without_neighborhood`. O imóvel só com `district` livre espera o ACS corrigir o cadastro: o 35a não escreve no 24a.
+  - Quarteirão de outro bairro → `422 block_not_in_household_neighborhood`.
+  - Domicílio que troca de bairro no 24a: o perfil fica, e a tela marca "quarteirão de outro bairro" até alguém atribuir de novo. O feed do app manda o perfil como está.
+- **Classe de risco** (DN-2025, 5.3): `green` "Verde (baixo)", `yellow` "Amarelo (médio)", `red` "Vermelho (alto)", `gray` "Cinza (difícil acesso, com agendamento)", `purple` "Roxo (difícil acesso, exige intervenção legal ou VISA)". Quem define: a coordenação, ou o agente pelo boletim. `risk_assessed_on` é o dia da visita ou da edição.
+- **Raio em anéis** (decisão 26): `VectorControl::Rings.around(block_ids, rings:)` devolve os quarteirões a até `rings` saltos pelo grafo de vizinhos ativos, incluindo os de partida, e ignora inativos. É a única função de raio do 35a. O raio geométrico pela coordenada do 24c fica para depois (§19).
+
+## 3. Boletim na visita
+
+O corpo da visita do 24b (`POST /home_visits` e item `home_visit` do app) ganha `vector_inspection`, opcional:
+
+```json
+"vector_inspection": {
+  "activity": "li" | "li_t" | "pe" | "ie" | "transmission_block" | "liraa",
+  "work_type": "routine" | "pending",
+  "situation": "worked" | "closed" | "refused" | "vacant",
+  "educational_action": true,
+  "entered_at": "<iso8601>", "left_at": "<iso8601>",
+  "city_block_id": "<uuid>"?, "risk_class": "<classe>"?,
+  "liraa_draw_item_id": "<uuid>"?, "transmission_block_id": "<uuid>"?,
+  "deposits": [ { "group": "A1", "existing": 3, "with_water": 2, "with_larvae": 1, "eliminated": 1, "treated": 1 } ],
+  "measures": [ { "method": "focal", "vector_product_id": "<uuid>", "charges": 2 } ],
+  "samples":  [ { "number": 1, "deposit_group": "A1", "larvae_collected": 8 } ]
+}
+```
+
+**Regras** (`VectorControl::InspectionRules.check(input, visit:, household:, profile:, today:)`, pura, devolve `[{ error:, path: }]`):
+
+1. Quem registra é agente de endemias (§1), e o gate está utilizável. Senão: `cbo_not_allowed` ou `feature_disabled`, com `path` `vector_inspection`.
+2. **Situação e desfecho:** `worked` ⇔ `outcome` 1; `refused` ⇔ 2; `closed` e `vacant` ⇔ 3. Divergência → `situation_outcome_mismatch`.
+   - Com 2 ou 3: `deposits`, `measures` e `samples` vazios, e `educational_action` false. Senão → `inspection_not_worked`.
+3. **Atividade e imóvel:**
+   - `pe` só com `property_type` 4;
+   - `ie` só com `property_type` 5–13;
+   - `li`, `li_t`, `transmission_block` e `liraa` com qualquer tipo;
+   - divergência → `activity_property_mismatch`.
+4. **Vínculos:**
+   - `liraa` exige `liraa_draw_item_id` de item `pending` do mesmo imóvel, em levantamento `drawn`. Outro caso → `liraa_item_not_found`.
+   - `transmission_block` exige `transmission_block_id` `active`, com o quarteirão do imóvel na área. Senão → `transmission_block_not_active`.
+   - As outras atividades não levam vínculo. Vínculo enviado → `vector_inspection_invalid`, com `path` do campo.
+5. **Depósitos:** cada grupo no máximo uma vez; `with_water` ≤ `existing`; `with_larvae` ≤ `with_water`; `eliminated` ≤ `existing`; `treated` ≤ `with_water`. Violação → `deposit_counts_inconsistent`, com `path` `vector_inspection.deposits[i].<campo>`.
+6. **Medidas:**
+   - `mechanical` sem produto e sem cargas.
+   - As outras exigem produto ativo cujo `uses` contém o método. Senão → `product_not_allowed`.
+   - `charges` > 0 e ≤ 999, com duas casas.
+7. **Amostras:**
+   - `number` de 1 a N, sem buraco;
+   - o grupo tem `with_larvae` > 0 naquela inspeção;
+   - nº de amostras do grupo ≤ `with_larvae` do grupo (um tubito por depósito positivo);
+   - violação → `samples_exceed_larvae`, com `path` `vector_inspection.samples[i]`.
+8. **Horários:** `entered_at` ≤ `occurred_at` ≤ `left_at`; `left_at` − `entered_at` ≤ 12 h; os dois no dia da visita. Senão → `inspection_times_invalid`. Os dois vêm juntos ou nenhum (o dashboard pode omitir; o app sempre manda).
+9. **Motivos derivados** (decisão 4; a ficha 8 não muda de código):
+   - O `reasons` do corpo não pode trazer 34–37 quando há `vector_inspection` → `reason_derived`, com `path` `reasons`.
+   - O api acrescenta ao `reasons` gravado, em ordem crescente e sem repetir:
+     - 34, se `educational_action`;
+     - 35, se algum `with_larvae` > 0;
+     - 36, se algum `eliminated` > 0 ou houver medida `mechanical`;
+     - 37, se houver medida `focal`.
+   - Depois disso, as regras do 24b rodam sobre a lista final: não residencial, `family_responsible` nos motivos 34–37 e `reasons_max`.
+10. **Quarteirão e risco no boletim:**
+    - `city_block_id` só quando o perfil ainda não tem quarteirão. Senão → `block_already_set`: a troca é da coordenação. O quarteirão segue as regras do §2.
+    - `risk_class` atualiza o perfil, com `risk_assessed_on` = dia da visita.
+11. **Derivados gravados:**
+    - `recovered` = `work_type = pending` ∧ `situation = worked` ∧ a inspeção anterior do mesmo imóvel com `situation` ∈ {`closed`, `refused`};
+    - o perfil ganha `last_inspection_id`, `last_situation` e, se `worked`, `last_worked_on`;
+    - o item do LIRAa vira `inspected` com `worked`. Com `closed` ou `refused`, vira `substituted`, e nasce o substituto (§7).
+
+A visita retirada (24b): a inspeção fica, marcada pela visita. Os índices, os ciclos e o perfil a ignoram, e o perfil volta à inspeção válida anterior. A baixa de estoque é estornada com `vector_application` de sinal inverso; o falta-estoque da medida é marcado `reconciled_at` pelo sistema, sem nota. O item do LIRAa volta a `pending`; se o substituto já estiver `inspected`, fica como está.
+
+**Ficha LEDI tipo 8:** não muda. Os motivos derivados estão em `home_visits.reasons`, e a ficha os lê como hoje.
+
+## 4. Produtos, estoque e consumo
+
+- A coordenação cadastra os produtos. `unit` e `charge_size` não mudam depois que há lote ou medida → `409 product_in_use`; para isso se cria outro produto. `name`, `uses` e `active` mudam a qualquer tempo.
+- Estoque (decisão 29):
+  - O admin cria o local `vector_control` numa unidade `environmental_surveillance`, pela tela de locais do 27a.
+  - A equipe do local (`stock_location_staff`, `stock_keeper`) dá entrada, transfere e ajusta pelas telas do 27a, com o produto no lugar do CATMAT.
+  - A coordenação escolhe em `vector_control_settings.stock_location_id` o local de onde o boletim baixa.
+- **Baixa:**
+  - Acontece na transação da visita, num savepoint, pela medida com produto. O lote é o primeiro por `expires_on`, `lot_number`, `id`, do produto, no local, não vencido, sem bloqueio e com saldo ≥ `quantity`.
+  - A baixa usa um lote só e nunca divide a quantidade, como o `Urgency::DeductStock`.
+  - Grava `vector_application` pelo `Pharmacy::Ledger.record!`.
+- **Nunca recusa a visita** (invariante do ADR 0054):
+  - sem local → `vector_stock_shortfalls` `no_location`;
+  - sem lote com saldo → `insufficient_balance` (há lote, falta saldo) ou `no_lot`;
+  - em qualquer caso, publica `vector_stock.shortfall_recorded`.
+- **Conciliação:** a coordenação ou o `stock_keeper` do local, com nota de 10–500 caracteres, sem movimento (como o 32b). Repetir → `409 already_reconciled`.
+
+## 5. Cadência, ciclos e imóveis vencidos
+
+- **Cadência do imóvel** (`VectorControl::Cadence.days_for(profile:, household:, neighborhood_id:)`), da mais específica para a mais geral:
+  1. PE (`property_type` 4): (bairro, PE) → (cidade, PE) → `strategic_point_days` dos parâmetros (padrão 15);
+  2. demais: (bairro, risco) → (bairro, qualquer) → (cidade, risco) → `default_days` (padrão 60).
+- **Vencido:** imóvel ativo com `last_worked_on` nulo, ou com `last_worked_on + days ≤ hoje`.
+- **Motivos na lista**, nesta ordem, com um motivo por imóvel:
+  - `transmission_block`: no bloqueio ativo;
+  - `liraa`: com item `pending`;
+  - `pending`: a última situação foi `closed` ou `refused`;
+  - `due`.
+- **Ciclo:** período da coordenação. Por ciclo e por bairro:
+  - a visitar: os imóveis ativos com microárea;
+  - visitados: com inspeção válida no período;
+  - trabalhados, fechados, recusados, desocupados, recuperados;
+  - pendência % = (imóveis cuja última inspeção do ciclo é `closed` ou `refused`) ÷ visitados × 100, com uma casa;
+  - cobertura: imóveis cadastrados por bairro, ao lado (risco da decisão 7).
+- **Folha do agente de endemias:** "Imóveis a visitar", em `GET /vector_control/due`, nas microáreas que ele lê pelo 24b, paginada. Cada item:
+  - `household_id`, `address_short` (o do 24a), `property_type`;
+  - `block` {`id`, `number`} | `null`, `risk_class`;
+  - `last_worked_on`, `due_since`, `reason`;
+  - `liraa_draw_item_id` | `transmission_block_id`.
+  - Nunca traz morador. O "quem visitar" do 24b não muda.
+
+## 6. Ovitrampas
+
+- **Instalação:** pelo agente de endemias, no app ou no dashboard.
+  - O imóvel precisa ter quarteirão no perfil (senão `household_without_block`).
+  - Exige `consent: true` (o TCLE do morador; senão `consent_required`) e `number` livre entre as ativas (senão `ovitrap_number_taken`).
+  - Abre a primeira leitura com `installed_on`.
+- **Coleta da palheta:**
+  - Fecha a leitura aberta com `collected_on` e `condition`.
+  - `collected_on − installed_on` fica entre `ovitrap_collection_days_min` e `_max` (padrão 3 e 10; o alvo de 5 dias é orientação na tela). Senão → `collection_out_of_range`.
+  - Sem leitura aberta → `reading_not_open`.
+  - Com `reinstall: true` (padrão), abre a leitura seguinte com `installed_on = collected_on`.
+  - `remove: true` muda o status para `removed`; `condition: lost` com `remove: true` muda para `lost`.
+- **Contagem:**
+  - Feita pela coordenação ou pelo `vector_lab`, só em leitura coletada com `condition = ok`. Outra condição → `422 reading_not_countable`.
+  - `egg_count` vai de 0 a 9999, e 0 vale (palheta negativa).
+  - Corrigir exige `count_note`, e o evento leva `corrected: true`.
+- **Índices** (`VectorControl::OvitrapIndex.for(neighborhood_ids:, epi_weeks:)`), por bairro e semana epidemiológica (domingo a sábado, a do MS):
+  - examinadas = leituras `ok` e contadas;
+  - positivas = `egg_count` > 0;
+  - IPO = positivas ÷ examinadas × 100;
+  - IDO = ovos ÷ positivas;
+  - IDV = ovos ÷ examinadas;
+  - uma casa decimal; sem examinadas → `null`.
+- **Alerta:**
+  - Dispara quando a contagem gravada é ≥ `ovitrap_alert_eggs` (padrão 100; a conferir com a cidade piloto, §19).
+  - Abre `vector_tasks` `ovitrap_intensification`, com `suggested_block_ids = Rings.around([quarteirão da ovitrampa], rings: ovitrap_radius_rings)` (padrão 1; 200 m da NT 3/2025).
+  - Uma tarefa aberta por ovitrampa: a contagem nova soma à tarefa aberta e não abre outra.
+- **Mapa:** pontos das ovitrampas pela `location` do domicílio (24c); sem ponto, só a lista. A camada leva número, contagem e semana, nunca morador.
+
+## 7. LIRAa
+
+- O levantamento nasce `draft`. A coordenação monta os estratos com quarteirões, cada quarteirão em um estrato só (senão `stratum_overlap`).
+- **Sorteio** (`POST .../draw`, step-up, só de `draft`; senão `survey_not_draft`):
+  - Por estrato, N = imóveis ativos dos quarteirões.
+  - Faixas por `mode`:
+    - `standard`: 8.100 ≤ N ≤ 12.000;
+    - `half`: 2.000 ≤ N < 8.100;
+    - `census`: N < 2.000.
+  - Fora da faixa → `422 stratum_out_of_range`, com `path` `strata[i]`. Os limites ficam nos parâmetros.
+  - **Amostra:**
+    - `standard`: n = ⌈450 ÷ (1 + 450 ÷ N)⌉;
+    - `half`: n = ⌈0,5 × N⌉ × 0,2, ou seja, metade dos quarteirões (intervalo 2) e 20% dos imóveis de cada. A leitura de "50%" no manual de 2013 é **conferida na Task 1 do api**, e a divergência volta como Q;
+    - `census`: todos os imóveis de todos os quarteirões.
+  - **Quarteirões:**
+    - Ordenados por (nome do bairro, `number` natural).
+    - B = nº de quarteirões; h = ⌈0,2 × N ÷ B⌉ (imóveis por quarteirão); b = ⌈n ÷ h⌉; k = max(1, ⌊B ÷ b⌋).
+    - Início `r` aleatório em 1..k (`SecureRandom`, gravado).
+    - Sorteados: r, r+k, r+2k… até b quarteirões ou o fim da lista. Em `half`, k = 2; em `census`, todos.
+  - **Imóveis:**
+    - No quarteirão sorteado, os imóveis ativos são ordenados por (`registered_at`, `id`).
+    - Inspeciona-se ⌈0,2 × imóveis⌉ (em `census`, todos), por intervalo 5 a partir de `household_start` aleatório em 1..5 (gravado). Ao chegar ao fim da lista, volta ao começo.
+- **Substituição:**
+  - Item com inspeção `closed` ou `refused` vira `substituted`.
+  - O substituto é o próximo imóvel da ordem do quarteirão ainda não sorteado, e herda `substitute_of_id`.
+  - Se não houver, o quarteirão fica com um imóvel a menos, e o relatório mostra.
+- Os itens chegam à folha (§5) e ao app (§13).
+- **Fechamento** (`POST .../close`, step-up, de `drawn`): congela os índices.
+- **Índices** por estrato e município, das inspeções `worked` ligadas aos itens:
+  - IIP = imóveis positivos ÷ inspecionados × 100;
+  - IB = recipientes positivos ÷ inspecionados × 100;
+  - ITR(g) = positivos do grupo g ÷ positivos × 100.
+  - "Positivo" é a amostra com `aegypti_larvae` > 0 (um tubito por depósito). O imóvel é positivo quando tem alguma amostra positiva.
+  - Enquanto houver amostra sem resultado, o índice é **provisório**, com `provisional: true`.
+  - Classe do IIP: < 1 "Satisfatório", 1 a 3,9 "Alerta", ≥ 4 "Risco"; parametrizada (`iip_bands`).
+- **Relatório:** PDF (A4, `Consultations::Print.document`) e CSV (UTF-8 com BOM, `;`, `\r\n`, como o `Surveillance::Csv`).
+
+## 8. Bloqueio de transmissão
+
+- **Gatilho** (decisão 28): `VectorControl::ProposeBlockJob` (`IdempotentConsumer`), ligado a `disease_notification.created` e a `disease_notification.transitioned`.
+  - Age quando a notificação está `notified`, a doença está em `block_diseases` (padrão `dengue`, `chikungunya` e `zika`) e o gate está utilizável.
+  - A notificação `possible` da rede de segurança só age quando passa a `notified`.
+- **Caso de fora** (`resident_elsewhere`): só uma tarefa `case_resident_elsewhere`, sem bloqueio.
+- **Quarteirão do caso** (decisão 27): o cadastro individual ativo do paciente → o domicílio → `household_vector_profiles.city_block_id`. Faltando qualquer elo, o caso entra sem lugar, e nasce a tarefa `block_case_without_place`.
+- **Agrupamento:**
+  - O caso com quarteirão entra no bloqueio `proposed` ou `active` cuja área já tem o quarteirão do caso. Se o bloqueio ainda é proposta sem área, conta `Rings.around([centro], rings: block_radius_rings)`.
+  - Vale também a janela: o caso mais recente do bloqueio tem `case_on` ≥ `case_on` do novo − `block_grouping_days` (padrão 7).
+  - Se não houver bloqueio assim, nasce a proposta, com `center_block_id` e área sugerida.
+  - O caso sem lugar sempre nasce proposta própria. A coordenação junta pela rota de mover caso.
+- **Confirmação** (`POST .../confirm`, step-up): só de `proposed`, com `center_block_id` e área (lista de quarteirões, ≥ 1; a sugestão vem marcada). Vira `active`.
+- **Descarte:** de `proposed` para `dismissed`, com motivo.
+- **Fechamento:** de `active` para `closed`.
+- **Ciclos de UBV:** até `ubv_cycles_max` (padrão 3).
+  - Cada ciclo tem de `ubv_cycle_days_min` a `_max` dias (padrão 3 a 5), e `starts_on` fica ≥ `ends_on` do anterior + `ubv_cycle_interval_days` (padrão 5).
+  - Violação → `422 cycle_invalid`, com `path`.
+- **Endereço do caso:** só a coordenação lê, para escolher o quarteirão de caso sem lugar.
+  - Rota: `GET /vector_control/transmission_blocks/:id/cases/:case_id/address`. Devolve o endereço do paciente e o do domicílio, se houver.
+  - Grava a trilha com `access: "transmission_block_case"`, pelo mesmo mecanismo do 24a; nunca há polling.
+  - Nenhuma outra resposta do 35a traz paciente: o caso aparece como doença, data e "caso 1, 2…".
+- **Mapa:** os pontos dos imóveis da área (24c), sem o caso.
+- **Indicador:** tempo da notificação (`created_at` da notificação) até a confirmação, em horas, no relatório.
+
+## 9. Amostras
+
+- A etiqueta é calculada igual no app e no api, sem rede: `label = upcase(client_uuid_da_visita[0,8]) + "-" + format("%02d", number)`.
+  - A visita do dashboard também tem `client_uuid` (24b).
+  - Colisão de `label` (índice único) → a visita é recusada com `client_uuid_conflict`, e o app gera outro uuid.
+- **Fila de resultado:** amostras sem resultado, por data da visita, para a coordenação e o `vector_lab`.
+- **Resultado:**
+  - `examined_larvae` ≤ `larvae_collected`; `aegypti_larvae + albopictus_larvae` ≤ `examined_larvae`. Senão → `sample_result_invalid`.
+  - Corrigir exige `result_note`.
+  - O resultado volta ao imóvel (detalhe da visita) e aos índices.
+
+## 10. Relatórios
+
+`GET /vector_control/reports/<nome>` em JSON, e com `.csv` no fim do caminho. Leem a coordenação, o `vector_lab` (só ovitrampas e amostras) e o `municipal_admin`. São contagens, sem trilha.
+
+| Nome | Filtros | Linhas |
+|---|---|---|
+| `situations` | `cycle_id`, `neighborhood_ids[]` | por classe de imóvel (R = 1, 7–11, 99; C = 2; TB = 3; PE = 4; O = 5, 6, 12, 13): a visitar, visitados, trabalhados, fechados, recusados, desocupados, recuperados, pendência %; cobertura por bairro |
+| `strategic_points` | `cycle_id` | PE por situação e por última visita (quinzena) |
+| `production` | `from`, `to`, `professional_ids[]` | por agente e por dia: imóveis, trabalhados, depósitos eliminados e tratados, amostras, cargas por produto |
+| `consumption` | `from`, `to` | por produto: cargas, quantidade, baixas, falta-estoque por causa |
+| `ovitraps` | `epi_weeks[]`, `neighborhood_ids[]` | IPO, IDO e IDV por bairro e semana; perdidas e avariadas |
+| `liraa` | `survey_id` | índices por estrato e município, classe do IIP, amostra planejada × inspecionada, substituições; também `.pdf` |
+| `blocks` | `from`, `to` | bloqueios por status, casos (com `Admin::SmallCount` para 1–4), horas até a confirmação, ciclos |
+
+## 11. Parâmetros técnicos
+
+`vector_parameter_versions.values`. A coordenação edita com step-up, e cada edição cria uma versão nova (decisão 24). O padrão de fábrica fica em `config/vector_control/defaults.yml`:
+
+```yaml
+default_days: 60
+strategic_point_days: 15
+block_radius_rings: 1
+block_grouping_days: 7
+block_diseases: [dengue, chikungunya, zika]
+ubv_cycles_max: 3
+ubv_cycle_days_min: 3
+ubv_cycle_days_max: 5
+ubv_cycle_interval_days: 5
+ovitrap_collection_days_min: 3
+ovitrap_collection_days_max: 10
+ovitrap_alert_eggs: 100
+ovitrap_radius_rings: 1
+liraa_standard_min: 8100
+liraa_standard_max: 12000
+liraa_half_min: 2000
+liraa_base_sample: 450
+liraa_household_fraction: 0.2
+iip_bands: [1.0, 4.0]
+```
+
+- O mesmo spec confere as faixas de cada chave e o PUT (`422 invalid_parameter`, com `path`).
+- O levantamento do LIRAa grava a `parameters_version` do sorteio. O bloqueio e a ovitrampa usam a versão vigente.
+
+## 12. Rotas do api
+
+Prefixo `/vector_control`, sessão do dashboard. As escritas por cookie são JSON e passam por `require_vector_control!`. Onde está marcado "step-up", vale o `401 mfa_required`.
+
+| Rota | Quem | Nota |
+|---|---|---|
+| `GET /blocks?neighborhood_id=` · `POST /blocks` · `PATCH /blocks/:id` · `POST /blocks/:id/neighbors` · `DELETE /blocks/:id/neighbors/:neighbor_id` | coordenação (leitura: também `vector_lab` e agente) | o DELETE grava `ended_at` |
+| `GET /households?neighborhood_id=&city_block_id=&without_block=` · `POST /households/assign_block` · `PATCH /households/:id/profile` | coordenação | lista com `address_short`, tipo, quarteirão, risco, última visita; trilha `territory_registry` |
+| `GET /due?micro_area_id=` | agente de endemias | §5 |
+| `GET /cadences` · `PUT /cadences` · `GET /cycles` · `POST /cycles` · `PATCH /cycles/:id` | coordenação | o PUT troca a lista inteira, com step-up |
+| `GET /parameters` · `PUT /parameters` | coordenação; o GET também para o agente | step-up |
+| `GET /products` · `POST /products` · `PATCH /products/:id` · `GET /settings` · `PUT /settings` | coordenação | |
+| `GET /ovitraps` · `POST /ovitraps` · `POST /ovitraps/:id/collect` · `GET /ovitrap_readings?state=to_count` · `POST /ovitrap_readings/:id/count` | instalação e coleta: agente; contagem: coordenação e `vector_lab` | |
+| `GET /tasks` · `POST /tasks/:id/close` | coordenação | `state` `done` ou `dismissed`, com nota |
+| `GET/POST /liraa_surveys` · `PATCH /liraa_surveys/:id` · `POST /liraa_surveys/:id/draw` · `POST /liraa_surveys/:id/close` · `GET /liraa_surveys/:id/items` | coordenação | draw e close com step-up |
+| `GET /transmission_blocks` · `GET /transmission_blocks/:id` · `POST /transmission_blocks/:id/confirm` · `POST .../dismiss` · `POST .../close` · `POST .../cycles` · `POST .../cases/:case_id/move` · `GET .../cases/:case_id/address` | coordenação | confirm e address com step-up |
+| `GET /samples?state=pending` · `POST /samples/:id/result` | coordenação e `vector_lab` | |
+| `GET /stock_shortfalls` · `POST /stock_shortfalls/:id/reconcile` | coordenação e `stock_keeper` do local | |
+| `GET /reports/:name` (+ `.csv`, e `.pdf` no `liraa`) | §10 | |
+
+- A visita (`GET /home_visits/:id`, folha e lista) ganha `vector_inspection`:
+  - os campos do corpo do §3;
+  - os derivados (`recovered`, e `samples[].label` e `samples[].result`);
+  - os produtos com nome e código.
+- A visita só tem esse campo quando há inspeção, e ele vale para quem já lê a visita pelo 24b.
+
+## 13. `field-sync` v1.3.0 (MINOR)
+
+| Arquivo | Muda |
+|---|---|
+| `session-response-v1.json` | `features` + `vector_control` (bool, **opcional**; ausente = false) |
+| `upload-request-v1.json` | `home_visit_body` + `vector_inspection` (§3, `$defs/vector_inspection` fechado); tipos novos de item `ovitrap_installation` e `ovitrap_collection` |
+| `upload-response-v1.json` | `accepted` do `home_visit` pode trazer `vector_inspection_id`; do `ovitrap_installation`, `ovitrap_id` |
+| `changes-response-v1.json` | `<household>` + `vector` opcional: { `city_block_id`, `risk_class`, `risk_assessed_on`, `last_worked_on`, `last_situation` } \| `null`. `change_item.type` + `city_block`, `ovitrap`, `liraa_item`, `transmission_block` |
+| `reference-response-v1.json` | + `vector_control_domains`, opcional (só com o gate utilizável) |
+| `domains-v1.json` | `vector_control` (domínios e limites do §3 e §6) e os códigos novos em `errors.item` |
+| `examples/` | válidos e inválidos de cada novidade; e os dois achados do contracts#2: `street_type` com o código (`"081"`), e o vocabulário de `rules` da atividade na forma que o api serve (Q3) |
+
+**Itens novos do envio:**
+
+```json
+{ "client_uuid", "type": "ovitrap_installation",
+  "body": { "household_id" | "household_client_uuid", "number", "consent": true, "installed_on": "YYYY-MM-DD" } }
+{ "client_uuid", "type": "ovitrap_collection",
+  "body": { "ovitrap_id" | "ovitrap_client_uuid", "collected_on": "YYYY-MM-DD",
+            "condition": "ok" | "damaged" | "lost" | "dry", "reinstall": true, "remove": false } }
+```
+
+- Os dois são só do agente de endemias com o gate utilizável. Outro CBO → `rejected cbo_not_allowed`.
+- `ovitrap_client_uuid` resolve pelo livro de idempotência, como as outras citações do 24c. A falta da citação → `rejected not_found`, com `path` `ovitrap_client_uuid`.
+
+**Entidades novas do download.** Cada uma tem `id` e `version` e sai pelo mesmo cursor (o plano do api escolhe a mecânica; a regra é que toda escrita de `version` reemita a entidade):
+
+| Tipo | Corpo | Quando vai |
+|---|---|---|
+| `city_block` | `id`, `neighborhood_id`, `number`, `active`, `neighbor_ids[]`, `version` | quarteirões dos bairros dos imóveis do escopo |
+| `ovitrap` | `id`, `number`, `household_id`, `status`, `open_reading` { `installed_on` } \| `null`, `last_reading` { `collected_on`, `condition`, `egg_count` } \| `null`, `version` | ovitrampas de imóveis do escopo |
+| `liraa_item` | `id`, `survey_id`, `survey_name`, `household_id`, `city_block_id`, `status`, `version` | itens de levantamentos `drawn` com imóvel do escopo; quando o levantamento fecha, vai com `status: "closed"` |
+| `transmission_block` | `id`, `status`, `block_ids[]`, `cycles[]` { `number`, `starts_on`, `ends_on` }, `version` | bloqueios `active` com quarteirão de imóvel do escopo; ao fechar, vai uma vez como `closed`. **Nunca leva caso nem notificação** |
+
+- Mudança de perfil do imóvel reemite o `<household>`.
+- O `removal` não ganha tipo novo: o fim vem pelo status.
+
+**`vector_control_domains`** (referência):
+- `activities`, `work_types`, `situations`, `deposit_groups`, `measure_methods` e `risk_classes`, cada um com `{ code, label }`;
+- `products` com `{ id, code, name, unit, charge_size, uses }`, só os ativos;
+- `cadences`, as linhas da tabela;
+- `parameters`: `default_days`, `strategic_point_days`, `ovitrap_collection_days_min` e `_max`;
+- `limits`: depósitos 999, cargas 999, amostras 99 e larvas 10.
+
+**Compatibilidade:**
+- O app da v1.2.0 ignora o que não conhece. Esse é o contrato do README; o plano do campo confere que o `applyPage` ignora tipo desconhecido em vez de falhar.
+- O api aceita o envio da v1.2.0 sem mudança.
+- Nada fica obrigatório.
+
+## 14. App de campo (`rotasaude/campo`)
+
+- **Esquema local v2:**
+  - `SCHEMA_VERSION = 2`;
+  - `migrate()` sobe de 1 para 2 sem apagar nada: cria `city_blocks`, `ovitraps`, `liraa_items` e `transmission_blocks`, e os índices;
+  - o `vector` do domicílio fica no `body`;
+  - a versão desconhecida continua indo para `UnknownSchemaError`;
+  - um teste parte de um banco v1 com dado e sobe.
+- **Boletim:**
+  - Aparece na `VisitForm` só com `session.features.vector_control` e o CBO do vínculo `515140`.
+  - Ordem: atividade, tipo de trabalho, situação, horários (entrada ao abrir a visita, saída ao salvar, editáveis), depósitos por grupo (contadores), medidas (produto e cargas), amostras (etiqueta mostrada na hora, §9), ação educativa, quarteirão (só se faltar) e risco.
+  - As regras do §3 são portadas para `src/rules/vectorInspection.ts`, com fábrica como as do 24c (Q76 do 24c). As frases de recusa são as do dashboard.
+- **Folha:** "Imóveis a visitar" calculado no aparelho (§5, com a cadência e os parâmetros da referência), com os itens do LIRAa e do bloqueio por cima.
+- **Ovitrampas:**
+  - instalar a partir do domicílio;
+  - lista com "Coletar palheta" (condição, reinstalar ou retirar);
+  - nada de contagem no app.
+- **Offline:** tudo entra na fila do 24c. A ordem de envio respeita as citações (ovitrampa nova antes da coleta).
+- **Testes:** Jest das regras, da migração 1→2 e do envio; fluxos do Maestro para o boletim offline e para instalar e coletar a ovitrampa.
+
+## 15. Dashboard
+
+- **Grupo novo "Endemias"** (`NAV_GROUPS`, `CATALOG`, `renderModule`), para `endemic_coordinator` e, onde indicado, para `vector_lab`. Telas:
+  - `vector-blocks`: quarteirões, vizinhos, imóveis sem quarteirão e atribuição em lote;
+  - `vector-cycles`: ciclos e cadência;
+  - `vector-ovitraps`: lista, mapa e contagem (também `vector_lab`);
+  - `vector-liraa`: estratos, sorteio, itens e índices;
+  - `vector-transmission`: propostas, área, ciclos e casos sem paciente;
+  - `vector-samples`: fila de resultado (também `vector_lab`);
+  - `vector-tasks`: tarefas;
+  - `vector-settings`: produtos, parâmetros e local de estoque;
+  - `vector-reports`: relatórios, com download de CSV e PDF pelo `binaryFetch` e o `saveFile`.
+- **Agente de endemias:**
+  - a `VisitForm` ganha a seção "Boletim" (§3, mesmas regras);
+  - o `HomeVisitDay` ganha "Imóveis a visitar" (§5);
+  - o `VisitDetail` mostra o boletim, as etiquetas e os resultados;
+  - "Ovitrampas" para instalar e coletar.
+- **Unidades (09):** tipo "Vigilância ambiental e zoonoses".
+- **Estoque (27a):** o domínio `vector_control` nas telas de local, entrada, transferência e ajuste, com o produto no lugar do CATMAT; e "Falta de estoque" para conciliar.
+- **Mapa:** o `createFieldMap` do 24c, com pontos coloridos por risco (`vector-blocks`), por contagem (`vector-ovitraps`) ou por área (`vector-transmission`). Sem coordenada, só a lista.
+- `FeatureKey` e `FEATURE_LABEL` ganham `vector_control`.
+
+## 16. Maintenance
+
+- `FEATURE_LABELS.vector_control` = "Vigilância ambiental (endemias)".
+- `MISSING_LABELS.home_visits_disabled` = "precisa da visita domiciliar ligada".
+- Testes nos dois arquivos e o parágrafo do README, como no 24b (commit 55b680b).
+- Nenhuma mutation nova.
+
+## 17. LGPD, erros e eventos
+
+- **Sigilo:**
+  - Nenhuma resposta do 35a, salvo a do endereço do caso (§8) e as rotas do 24b/24a que já existem, traz nome, CPF, CNS, telefone ou endereço de pessoa.
+  - `address_short` é o do domicílio, como no 24a.
+  - A coordenada nunca sai ligada a caso.
+  - Microchip não é do 35a.
+- **Eventos novos** (`DomainEvents.publish`, só ids; ligados em `config/initializers/domain_events.rb` e fixados num spec de sigilo novo, `spec/security/vector_control_secrecy_spec.rb`, no molde do `home_visit_secrecy_spec`):
+
+| Evento | Payload |
+|---|---|
+| `city_block.changed` | `city_block_id`, `user_id` |
+| `household_vector_profile.changed` | `household_id`, `user_id` |
+| `vector_stock.shortfall_recorded` | `vector_stock_shortfall_id` |
+| `vector_stock.shortfall_reconciled` | `vector_stock_shortfall_id`, `user_id` |
+| `ovitrap.installed` / `ovitrap.collected` | `ovitrap_id`, `user_id` |
+| `ovitrap_reading.counted` | `ovitrap_reading_id`, `user_id`, `corrected` |
+| `vector_task.opened` / `vector_task.closed` | `vector_task_id` (+ `user_id` no closed) |
+| `liraa_survey.drawn` / `liraa_survey.closed` | `liraa_survey_id`, `user_id` |
+| `transmission_block.proposed` | `transmission_block_id` |
+| `transmission_block.confirmed` / `.dismissed` / `.closed` | `transmission_block_id`, `user_id` |
+| `transmission_block_case.address_viewed` | `transmission_block_id`, `user_id` |
+| `vector_sample.result_recorded` | `vector_sample_id`, `user_id`, `corrected` |
+| `vector_parameters.changed` | `version`, `user_id` |
+| `vector_product.changed` | `vector_product_id`, `user_id` |
+
+- A inspeção não tem evento próprio: vai no `home_visit.recorded`.
+- Nenhum nome novo de `Platform.audit`.
+- **Códigos novos** (422 salvo indicado; os de item também em `domains-v1.json`):
+  - `vector_inspection_invalid`, `situation_outcome_mismatch`, `inspection_not_worked`, `activity_property_mismatch`, `liraa_item_not_found`, `transmission_block_not_active`, `deposit_counts_inconsistent`, `product_not_allowed`, `samples_exceed_larvae`, `inspection_times_invalid`, `reason_derived`, `block_already_set`;
+  - `household_without_neighborhood`, `block_not_in_household_neighborhood`, `household_without_block`, `consent_required`, `ovitrap_number_taken`, `collection_out_of_range`, `reading_not_open`, `reading_not_countable`, `ovitrap_not_active`;
+  - `invalid_neighbor`, `block_in_use` (409), `product_in_use` (409), `already_reconciled` (409);
+  - `stratum_overlap`, `stratum_out_of_range`, `survey_not_draft` (409), `cycle_invalid`, `cycle_overlap`, `invalid_parameter`, `sample_result_invalid`, `block_number_taken`.
+
+## 18. Semente de dev e roteiro de prova
+
+- `lib/vector_control_crew.rb`, chamado pelo `db:seed`, só em Curitiba, que tem `home_visits`. Liga `vector_control` em dev. É fictício e imita o real (memória "semente de dev realista").
+- **Pessoas:**
+  - `ace@curitiba.demo`: agente de endemias, CBO 515140, numa eSF, com duas microáreas atribuídas;
+  - `endemias@curitiba.demo`: `endemic_coordinator`;
+  - `entomologia@curitiba.demo`: `vector_lab`;
+  - a senha e o TOTP são os das outras contas da semente.
+- **Unidade e estoque:** unidade "UVZ Curitiba" (`environmental_surveillance`) com local `vector_control`, produtos (dois larvicidas e um adulticida, com cargas de catálogo) e lotes com saldo.
+- **Território:**
+  - quarteirões com vizinhos em dois bairros, e o perfil de todos os imóveis das duas microáreas;
+  - risco variado e dois PE;
+  - quatro semanas de ovitrampas contadas, com uma acima do alerta;
+  - um LIRAa sorteado em `census`, com metade inspecionada;
+  - um caso de dengue numa paciente da semente, com o bloqueio `active` e um ciclo.
+- **Roteiro de prova** (dashboard e app; um caminho por requisito do edital):
+  1. boletim completo na visita, com a ficha 8 derivada;
+  2. baixa de estoque e falta conciliada;
+  3. vencidos por risco;
+  4. instalação, coleta e contagem de ovitrampa, com IPO no mapa;
+  5. LIRAa sorteado, substituição e relatório PDF;
+  6. notificação de dengue que propõe o bloqueio, a confirmação e o ciclo;
+  7. amostra com resultado que muda o IIP;
+  8. relatórios em CSV;
+  9. boletim offline no app.
+
+## 19. Entrega, testes e pendências
+
+- **Ordem:**
+  1. contracts (v1.3.0, tag com autorização);
+  2. api;
+  3. dashboard e maintenance;
+  4. campo;
+  5. suíte completa do api pela "Testes";
+  6. prova no navegador e no emulador;
+  7. merge e push com autorização, repo por repo.
+- **Testes do api:**
+  - specs de cada número das regras, com as bordas:
+    - estrato com N = 8.099, 8.100, 12.000, 12.001, 1.999 e 2.000;
+    - substituição sem vizinho;
+    - caso no 7º e no 8º dia;
+    - contagem 0;
+    - leitura com 2 e com 11 dias;
+    - ciclo de UBV com intervalo de 4 dias;
+  - a ficha 8 com os motivos derivados;
+  - a baixa que nunca recusa;
+  - o estorno na retirada;
+  - o spec de sigilo;
+  - o feed do app com as entidades novas;
+  - o envio da v1.2.0 sem mudança.
+- **Gates de go-live** (no board #2, no fechamento):
+  - diretriz vigente conferida com a vigilância ambiental de uma cidade piloto (cadência, raio em anéis, limiar da ovitrampa, faixa do IIP, modo `half`);
+  - ficha 8 do agente de endemias aceita no PEC real.
+- **Fora do 35a** (card no fechamento):
+  - raio geométrico pela coordenada;
+  - território de endemias sem microárea;
+  - Conta Ovos;
+  - exportação do LIRAa estadual;
+  - suspensão de Wolbachia/TIE no bloqueio.
+
+## 20. Decisões (Q-n)
+
+| Q | Decisão |
+|---|---|
+| Q1 (coordenador, ao escrever) | `vector_control` exige `feature:home_visits`, e não só `territory_registry`: o boletim é um bloco da visita, e sem a visita não há onde registrá-lo. `home_visits` já exige o cadastro, então a decisão 1 da spec fica coberta. |
+| Q2 (coordenador, ao escrever) | Quarteirão e risco ficam em `household_vector_profiles`, fora de `household_versions`. Mudá-los não cria versão do 24a, não gera ficha 3 e não depende do ACS. A spec dizia "colunas novas no 24a"; a tabela 1:1 é a forma disso. |
+| Q3 (coordenador, ao escrever) | Os dois achados do contracts#2 (exemplos com `street_type` `"RUA"` e o vocabulário de `rules` do `domains-v1.json`) entram na v1.3.0, que é a "próxima versão" decidida pelo usuário em 2026-11-16. Os seis itens adiados do contracts#2 continuam adiados. |
+| Q4 (coordenador, ao escrever) | Insumo de campo é um terceiro domínio do estoque do 27a (`item_kind` `vector_control`, produto do `vector_products`), não item do CATMAT nem do almoxarifado do laboratório (21b). Segue o caminho que o 29 abriu para o imunobiológico. |
+| Q5 (coordenador, ao escrever) | Sem geometria de quarteirão: os mapas do 35a usam os pontos dos imóveis do 24c, e o raio conta anéis de vizinhança. Quarteirão é lista, não polígono. |
