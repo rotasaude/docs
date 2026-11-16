@@ -1,6 +1,6 @@
 # Módulo 24 — Atendimento domiciliar e coletivo
 
-- **Estado:** 24a Entregue (2026-10-27; F-24.1–F-24.6 e F-24.8 `Verified`; F-24.7 `Done` até o SIAPS aceitar fichas reais); 24b Entregue (2026-11-14; F-24.9, .10, .12, .14, .15, .16 e .17 `Verified`; F-24.11 e .13 `Done` até o PEC real e o SIAPS, api#165); 24c Entregue (2026-11-16; F-24.18–F-24.22 `Verified`; F-24.23 `Done` até a prova da atividade coletiva no tablet; F-24.24 `Done` até o PEC real aceitar as fichas 3 e 8 com coordenada; F-24.25 `In Progress` até o build de publicação)
+- **Estado:** 24a Entregue (2026-10-27; F-24.1–F-24.6 e F-24.8 `Verified`; F-24.7 `Done` até o SIAPS aceitar fichas reais); 24b Entregue (2026-11-14; F-24.9, .10, .12, .14, .15, .16 e .17 `Verified`; F-24.11 e .13 `Done` até o PEC real e o SIAPS, api#165); 24c Em andamento (2026-11-16; F-24.18–F-24.22 `Verified`; F-24.23 `Done` até a prova da atividade coletiva no tablet; F-24.24 `Done` até o PEC real aceitar as fichas 3 e 8 com coordenada; F-24.25 `In Progress` até o build de publicação)
 - **Tipo:** Ciclo 2
 
 ## Escopo (intenção)
@@ -169,4 +169,4 @@ Módulos 10, 11, 16, 20, 22 e 23.
   `superpowers/specs/2026-11-13-module-24c-field-app-design.md`;
   decisões do usuário 1A, 2A, 3B, 4A, 5A, 6A).
 - 2026-11-14 — 24b **implementado, publicado e Entregue** (ver "Entrega do 24b"). `Fechado` depois do api#165.
-- 2026-11-16 — 24c **implementado, publicado e Entregue** em desenvolvimento (ver "Entrega do 24c"). `Fechado` depois do build de publicação e dos gates.
+- 2026-11-16 — 24c implementado e publicado (ver "Entrega do 24c"); fica `Em andamento` até o F-24.25 (build de publicação) chegar a `Done`, e `Fechado` depois dos gates.
