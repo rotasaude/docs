@@ -1,6 +1,6 @@
 # Módulo 24 — Atendimento domiciliar e coletivo
 
-- **Estado:** 24a Entregue (2026-10-27; F-24.1–F-24.6 e F-24.8 `Verified`; F-24.7 `Done` até o SIAPS aceitar fichas reais); 24b Entregue (2026-11-14; F-24.9, .10, .12, .14, .15, .16 e .17 `Verified`; F-24.11 e .13 `Done` até o PEC real e o SIAPS, api#165); 24c `Planejado` (2026-11-13, ADR 0053)
+- **Estado:** 24a Entregue (2026-10-27; F-24.1–F-24.6 e F-24.8 `Verified`; F-24.7 `Done` até o SIAPS aceitar fichas reais); 24b Entregue (2026-11-14; F-24.9, .10, .12, .14, .15, .16 e .17 `Verified`; F-24.11 e .13 `Done` até o PEC real e o SIAPS, api#165); 24c Entregue (2026-11-16; F-24.18–F-24.22 `Verified`; F-24.23 `Done` até a prova da atividade coletiva no tablet; F-24.24 `Done` até o PEC real aceitar as fichas 3 e 8 com coordenada; F-24.25 `In Progress` até o build de publicação)
 - **Tipo:** Ciclo 2
 
 ## Escopo (intenção)
@@ -120,6 +120,30 @@ Página de status: https://claude.ai/artifact/BWNV4wLVver5fWM4wfpCo6
 
 Página de status: https://claude.ai/artifact/K9ThEFh3xLtnUrTDaUsksj
 
+## Entrega do 24c (2026-11-16)
+
+| Repo | Commit | Observação |
+|---|---|---|
+| `contracts` | `f9d6df2`, `826529d` | tags `field-sync-v1.2.0` e `map-style-v1.0.0` |
+| `campo` | `9370630` | 97 commits sobre `c725bbb`: o app, a branch Android (`ddc70a5`, merge `be877d1`) e o lint dos scripts do Maestro; 1084 testes em 80 suítes |
+| `api` | `fd0422b2` | 23 commits; suíte completa 12258/0 em `065deffa` (`fd0422b2` só acrescenta spec) |
+| `dashboard` | `677a511` | 7 commits; 568/568 e 7017; exige `npm install` no volume por `maplibre-gl` 6.16.0 e `pmtiles` 4.5.0 |
+| `maintenance` | `fea9c29` | 3 commits; 689 testes |
+| `catalog` | branch `content/modulo-24c` (`e9f2a92`) | F-24.18..25, superfície nova "App de campo"; .23, .24 e .25 em validação; PR depois do push |
+| `docs` | contrato §13 Q1–Q86 | |
+
+**Prova no navegador (2026-11-15/16):** dashboard e maintenance contra o api de dev (geração e entrega do mapa, aparelhos de campo, mapa no dashboard), com o conserto do sprite (`677a511`).
+
+**Prova no emulador (2026-11-15/16, só desenvolvimento):** 11 fluxos do Maestro; prova integrada da Task 26 contra o api de dev (7 casos, Q85); correções achadas na prova e provadas no tablet antes do merge (rolagem até a recusa e "Salvar" à vista ao marcar o ponto, `d613eed`/`f7e4ffb`; hora da "Última sincronização" no Início, `92af0e2`).
+
+**Decisões tomadas na execução** (contrato §13): portas no `AppRoot` e tranca com véu opaco (Q74, Q75, Q77); fila serial com `BEGIN IMMEDIATE` (Q75); regras portadas do dashboard por fábricas (Q76); duplicado local sem número nem nome (Q78); "Corrigir" só em domicílio, família e cadastro individual (Q81, Q82); frase própria de contrato desatualizado e conferência do contrato no pareamento (Q83); comportamento do servidor nas dependências adiadas, no eco do feed e no `new_patient` de pessoa existente (Q86).
+
+**Pendências:** de ciclo, no board #2 (a abrir no fechamento): frase do conflito de pontos, relógio cru, `attempts`, "Gerar de novo" de cidade arquivada, `:pmtiles_cli` fora do `bin/test` (Q82(5)); "Corrigir" no tablet (Q81(1)); `cpf_taken`/`cns_taken` sem `path` no `individual_registration` (Q86). Exemplos do contracts (`street_type` e vocabulário do `domains-v1.json`) em contracts#2. Imagem de dev do api sem `pmtiles` (rebuild). CI do api vermelha por ambiente (`ubuntu-latest` 26.04 sem Ruby 3.3.6), conserto em sessão própria.
+
+**Gates de go-live:** prova no PEC real das fichas 3 e 8 com coordenada; prova da atividade coletiva no tablet; chave de assinatura real, sufixos de produção, AAB e runbook do Google Play gerenciado; conta de desenvolvedor Google verificada; tablet físico (QR pela câmera); um dia de campo real sem sinal.
+
+Página de status: https://claude.ai/artifact/D2SdpLRkejsTtWKNHEiYPD
+
 ## Integrações externas
 
 Fichas LEDI de visita, cadastro e atividade coletiva (componente de Vínculo do cofinanciamento). Detalhe e fontes em
@@ -145,3 +169,4 @@ Módulos 10, 11, 16, 20, 22 e 23.
   `superpowers/specs/2026-11-13-module-24c-field-app-design.md`;
   decisões do usuário 1A, 2A, 3B, 4A, 5A, 6A).
 - 2026-11-14 — 24b **implementado, publicado e Entregue** (ver "Entrega do 24b"). `Fechado` depois do api#165.
+- 2026-11-16 — 24c **implementado, publicado e Entregue** em desenvolvimento (ver "Entrega do 24c"). `Fechado` depois do build de publicação e dos gates.
