@@ -22,6 +22,7 @@
 > - **Ordem do 1º erro (api Task 6, Q13(10)):** nas listas do boletim, o api confere o **tamanho da lista** (depósitos 7, medidas 20, amostras 99) antes dos itens, e as **faixas** antes das desigualdades. O `checkInspection` devolve as recusas nessa ordem.
 > - **Q21 (Task 18):** com `vector_control` utilizável e `pharmacy` desligado, o grupo "Farmácia" mostra só o que é do local `vector_control` (administração do local e da equipe, entrada de nota, posição, faltas de insumo); os testes da linha da `vector-stock-shortfalls` ganham o caso sem `pharmacy`. Causa `no_lot` = nenhum lote do produto no local; com lote sem saldo válido, `insufficient_balance`.
 > - **Q21, como o api ficou (Task 7):** com `pharmacy` ligado e `vector_control` desligado, o admin esconde os locais `vector_control` e responde `403` com `feature: "vector_control"` a eles; com `pharmacy` desligado, `GET /pharmacy/locations` devolve `200 []` a quem só tem local de medicamento (a tela mostra o vazio, não erro).
+> - **Q23 (Tasks das ovitrampas):** `ovitrap_number_taken` é `422` `path` `number`; corrigir leitura exige contagem diferente da gravada (`countProblems` recusa só a nota nova, `path` `egg_count`).
 > - **Q19/Q20:** erros de escopo do agente no cadastro (403 `out_of_scope` ao criar fora da microárea, 404 ao editar/ler, `cbo_not_allowed` com morador ativo e na família); `vacant` no LIRAa é substituído.
 
 ## Global Constraints
@@ -884,7 +885,7 @@ it("coletar: 2 dias recusa antes de enviar; 3 dias envia com reinstalar", async 
   // installed_on "2026-11-13" → collectOvitrap("ov1", { collected_on: "2026-11-16", condition: "ok", reinstall: true, remove: false })
 });
 it("retirar perdida: reinstalar desmarca; o corpo leva remove true e condition lost", async () => { /* … */ });
-it("409 ovitrap_number_taken no campo; rede guarda o uuid e 'Tentar de novo' manda o mesmo", async () => { /* … */ });
+it("422 ovitrap_number_taken (path number, Q23) no campo; rede guarda o uuid e 'Tentar de novo' manda o mesmo", async () => { /* … */ });
 ```
 
 - [ ] **Step 2–4:** rode e veja falhar (`src/modules/FieldOvitraps.test.tsx`); implemente; rode e veja passar; `tsc`.
