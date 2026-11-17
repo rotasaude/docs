@@ -25,6 +25,7 @@
 > - **Q23 (Tasks das ovitrampas):** `ovitrap_number_taken` é `422` `path` `number`; corrigir leitura exige contagem diferente da gravada (`countProblems` recusa só a nota nova, `path` `egg_count`).
 > - **Q24 (LIRAa):** o N do estrato no editor é o `stratum.households_count` que o api devolve no `draft` (sem PE), não a soma dos quarteirões; o índice de levantamento fechado fica "provisório" até todas as amostras terem resultado.
 > - **Q26 (bloqueio):** `confirm` manda `seen_case_ids` (os ids dos casos mostrados) e pode dar `409 proposal_changed` (entrou caso depois da leitura): a tela relê a proposta, avisa "Entrou caso novo nesta proposta; confira a área" e mantém a seleção. `422` `path` `seen_case_ids` (caso movido para fora depois da leitura; teto de 500 ids) também relê a proposta e avisa do mesmo jeito. O endereço do caso só abre em bloqueio proposto ou ativo (`409 invalid_transition` nos outros); o caso movido mostra quem moveu.
+> - **Q27 (amostras):** `sampleResultProblems` recusa a correção que só troca a nota (`path` `examined_larvae`), como o `countProblems`; a aba "Com resultado" vem do mais recente para o mais antigo, a "Pendentes" da coleta mais antiga para a mais nova.
 > - **Q19/Q20:** erros de escopo do agente no cadastro (403 `out_of_scope` ao criar fora da microárea, 404 ao editar/ler, `cbo_not_allowed` com morador ativo e na família); `vacant` no LIRAa é substituído.
 
 ## Global Constraints
