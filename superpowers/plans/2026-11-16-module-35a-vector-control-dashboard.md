@@ -14,6 +14,14 @@
 
 **Spec:** `docs/superpowers/specs/2026-11-14-module-35-zoonoses-endemics-design.md` (decisões 1–7 do usuário; 1–13 e 23–30 do coordenador; §4 telas; §5 testes; §7 F-35.1–F-35.9). **Contrato:** `docs/superpowers/plans/2026-11-16-module-35a-vector-control-contracts.md` §1–§12, §15, §17, §18. Modelos de formato: os planos do dashboard do 24b e do 24c.
 
+> **Notas da execução (coordenador, 2026-11-17)** — valem por cima das tasks abaixo:
+> - **Q17:** os parâmetros ganham `liraa_half_household_fraction: number` (padrão 0,5, faixa 0,01–1,0, duas casas) ao lado de `liraa_household_fraction` (a do `standard`); entra no tipo da linha dos parâmetros e na tela de parâmetros (Task dos parâmetros). O intervalo é `round(1 ÷ fração)`, não é campo.
+> - **Q15:** `charge_size` é texto `"^[0-9]{1,8}\.[0-9]{2}$"` na referência e em `/vector_control/domains` (o plano já tipa como `string`).
+> - **Q16(f):** rótulo de `B` = "B — Depósito móvel" (vem dos domínios; nenhum texto fixo no dashboard).
+> - **Q18:** `GET /vector_control/blocks?neighborhood_id=` devolve o bairro inteiro, em ordem natural do `number`, sem `next_before`; `before` dá `422`.
+> - **Ordem do 1º erro (api Task 6, Q13(10)):** nas listas do boletim, o api confere o **tamanho da lista** (depósitos 7, medidas 20, amostras 99) antes dos itens, e as **faixas** antes das desigualdades. O `checkInspection` devolve as recusas nessa ordem.
+> - **Q19/Q20:** erros de escopo do agente no cadastro (403 `out_of_scope` ao criar fora da microárea, 404 ao editar/ler, `cbo_not_allowed` com morador ativo e na família); `vacant` no LIRAa é substituído.
+
 ## Global Constraints
 
 - **Nomes no código** (contrato §1, §3): interruptor `vector_control` (rótulo curto "Vigilância ambiental (endemias)"); papéis `endemic_coordinator` ("Coordenação de endemias") e `vector_lab` ("Laboratório de entomologia"); CBO do agente `515140`; atividades `li` `li_t` `pe` `ie` `transmission_block` `liraa`; trabalho `routine` | `pending`; situação `worked` `closed` `refused` `vacant`; grupos `A1` `A2` `B` `C` `D1` `D2` `E`; métodos `mechanical` `focal` `perifocal` `spatial`; risco `green` `yellow` `red` `gray` `purple`; unidade `environmental_surveillance` ("Vigilância ambiental e zoonoses"); local `vector_control`; movimento `vector_application`. **Código desconhecido aparece cru, nunca some.**
