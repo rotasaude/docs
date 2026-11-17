@@ -24,6 +24,7 @@
 > - **Q21, como o api ficou (Task 7):** com `pharmacy` ligado e `vector_control` desligado, o admin esconde os locais `vector_control` e responde `403` com `feature: "vector_control"` a eles; com `pharmacy` desligado, `GET /pharmacy/locations` devolve `200 []` a quem só tem local de medicamento (a tela mostra o vazio, não erro).
 > - **Q23 (Tasks das ovitrampas):** `ovitrap_number_taken` é `422` `path` `number`; corrigir leitura exige contagem diferente da gravada (`countProblems` recusa só a nota nova, `path` `egg_count`).
 > - **Q24 (LIRAa):** o N do estrato no editor é o `stratum.households_count` que o api devolve no `draft` (sem PE), não a soma dos quarteirões; o índice de levantamento fechado fica "provisório" até todas as amostras terem resultado.
+> - **Q26 (bloqueio):** `confirm` pode dar `409 proposal_changed` (caso novo fora da área enviada): a tela relê a proposta, avisa "Entrou caso novo nesta proposta; confira a área" e mantém a seleção. O endereço do caso só abre em bloqueio proposto ou ativo (`409 invalid_transition` nos outros); o caso movido mostra quem moveu.
 > - **Q19/Q20:** erros de escopo do agente no cadastro (403 `out_of_scope` ao criar fora da microárea, 404 ao editar/ler, `cbo_not_allowed` com morador ativo e na família); `vacant` no LIRAa é substituído.
 
 ## Global Constraints
