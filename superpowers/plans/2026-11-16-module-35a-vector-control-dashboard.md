@@ -20,6 +20,7 @@
 > - **Q16(f):** rótulo de `B` = "B — Depósito móvel" (vem dos domínios; nenhum texto fixo no dashboard).
 > - **Q18:** `GET /vector_control/blocks?neighborhood_id=` devolve o bairro inteiro, em ordem natural do `number`, sem `next_before`; `before` dá `422`.
 > - **Ordem do 1º erro (api Task 6, Q13(10)):** nas listas do boletim, o api confere o **tamanho da lista** (depósitos 7, medidas 20, amostras 99) antes dos itens, e as **faixas** antes das desigualdades. O `checkInspection` devolve as recusas nessa ordem.
+> - **Q21 (Task 18):** com `vector_control` utilizável e `pharmacy` desligado, o grupo "Farmácia" mostra só o que é do local `vector_control` (administração do local e da equipe, entrada de nota, posição, faltas de insumo); os testes da linha da `vector-stock-shortfalls` ganham o caso sem `pharmacy`. Causa `no_lot` = nenhum lote do produto no local; com lote sem saldo válido, `insufficient_balance`.
 > - **Q19/Q20:** erros de escopo do agente no cadastro (403 `out_of_scope` ao criar fora da microárea, 404 ao editar/ler, `cbo_not_allowed` com morador ativo e na família); `vacant` no LIRAa é substituído.
 
 ## Global Constraints
