@@ -14,7 +14,9 @@
 
 ## Global Constraints
 
-- Repositório `rotasaude/campo`, base `main` em `8429bd5`; branch `feat/mod-35a-vector-control`; worktree `rota-saude/.worktrees/campo-mod35a` (nunca `node_modules` dentro de `apps/<outro app>`).
+- Repositório `rotasaude/campo`, base `main` em `ef51ad5` (atualizada em 2026-11-17; ver a nota da base abaixo); branch `feat/mod-35a-vector-control`; worktree `rota-saude/.worktrees/campo-mod35a` (nunca `node_modules` dentro de `apps/<outro app>`).
+
+> **Nota da base (2026-11-17).** O plano foi escrito sobre `8429bd5`. Depois dele entraram na `main` do campo o `cf4d3a4` (o profissional logado sai dos participantes da atividade coletiva, campo#5) e o `ef51ad5` (relógio confiável na retenção e no bloqueio, campo#2: `src/sync/trustedTime.ts` novo, `readTrustedNow` em `downloadAll` para o `last_download_ok_at`, `anchorServerTime` e `enforceTerritoryAge` depois da sessão em `round.ts`, `trustedTime` em `homeData.ts`, e `lock.ts`). Nenhum dos dois mexe em `src/db/` nem no `applyPage`: o esquema v1 congelado na Task 3 continua o de `8429bd5`. Nas Tasks 3 (`round.ts`) e 8 (`homeData.ts`), aplique a mudança sobre o código atual, sem desfazer o do campo#2. A migração 1→2 e o `wipe` não apagam a chave do relógio confiável (`HIGH_WATER_KEY`) nem o `clock_skew_ms`.
 - Contrato: tag `field-sync-v1.3.0` (MINOR); `session.contract` continua `"field-sync-v1"`. Cópia em `contracts/field-sync/` presa por `SHA256SUMS`, `TAG` e os seis SHA-256 que o api fixa em `FieldSync::Schemas::SHA256`.
 - Nada fica obrigatório: `features.vector_control` ausente = `false`; `vector_control_domains` ausente = sem boletim; `<household>.vector` **ausente** = gate desligado na cidade, **`null`** = imóvel sem perfil (Q6). Ligar ou desligar o interruptor chega como página `reset: true` (Q6), que o app trata como qualquer reset.
 - O boletim aparece só com `session.features.vector_control === true`, `session.professional.cbo === ENDEMIC_AGENT_CBO` (`"515140"`) e `reference.vectorDomains !== null`. O ACS e os outros CBOs não veem nada novo; o "Quem visitar" do 24b não muda. O agente pode salvar a visita sem boletim: chave "Registrar boletim", ligada por padrão (Q8, como o dashboard).
@@ -89,7 +91,7 @@
 
 **Files:** nenhum código.
 
-- [ ] **Step 1: Conferir a base** — `G=/opt/homebrew/bin/git; $G -C /Users/eduardovrocha/Development/ioit.solutions/rota-saude/apps/campo fetch origin && $G -C /Users/eduardovrocha/Development/ioit.solutions/rota-saude/apps/campo rev-parse --short origin/main`. Expected: `8429bd5`. Outro commit: anote e avise o coordenador antes de seguir (o plano foi escrito sobre `8429bd5`).
+- [ ] **Step 1: Conferir a base** — `G=/opt/homebrew/bin/git; $G -C /Users/eduardovrocha/Development/ioit.solutions/rota-saude/apps/campo fetch origin && $G -C /Users/eduardovrocha/Development/ioit.solutions/rota-saude/apps/campo rev-parse --short origin/main`. Expected: `ef51ad5`. Outro commit: anote e avise o coordenador antes de seguir.
 - [ ] **Step 2: Card** — card F-35.10 do board #1 (mod-35) para In Progress, um `gh` por comando, começando por `gh` (memória "board: gh em comando simples"): `gh project item-list 1 --owner rotasaude --format json --limit 500` para achar o id, depois `gh project item-edit …` com o campo Status. Se o card já estiver em In Progress por outra sessão, não mexa.
 - [ ] **Step 3: Worktree**
 
@@ -104,7 +106,7 @@ cd $R/.worktrees/campo-mod35a && npm ci
 
 ### Task 1: Download pula tipo desconhecido (Q6(3))
 
-Na `main` (`8429bd5`), `applyPage` manda todo item que não é `micro_area` nem `household` para `putRegistration`: um `city_block` lança `TypeError` em `body.patient.id`, a transação volta, o cursor não anda e toda rodada falha igual. Esta task corrige isso ainda sobre a v1.2.0, isolada do resto.
+Na `main` (`ef51ad5`, igual a `8429bd5` neste ponto), `applyPage` manda todo item que não é `micro_area` nem `household` para `putRegistration`: um `city_block` lança `TypeError` em `body.patient.id`, a transação volta, o cursor não anda e toda rodada falha igual. Esta task corrige isso ainda sobre a v1.2.0, isolada do resto.
 
 **Files:**
 - Modify: `src/sync/download.ts`, `src/log.ts` (evento `sync.change.skipped`)
