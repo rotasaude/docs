@@ -1,6 +1,6 @@
 # Módulo 24 — Atendimento domiciliar e coletivo
 
-- **Estado:** 24a Entregue (2026-10-27; F-24.1–F-24.6 e F-24.8 `Verified`; F-24.7 `Done` até o SIAPS aceitar fichas reais); 24b Entregue (2026-11-14; F-24.9, .10, .12, .14, .15, .16 e .17 `Verified`; F-24.11 e .13 `Done` até o PEC real e o SIAPS, api#165); 24c Em andamento (2026-11-16; F-24.18–F-24.22 `Verified`; F-24.23 `Done` até a prova da atividade coletiva no tablet; F-24.24 `Done` até o PEC real aceitar as fichas 3 e 8 com coordenada; F-24.25 `In Progress` até o build de publicação)
+- **Estado:** 24a Entregue (2026-10-27; F-24.1–F-24.6 e F-24.8 `Verified`; F-24.7 `Done` até o SIAPS aceitar fichas reais); 24b Entregue (2026-11-14; F-24.9, .10, .12, .14, .15, .16 e .17 `Verified`; F-24.11 e .13 `Done` até o PEC real e o SIAPS, api#165); 24c Em andamento (2026-11-16; F-24.18–F-24.23 `Verified`, o F-24.23 em 2026-11-17 depois da prova da atividade coletiva no tablet; F-24.24 `Done` até o PEC real aceitar as fichas 3 e 8 com coordenada; F-24.25 `In Progress` até o build de publicação)
 - **Tipo:** Ciclo 2
 
 ## Escopo (intenção)
@@ -125,22 +125,24 @@ Página de status: https://claude.ai/artifact/K9ThEFh3xLtnUrTDaUsksj
 | Repo | Commit | Observação |
 |---|---|---|
 | `contracts` | `f9d6df2`, `826529d` | tags `field-sync-v1.2.0` e `map-style-v1.0.0` |
-| `campo` | `9370630` | 97 commits sobre `c725bbb`: o app, a branch Android (`ddc70a5`, merge `be877d1`) e o lint dos scripts do Maestro; 1084 testes em 80 suítes |
+| `campo` | `cf4d3a4` | 99 commits sobre `c725bbb`: o app, a branch Android (`ddc70a5`, merge `be877d1`), o lint dos scripts do Maestro, a nova tentativa de abrir o app no pareamento do Maestro (`8429bd5`) e o profissional logado fora da atividade coletiva (`cf4d3a4`); 1085 testes em 80 suítes |
 | `api` | `fd0422b2` | 23 commits; suíte completa 12258/0 em `065deffa` (`fd0422b2` só acrescenta spec) |
 | `dashboard` | `677a511` | 7 commits; 568/568 e 7017; exige `npm install` no volume por `maplibre-gl` 6.16.0 e `pmtiles` 4.5.0 |
 | `maintenance` | `fea9c29` | 3 commits; 689 testes |
 | `catalog` | PR rotasaude/catalog#41 (merge `0117709`) | F-24.18..25, superfície nova "App de campo"; .23, .24 e .25 em validação |
-| `docs` | contrato §13 Q1–Q86 | |
+| `docs` | contrato §13 Q1–Q87 | |
 
 **Prova no navegador (2026-11-15/16):** dashboard e maintenance contra o api de dev (geração e entrega do mapa, aparelhos de campo, mapa no dashboard), com o conserto do sprite (`677a511`).
 
 **Prova no emulador (2026-11-15/16, só desenvolvimento):** 11 fluxos do Maestro; prova integrada da Task 26 contra o api de dev (7 casos, Q85); correções achadas na prova e provadas no tablet antes do merge (rolagem até a recusa e "Salvar" à vista ao marcar o ponto, `d613eed`/`f7e4ffb`; hora da "Última sincronização" no Início, `92af0e2`).
 
+**Prova da atividade coletiva no tablet (campo#5, 2026-11-16/17, só desenvolvimento):** contra o api de dev, atividade registrada sem sinal com um participante que já tinha cadastro e um novo (com CNS), enviada e aceita, com a ficha LEDI da atividade coletiva gerada. A prova achou o profissional logado oferecido na lista de profissionais participantes, que o api recusa e o tablet não deixa corrigir. Corrigido no app (`cf4d3a4`), provado de novo no tablet antes do merge e publicado. Com ela, o F-24.23 foi para `Verified`.
+
 **Decisões tomadas na execução** (contrato §13): portas no `AppRoot` e tranca com véu opaco (Q74, Q75, Q77); fila serial com `BEGIN IMMEDIATE` (Q75); regras portadas do dashboard por fábricas (Q76); duplicado local sem número nem nome (Q78); "Corrigir" só em domicílio, família e cadastro individual (Q81, Q82); frase própria de contrato desatualizado e conferência do contrato no pareamento (Q83); comportamento do servidor nas dependências adiadas, no eco do feed e no `new_patient` de pessoa existente (Q86).
 
-**Pendências (board #2):** campo#1 (frase do conflito de pontos), campo#2 (relógio cru na retenção e no bloqueio), campo#3 (`attempts` entre 429 e recusa passageira), maintenance#4 ("Gerar de novo" de cidade arquivada) e api#172 (`:pmtiles_cli` fora do `bin/test`), da Q82(5); campo#4 ("Corrigir" de visita, atividade, retirada e registro rápido, Q81(1)); api#173 (`cpf_taken`/`cns_taken` sem `path` no `individual_registration`, Q86). Mais campo#5 (prova da atividade coletiva no tablet, para o `Verified` do F-24.23), campo#6 (job do Maestro na CI), campo#7 (participantes da atividade coletiva só da própria equipe no tablet, Q87), api#176 (imagem de dev do api sem `pmtiles`) e api#175 (pessoal da cidade entra só com senha: decidir MFA no login, ADR 0011, mod-06). Exemplos do contracts (`street_type` e vocabulário do `domains-v1.json`) em contracts#2, na próxima versão do `field-sync`. CI do api vermelha por ambiente (`ubuntu-latest` 26.04 sem Ruby 3.3.6), conserto em sessão própria.
+**Pendências (board #2):** campo#1 (frase do conflito de pontos), campo#2 (relógio cru na retenção e no bloqueio), campo#3 (`attempts` entre 429 e recusa passageira), maintenance#4 ("Gerar de novo" de cidade arquivada) e api#172 (`:pmtiles_cli` fora do `bin/test`), da Q82(5); campo#4 ("Corrigir" de visita, atividade, retirada e registro rápido, Q81(1)); api#173 (`cpf_taken`/`cns_taken` sem `path` no `individual_registration`, Q86). Mais campo#6 (job do Maestro na CI), campo#7 (participantes da atividade coletiva só da própria equipe no tablet, Q87) e api#175 (pessoal da cidade entra só com senha: decidir MFA no login, ADR 0011, mod-06). Exemplos do contracts (`street_type` e vocabulário do `domains-v1.json`) em contracts#2, na próxima versão do `field-sync`. Resolvidos: campo#5 (prova da atividade coletiva no tablet, 2026-11-17) e api#176 (imagem de dev do api reconstruída com o `pmtiles`). A CI do api, que estava vermelha por ambiente (`ubuntu-latest` 26.04 sem Ruby 3.3.6), voltou com o PR api#174 (`469e2e68`); o `production-boot` segue vermelho até existir o `production.yml.enc` de produção (módulo 06).
 
-**Gates de go-live:** prova no PEC real das fichas 3 e 8 com coordenada; prova da atividade coletiva no tablet; chave de assinatura real, sufixos de produção, AAB e runbook do Google Play gerenciado; conta de desenvolvedor Google verificada; tablet físico (QR pela câmera); um dia de campo real sem sinal.
+**Gates de go-live:** prova no PEC real das fichas 3 e 8 com coordenada; chave de assinatura real, sufixos de produção, AAB e runbook do Google Play gerenciado; conta de desenvolvedor Google verificada; tablet físico (QR pela câmera); um dia de campo real sem sinal.
 
 Página de status: https://claude.ai/artifact/D2SdpLRkejsTtWKNHEiYPD
 
@@ -170,3 +172,4 @@ Módulos 10, 11, 16, 20, 22 e 23.
   decisões do usuário 1A, 2A, 3B, 4A, 5A, 6A).
 - 2026-11-14 — 24b **implementado, publicado e Entregue** (ver "Entrega do 24b"). `Fechado` depois do api#165.
 - 2026-11-16 — 24c implementado e publicado (ver "Entrega do 24c"); fica `Em andamento` até o F-24.25 (build de publicação) chegar a `Done`, e `Fechado` depois dos gates.
+- 2026-11-17 — F-24.23 `Verified`: atividade coletiva provada no tablet contra o api de dev (campo#5), com o conserto do profissional logado na lista (`cf4d3a4`).
