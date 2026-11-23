@@ -15,6 +15,8 @@ Dispensação, estoque por unidade, lotes e validade, almoxarifado central. Lacu
 | Insumos | Catálogo de materiais (seringa, fita, lanceta, curativo) sobre o mesmo estoque | Depois do 27a |
 | 27b — Envio federal | BNAFAR/Hórus, depois de pesquisa | Depois do 27a |
 
+Pesquisa dos insumos e do 27b (2026-11-23): [`pesquisa/2026-11-23-insumos-e-bnafar-27.md`](../pesquisa/2026-11-23-insumos-e-bnafar-27.md). Pela Portaria 5.713/2024, o SI-BNAFAR recebe, em D-1, a posição de estoque (REPE) e as saídas por transferência e perda (RESMPE). A dispensação vai à RNDS pelo REDFM. O Hórus está sendo substituído pelo eSUSAF. Insumos usam CATMAT 6515/6550.
+
 ## ADRs governantes
 
 | ADR | Papel no módulo |
