@@ -1,6 +1,6 @@
 # Módulo 35 — Zoonoses e endemias
 
-- **Estado:** `Planejado` (2026-11-14, ADR 0054): 35a (campo de endemias) primeiro, 35b (centro de zoonoses) depois
+- **Estado:** `Em andamento` (35a `Entregue` em 2026-11-23; 35b `Planejado`). ADR 0054: 35a (campo de endemias) primeiro, 35b (centro de zoonoses) depois
 - **Tipo:** Ciclo 2
 
 ## Escopo (intenção)
@@ -52,6 +52,31 @@ Spec: [`superpowers/specs/2026-11-14-module-35-zoonoses-endemics-design.md`](../
 
 **Gates de go-live:** diretriz vigente conferida com a vigilância ambiental de uma cidade piloto; formato da planilha estadual da campanha antirrábica da UF piloto; ficha 8 do agente de endemias aceita no PEC real.
 
+## Entrega do 35a (2026-11-23)
+
+Contrato entre apps: [`superpowers/plans/2026-11-16-module-35a-vector-control-contracts.md`](../superpowers/plans/2026-11-16-module-35a-vector-control-contracts.md) (§1–§19, decisões Q1–Q63; Q41 retirada). Planos por repo no mesmo diretório (`-contracts-repo`, `-api`, `-dashboard`, `-maintenance`, `-campo`). Execução na sessão "Módulo 35a", uma tarefa por subagente.
+
+| Repo | Commit | Observação |
+|---|---|---|
+| `contracts` | `c022e80`, `6ce25c2` | tag `field-sync-v1.3.0` (entidades de controle vetorial, contracts#2 em parte); `6ce25c2` só acrescenta a linha da Q33 no README |
+| `api` | `ab32775c`, `85dc80ee` | migrações de cidade `20261116900001`–`3` (irreversíveis); suíte completa 12731/0 em `ead7f5a5`; correções pós-merge Q31–Q40 e o revert da Q41 em `85dc80ee`, suíte 12781/1 (falha conhecida de outro módulo, api#180, aceita pelo usuário) |
+| `dashboard` | `2e3a2a9` | 47 commits; 592 arquivos / 7458 testes |
+| `maintenance` | `482e53b` | interruptor de vigilância ambiental por cidade; 697 testes |
+| `campo` | `dbc54b3` | 37 commits sobre `ef51ad5`; 1457 testes em 96 suítes; Maestro 15/15 mais os 11 do 24c |
+| `docs` | contrato Q1–Q63 | |
+
+**Prova no navegador (2026-11-19, só desenvolvimento):** dashboard e maintenance contra o api de dev de Curitiba, com os consertos achados na prova (diálogo com Esc e foco, mapa centrado na área; `2e3a2a9`). A coleta da ovitrampa, que só abria em 21/11, foi provada depois, pelo app e pela contagem no dashboard.
+
+**Prova no emulador (2026-11-23, só desenvolvimento):** a ordem da Q6(4) (interruptor desligado, pareamento do app do 35a, interruptor religado e `reset: true`), a folha do agente igual à do api, e os casos sem sinal: boletim com amostra, LIRAa num levantamento fictício do dev (Q60), consumo com falta de estoque, coleta e reinstalação de ovitrampa com contagem no dashboard, instalação, ponto estratégico cadastrado sem sinal (Q59) e fila guardada com o interruptor desligado. Achado da prova corrigido antes do merge: o imóvel do LIRAa voltava à folha até a rodada seguinte (Q61, `e8bb483`, coberto por spec). A revisão final da branch do campo trouxe a Q62 (`dbc54b3`).
+
+**Board #1:** F-35.1 e F-35.3..10 `Verified`; F-35.2 `Done` até a ficha 8 do agente de endemias ser aceita no PEC real.
+
+**Decisões tomadas na execução** (contrato): LIRAa pelo manual de 2013, com o modo de meia amostra (Q16, Q17, decisão do usuário); estoque de endemias sem a farmácia (Q21); concorrência otimista em parâmetros, cadências, correções e levantamento (Q34–Q37); recomeço sem cursor como reset parcial (Q42); visita de imóvel sem morador pelo detalhe (Q59); horizonte do download no app (Q61); boletim à espera de etiquetas conta como na fila (Q62).
+
+**Pendências (board #2):** api#178 (desempenho do 35a em cidade grande: LIRAa, bloqueios e mapa; Média, antes do go-live), api#179 (achar imóveis com quarteirão de outro bairro; Baixa), campo#13 (o reset do servidor apaga "Minhas visitas de hoje" e, com a Q63, solta o domicílio nascido no tablet; Baixa, do 24c). Mais api#180 (falso alarme no spec de sigilo da urgência, achado na suíte do 35a) e o comentário no contracts#2 (exemplos adiados para a próxima versão do `field-sync`).
+
+**Gates de go-live:** diretriz vigente conferida com a vigilância ambiental de uma cidade piloto; ficha 8 do agente de endemias aceita no PEC real; todos os tablets da cidade no app do 35a antes de ligar a vigilância ambiental (Q6); os gates do app de campo do 24c.
+
 ## Integrações externas
 
 Nenhuma automática nesta versão: o Rota Saúde é o sistema municipal. Sinan por digitação (como no 25); Conta Ovos, LIRAa estadual e sistemas estaduais ficam para depois. Detalhe em [`pesquisa/2026-11-14-zoonoses-e-endemias-35.md`](../pesquisa/2026-11-14-zoonoses-e-endemias-35.md).
@@ -67,3 +92,4 @@ Módulos 11, 24 (24a, 24b; 24c para a parte do app), 25, 27a e 33.
 - 2026-11-14 — Desenho aprovado e `Planejado` (ADR 0054, spec
   `superpowers/specs/2026-11-14-module-35-zoonoses-endemics-design.md`;
   decisões do usuário 1–7, com o B do cadastro).
+- 2026-11-23 — 35a implementado, provado e publicado nos cinco repos (ver "Entrega do 35a"); módulo `Em andamento` até o 35b.

@@ -66,7 +66,7 @@
 | 32 | [Urgência (UPA)](32--urgencia.md) | Fechado | Ciclo 2 | [0050](../adr/0050.md), [0030](../adr/0030.md) |
 | 33 | [Ouvidoria](33--ouvidoria.md) | Entregue | Ciclo 2 | [0051](../adr/0051.md) |
 | 34 | [Telessaúde](34--telessaude.md) | Stub | Ciclo 2 | [0041](../adr/0041.md) |
-| 35 | [Zoonoses e endemias](35--zoonoses-e-endemias.md) | Planejado (35a e 35b) | Ciclo 2 | [0054](../adr/0054.md) |
+| 35 | [Zoonoses e endemias](35--zoonoses-e-endemias.md) | 35a Entregue · 35b Planejado | Ciclo 2 | [0054](../adr/0054.md) |
 
 ## Mapa módulo × superfície (MVP)
 
