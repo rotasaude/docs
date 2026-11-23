@@ -15,6 +15,8 @@ Encaminhamento ao especialista, fila regulada, classificação de risco, cotas (
 | 26b — APAC e OCI | Laudo e faixa de números da APAC, OCI (PMAE), financiamento MAC/FAEC, teto em dinheiro | Depois do 26a |
 | 26c — MIRA | Envio diário à RNDS no padrão de regulação | Com credencial |
 
+Pesquisa do 26c (2026-11-23): [`pesquisa/2026-11-23-mira-regulacao-rnds-26c.md`](../pesquisa/2026-11-23-mira-regulacao-rnds-26c.md). O padrão é o RIRA da RNDS, e a obrigação vem da Portaria GM/MS 6.656/2025. O texto cobre o credenciamento e os achados que mudam o desenho.
+
 ## ADRs governantes
 
 | ADR | Papel no módulo |
