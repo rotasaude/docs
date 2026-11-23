@@ -77,6 +77,8 @@ Contrato entre apps: [`superpowers/plans/2026-11-16-module-35a-vector-control-co
 
 **Gates de go-live:** diretriz vigente conferida com a vigilância ambiental de uma cidade piloto; ficha 8 do agente de endemias aceita no PEC real; todos os tablets da cidade no app do 35a antes de ligar a vigilância ambiental (Q6); os gates do app de campo do 24c.
 
+Página de status: https://claude.ai/artifact/UBwAiqrD2NzsCiH7ny2epx
+
 ## Integrações externas
 
 Nenhuma automática nesta versão: o Rota Saúde é o sistema municipal. Sinan por digitação (como no 25); Conta Ovos, LIRAa estadual e sistemas estaduais ficam para depois. Detalhe em [`pesquisa/2026-11-14-zoonoses-e-endemias-35.md`](../pesquisa/2026-11-14-zoonoses-e-endemias-35.md).
