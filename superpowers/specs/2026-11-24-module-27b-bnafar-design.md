@@ -69,7 +69,7 @@ A cidade que usa a farmácia do Rota Saúde cumpre a BNAFAR sem trabalho manual.
 | 3 | Paciente do histórico fora do cadastro é criado pela busca de CPF/CNS (o caminho da farmácia do 27a), e o que não casa vai a um relatório de pendências. Vale para a entrega do histórico. | usuário |
 | 4 | **Envio em lote diário** (abordagem A): um job por cidade monta as remessas de D-1 a partir do razão do estoque, guarda o que foi enviado e acompanha o protocolo. A abordagem B, com saída na hora e posição diária, ficou de fora: são dois mecanismos e a retificação fica mais difícil. | usuário |
 | 5 | **Importação por arquivo com área de conferência** (abordagem A), com dois leitores: a planilha padrão do Rota Saúde agora e a base oficial do Ministério depois. A abordagem B, de busca direta numa API do Ministério, ficou de fora porque essa API não existe hoje. | usuário |
-| 6 | A importação é feita pela equipe da plataforma, no maintenance, uma vez por cidade, e a secretaria confere o resultado no dashboard. | coordenador |
+| 6 | ~~A importação é feita pela equipe da plataforma, no maintenance.~~ **Revista em 2026-11-24 (Q11 do contrato):** a importação é feita pela própria cidade, no dashboard, pelo `municipal_admin` ou pelo `stock_keeper` do central, com a mesma área de conferência e aplicação com step-up. O maintenance não existe em produção. | coordenador |
 | 7 | O REDFM fica fora, em card. | coordenador |
 | 8 | **O envio cobre tudo o que tem estoque:** medicamentos (27a), vacinas e rede de frio (29) e produtos de endemias e zoonoses (35a e 35b). O mecanismo e as migrações já servem a todos. Cada tipo é ligado à parte, no maintenance, pelos interruptores da cidade. A ordem prevista é: medicamentos; depois os produtos de endemias e zoonoses; por último as vacinas, quando a homologação confirmar o código e os tipos de saída. | usuário (escopo e interruptores no maintenance); coordenador (ordem) |
 | 9 | **Os códigos de produto da BNAFAR:**<br>- o VMP fica no catálogo da plataforma;<br>- o AMPP, que é a apresentação comercial de um fabricante e se confere contra o registro ANVISA, vai em cada entrada de lote, escolhido entre as opções do VMP;<br>- vacinas ganham o código OBM no catálogo de imunobiológicos;<br>- produtos de endemias e zoonoses ganham CATMAT. | coordenador |
@@ -167,6 +167,8 @@ Dispensação não entra. A dispensação a paciente sem identificação (S-PA) 
 - **Homologação:** segue a decisão 13. A cidade de staging usa a massa de dados do Ministério para CNES e produtos. Cada chamada fica registrada em cURL, sem token nem senha, para a evidência da credencial de produção (achado 14).
 
 ### 4.5 Saldo inicial pela planilha
+
+> Com a Q11 do contrato, tudo o que esta seção diz do maintenance vale no dashboard, feito pela cidade.
 
 - **Planilha padrão:** o Rota Saúde publica uma planilha (CSV) com as colunas do inventário de abertura: local (CNES), produto (CATMAT e AMPP), lote, validade, quantidade, valor unitário, CNPJ do fabricante, registro ANVISA, programa.
   - A cidade preenche com o relatório final de posição do Hórus ou com o inventário físico.
