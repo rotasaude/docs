@@ -15,6 +15,8 @@ Encaminhamento ao especialista, fila regulada, classificação de risco, cotas (
 | 26b — APAC e OCI | Laudo e faixa de números da APAC, OCI (PMAE), financiamento MAC/FAEC, teto em dinheiro | Depois do 26a |
 | 26c — MIRA | Envio diário à RNDS no padrão de regulação | Com credencial |
 
+Pesquisa do 26b (2026-11-24): [`pesquisa/2026-11-24-apac-oci-teto-mac-26b.md`](../pesquisa/2026-11-24-apac-oci-teto-mac-26b.md). Cobre a numeração e o laudo da APAC, a OCI como APAC do grupo 09 paga pelo FAEC com envio mensal da fila nominal, o teto em dinheiro por prestador como espelho da FPO e o laudo de AIH das eletivas. Antes de qualquer código, faltam o layout do arquivo APAC, o dígito verificador e a SIGTAP completa.
+
 Pesquisa do 26c (2026-11-23): [`pesquisa/2026-11-23-mira-regulacao-rnds-26c.md`](../pesquisa/2026-11-23-mira-regulacao-rnds-26c.md). O padrão é o RIRA da RNDS, e a obrigação vem da Portaria GM/MS 6.656/2025. O texto cobre o credenciamento e os achados que mudam o desenho.
 
 ## ADRs governantes
