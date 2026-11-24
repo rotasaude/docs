@@ -14,7 +14,7 @@
 - `expected_version` → 409 `<entidade>_changed`;
 - laudo, CID e justificativa só no corpo: nunca em log, URL, evento ou lista.
 
-**Bases:** origin/main no dia da Task 0. O 26b é executado depois do 26c.
+**Bases:** origin/main no dia da Task 0. O 26b é executado depois dos insumos do 27, que vêm depois do 26c (ordem do usuário: 27b → 26c → insumos → 26b).
 
 **Valores fixos:**
 
