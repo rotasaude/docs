@@ -68,6 +68,13 @@ A farmácia da unidade entrega tiras, lancetas, seringas e bolsas de estomia a q
 | 9 | **Comodato** (`device_loans`): aparelho (glicosímetro, leitor), número de série, paciente, termo aceito, data de entrega e de devolução, e troca contra o aparelho com defeito. O aparelho não é item de estoque. A tira compatível fica ligada ao modelo do aparelho, como informação para a farmácia. | coordenador |
 | 10 | **Estomia no faturamento:** o item de bolsa tem o código SIGTAP da OPM. A entrega gera um procedimento realizado no 22, com CNS, CID e CBO, no BPA-I da competência. O teto mensal do SIGTAP (`qt_maxima`) é conferido. | coordenador |
 | 11 | **Papéis:** o farmacêutico e o auxiliar entregam. Só o farmacêutico aprova exceção de cota. O médico e o enfermeiro inscrevem. O `municipal_admin` configura as cotas. | coordenador |
+| 12 | **Inscrição sem consulta.** Além da consulta, o farmacêutico inscreve a partir de um laudo de fora, como a receita externa do 27a. Essa inscrição vale no máximo 3 meses e é renovada na consulta. Na entrada da cidade, os pacientes atuais são carregados por planilha (CSV), com área de conferência e aplicação com step-up, como o saldo inicial do 27b, pelo `municipal_admin` no dashboard. | usuário |
+| 13 | **Bolsa de estomia no faturamento.** A regra do 22 não gera BPA de UBS (ADR 0039). Por isso a bolsa só é entregue nas unidades que a cidade marca como ponto de atenção à pessoa estomizada (não UBS, com CNES), e o faturamento sai por essa unidade. O CBO no BPA-I é o do profissional responsável do serviço, configurado na unidade. | coordenador |
+| 14 | **Regra da cota, por perfil:** `fixed` (quantidade por período, como Campinas) ou `per_prescription` (medições ou aplicações por dia × dias do período, como São Paulo), com teto opcional. Quem prescreve pode fixar, na inscrição, uma cota acima da regra, com justificativa. A cota fica gravada na inscrição e só é recalculada na renovação. O período é contado da última retirada (padrão de 30 dias), sem acumular o que não foi retirado. | coordenador |
+| 15 | **Exceção de cota na hora:** o farmacêutico confirma no balcão, com a própria sessão ou com step-up se quem atende é o auxiliar. Não há fila de pedidos. | coordenador |
+| 16 | **Unidade de retirada** é só a preferida: o paciente retira em qualquer unidade, e a cota é somada entre elas. | coordenador |
+| 17 | **Devolução:** tira, lanceta e seringa podem ser devolvidas, e a quantidade volta à cota. A bolsa de estomia não é devolvida depois de entregue. | coordenador |
+| 18 | **A inscrição é registro estruturado** ligado à consulta, sem assinatura digital, como o plano odontológico. A farmácia só a vê depois da consulta finalizada. | coordenador |
 
 ## 3. Desenho
 
@@ -85,6 +92,8 @@ A farmácia da unidade entrega tiras, lancetas, seringas e bolsas de estomia a q
 - **Seção "Programas de insumos" na consulta (19):** inscrever, renovar e encerrar.
   - Diabetes: CID E10 a E14 ou O24, com a lista da cidade; tipo de insulina (NPH, regular, análogo, sem insulina); número de aplicações por dia; medições por dia prescritas.
   - Estomia: CID e tipo de estoma.
+- **Inscrição pela farmácia:** a partir de um laudo de fora (decisão 12), com profissional, conselho e data.
+- **Carga inicial:** os pacientes atuais entram por planilha, na entrada da cidade (decisão 12).
 - **Cálculo da cota:** a inscrição calcula a cota pelo perfil e pelas regras da cidade, e mostra a cota ao profissional.
 - **Prontuário:** a inscrição aparece no histórico e na linha do tempo do paciente (20).
 
