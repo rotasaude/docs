@@ -113,7 +113,8 @@ ou integrado ao e-SUS PEC). Contexto externo em
   24c → 35 → 34. O 24 e o 34 foram divididos em núcleo e ferramenta (ADR 0041); o
   app de campo (24c), zoonoses (35, que precisa dele) e telessaúde (34) ficam por
   último. Ordem original: 15 → … → 24 → 25 → 26. Os
-  módulos 15 e 17 não dependem de integração externa. Do 16 em diante, nada vira
+  módulos 15 e 17 não dependem de integração externa.
+  **Revista em 2026-11-24 (decisão do usuário):** depois do 35, vêm as partes restantes do 26 (26b, 26c) e do 27 (insumos, 27b com a importação do Hórus). O 34 fica para o final. Do 16 em diante, nada vira
   spec antes das decisões de credencial e do uso do PEC em cada cidade.
 - **Lacunas dos editais (27–35):** entraram com a decisão de suíte completa,
   numeradas pela frequência nos 15 editais analisados; a ordem entre elas e o
