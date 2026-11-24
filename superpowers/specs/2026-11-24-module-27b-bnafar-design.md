@@ -71,7 +71,7 @@ A cidade que usa a farmácia do Rota Saúde cumpre a BNAFAR sem trabalho manual.
 | 5 | **Importação por arquivo com área de conferência** (abordagem A), com dois leitores: a planilha padrão do Rota Saúde agora e a base oficial do Ministério depois. A abordagem B, de busca direta numa API do Ministério, ficou de fora porque essa API não existe hoje. | usuário |
 | 6 | A importação é feita pela equipe da plataforma, no maintenance, uma vez por cidade, e a secretaria confere o resultado no dashboard. | coordenador |
 | 7 | O REDFM fica fora, em card. | coordenador |
-| 8 | **O envio cobre tudo o que tem estoque:** medicamentos (27a), vacinas e rede de frio (29) e produtos de endemias e zoonoses (35a e 35b). | usuário |
+| 8 | **O envio cobre tudo o que tem estoque:** medicamentos (27a), vacinas e rede de frio (29) e produtos de endemias e zoonoses (35a e 35b). O mecanismo e as migrações já servem a todos. Cada tipo é ligado à parte, no maintenance, pelos interruptores da cidade. A ordem prevista é: medicamentos; depois os produtos de endemias e zoonoses; por último as vacinas, quando a homologação confirmar o código e os tipos de saída. | usuário (escopo e interruptores no maintenance); coordenador (ordem) |
 | 9 | **Os códigos de produto da BNAFAR:**<br>- o VMP fica no catálogo da plataforma;<br>- o AMPP, que é a apresentação comercial de um fabricante e se confere contra o registro ANVISA, vai em cada entrada de lote, escolhido entre as opções do VMP;<br>- vacinas ganham o código OBM no catálogo de imunobiológicos;<br>- produtos de endemias e zoonoses ganham CATMAT. | coordenador |
 | 10 | **Correções e recusas:**<br>- a posição de estoque é uma fotografia por dia, e corrigir um lote vale para as próximas, sem PUT das passadas;<br>- o PUT, dentro de 30 dias, vale só para a saída externa, quando o destino ou o motivo forem corrigidos;<br>- o registro recusado é corrigido e reenviado no mesmo dia (o alerta existe para isso);<br>- passada a janela, fica como perdido, com o motivo, e entra no relatório. | coordenador |
 | 11 | **Tipo de produto (DM13)** derivado do programa de saúde (DM14) por uma tabela de regras no código, sem campo digitado. | coordenador |
@@ -143,7 +143,12 @@ Dispensação não entra. A dispensação a paciente sem identificação (S-PA) 
 
 ### 4.4 Envio diário
 
-- **Interruptor:** `bnafar` por cidade, no maintenance. Exige `credential:bnafar` e pelo menos um domínio de estoque utilizável: `pharmacy`, `vaccination`, `vector_control` ou `zoonoses`.
+- **Interruptores** por cidade, no maintenance, no mesmo mecanismo do `Platform::Features`: cada um tem pré-requisito, auditoria e a frase de pré-requisito faltando.
+  - `bnafar`: liga o envio. Exige `credential:bnafar`.
+  - `bnafar_medications`: medicamentos. Exige `feature:bnafar` e `feature:pharmacy`.
+  - `bnafar_vector_supplies`: produtos de endemias e zoonoses. Exige `feature:bnafar` e o domínio vetorial utilizável (`vector_control` ou `zoonoses`).
+  - `bnafar_vaccines`: vacinas e rede de frio. Exige `feature:bnafar` e `feature:vaccination`.
+  - O job só monta registros dos tipos ligados. Item de tipo desligado aparece nas pendências como "tipo não ligado ao envio". Ligar um tipo vale a partir do dia seguinte, porque a BNAFAR não aceita data retroativa.
 - **Credencial:**
   - `IntegrationCredential` ganha o `kind` `bnafar`, com usuário e senha do Portal de Serviços, cifrados, e o ambiente (decisão 13). É migração de cidade.
   - Quem grava é o `municipal_admin`, no dashboard, com step-up (decisão 12).
