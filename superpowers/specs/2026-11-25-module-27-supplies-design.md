@@ -1,7 +1,7 @@
 # Módulo 27 — Insumos (catálogo de materiais, diabetes e estomia) — design
 
 **Data:** 2026-11-25
-**Status:** rascunho para aprovação do usuário
+**Status:** aprovado pelo usuário (2026-11-25)
 
 **Afeta:**
 - **`apps/api`, plataforma:** catálogo de materiais CATMAT (classes 6515 e 6550).

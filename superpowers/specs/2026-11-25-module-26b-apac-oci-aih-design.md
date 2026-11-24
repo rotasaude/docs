@@ -1,7 +1,7 @@
 # Módulo 26b — APAC, OCI, teto em dinheiro e AIH das eletivas — design
 
 **Data:** 2026-11-25
-**Status:** rascunho para aprovação do usuário
+**Status:** aprovado pelo usuário (2026-11-25)
 
 **Afeta:**
 - **`apps/api`, cidade:**
