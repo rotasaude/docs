@@ -1,7 +1,7 @@
 # Módulo 27b — Envio à BNAFAR e saldo inicial vindo do Hórus — design
 
 **Data:** 2026-11-24
-**Status:** rascunho para aprovação do usuário
+**Status:** aprovado pelo usuário (2026-11-24)
 
 **Afeta:**
 - `apps/api`, migração de cidade:
