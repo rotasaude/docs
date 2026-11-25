@@ -1,6 +1,6 @@
 # Módulo 35 — Zoonoses e endemias
 
-- **Estado:** `Em andamento` (35a `Entregue` em 2026-11-23; 35b `Planejado`). ADR 0054: 35a (campo de endemias) primeiro, 35b (centro de zoonoses) depois
+- **Estado:** `Entregue` (35a em 2026-11-23; 35b em 2026-11-25). ADR 0054: 35a (campo de endemias) primeiro, 35b (centro de zoonoses) depois
 - **Tipo:** Ciclo 2
 
 ## Escopo (intenção)
@@ -79,6 +79,40 @@ Contrato entre apps: [`superpowers/plans/2026-11-16-module-35a-vector-control-co
 
 Página de status: https://claude.ai/artifact/UBwAiqrD2NzsCiH7ny2epx
 
+## Entrega do 35b (2026-11-25)
+
+Contrato entre apps: [`superpowers/plans/2026-11-23-module-35b-zoonoses-contracts.md`](../superpowers/plans/2026-11-23-module-35b-zoonoses-contracts.md) (§1–§19, decisões Q1–Q43). Planos por repo no mesmo diretório (`-contracts-repo`, `-api`, `-dashboard`, `-wpda`, `-maintenance`, `-campo`). Execução na sessão "MVP Modulo 35b", uma tarefa por subagente.
+
+| Repo | Commit | Observação |
+|---|---|---|
+| `contracts` | `a199ff0` | tag `field-sync-v1.4.0` (objeto `062bc57`): animal, vacinação e inquérito de leishmaniose no app; 267 exemplos |
+| `api` | `42349541`, `ef0effb1`, `ca2a92f0` | 57 commits sobre `85dc80ee`; migrações de cidade a partir de `20261123900001` (irreversíveis); suíte completa 13262/1 em `a58b9e24`, e a falha (lista de alvos do `reencryption_job_spec`) foi corrigida só no spec em `fe8b4acd`; Q41 e Q43 depois, com os specs do escopo |
+| `dashboard` | `51b1871` | 41 commits; 609 arquivos / 7750 testes; barra superior cabendo em 375 px (decisão do usuário) |
+| `wpda` | `05a450f` | 8 commits: demanda de zoonoses na ouvidoria e a correção do anexo do 33 |
+| `maintenance` | `14406bd` | 4 commits: interruptor de zoonoses por cidade, cabeçalho a 375 px e rótulos de todos os papéis |
+| `campo` | `9b2a583` | 19 commits sobre `dbc54b3`; 1751 testes em 105 suítes; Maestro 19/19; CI verde |
+| `docs` | contrato Q1–Q43 | |
+
+**Prova no navegador (2026-11-24, só desenvolvimento):** dashboard, wpda e maintenance contra o api da branch (`api-mod35b`, porta 3061), com o banco de dev migrado e semeado por autorização do usuário. No wpda, a denúncia anônima e a solicitação identificada chegaram como demanda de zoonoses, e a lista do cidadão não mostra o encaminhamento nem o endereço (Q13). No maintenance, o interruptor muda o `public_config` do wpda.
+
+**Prova no emulador (2026-11-24, só desenvolvimento):** a ordem da Q24 (zoonoses desligado, pareamento, religado e `reset: true`), e os casos sem sinal:
+- tutor novo no mesmo lote (Q29);
+- vacina, com a recusa `already_vaccinated_in_campaign` para o animal já vacinado na campanha;
+- coleta de leishmaniose com a etiqueta;
+- coleira com falta de estoque registrada;
+- coleiras a trocar;
+- fila guardada com o interruptor desligado.
+
+A revisão final do campo corrigiu o tutor recusado no mesmo lote, o "Reenviar" que sobrescreveria a estação e a leitura de "Coleiras a trocar".
+
+**Board #1:** F-35.11..18 `Verified`.
+
+**Decisões tomadas na execução** (contrato): `zoonoses_team` em PROFILE_ROLES e LINK_ROLES (Q30); transições do animal, com eutanásia e saída por óbito só de `active` ou `missing` (Q31); prevalência da leishmaniose por cão (Q36); etiqueta LV com 4 a 6 dígitos (Q36); tutor entre lotes (Q37); peças do 35a abertas por `supplies_usable?` (Q39); unidades e animal nas estadas (Q41); unidades de vacinação em `/zoonoses/domains` (Q43).
+
+**Pendências (board #2):** dashboard#31 (a tela Animais busca só pelo CPF ou CNS do tutor ou de um morador, e o animal de domicílio sem morador documentado não é achado; Média, antes do go-live).
+
+**Gates de go-live:** diretriz vigente conferida com a vigilância ambiental de uma cidade piloto; formato da planilha estadual da campanha antirrábica da UF piloto; todos os tablets da cidade no app do 35b antes de ligar as zoonoses (Q24); os gates do 35a e do app de campo do 24c.
+
 ## Integrações externas
 
 Nenhuma automática nesta versão: o Rota Saúde é o sistema municipal. Sinan por digitação (como no 25); Conta Ovos, LIRAa estadual e sistemas estaduais ficam para depois. Detalhe em [`pesquisa/2026-11-14-zoonoses-e-endemias-35.md`](../pesquisa/2026-11-14-zoonoses-e-endemias-35.md).
@@ -95,3 +129,4 @@ Módulos 11, 24 (24a, 24b; 24c para a parte do app), 25, 27a e 33.
   `superpowers/specs/2026-11-14-module-35-zoonoses-endemics-design.md`;
   decisões do usuário 1–7, com o B do cadastro).
 - 2026-11-23 — 35a implementado, provado e publicado nos cinco repos (ver "Entrega do 35a"); módulo `Em andamento` até o 35b.
+- 2026-11-25 — 35b implementado, provado e publicado nos seis repos (ver "Entrega do 35b"); módulo `Entregue`.
