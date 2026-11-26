@@ -100,6 +100,8 @@ Envio diário à BNAFAR (Portaria 5.713/2024: posição de estoque e saídas em 
 
 **Gates de go-live:** homologação real no SI-BNAFAR com os 6 gates do relato (api#181); YAML de vacinas antes de ligar o envio de imunobiológicos (api#182); central sem CNES próprio conferido com a cidade piloto (api#184); maintenance em produção (Q18, pendência da plataforma), e em produção a carga OBM é pela rake `medications:import_obm`; teto de corpo no proxy (api#185). Runbook de staging no relato final: o maintenance troca o ambiente antes de a cidade gravar a credencial; trocar de ambiente só com a fila vazia; o simulado nunca fora da rede interna.
 
+Página de status: https://claude.ai/artifact/Fo8WF54XKaMUcW3sHDNyA9
+
 **Importação do histórico do Hórus:** fora do 27b. O formato da base histórica ainda não foi publicado pelo Ministério (pesquisa de 2026-11-24); o saldo inicial por planilha cobre a entrada da cidade.
 
 ## Integrações externas
