@@ -1,6 +1,6 @@
 # Módulo 26 — Regulação de média e alta complexidade
 
-- **Estado:** 26a Entregue (2026-10-29; F-26.1–F-26.7 `Verified`); 26b e 26c depois
+- **Estado:** 26a Entregue (2026-10-29; F-26.1–F-26.7 `Verified`); 26c Em andamento (desde 2026-11-26; F-26.8–F-26.12 `In Progress`); 26b depois
 - **Tipo:** Ciclo 2
 
 ## Escopo (intenção)
@@ -38,6 +38,18 @@ Pesquisa do 26c (2026-11-23): [`pesquisa/2026-11-23-mira-regulacao-rnds-26c.md`]
 | F-26.5 | Agendamento e desfecho (realizado, falta) | api, dashboard | 0044, 0029 |
 | F-26.6 | Convivência com o sistema do estado | api, dashboard | 0044 |
 | F-26.7 | Situação do pedido no wpda | api, wpda | 0044, 0017 |
+
+## Funcionalidades do 26c
+
+| ID | Funcionalidade | Superfície | ADRs |
+|---|---|---|---|
+| F-26.8 | Interruptor e credencial `rnds_regulation` | api, dashboard, maintenance | 0044, 0047 |
+| F-26.9 | Estado por pedido e documento RIRA conferido | api | 0044, 0047 |
+| F-26.10 | Envio contínuo, cadeia de substituição e reconciliação | api | 0044, 0047 |
+| F-26.11 | Carga inicial, alarme D-1 e telas de envio | api, dashboard | 0044, 0047 |
+| F-26.12 | Simulado e validação oficial na CI | api | 0044, 0047 |
+
+Cards criados no board #1 em 2026-11-26, em `In Progress` (spec `superpowers/specs/2026-11-25-module-26c-mira-design.md`; contrato `superpowers/plans/2026-11-25-module-26c-mira-contracts.md`). O ADR próprio do 26c sai na execução.
 
 ## Critério de fechamento (26a)
 
