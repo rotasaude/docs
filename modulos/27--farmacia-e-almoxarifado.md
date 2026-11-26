@@ -1,6 +1,6 @@
 # Módulo 27 — Farmácia e almoxarifado
 
-- **Estado:** 27a Entregue (2026-10-30; F-27.1–F-27.7 `Verified`); insumos e 27b depois
+- **Estado:** 27a Entregue (2026-10-30; F-27.1–F-27.7 `Verified`); 27b Entregue (2026-11-26; F-27.8–F-27.13 `Done`, Verified na verificação do módulo); insumos depois
 - **Tipo:** Ciclo 2
 
 ## Escopo (intenção)
@@ -42,6 +42,17 @@ Pesquisa da base do Hórus e da API do SI-BNAFAR v1.25 (2026-11-24): [`pesquisa/
 | F-27.6 | Receita externa e controlados | api, dashboard | 0045, 0034 |
 | F-27.7 | Alertas, posição e extrato | api, dashboard | 0045 |
 
+## Funcionalidades do 27b
+
+| ID | Funcionalidade | Superfície | ADRs |
+|---|---|---|---|
+| F-27.8 | Interruptores e credencial BNAFAR | api, dashboard, maintenance | 0045 |
+| F-27.9 | Dados BNAFAR do lote, do local e do produto (OBM, CATMAT, vacina) | api, dashboard, maintenance | 0045, 0047 |
+| F-27.10 | Saída externa | api, dashboard | 0045 |
+| F-27.11 | Envio diário ao SI-BNAFAR e simulado | api | 0045 |
+| F-27.12 | Situação, pendências, reenvio, correção, exclusão e alerta | api, dashboard, maintenance | 0045 |
+| F-27.13 | Saldo inicial por planilha | api, dashboard | 0045 |
+
 ## Critério de fechamento (27a)
 
 - F-27.1 a F-27.7 verificadas, com prova no navegador.
@@ -66,6 +77,31 @@ Página de status: https://claude.ai/artifact/CoH6yUQhQdPdkreoyPAFbE
 
 **Gates de go-live:** prova do SNCR simulado na dispensação de controlado (api#103, complementa o api#63); perfil profissional para toda a equipe da farmácia (api#104); medir itens CATMAT sem forma farmacêutica antes do inventário de abertura (api#105).
 
+## Entrega do 27b (2026-11-26)
+
+Envio diário à BNAFAR (Portaria 5.713/2024: posição de estoque e saídas em D-1) e saldo inicial por planilha, para a cidade que deixa o Hórus. Spec [`superpowers/specs/2026-11-24-module-27b-bnafar-design.md`](../superpowers/specs/2026-11-24-module-27b-bnafar-design.md); contrato entre apps com as decisões Q1–Q48 em [`superpowers/plans/2026-11-24-module-27b-bnafar-contracts.md`](../superpowers/plans/2026-11-24-module-27b-bnafar-contracts.md); relato final em `evidencias/2026-11-26-mod27b-relato-final.md`.
+
+| Repo | Intervalo | Commits | Suíte final |
+|---|---|---|---|
+| `api` | `ca2a92f0..e3e83842` | 46 | completa 13861/0 em `e3e83842` |
+| `dashboard` | `51b1871..3b1f573` | 27 | 7959/0; tsc e build ok |
+| `maintenance` | `14406bd..18e1c31` | 7 | 769/0; tsc, codegen e build ok |
+
+**Migrações** (irreversíveis): cidade `20261125900001`–`20261125900004` (dados BNAFAR do lote, saída externa, remessas, importação do saldo inicial); plataforma `20261125600001` (apresentações OBM).
+
+**Prova no navegador (2026-11-26),** contra o simulado `fake-bnafar` (serviço de dev na 8095):
+- **Dashboard:** credencial com step-up e teste de conexão; CNES dos centrais; saldo inicial (modelo, `.xlsx` recusado, relatório, aplicar e desfazer); entrada com os campos de envio (AMPP, item sem VMP, fabricante internacional); complemento pela tela de pendências; saídas externas, inclusive da rede de frio com o envio desligado; remessa aceita e correção aceita.
+- **Maintenance:** interruptores sem cascata e aviso do simulado; troca para homologação sem código e volta a produção com TOTP; carga OBM com as linhas recusadas (Q47) e lista de revisão; auditoria só com ids e contagens; 375 px.
+- **Ressalvas:** a recusa de registro, o "Reenviar recusados" e o "ligar sem credencial" ficaram cobertos só por spec (api#187).
+
+**Decisões de contrato na execução:** Q21 (CNPJ e VMP da vacina pelo YAML), Q22/Q23/Q40/Q41 (dado de origem só com o estoque; situação com o envio ligado; campos exigidos pelo interruptor), Q24 (desfazer do saldo inicial), Q25/Q42 (30 dias pelo envio; fim do reenvio no menor entre o fuso da cidade e o de Brasília), Q27 (resumo mensal de vacinas com saídas externas e aberturas desfeitas), Q28/Q29 (lote bloqueado ou vencido na saída externa), Q30/Q31/Q34 (purga em 30 dias; parte em processamento não se perde e mantém o alerta), Q32/Q33 (leitores e pendências paginadas), Q36–Q38/Q48 (códigos da planilha e fabricante internacional), Q39 (volta a produção com TOTP fora de produção), Q43–Q47 (campos para as telas e detalhe da recusa OBM).
+
+**Pendências (board #2):** api#181 (homologação real; Alta), api#182 (YAML de imunobiológicos com CNPJ e VMP; Alta), api#183 (62 siglas do DM14 inferidas; Média), api#184 (central sem CNES próprio; Média), api#185 (teto de 7 MB antes do parse; Média), api#186 (importação parcialmente aplicada; Média), api#187 (provar "Reenviar recusados" pela tela; Baixa), api#188, api#189, api#190 e dashboard#32 (Baixa).
+
+**Gates de go-live:** homologação real no SI-BNAFAR com os 6 gates do relato (api#181); YAML de vacinas antes de ligar o envio de imunobiológicos (api#182); central sem CNES próprio conferido com a cidade piloto (api#184); maintenance em produção (Q18, pendência da plataforma), e em produção a carga OBM é pela rake `medications:import_obm`; teto de corpo no proxy (api#185). Runbook de staging no relato final: o maintenance troca o ambiente antes de a cidade gravar a credencial; trocar de ambiente só com a fila vazia; o simulado nunca fora da rede interna.
+
+**Importação do histórico do Hórus:** fora do 27b. O formato da base histórica ainda não foi publicado pelo Ministério (pesquisa de 2026-11-24); o saldo inicial por planilha cobre a entrada da cidade.
+
 ## Integrações externas
 
 BNAFAR/Hórus; e-SUS AF (lançado em abr/2026) — a confirmar se aceita gravação de terceiros. Detalhe e fontes em
@@ -82,3 +118,5 @@ Módulos 19 e 24a.
 - 2026-10-29 — Desenho do 27a aprovado e `Planejado` (ADR 0045, spec
   `superpowers/specs/2026-10-29-module-27a-pharmacy-stock-design.md`).
 - 2026-10-30 — 27a **implementado, publicado e Entregue** (ver "Entrega do 27a").
+- 2026-11-24 — Desenho do 27b aprovado e `Planejado` (spec `superpowers/specs/2026-11-24-module-27b-bnafar-design.md`).
+- 2026-11-26 — 27b **implementado, publicado e Entregue** (ver "Entrega do 27b").

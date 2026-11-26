@@ -58,7 +58,7 @@
 | 24 | [Atendimento domiciliar e coletivo](24--domiciliar-e-coletivo.md) | 24a e 24b Entregue · 24c Em andamento | Ciclo 2 | [0042](../adr/0042.md), [0041](../adr/0041.md), [0052](../adr/0052.md), [0053](../adr/0053.md) |
 | 25 | [Vigilância epidemiológica](25--vigilancia-epidemiologica.md) | Entregue | Ciclo 2 | [0043](../adr/0043.md), [0031](../adr/0031.md) |
 | 26 | [Regulação de média e alta complexidade](26--regulacao.md) | 26a Entregue | Ciclo 2 | [0044](../adr/0044.md), [0029](../adr/0029.md) |
-| 27 | [Farmácia e almoxarifado](27--farmacia-e-almoxarifado.md) | 27a Entregue | Ciclo 2 | [0045](../adr/0045.md), [0033](../adr/0033.md) |
+| 27 | [Farmácia e almoxarifado](27--farmacia-e-almoxarifado.md) | 27a e 27b Entregues | Ciclo 2 | [0045](../adr/0045.md), [0033](../adr/0033.md) |
 | 28 | [Odontologia](28--odontologia.md) | Entregue | Ciclo 2 | [0046](../adr/0046.md), [0031](../adr/0031.md) |
 | 29 | [Sala de vacina](29--sala-de-vacina.md) | Entregue | Ciclo 2 | [0047](../adr/0047.md), [0045](../adr/0045.md) |
 | 30 | [Transporte sanitário e TFD](30--transporte-e-tfd.md) | Entregue | Ciclo 2 | [0048](../adr/0048.md), [0044](../adr/0044.md) |
