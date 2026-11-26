@@ -89,7 +89,7 @@ A cidade que regula no Rota Saúde cumpre o envio da regulação à RNDS sem tra
 
 ### 3.2 O documento
 
-- **Bundle RIRA `document`**, com Composition `BRRegulacaoAssistencial`, Appointment, ServiceRequest e Condition. As URLs canônicas são as do guia oficial (`br.gov.saude.rira.fhir#1.0.0-release`), confirmadas.
+- **Bundle RIRA `document`**, com Composition `BRRegulacaoAssistencial`, Appointment, ServiceRequest e Condition. As URLs canônicas são as do guia oficial (`br.gov.saude.rira.fhir#1.0.0`), confirmadas.
 - **Paciente:** entra por identifier (CPF ou CNS).
 - **Estabelecimentos:** entram por CNES. A unidade solicitante é sempre informada. O executante é o prestador da oferta, ou a unidade própria.
 - **Appointment:** vai sempre. No `pending`, vai como `proposed`.

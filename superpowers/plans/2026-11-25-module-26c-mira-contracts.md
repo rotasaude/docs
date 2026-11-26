@@ -3,7 +3,8 @@
 **Fonte única** do que o api, o dashboard e o maintenance combinam no 26c. As linhas do §10 prevalecem sobre o texto das seções anteriores. Os planos de cada repositório (`-api.md`, `-dashboard.md`, `-maintenance.md`) seguem este documento. Uma divergência vai para a seção "Divergências propostas ao contrato" do plano, e a decisão volta aqui como Q-n.
 
 - **Spec:** `docs/superpowers/specs/2026-11-25-module-26c-mira-design.md` (aprovada em 2026-11-25; decisões 1–18).
-- **Pesquisa:** `docs/pesquisa/2026-11-23-mira-regulacao-rnds-26c.md` (IG RIRA `br.gov.saude.rira.fhir#1.0.0-release`; achados 1–15).
+- **Pesquisa:** `docs/pesquisa/2026-11-23-mira-regulacao-rnds-26c.md` (IG RIRA `br.gov.saude.rira.fhir#1.0.0`; achados 1–15).
+- **Pacote RIRA (conferido na Task 1, api 4ec88cda):** o `package.json` traz `version: "1.0.0"`. O IG foi refeito em 2026-11-25, e o SHA-256 do `package.tgz` passou a `2f63d06588cce209e6c26f5ab7caae93ef09fc617efb54f1eb97d2e5d450c860`. As cardinalidades citadas nos planos continuam valendo. O fixture versionado no api guarda o nome `br.gov.saude.rira.fhir-1.0.0-release.tgz`, e o job `rira-validate` carrega o pacote por ele.
 - **Base:** 26a (ADR 0044) e RNDS do 29 (ADR 0047). Nada deles muda, salvo o que este documento diz.
 
 **Convenções herdadas:**
@@ -195,7 +196,7 @@ Todas exigem `Regulation::RndsGate.usable?`, exceto a credencial e as configura�
   - aceita o Bundle RIRA;
   - simula substituição repetida (EDS-MSG009, 422), `DELETE` (204 ou EHR-ERR825) e `GET /identifier`;
   - o marcador de falha fica no `Bundle.identifier.value` (`RECUSA`, `TIMEOUT`, `DUPLICADO`).
-- **CI:** um job novo `rira-validate` em `.github/workflows/ci.yml`, com `setup-java` e o validador oficial do HL7 (`validator_cli.jar`, com versão fixa e cache), mais o pacote `br.gov.saude.rira.fhir#1.0.0-release`.
+- **CI:** um job novo `rira-validate` em `.github/workflows/ci.yml`, com `setup-java` e o validador oficial do HL7 (`validator_cli.jar`, com versão fixa e cache), mais o pacote `br.gov.saude.rira.fhir#1.0.0`.
   - Ele valida os documentos de exemplo gerados por `bin/rails regulation:rira_examples` (um por situação, mais urgente e eletivo, mais rede própria e externa).
   - Falha a CI se houver erro.
 - **Specs do api:**
