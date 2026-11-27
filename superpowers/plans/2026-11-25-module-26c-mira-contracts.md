@@ -47,7 +47,7 @@ A suíte completa do api é obrigatória.
 - O `rnds_mock` passa a exigir `rnds_immunization` **ou** `rnds_regulation` (motivo `rnds_disabled`). Com ele ligado, os dois envios vão ao simulado.
 
 **Credencial** `rnds_regulation` (novo `kind`):
-- `SECRET_KEYS`: `pfx_base64`, `pfx_password`, `requester_cnes`, `requester_id` (o identificador do solicitante do DATASUS, usado no system `BRRNDS-{requester_id}`) e `responsible_cns` (15 dígitos).
+- `SECRET_KEYS`: `pfx_base64`, `pfx_password`, `requester_cnes`, `requester_id` (o identificador do solicitante do DATASUS, de 1 a 20 dígitos pela Q13, usado no system `BRRNDS-{requester_id}`) e `responsible_cns` (15 dígitos).
 - Gravada pelo `municipal_admin` em `PUT /integrations/credentials/rnds_regulation`, com step-up, no formato da `rnds` e com os dois campos a mais. O teste de conexão pede um token novo.
 - Auditoria: `Platform.audit("rnds_regulation.credential_set")`, nome novo no R18.
 
